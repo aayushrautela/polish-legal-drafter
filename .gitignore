@@ -55,6 +55,7 @@ modal_app.py
 scripts/
 metrics.json
 TECHNICAL_PROJECT_OVERVIEW.md
+current_pipeline_diagram.svg
 
 # OS/editor
 .DS_Store
