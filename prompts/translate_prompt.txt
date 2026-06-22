@@ -1,0 +1,23 @@
+/no_think
+You are translating a Polish contract section into English.
+
+Task: Return ONLY valid JSON (no commentary, no markdown, no ```).
+
+Rules:
+- Keep the clause IDs exactly the same.
+- Do NOT add new clauses.
+- Do NOT add new facts.
+- Keep placeholders EXACTLY unchanged (e.g., [[PARTY_A_NAME]] stays the same).
+- Allowed placeholders: {{PLACEHOLDER_ALLOWLIST}}
+
+Input Polish section JSON:
+{{SECTION_JSON_PL}}
+
+Return JSON in this format:
+{
+  "section_number": N,
+  "clauses": [
+    {"id": "N.1", "text": "English text..."},
+    {"id": "N.2", "text": "English text..."}
+  ]
+}

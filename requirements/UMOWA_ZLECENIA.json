@@ -1,0 +1,129 @@
+{
+  "doc_type_id": "UMOWA_ZLECENIA",
+  "version": "phase1-v1",
+  "language": "pl",
+  "generation": {
+    "per_section_max_new_tokens": 1800,
+    "translate_max_new_tokens": 900,
+    "max_retries_per_section": 1
+  },
+  "sections": {
+    "1": {
+      "mode": "deterministic_party_block",
+      "notes": "Section 1 is rendered deterministically (no model) to avoid signature/date leakage."
+    },
+    "2": {
+      "min_clauses": 8,
+      "min_words_total": 260,
+      "must_include_any": [
+        "zlecenie",
+        "zakres",
+        "świadczenie",
+        "rezultat",
+        "miejsce",
+        "termin"
+      ],
+      "topics": [
+        "Zakres zlecenia i opis czynności",
+        "Standard staranności i sposób wykonywania",
+        "Miejsce wykonywania oraz narzędzia/materiały",
+        "Raportowanie/komunikacja i odbiór czynności",
+        "Zakaz podzlecania (opcjonalnie) lub warunki podzlecania"
+      ]
+    },
+    "3": {
+      "min_clauses": 10,
+      "min_words_total": 360,
+      "must_include_any": [
+        "obowiązki",
+        "współpraca",
+        "informacje",
+        "odpowiedzialność",
+        "poufność"
+      ],
+      "topics": [
+        "Obowiązki Zleceniobiorcy (wykonanie, raportowanie, poufność)",
+        "Obowiązki Zleceniodawcy (współpraca, dostęp, odbiór)",
+        "Wymagane informacje/dokumenty",
+        "Odpowiedzialność za naruszenia i szkody",
+        "Zasady kontaktu i akceptacji czynności"
+      ]
+    },
+    "4": {
+      "min_clauses": 8,
+      "min_words_total": 260,
+      "must_include_any": [
+        "wynagrodzenie",
+        "PLN",
+        "płatność",
+        "faktura",
+        "rachunek"
+      ],
+      "topics": [
+        "Wysokość wynagrodzenia i waluta",
+        "Sposób rozliczeń (ryczałt/godzinowo/etapami) – placeholder",
+        "Warunki wypłaty (odbiór, protokół, raport)",
+        "Dane do płatności i termin wystawienia rachunku/faktury",
+        "Podatki i koszty (ogólnie, bez cytowania przepisów)"
+      ]
+    },
+    "5": {
+      "min_clauses": 6,
+      "min_words_total": 220,
+      "must_include_any": [
+        "termin",
+        "dni",
+        "opóźnienie",
+        "kara",
+        "odsetki"
+      ],
+      "topics": [
+        "Termin płatności (liczba dni) i sposób płatności",
+        "Konsekwencje opóźnienia (odsetki ustawowe – bez cytowania artykułów)",
+        "Kara umowna (stawka/kwota placeholder) i zasady naliczania",
+        "Możliwość potrącenia/wezwania do zapłaty"
+      ]
+    },
+    "6": {
+      "min_clauses": 8,
+      "min_words_total": 270,
+      "must_include_any": [
+        "czas trwania",
+        "wypowiedzenie",
+        "rozwiązanie",
+        "skutek",
+        "zwrot"
+      ],
+      "topics": [
+        "Okres obowiązywania (daty placeholder)",
+        "Wypowiedzenie z zachowaniem terminu (dni placeholder)",
+        "Rozwiązanie ze skutkiem natychmiastowym (naruszenia)",
+        "Skutki rozwiązania (rozliczenia, zwrot materiałów)",
+        "Obowiązki po rozwiązaniu (poufność, przekazanie rezultatów)"
+      ]
+    },
+    "7": {
+      "min_clauses": 6,
+      "min_words_total": 200,
+      "must_include_any": [
+        "zmiany",
+        "egzemplarz",
+        "prawa",
+        "sąd",
+        "kodeks"
+      ],
+      "topics": [
+        "Forma zmian umowy (pisemna/elektroniczna – placeholder)",
+        "Rozstrzyganie sporów i właściwość sądu",
+        "Klauzula rozdzielności postanowień (severability)",
+        "Liczba egzemplarzy i wejście w życie",
+        "Język/wersja wiążąca w zestawie PL+EN"
+      ],
+      "append_safe_sentences": true
+    },
+    "8": {
+      "mode": "deterministic_signature_block",
+      "notes": "Signature block is rendered deterministically to avoid formatting errors."
+    }
+  }
+}

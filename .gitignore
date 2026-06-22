@@ -1,0 +1,62 @@
+# Generated runtime artifacts
+outputs/
+outputs_backup/
+output/
+inputs/
+input/
+runs/
+logs/
+archive/
+*.log
+
+# Large model/checkpoint artifacts
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.gguf
+*.onnx
+
+# Datasets and test corpora
+dataset/
+datasets/
+data_test/
+eval/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Local config
+.env
+.env.*
+!.env.example
+
+# Local scratch notes and generated comparison samples
+DIARY.md
+PROJECT_DIARY.md
+PROJECT_PLAN.md
+PROJECT_STATUS_SHORT.md
+RUN_INDEX.md
+examples/base*.txt
+examples/lora*.txt
+
+# Private/local experiment code not included in public branch
+modal_app.py
+scripts/
+metrics.json
+TECHNICAL_PROJECT_OVERVIEW.md
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,112 @@
+{
+  "types": [
+    {
+      "id": "UMOWA_ZLECENIA",
+      "group": "CONTRACT",
+      "title": "Umowa zlecenia",
+      "sections": [
+        "Strony umowy",
+        "Przedmiot umowy",
+        "Obowiązki stron",
+        "Wynagrodzenie",
+        "Termin płatności i kara umowna",
+        "Czas trwania i rozwiązanie",
+        "Postanowienia końcowe",
+        "Podpisy"
+      ]
+    },
+    {
+      "id": "UMOWA_O_DZIELO",
+      "group": "CONTRACT",
+      "title": "Umowa o dzieło",
+      "sections": [
+        "Strony umowy",
+        "Opis dzieła",
+        "Termin wykonania",
+        "Wynagrodzenie",
+        "Odbiór dzieła",
+        "Odpowiedzialność",
+        "Postanowienia końcowe",
+        "Podpisy"
+      ]
+    },
+    {
+      "id": "UMOWA_NAJMU",
+      "group": "CONTRACT",
+      "title": "Umowa najmu",
+      "sections": [
+        "Strony umowy",
+        "Przedmiot najmu",
+        "Okres najmu",
+        "Czynsz i opłaty",
+        "Kaucja (jeżeli dotyczy)",
+        "Obowiązki stron",
+        "Rozwiązanie umowy",
+        "Postanowienia końcowe",
+        "Podpisy"
+      ]
+    },
+    {
+      "id": "POZEW_O_ZAPLATE",
+      "group": "PLEADING",
+      "title": "Pozew o zapłatę",
+      "sections": [
+        "Oznaczenie sądu",
+        "Strony",
+        "Wartość przedmiotu sporu",
+        "Żądanie",
+        "Wnioski dowodowe",
+        "Uzasadnienie",
+        "Podstawa prawna",
+        "Załączniki",
+        "Podpis"
+      ]
+    },
+    {
+      "id": "SPRZECIW_OD_NAKAZU_ZAPLATY",
+      "group": "PLEADING",
+      "title": "Sprzeciw od nakazu zapłaty",
+      "sections": [
+        "Oznaczenie sądu",
+        "Strony",
+        "Oznaczenie nakazu zapłaty",
+        "Wnioski",
+        "Zarzuty",
+        "Wnioski dowodowe",
+        "Uzasadnienie",
+        "Załączniki",
+        "Podpis"
+      ]
+    },
+    {
+      "id": "WNIOSEK_O_ZABEZPIECZENIE",
+      "group": "PLEADING",
+      "title": "Wniosek o zabezpieczenie roszczenia",
+      "sections": [
+        "Oznaczenie sądu",
+        "Strony",
+        "Wniosek",
+        "Uprawdopodobnienie roszczenia",
+        "Interes prawny",
+        "Sposób zabezpieczenia",
+        "Wnioski dowodowe",
+        "Załączniki",
+        "Podpis"
+      ]
+    },
+    {
+      "id": "MISC_OTHER",
+      "group": "MISC",
+      "title": "Inne (eksperymentalne)",
+      "sections": [
+        "Cel pisma",
+        "Stan faktyczny",
+        "Żądania / wnioski",
+        "Uzasadnienie",
+        "Podstawa prawna",
+        "Załączniki",
+        "Podpis"
+      ]
+    }
+  ]
+}

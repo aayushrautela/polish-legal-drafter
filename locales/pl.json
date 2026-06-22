@@ -1,0 +1,28 @@
+{
+  "UMOWA_ZLECENIA": {
+    "title": "Umowa zlecenia",
+    "sections": [
+      "Strony umowy",
+      "Przedmiot umowy",
+      "Obowiązki stron",
+      "Wynagrodzenie",
+      "Termin płatności i kara umowna",
+      "Czas trwania i rozwiązanie",
+      "Postanowienia końcowe",
+      "Podpisy"
+    ],
+    "party_lines": [
+      "Zleceniodawca: [[PARTY_A_NAME]]; Adres: [[PARTY_A_ADDRESS]]; NIP: [[PARTY_A_NIP]]",
+      "Zleceniobiorca: [[PARTY_B_NAME]]; Adres: [[PARTY_B_ADDRESS]]; PESEL / ID: [[PARTY_B_PESEL_OR_ID]]"
+    ],
+    "signature_lines": [
+      "Zleceniodawca: [[SIGNATURE_PARTY_A]]    Data: [[DOC_DATE]]    Miejsce: [[DOC_PLACE]]",
+      "Zleceniobiorca: [[SIGNATURE_PARTY_B]]  Data: [[DOC_DATE]]    Miejsce: [[DOC_PLACE]]"
+    ],
+    "final_safe_sentences": [
+      "W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu cywilnego.",
+      "Sąd właściwy miejscowo dla siedziby zleceniodawcy.",
+      "W przypadku rozbieżności pomiędzy wersją polską i angielską wiążąca jest wersja polska."
+    ]
+  }
+}

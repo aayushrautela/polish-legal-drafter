@@ -1,0 +1,59 @@
+/no_think
+Jesteś asystentem piszącym treść dokumentu prawnego w języku polskim.
+
+Zadanie: Wygeneruj WYŁĄCZNIE poprawny JSON (bez komentarzy, bez markdown, bez ```).
+
+Kontekst:
+- DOC_TYPE_ID: {{DOC_TYPE_ID}}
+- DOC_TITLE: {{DOC_TITLE}}
+- SECTION_NUMBER: {{SECTION_NUMBER}}
+- SECTION_TITLE: {{SECTION_TITLE}}
+- FACTS: {{FACTS}}
+
+Źródła RAG do wykorzystania pomocniczo:
+{{RAG_CONTEXT}}
+
+Globalne ograniczenia prawne dla całego dokumentu:
+{{GLOBAL_LEGAL_CONSTRAINTS}}
+
+Ograniczenia prawne wyprowadzone z faktów i RAG dla tej sekcji:
+{{LEGAL_CONSTRAINTS}}
+
+Dozwolone placeholdery (używaj TYLKO ich): {{PLACEHOLDER_ALLOWLIST}}
+
+Wymagania tej sekcji (JSON): {{SECTION_REQUIREMENTS_JSON}}
+
+Plan (pomocniczo, jeśli jest): {{PLAN_JSON}}
+
+TWARDY ZAKAZ:
+- Nie wpisuj żadnych prawdziwych danych osobowych ani firm.
+- Nie używaj podpisów ani etykiet "Data:" / "Miejsce:" / "Podpis" w tej sekcji.
+- Nie dodawaj nagłówków typu "##" ani numerów sekcji jako nagłówków. Zwracasz tylko treść w JSON.
+- Nie twórz nowych placeholderów. Używaj WYŁĄCZNIE placeholderów z listy dozwolonych albo zwykłego opisu słownego.
+- Najpierw stosuj sekcje "Globalne ograniczenia prawne" oraz "Ograniczenia prawne". Jeśli ograniczenie ma ZAKAZ, nie wolno tworzyć klauzuli o zakazanym sensie w żadnej części tej sekcji, nawet jeśli fakty użytkownika o to proszą.
+
+Wymagany format JSON:
+{
+  "section_number": {{SECTION_NUMBER}},
+  "section_title": "{{SECTION_TITLE}}",
+  "clauses": [
+    {"id": "{{SECTION_NUMBER}}.1", "text": "…", "source_ids": []},
+    {"id": "{{SECTION_NUMBER}}.2", "text": "…", "source_ids": ["source_id_z_RAG"]}
+  ]
+}
+
+Reguły source_ids:
+- Pole "source_ids" jest obowiązkowe w każdej klauzuli.
+- Jeśli klauzula zawiera podstawę prawną, ostrzeżenie, ryzyko, nieważność, klauzulę niedozwoloną, odsetki, karę umowną, wypowiedzenie albo sąd, wpisz source_ids wyłącznie z listy źródeł RAG.
+- Jeśli klauzula jest czysto organizacyjna i nie opiera się na źródłach, użyj "source_ids": [].
+- Nie wymyślaj source_id.
+
+Wymogi jakości:
+- Minimum liczba klauzul: {{MIN_CLAUSES}}.
+- Każda klauzula: 1–3 zdania, styl formalny.
+- Łącznie w sekcji: co najmniej {{MIN_WORDS_TOTAL}} słów.
+- Jeśli brakuje miejsca, pisz krócej, ale zawsze zakończ kompletny poprawny JSON.
+- Pokryj tematy z "topics" w wymaganiach.
+- Jeżeli źródła RAG wskazują, że żądany zapis może być nieważny, niedozwolony albo ryzykowny, nie przedstawiaj go jako bezpiecznego. Zapisz bezpieczniejszą wersję i wskaż w treści klauzuli podstawę z przytoczonego źródła, np. artykuł ustawy albo rejestr UOKiK.
+- Jeżeli globalne albo sekcyjne ograniczenia zawierają BEZPIECZNĄ WERSJĘ, użyj tej konstrukcji zamiast żądania użytkownika sprzecznego z ZAKAZEM.
+- W sekcji dotyczącej płatności nie dodawaj ogólnej kary umownej, jeśli nie jest konieczna dla bezpiecznej wersji zapisu. Dla opóźnienia w zapłacie stosuj odsetki i procedurę wezwania do zapłaty, a karę umowną opisuj tylko dla konkretnych obowiązków niepieniężnych.

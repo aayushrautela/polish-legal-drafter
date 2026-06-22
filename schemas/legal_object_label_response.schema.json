@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/legal-object-label-response.schema.json",
+  "title": "Legal Object Label Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "results"],
+  "properties": {
+    "schema_version": {"const": "legal_object_v0"},
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["item_id", "objects", "confidence", "notes"],
+        "properties": {
+          "item_id": {"type": "string", "minLength": 1},
+          "objects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "actor",
+                "counterparty",
+                "modality",
+                "action",
+                "legal_object",
+                "trigger",
+                "condition",
+                "exception",
+                "temporal_scope",
+                "amount",
+                "payment_kind",
+                "obligation_kind",
+                "risk_category",
+                "source_span",
+                "confidence"
+              ],
+              "properties": {
+                "actor": {"type": ["string", "null"]},
+                "counterparty": {"type": ["string", "null"]},
+                "modality": {"enum": ["obligation", "permission", "prohibition", "right", "risk_warning", "definition", "condition", "exception", "unknown"]},
+                "action": {"type": "string", "minLength": 1},
+                "legal_object": {"type": "string", "minLength": 1},
+                "trigger": {"type": ["string", "null"]},
+                "condition": {"type": ["string", "null"]},
+                "exception": {"type": ["string", "null"]},
+                "temporal_scope": {"type": ["string", "null"]},
+                "amount": {"type": ["string", "null"]},
+                "payment_kind": {"type": ["string", "null"]},
+                "obligation_kind": {"enum": ["monetary", "non_monetary", "mixed", "unknown"]},
+                "risk_category": {"type": "string", "minLength": 1},
+                "source_span": {"type": "string", "minLength": 1},
+                "confidence": {"enum": ["low", "medium", "high"]}
+              }
+            }
+          },
+          "confidence": {"enum": ["low", "medium", "high"]},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

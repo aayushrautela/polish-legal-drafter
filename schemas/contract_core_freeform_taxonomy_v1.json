@@ -1,0 +1,57 @@
+{
+  "schema_version": "contract_core_freeform_v1",
+  "top_categories": [
+    "payment",
+    "termination",
+    "liability",
+    "price_change",
+    "jurisdiction",
+    "withdrawal",
+    "consumer_rights",
+    "unilateral_change",
+    "deposit_or_advance",
+    "penalty_or_interest",
+    "complaint_or_notice",
+    "delivery_or_performance_delay",
+    "service_quality",
+    "contract_formation",
+    "representation_or_authority",
+    "property_or_use_restriction",
+    "other"
+  ],
+  "risk_or_safe_values": [
+    "risky",
+    "safe",
+    "neutral",
+    "unknown"
+  ],
+  "confidence_values": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "guidance": {
+    "top_category": "Use one broad family only. Do not create new category names. Choose by the clause's main legal effect, not by isolated keywords.",
+    "suggested_cluster_name": "Free-form snake_case subtype in your own words, e.g. unilateral_price_increase_due_to_inflation.",
+    "source_span": "Exact contiguous text copied from item text. No ellipses or paraphrase.",
+    "risk_or_safe": "Classify the legal effect from the affected party's perspective, especially the consumer/client/weaker party. Do not equate every obligation with risk and do not mark ordinary statutory/default wording risky unless it creates a concrete disadvantage, removes a protection, or appears in a consumer-unfavorable contract clause.",
+    "risk_precedence": [
+      "For statutes, judgments, and official forms, use neutral for ordinary default rules, definitions, balanced procedural mechanics, and background legal allocations unless the span itself clearly creates a protective right or an unfair burden.",
+      "For consumer contract/UOKiK clauses, use risky when the clause limits/excludes liability, weakens remedies, delays refund/performance, imposes penalties/fees, creates unilateral discretion, restricts access/use/termination/withdrawal, shifts burdens to the consumer, or creates procedural traps or forum disadvantages.",
+      "Use safe when the clause grants or preserves a protective right, remedy, refund, warranty, complaint path, withdrawal/termination right, transparency duty, or trader/provider duty that benefits the consumer/client/weaker party.",
+      "Use neutral for definitions, ordinary statutory defaults, balanced administrative mechanics, factual background, or clauses where no clear advantage/disadvantage is created by the span itself.",
+      "Use unknown only when the span is too fragmentary to classify even after considering context.",
+      "If both protective and risky effects appear, classify by the dominant operative effect in the selected source_span and explain the tradeoff in risk_reason."
+    ],
+    "service_quality_scope": "Use service_quality only when the main legal effect is a quality or proper-performance standard: defects, warranty/rękojmia/gwarancja, conformity with contract, agreed service standard, or repair/replacement of defective performance.",
+    "service_quality_precedence": [
+      "If the main legal effect is a contractual fine, penalty, or interest for poor service, use penalty_or_interest.",
+      "If the main legal effect is a missed deadline, extended repair time, delayed delivery, or delayed performance, use delivery_or_performance_delay.",
+      "If the main legal effect is limiting, excluding, or allocating responsibility for bad quality, use liability.",
+      "If the main legal effect is a complaint, notice, reporting, or claim procedure/deadline, use complaint_or_notice.",
+      "If the main legal effect is a unilateral right to change, restrict, suspend, block, or degrade a service, use unilateral_change or property_or_use_restriction.",
+      "If the main legal effect is a monetary refund, fee reduction, discount, or price consequence, use payment.",
+      "Use service_quality only when none of those more specific effects dominates."
+    ]
+  }
+}

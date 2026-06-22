@@ -1,0 +1,28 @@
+{
+  "UMOWA_ZLECENIA": {
+    "title": "Contract of Mandate (Umowa zlecenia)",
+    "sections": [
+      "Parties",
+      "Subject of the contract",
+      "Obligations of the parties",
+      "Remuneration",
+      "Payment deadline and contractual penalty",
+      "Term and termination",
+      "Final provisions",
+      "Signatures"
+    ],
+    "party_lines": [
+      "Principal: [[PARTY_A_NAME]]; Address: [[PARTY_A_ADDRESS]]; Tax ID (NIP): [[PARTY_A_NIP]]",
+      "Contractor: [[PARTY_B_NAME]]; Address: [[PARTY_B_ADDRESS]]; PESEL / ID: [[PARTY_B_PESEL_OR_ID]]"
+    ],
+    "signature_lines": [
+      "Principal: [[SIGNATURE_PARTY_A]]    Date: [[DOC_DATE]]    Place: [[DOC_PLACE]]",
+      "Contractor: [[SIGNATURE_PARTY_B]]  Date: [[DOC_DATE]]    Place: [[DOC_PLACE]]"
+    ],
+    "final_safe_sentences": [
+      "In matters not regulated herein, the provisions of the Polish Civil Code shall apply.",
+      "The court having jurisdiction shall be the court competent for the registered seat of the Principal.",
+      "In case of discrepancies between the Polish and English versions, the Polish version shall prevail."
+    ]
+  }
+}

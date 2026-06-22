@@ -1,0 +1,15 @@
+Chcę sporządzić umowę zlecenia.
+
+Opis zlecenia: [[CONTRACT_SUBJECT]].
+Zakres: [[CONTRACT_SCOPE]].
+Miejsce wykonywania: [[CONTRACT_LOCATION]].
+Okres: od [[CONTRACT_START_DATE]] do [[CONTRACT_END_DATE]].
+
+Wynagrodzenie: [[REMUNERATION_AMOUNT]] [[REMUNERATION_CURRENCY]].
+Sposób rozliczenia: [[REMUNERATION_METHOD]] (np. ryczałt / godzinowo / etapami).
+Termin płatności: [[PAYMENT_DEADLINE_DAYS]] dni.
+Sposób płatności: [[PAYMENT_METHOD]].
+Numer rachunku: [[BANK_ACCOUNT]].
+
+Kara umowna: [[PENALTY_AMOUNT]] [[PENALTY_CURRENCY]] lub [[PENALTY_RATE]] (zgodnie z uzgodnieniem).
+Okres wypowiedzenia: [[NOTICE_DAYS]] dni.

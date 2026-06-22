@@ -1,0 +1,17 @@
+Chcę sporządzić umowę zlecenia dotyczącą obsługi i wynajmu nietypowego sprzętu eventowego.
+
+Opis zlecenia: [[CONTRACT_SUBJECT]] - udostępnienie i obsługa mobilnej instalacji VR na wydarzeniu komercyjnym.
+Zakres: [[CONTRACT_SCOPE]] - transport, montaż, obsługa uczestników, demontaż oraz podstawowe raportowanie.
+Miejsce wykonywania: [[CONTRACT_LOCATION]].
+Okres: od [[CONTRACT_START_DATE]] do [[CONTRACT_END_DATE]].
+
+Wynagrodzenie: [[REMUNERATION_AMOUNT]] [[REMUNERATION_CURRENCY]].
+Sposób rozliczenia: [[REMUNERATION_METHOD]] (ryczałt z możliwością dodatkowego rozliczenia za nadgodziny).
+Termin płatności: [[PAYMENT_DEADLINE_DAYS]] dni.
+Sposób płatności: [[PAYMENT_METHOD]].
+Numer rachunku: [[BANK_ACCOUNT]].
+
+Nietypowy warunek od klienta: jeżeli Zleceniodawca czasowo odbierze Zleceniobiorcy sprzęt albo zablokuje możliwość korzystania ze sprzętu z powodu opóźnienia w płatności, nadal chce naliczać pełne wynagrodzenie/czynsz za cały okres blokady. Klient chce też wysoką karę umowną za samo opóźnienie pieniężne.
+
+Kara umowna: [[PENALTY_AMOUNT]] [[PENALTY_CURRENCY]] lub [[PENALTY_RATE]] (zgodnie z uzgodnieniem).
+Okres wypowiedzenia: [[NOTICE_DAYS]] dni.
