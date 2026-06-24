@@ -1,0 +1,2 @@
+[console_scripts]
+legal-drafter = legal_drafter.cli:main

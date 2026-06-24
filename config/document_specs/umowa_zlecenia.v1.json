@@ -1,6 +1,6 @@
 {
   "doc_type_id": "UMOWA_ZLECENIA",
-  "version": "phase1-v1",
+  "version": "1.0.0",
   "language": "pl",
   "generation": {
     "per_section_max_new_tokens": 1800,

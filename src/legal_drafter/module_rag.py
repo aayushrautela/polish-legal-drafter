@@ -4,7 +4,7 @@ Extends BM25 retrieval with module/variant/authority filtering
 for the UMOWA_NAJMU full-document pipeline.
 
 Usage:
-    from src.module_rag import ModuleRAG
+    from legal_drafter.module_rag import ModuleRAG
     rag = ModuleRAG()
     results = rag.retrieve(module_ids=["M06_deposit"], query="kaucja zwrot", top_k=5)
 """
@@ -17,7 +17,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CATALOG = PROJECT_ROOT / "data" / "module_source_catalog.jsonl"
 
 POLISH_STOPWORDS = {
@@ -239,7 +239,7 @@ class ModuleRAG:
             role_boost = {"positive_rule": 1.2, "negative_clause": 1.1, "background": 0.8}.get(row.source_role, 1.0)
             score *= role_boost
 
-            # Curated source boost (manually curated rows are high-quality)
+            # Curated source boost
             if row.source_id.startswith("curated_"):
                 score *= 1.5
 
@@ -256,7 +256,7 @@ class ModuleRAG:
                     if matched_tokens:
                         match_reasons.append(f"bm25_tokens:{','.join(sorted(matched_tokens)[:5])}")
 
-                # Curated sources get floor score when module-matched (they are high-value)
+                # Curated sources get floor score when module-matched
                 if row.source_id.startswith("curated_") and "module_match" in match_reasons:
                     score = max(score, 0.5)
 

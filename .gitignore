@@ -49,6 +49,7 @@ PROJECT_STATUS_SHORT.md
 RUN_INDEX.md
 examples/base*.txt
 examples/lora*.txt
+examples/training_compare*.txt
 
 # Private/local experiment code not included in public branch
 modal_app.py

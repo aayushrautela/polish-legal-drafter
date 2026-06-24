@@ -4,13 +4,13 @@
 
 The verifier checks whether generated legal clauses are grounded, safe, and consistent with retrieved legal evidence. It is separate from the drafting model.
 
-The verifier is not a replacement for a lawyer. Its job is to create an evidence-backed audit trail and catch unsupported, risky, or contradictory clauses before the draft is shown as acceptable.
+The verifier checks whether generated legal clauses are grounded, safe, and consistent with retrieved legal evidence. It produces an evidence-backed audit trail for each clause verdict.
 
 ## 2. Problem this spec solves
 
-The current prototype showed three important failure modes:
+The current prototype showed three failure modes:
 
-1. **Prose-level NLI is not enough**
+1. **Prose-level NLI is insufficient**
    A model may treat a source about interest for late payment as support for a larger claim that also allows contractual penalties for late payment.
 
 2. **Source polarity matters**
@@ -19,7 +19,7 @@ The current prototype showed three important failure modes:
 3. **Regex/rule patching does not scale**
    Hardcoded patterns can catch obvious traps but fail with negation, exceptions, and unseen legal issues.
 
-The professional fix is to verify structured legal objects against source objects and use NLI only as one signal.
+The fix is to verify structured legal objects against source objects and use NLI only as one signal.
 
 ## 3. Verifier architecture
 
@@ -421,7 +421,7 @@ Each label should identify:
 
 ### Step 2: object extraction
 
-Create `src/legal_objects.py`.
+Create `src/legal_drafter/legal_objects.py`.
 
 Responsibilities:
 - Extract objects from draft clauses.
@@ -442,7 +442,7 @@ Example query components:
 
 ### Step 4: object comparator
 
-Create `src/object_verifier.py`.
+Create `src/legal_drafter/object_verifier.py`.
 
 Responsibilities:
 - Compare draft object to source objects.
@@ -464,11 +464,11 @@ Create reports showing:
 ### Step 6: integration with drafting
 
 Only after object verifier passes CPU eval:
-- Integrate verifier into `src/pipeline.py` after section generation.
+- Integrate verifier into `src/legal_drafter/pipeline.py` after section generation.
 - One targeted repair attempt for failed clauses/objects.
 - Do not regenerate whole document.
 
-## 13. Guardrails against band-aid fixes
+## 13. Anti-pattern rules
 
 Do not implement a new verifier rule unless it maps to one of:
 
@@ -478,13 +478,13 @@ Do not implement a new verifier rule unless it maps to one of:
 - A general object-comparison rule.
 - A labeled evaluation gap.
 
-Forbidden approach:
+Bad approach:
 
 ```text
 if current_case_id == "real_kc_payment_delay_penalty": fail
 ```
 
-Also avoid narrow pattern fixes such as:
+Avoid narrow pattern fixes such as:
 
 ```text
 if text contains "art. 483": fail payment penalty
@@ -510,12 +510,12 @@ Existing code remains useful:
 
 | Existing module | Future role |
 |---|---|
-| `src/rag.py` | Evidence retrieval backend. |
-| `src/source_semantics.py` | Source taxonomy and polarity enrichment. |
-| `src/claim_extraction.py` | Temporary claim splitter; can feed object extraction. |
-| `src/evidence_reranker.py` | Candidate evidence selection. |
-| `src/nli_verifier.py` | Secondary NLI check. |
-| `src/legal_constraints.py` | Draft-time hints; not final verifier. |
-| `src/legal_warnings.py` | Cheap guardrail/triage; not final legal reasoning. |
+| `src/legal_drafter/rag.py` | Evidence retrieval backend. |
+| `src/legal_drafter/source_semantics.py` | Source taxonomy and polarity enrichment. |
+| `src/legal_drafter/claim_extraction.py` | Temporary claim splitter; can feed object extraction. |
+| `src/legal_drafter/evidence_reranker.py` | Candidate evidence selection. |
+| `src/legal_drafter/nli_verifier.py` | Secondary NLI check. |
+| `src/legal_drafter/legal_constraints.py` | Draft-time hints; not final verifier. |
+| `src/legal_drafter/legal_warnings.py` | Cheap guardrail/triage; not final legal reasoning. |
 
-The next professional step is not more prompt tuning. It is the legal-object verifier milestone.
+Next milestone: legal-object verifier (Section 12).

@@ -1,10 +1,10 @@
-# Professional Architecture Specification
+# Architecture
 
 ## 1. Purpose
 
 This project is a thesis-grade Polish legal-document drafting assistant. It should produce structured legal drafts from user facts, retrieve trusted legal sources, detect risky or unsupported legal content, and give a human reviewer a clear evidence trail.
 
-This document defines the target architecture. It replaces the earlier ad-hoc pattern of patching individual failures with a professional compound-system design.
+This document defines the target architecture for the system.
 
 ## 2. Product boundary
 
@@ -46,13 +46,13 @@ The human reviewer does not check the input before every model run. The system s
 ## 3. Design principles
 
 1. **Compound system, not one chatbot**
-   Production legal AI systems combine retrieval, source metadata, clause segmentation, classification, entity extraction, risk scoring, generation, and audit logs. The drafter is one component, not the whole system.
+   Compound-system design: retrieval, source metadata, clause segmentation, classification, entity extraction, risk scoring, generation, and audit logs.
 
 2. **Primary sources first**
    Statutes, official forms, UOKiK records, judgments, and reviewed templates must be stored with source IDs, dates, jurisdiction, status, source type, and provenance.
 
 3. **Source meaning matters**
-   A retrieved source can be positive law, a negative example, a judgment, a template, or guidance. Entailment alone is not enough. For example, a UOKiK abusive-clause registry entry is evidence that a similar clause is risky, not evidence that it should be drafted.
+   A retrieved source can be positive law, a negative example, a judgment, a template, or guidance. Entailment alone is insufficient. For example, a UOKiK abusive-clause registry entry is evidence that a similar clause is risky, not evidence that it should be drafted.
 
 4. **Verify structured legal objects, not only prose**
    Legal clauses should be decomposed into structured objects: actor, modality, action, trigger, condition, exception, temporal scope, amount, and source basis. This prevents failures where a model treats one part of a complex sentence as support for the whole claim.
@@ -67,24 +67,24 @@ The human reviewer does not check the input before every model run. The system s
    A change is not accepted just because it fixes one failing example. Each verifier change must be tied to a general rule or schema change and tested against existing plus held-out examples.
 
 8. **Evaluation gates before expansion**
-   Add document types, larger corpora, and LoRA only after the current architecture passes retrieval, verifier, and drafting evaluation.
+   Add document types, larger corpora, and model-training releases only after the current architecture passes retrieval, verifier, and drafting evaluation.
 
 ## 4. Current implementation map
 
-The repository already contains a useful prototype:
+Current prototype:
 
 | Layer | Current files | Current status |
 |---|---|---|
-| Drafting pipeline | `src/pipeline.py` | Section-by-section JSON generation, repair, retrieval injection, rendering. |
-| Requirements | `requirements/UMOWA_ZLECENIA.json` | One mature document type; more needed. |
-| Prompt templates | `prompts/*.txt` | Externalized draft/repair prompts. |
-| Rendering | `src/renderer.py`, `locales/*.json` | Deterministic Markdown rendering. |
-| Retrieval | `src/rag.py` | Local sparse retrieval, source boosts, section filters, required-source injection. |
-| Constraints | `src/legal_constraints.py` | Rule-derived constraints from facts + retrieval. Useful but not sufficient as final architecture. |
-| Warnings | `src/legal_warnings.py` | Current risk/blocker checks. Should become secondary guardrails, not core legal reasoning. |
-| Verifier scaffold | `src/claim_extraction.py`, `src/evidence_reranker.py`, `src/nli_verifier.py`, `src/source_semantics.py` | Independent reranker/NLI/source-polarity verifier prototype. |
+| Drafting pipeline | `src/legal_drafter/pipeline.py` | Section-by-section JSON generation, repair, retrieval injection, rendering. |
+| Document specs | `config/document_specs/umowa_zlecenia.v1.json` | One public supported document type; more require matching specs/locales/tests. |
+| Prompt templates | `config/prompts/*.txt` | Externalized draft/repair prompts. |
+| Rendering | `src/legal_drafter/renderer.py`, `config/locales/*.json` | Deterministic Markdown rendering. |
+| Retrieval | `src/legal_drafter/rag.py` | Local sparse retrieval, source boosts, section filters, required-source injection. |
+| Constraints | `src/legal_drafter/legal_constraints.py` | Rule-derived constraints from facts + retrieval. Useful but not sufficient as final architecture. |
+| Warnings | `src/legal_drafter/legal_warnings.py` | Current risk/blocker checks. Should become secondary guardrails, not core legal reasoning. |
+| Verifier scaffold | `src/legal_drafter/claim_extraction.py`, `src/legal_drafter/evidence_reranker.py`, `src/legal_drafter/nli_verifier.py`, `src/legal_drafter/source_semantics.py` | Independent reranker/NLI/source-polarity verifier prototype. |
 
-The prototype proved that plain RAG + regex/rules is not enough. The next step is to formalize the verifier and legal-object layer before more drafting improvements.
+Current constraints/warnings are not sufficient for final legal reasoning. The next step is to formalize the verifier and legal-object layer.
 
 ## 5. Target architecture
 
@@ -205,7 +205,7 @@ Example:
 
 The same representation should be extracted from relevant source chunks where possible.
 
-Professional inspiration:
+References:
 - Akoma Ntoso for legal document structure and metadata.
 - LegalRuleML for deontic/legal norms, temporal scope, defeasibility, and source links.
 - ContractNLI for evidence-span-backed legal entailment.
@@ -281,7 +281,7 @@ Run folder should include:
 - Report metrics.
 - Timestamped output path.
 
-This supports thesis evaluation and professional review.
+This supports thesis evaluation and expert review.
 
 ## 6. Evaluation and TEVV
 
@@ -340,11 +340,11 @@ Current state:
 - Add `UMOWA_NAJMU` because tenant/rental sources and risk cases are already available.
 - Then add notices/replies and other document types.
 
-### Phase 5: LoRA and model comparison
+### Phase 5: Model comparison and training release
 
-Only after schemas, verifier, RAG, and evaluation are stable:
+Only after schemas, verifier, retrieval, and evaluation are stable:
 - Prepare human-reviewed `facts -> draft JSON` training examples.
-- Compare Qwen 9B/27B with and without LoRA/RAG.
+- Compare model-serving and training variants in a separate reproducible release.
 - Keep verifier independent from drafter.
 
 ## 9. Success criteria
@@ -357,4 +357,4 @@ The architecture is working when:
 - Compound claims are decomposed before verification.
 - Verifier distinguishes supported, risky, contradicted, insufficient, and needs-review cases.
 - Output includes an audit trail a reviewer can inspect.
-- Improvements are measured on held-out examples, not only on the example that failed today.
+-    Improvements are measured on held-out examples, not only on single failing cases.

@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "types": [
+    {
+      "id": "UMOWA_ZLECENIA",
+      "group": "CONTRACT",
+      "title": "Umowa zlecenia",
+      "status": "supported_public_prototype",
+      "document_spec": "config/document_specs/umowa_zlecenia.v1.json",
+      "sections": [
+        "Strony umowy",
+        "Przedmiot umowy",
+        "Obowiązki stron",
+        "Wynagrodzenie",
+        "Termin płatności i kara umowna",
+        "Czas trwania i rozwiązanie",
+        "Postanowienia końcowe",
+        "Podpisy"
+      ]
+    }
+  ]
+}

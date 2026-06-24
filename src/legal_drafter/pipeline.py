@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from .doc_types import DocType
 from .io_utils import ensure_dir, read_json, read_text, write_json, write_text
 from .json_utils import JsonParseError, dumps_pretty, loads_best_effort
-from .requirements import requirements_summary
+from .document_specs import requirements_summary
 from .text_template import render_template
 from .validators import ValidationError, validate_section_json, validate_translation_alignment
 from .renderer import load_locale, render_markdown

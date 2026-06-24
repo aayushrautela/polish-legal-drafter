@@ -1,5 +1,5 @@
 {
-  "version": "phase1-v1",
+  "version": "1.0.0",
   "regex": "\\[\\[[A-Z0-9_]+\\]\\]",
   "allowlist": [
     "DOC_DATE",

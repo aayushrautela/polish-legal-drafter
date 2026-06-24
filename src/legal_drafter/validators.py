@@ -40,7 +40,7 @@ def validate_placeholders_allowlist(text: str, allowlist: Set[str]) -> List[str]
 def validate_no_signature_tokens(text: str) -> List[str]:
     errors: List[str] = []
     for tok in FORBIDDEN_SIGNATURE_TOKENS:
-        # We forbid the colon variants strongly; plain 'data' word is allowed.
+        # Colon variants forbidden; plain 'data' word allowed.
         if tok in text:
             errors.append(f"Forbidden signature token in non-signature section: {tok}")
     return errors
@@ -124,7 +124,7 @@ def validate_section_json(
     if strict_allowlist:
         errors.extend(validate_placeholders_allowlist(full_text, placeholder_allowlist))
 
-    # Length checks (very rough but effective)
+    # Length checks
     words = [w for w in re.split(r"\s+", full_text.strip()) if w]
     min_words_required = validation_min_words(min_words_total)
     if len(words) < min_words_required:

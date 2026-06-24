@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "polish-legal-drafter"
+version = "0.1.0"
+description = "Research prototype for structured Polish legal-document drafting"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Aayush Rautela" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = []
+
+[project.scripts]
+legal-drafter = "legal_drafter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,2 @@
+# The public smoke-test path uses only the Python standard library.
+# Private model-serving and training dependencies are intentionally excluded.

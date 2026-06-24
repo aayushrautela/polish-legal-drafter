@@ -1,3 +1,15 @@
+Metadata-Version: 2.4
+Name: polish-legal-drafter
+Version: 0.1.0
+Summary: Research prototype for structured Polish legal-document drafting
+Author: Aayush Rautela
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Dynamic: license-file
+
 # Polish Legal Document Drafting Assistant
 
 Research prototype for structured Polish legal-document drafting with deterministic rendering, retrieval-aware validation, and verifier scaffolding.
