@@ -47,6 +47,7 @@ PROJECT_DIARY.md
 PROJECT_PLAN.md
 PROJECT_STATUS_SHORT.md
 RUN_INDEX.md
+.diary/
 examples/base*.txt
 examples/lora*.txt
 examples/training_compare*.txt
@@ -62,3 +63,20 @@ current_pipeline_diagram.svg
 .DS_Store
 .vscode/
 .idea/
+
+# AI planning and agent files
+planning/
+plans/
+PLAN*.md
+*.plan.md
+.opencode/
+.claude/
+.cursor/
+CLAUDE.md
+AGENTS.md
+.opencode.jsonc
+.opencode.json
+
+# Local RAG index (Modal-built; never commit)
+.rag/
+src/.rag/

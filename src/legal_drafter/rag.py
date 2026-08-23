@@ -1,11 +1,28 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
+import os
 import re
+import warnings
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
+
+from .retrieval.hybrid import (
+    DEFAULT_COLLECTION,
+    DEFAULT_QDRANT_PATH,
+    QdrantHybridStore,
+    rerank_scores,
+    rrf_fuse,
+)
+
+# Dense hybrid retrieval is opt-in (it downloads BGE-M3 + reranks). Enable with
+# LEGAL_DRAFTER_DENSE=1 or by passing dense=True to build_rag_index().
+DENSE_DEFAULT = os.environ.get("LEGAL_DRAFTER_DENSE", "0") == "1"
+
+logger = logging.getLogger("legal_drafter.rag")
 
 STOPWORDS = {
     "a", "aby", "albo", "ale", "art", "bez", "by", "być", "co", "czy", "dla", "do", "go", "ich", "i", "jak", "jest", "jeżeli", "lub", "ma", "mi", "mnie", "na", "nad", "nie", "o", "od", "oraz", "po", "pod", "przez", "przy", "się", "są", "ta", "tak", "te", "ten", "to", "u", "w", "we", "z", "za", "ze", "że"
@@ -50,12 +67,6 @@ SOURCE_TYPE_BOOST = {
 }
 
 SOURCE_ID_ALIASES = {
-    "kc_art_481": "sejm_eli_du_2024_1061_art_481",
-    "kc_art_483": "sejm_eli_du_2024_1061_art_483",
-    "kc_art_484": "sejm_eli_du_2024_1061_art_484",
-    "kc_art_385": "sejm_eli_du_2024_1061_art_385",
-    "kc_art_491": "sejm_eli_du_2024_1061_art_491",
-    "kc_art_746": "sejm_eli_du_2024_1061_art_746",
     "uokik_clause_57": "uokik_abusive_clause_57",
     "uokik_clause_77": "uokik_abusive_clause_77",
     "uokik_clause_90": "uokik_abusive_clause_90",
@@ -194,6 +205,8 @@ def document_text(doc: dict[str, Any]) -> str:
 
 
 def load_jsonl(paths: Iterable[str | Path]) -> list[dict[str, Any]]:
+    from .retrieval.hybrid import normalize_doc
+
     docs = []
     for path_value in paths:
         path = Path(path_value)
@@ -201,12 +214,21 @@ def load_jsonl(paths: Iterable[str | Path]) -> list[dict[str, Any]]:
             for line in handle:
                 line = line.strip()
                 if line:
-                    docs.append(json.loads(line))
+                    docs.append(normalize_doc(json.loads(line)))
     return docs
 
 
 
-def build_rag_index(paths: Iterable[str | Path]) -> dict[str, Any]:
+def build_rag_index(
+    paths: Iterable[str | Path],
+    *,
+    dense: bool | None = None,
+    qdrant_path: str | Path | None = None,
+    collection_name: str | None = None,
+    rebuild: bool = False,
+) -> dict[str, Any]:
+    if dense is None:
+        dense = DENSE_DEFAULT
     docs = load_jsonl(paths)
     term_counts = []
     doc_freq: dict[str, int] = defaultdict(int)
@@ -217,13 +239,27 @@ def build_rag_index(paths: Iterable[str | Path]) -> dict[str, Any]:
         total_len += sum(counts.values())
         for token in counts:
             doc_freq[token] += 1
-    return {
+    index = {
         "docs": docs,
         "term_counts": term_counts,
         "doc_freq": dict(doc_freq),
         "avg_len": total_len / max(len(docs), 1),
         "by_source_id": {source_id(doc): doc for doc in docs},
+        "hybrid": None,
     }
+    if dense:
+        try:
+            store = QdrantHybridStore(
+                collection_name=collection_name or DEFAULT_COLLECTION,
+                path=qdrant_path or DEFAULT_QDRANT_PATH,
+            )
+            if rebuild or not store.exists() or store.count != len(docs):
+                store.build(docs, rebuild=rebuild)
+            index["hybrid"] = store
+        except Exception as exc:  # pragma: no cover - heavy deps optional
+            logger.warning("Dense hybrid retrieval disabled: %s", exc)
+            index["hybrid"] = None
+    return index
 
 
 
@@ -244,7 +280,12 @@ def score_doc(query_tokens: list[str], counts: Counter[str], doc_freq: dict[str,
 
 
 def resolve_source_id(value: str) -> str:
-    return SOURCE_ID_ALIASES.get(value, value)
+    if value in SOURCE_ID_ALIASES:
+        return SOURCE_ID_ALIASES[value]
+    match = re.match(r"^kc_art_(\d+)$", value)
+    if match:
+        return f"sejm_eli:sejm_eli_du_2024_1061_art_{match.group(1)}"
+    return value
 
 
 
@@ -312,14 +353,20 @@ def doc_matches_filter(doc: dict[str, Any], filters: dict[str, Any] | None) -> b
     if not filters:
         return True
     required_doc_types = {normalize(item) for item in filters.get("doc_types", [])}
-    if required_doc_types and value_set(doc.get("doc_types")).isdisjoint(required_doc_types):
-        return False
+    if required_doc_types:
+        doc_types = value_set(doc.get("doc_types"))
+        if doc_types and doc_types.isdisjoint(required_doc_types):
+            return False
     source_types = {normalize(item) for item in filters.get("source_types", [])}
-    if source_types and normalize(as_text(doc.get("source_type"))) not in source_types:
-        return False
+    if source_types:
+        source_type = normalize(as_text(doc.get("source_type")))
+        if source_type and source_type not in source_types:
+            return False
     legal_area = {normalize(item) for item in filters.get("legal_area", [])}
-    if legal_area and value_set(doc.get("legal_area")).isdisjoint(legal_area):
-        return False
+    if legal_area:
+        doc_areas = value_set(doc.get("legal_area"))
+        if doc_areas and doc_areas.isdisjoint(legal_area):
+            return False
     return True
 
 
@@ -369,6 +416,7 @@ def search_rag_index(
     filters: dict[str, Any] | None = None,
     section_number: str | None = None,
     candidate_k: int | None = None,
+    rerank_top: int = 40,
 ) -> list[tuple[float, dict[str, Any]]]:
     query_tokens = tokenize(expand_query(query))
     docs = index["docs"]
@@ -383,7 +431,54 @@ def search_rag_index(
         if score > 0:
             scored.append((score_with_boost(score, doc, section_number), doc))
     scored.sort(key=lambda item: item[0], reverse=True)
-    return dedupe_results(scored[: candidate_k or max(top_k * 4, top_k)])[:top_k]
+
+    hybrid = index.get("hybrid")
+    if not hybrid:
+        return dedupe_results(scored[: candidate_k or max(top_k * 4, top_k)])[:top_k]
+
+    # --- Dense + sparse recall channel (BGE-M3 + Qdrant, RRF fused) ---
+    dense_results: list[tuple[float, dict[str, Any]]] = []
+    try:
+        dense_results = hybrid.recall(
+            query,
+            top_k=max(candidate_k or 80, top_k * 4),
+            filters=filters,
+        )
+    except Exception as exc:  # pragma: no cover - heavy deps optional
+        logger.warning("Hybrid recall failed, falling back to BM25: %s", exc)
+        return dedupe_results(scored[:top_k])
+
+    bm25_keys = [source_id(doc) for _, doc in scored]
+    dense_keys = [source_id(doc) for _, doc in dense_results]
+    fused = rrf_fuse([bm25_keys, dense_keys])
+
+    candidate_docs: list[dict[str, Any]] = []
+    for key in sorted(fused, key=lambda kk: fused[kk], reverse=True)[: max(rerank_top, top_k * 3)]:
+        doc = index["by_source_id"].get(key)
+        if doc is None:
+            for _, d in dense_results:
+                if source_id(d) == key:
+                    doc = d
+                    break
+        if doc is not None:
+            candidate_docs.append(doc)
+
+    if not candidate_docs:
+        return dedupe_results(scored[:top_k])
+
+    # --- Cross-encoder reranking (bge-reranker-v2-m3) ---
+    try:
+        rerank_texts = [
+            f"{as_text(d.get('title'))}\n{as_text(d.get('text'))}" for d in candidate_docs
+        ]
+        scores = rerank_scores(query, rerank_texts, normalize=True)
+        ranked = sorted(zip(candidate_docs, scores), key=lambda item: item[1], reverse=True)
+        results = [(float(score), doc) for doc, score in ranked]
+    except Exception as exc:  # pragma: no cover - heavy deps optional
+        warnings.warn(f"Rerank failed, using RRF fusion scores: {exc}")
+        results = [(fused[source_id(doc)], doc) for doc in candidate_docs]
+
+    return dedupe_results(results)[:top_k]
 
 
 

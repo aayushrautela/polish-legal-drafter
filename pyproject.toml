@@ -14,6 +14,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = []
+distill = ["openai>=1.0", "python-dotenv>=1.0"]
 
 [project.scripts]
 legal-drafter = "legal_drafter.cli:main"
