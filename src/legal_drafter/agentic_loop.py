@@ -139,7 +139,19 @@ def run_agentic(
     read_set = read_set if read_set is not None else set()
     last_parsed = None
 
-    for _ in range(max_iter):
+    for it in range(max_iter):
+        if it == max_iter - 1:
+            # Deterministic forcing function: never let the agent burn the
+            # last step on more research. Demand the final JSON now.
+            messages.append({
+                "role": "user",
+                "content": (
+                    "TO JEST OSTATECZNY KROK. Przestań wyszukiwać - masz już "
+                    "wystarczająco materiałów. W TYM kroku wypisz WYŁĄCZNIE "
+                    "kompletny finalny JSON scenariusza zgodny ze schematem "
+                    "(żadnych wywołań narzędzi, żadnego tekstu poza JSON)."
+                ),
+            })
         last = messages[-1]
         use_tool = chat_tool if (chat_tool and last.get("role") == "tool") else chat_main
         resp = use_tool(messages, session_id=session_id)

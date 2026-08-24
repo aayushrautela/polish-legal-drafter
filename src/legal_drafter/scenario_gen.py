@@ -130,10 +130,34 @@ INSTRUCTION_TEMPLATES = {
 
 
 def build_instruction(i: int) -> tuple[str, str]:
+    if INSTRUCTION_BANK:
+        text, dt = INSTRUCTION_BANK[i % len(INSTRUCTION_BANK)]
+        return text, dt
     doc_types = list(INSTRUCTION_TEMPLATES.keys())
     dt = doc_types[i % len(doc_types)]
     templates = INSTRUCTION_TEMPLATES[dt]
     return templates[i % len(templates)], dt
+
+
+INSTRUCTION_BANK: list[tuple[str, str]] = []
+
+
+def load_instruction_bank(path: str) -> int:
+    """Load layperson questions from a phase-3 jsonl (instructions[].text)."""
+    n = 0
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            dt = rec.get("doc_type_primary") or rec.get("phase3_dt") or "other"
+            for v in rec.get("instructions") or []:
+                t = (v.get("text") or "").strip()
+                if t:
+                    INSTRUCTION_BANK.append((t, dt))
+                    n += 1
+    return n
 
 
 def _schema_skeleton() -> str:
@@ -677,7 +701,17 @@ def main() -> int:
         default=3,
         help="per-scenario retries on transient/network errors before marking it failed",
     )
+    ap.add_argument(
+        "--instructions",
+        default=None,
+        help="optional jsonl of phase-3 questions (instructions[].text) to distill from "
+        "instead of the built-in INSTRUCTION_TEMPLATES samples",
+    )
     args = ap.parse_args()
+    if args.instructions:
+        n_bank = load_instruction_bank(args.instructions)
+        logline_early = f"instruction bank: {n_bank} questions from {args.instructions}"
+        print(logline_early, flush=True)
     # Only probe the local Qdrant when we will actually use it (non-remote mode).
     # In remote/Modal mode retrieval is served from Modal CPU, so the generation
     # box must never open the local Qdrant at all.
@@ -824,6 +858,17 @@ def main() -> int:
         if scn is None:
             # Surface as a retryable error (transient model/parse failure).
             raise RuntimeError("no final JSON from teacher")
+        # The teacher sometimes emits `sources` as a list of bare strings
+        # (or a single string) instead of dicts; normalize so downstream
+        # .get("source_ref") calls never crash.
+        srcs = scn.get("sources")
+        if isinstance(srcs, str):
+            scn["sources"] = [{"source_ref": srcs}]
+        elif isinstance(srcs, list):
+            scn["sources"] = [
+                s if isinstance(s, dict) else {"source_ref": str(s)}
+                for s in srcs
+            ]
         # Collect the refs the teacher actually cited (chunks it read + source_refs
         # it named) and resolve them to verbatim corpus chunks. This is SERVED
         # FROM MODAL (CPU) - the generation box never opens the local Qdrant for

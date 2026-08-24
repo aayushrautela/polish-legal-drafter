@@ -78,19 +78,9 @@ volume = modal.Volume.from_name(VOLUME_NAME, create_if_missing=True)
 app = modal.App(name="legal-drafter-retrieval")
 
 
-@app.cls(
-    cpu=4.0,
-    memory=8192,
-    timeout=900,
-    volumes={VOLUME_MOUNT: volume},
-    image=image,
-    env={
-        "HF_HOME": HF_CACHE,
-        "HF_TRUST_REMOTE_CODE": "1",
-        "TOKENIZERS_PARALLELISM": "false",
-    },
-)
-class RetrievalService:
+class _RetrievalMixin:
+    """Shared body for the CPU and GPU retrieval services."""
+
     @modal.enter()
     def enter(self):
         sys.path.insert(0, "/pkg")
@@ -151,6 +141,9 @@ class RetrievalService:
 
     @modal.asgi_app()
     def app(self):
+        # Method name 'app' keeps the historical CPU URL stable:
+        # https://<workspace>--legal-drafter-retrieval-retrievalservice-app.modal.run
+        # The GPU class reuses this name under its own class-specific URL.
         from fastapi import FastAPI
 
         from legal_drafter.retrieval.agentic_tools import (
@@ -159,19 +152,80 @@ class RetrievalService:
             semantic_search,
         )
 
+        import threading
+        import inspect
+
+        # Blocking scans (keyword_search scrolls the whole corpus) must not run
+        # on the event loop nor concurrently: sync routes + global lock.
+        _tool_lock = threading.Lock()
+
+        # LLM-issued arguments arrive sloppy: wrong key names ("query" vs
+        # "keywords"), scalar where list expected, string numbers, stray keys.
+        # Coerce defensively so a malformed call degrades to empty results
+        # instead of HTTP 500 (which previously poisoned whole edit runs).
+        def _coerce(fn, item: dict) -> dict:
+            sig = inspect.signature(fn)
+            params = {p for p in sig.parameters}
+            item = dict(item or {})
+            if fn is keyword_search:
+                kw = item.get("keywords")
+                if kw is None and "query" in item:
+                    kw, item["query"] = item["query"], None
+                if isinstance(kw, str):
+                    kw = [kw]
+                item["keywords"] = [str(k) for k in (kw or [])][:8]
+                if "top_k" in item:
+                    try:
+                        item["top_k"] = max(1, min(50, int(item["top_k"])))
+                    except Exception:
+                        item["top_k"] = 10
+                if "filters" in item and not isinstance(item["filters"], dict):
+                    item["filters"] = None
+            elif fn is chunk_read and isinstance(item.get("chunk_ids"), str):
+                item["chunk_ids"] = [item["chunk_ids"]]
+            if fn is semantic_search and not item.get("query") and item.get("keywords"):
+                item["query"] = " ".join(str(k) for k in item["keywords"])
+            return {k: v for k, v in item.items() if k in params}
+
         fa = FastAPI()
 
+        import time as _time
+        def _safe(fn, item):
+            """Run a tool; on bad/missing args return a machine-readable hint
+            (HTTP 200) instead of a 500 - the calling LLM can then retry."""
+            _t0 = _time.time()
+            print(f"[tool] {fn.__name__} keys={sorted((item or {}).keys())}",
+                  flush=True)
+            try:
+                return fn(self.store, **_coerce(fn, item))
+            except TypeError as exc:
+                req = [p.name for p in inspect.signature(fn).parameters.values()
+                       if p.default is inspect.Parameter.empty and p.name != "self"]
+                return [{"error": f"{exc}",
+                         "hint": f"{fn.__name__} needs args {req}; you sent {sorted((item or {}).keys())}"}]
+            except Exception as exc:
+                print(f"[tool] {fn.__name__} EXC {type(exc).__name__}: {exc}",
+                      flush=True)
+                return [{"error": f"{type(exc).__name__}: {exc}",
+                         "hint": "retry once; if it repeats, switch tool"}]
+            finally:
+                print(f"[tool] {fn.__name__} done {(_time.time()-_t0)*1000:.0f}ms",
+                      flush=True)
+
         @fa.post("/keyword_search")
-        async def kw(item: dict):
-            return keyword_search(self.store, **(item or {}))
+        def kw(item: dict):
+            with _tool_lock:
+                return _safe(keyword_search, item)
 
         @fa.post("/semantic_search")
-        async def sem(item: dict):
-            return semantic_search(self.store, **(item or {}))
+        def sem(item: dict):
+            with _tool_lock:
+                return _safe(semantic_search, item)
 
         @fa.post("/chunk_read")
-        async def cr(item: dict):
-            return chunk_read(self.store, **(item or {}))
+        def cr(item: dict):
+            with _tool_lock:
+                return _safe(chunk_read, item)
 
         @fa.post("/get_template")
         async def gt(item: dict):
@@ -183,8 +237,13 @@ class RetrievalService:
 
             dt = (item or {}).get("doc_type", "other")
             text = None
-            if getattr(self, "template_store", None) is not None:
-                text = get_template_real(self.template_store, dt)
+            # These two doc_types resolve to a WRONG sales-agreement entry in
+            # the templates collection (semantic-match collision at build
+            # time). Curated fallbacks in templates.py are correct, so force
+            # them onto the fallback path.
+            if dt not in ("klauzula_niedozwolona", "kara_umowna"):
+                if getattr(self, "template_store", None) is not None:
+                    text = get_template_real(self.template_store, dt)
             if not text:
                 text = get_template_text(dt)
             return template_result(dt, text)
@@ -192,7 +251,7 @@ class RetrievalService:
         @fa.post("/resolve_sources")
         async def rs(item: dict):
             """Resolve a SMALL set of cited refs (chunk_id / source_ref) to their
-            verbatim corpus chunks. Served from Modal (CPU) so the generation box
+            verbatim corpus chunks. Served from Modal so the generation box
             never opens the local Qdrant for RAG; the payload stays small."""
             refs = (item or {}).get("refs") or []
             out: dict[str, dict] = {}
@@ -207,3 +266,37 @@ class RetrievalService:
             return out
 
         return fa
+
+
+@app.cls(
+    cpu=4.0,
+    memory=8192,
+    timeout=900,
+    volumes={VOLUME_MOUNT: volume},
+    image=image,
+    env={
+        "HF_HOME": HF_CACHE,
+        "HF_TRUST_REMOTE_CODE": "1",
+        "TOKENIZERS_PARALLELISM": "false",
+    },
+)
+class RetrievalService(_RetrievalMixin):
+    pass
+
+
+@app.cls(
+    gpu="L4",
+    cpu=4.0,
+    memory=16384,
+    timeout=900,
+    scaledown_window=300,
+    volumes={VOLUME_MOUNT: volume},
+    image=image,
+    env={
+        "HF_HOME": HF_CACHE,
+        "HF_TRUST_REMOTE_CODE": "1",
+        "TOKENIZERS_PARALLELISM": "false",
+    },
+)
+class RetrievalServiceGpu(_RetrievalMixin):
+    """Same API, L4 GPU - for bulk sweeps / interactive agent work."""

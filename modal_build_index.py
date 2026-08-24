@@ -63,7 +63,7 @@ app = modal.App(name="legal-drafter-rag-build")
 
 @app.function(
     image=image,
-    gpu="L4",
+    gpu="L40S",
     timeout=2400,
     volumes={VOLUME_MOUNT: volume},
     env={"HF_HOME": HF_CACHE, "TOKENIZERS_PARALLELISM": "false"},
@@ -98,14 +98,25 @@ def build_index():
     except Exception as exc:  # pragma: no cover - best effort
         log.warning("store.close() error: %s", exc)
 
-    # Copy the finished collection onto the Volume (no active RocksDB there).
-    src = Path(QDRANT_LOCAL)
-    dst = Path(QDRANT_VOLUME)
-    if dst.exists():
-        shutil.rmtree(dst)
-    shutil.copytree(src, dst)
+    # Replace ONLY the built collection on the Volume; leave any sibling
+    # collections (e.g. 'templates') intact. A full rmtree here previously
+    # wiped the templates collection (2026-08-23 incident).
+    src_coll = Path(QDRANT_LOCAL) / "collection" / COLLECTION
+    vol_qdrant = Path(QDRANT_VOLUME)
+    dst_coll = vol_qdrant / "collection" / COLLECTION
+    if not src_coll.exists():
+        raise RuntimeError(f"expected built collection missing: {src_coll}")
+    if dst_coll.exists():
+        shutil.rmtree(dst_coll)
+    dst_coll.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(src_coll, dst_coll)
+    for fname in ("meta.json", ".lock"):
+        s = Path(QDRANT_LOCAL) / fname
+        d = vol_qdrant / fname
+        if s.exists() and not d.exists():
+            shutil.copy2(s, d)
     elapsed = time.time() - t0
-    log.info("Copied qdrant %s -> %s", src, dst)
+    log.info("Copied collection %s -> %s", src_coll, dst_coll)
     log.info("Build complete in %.1fs. Points=%d", elapsed, getattr(store, "count", -1))
 
     volume.commit()
