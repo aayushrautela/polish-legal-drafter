@@ -1,0 +1,268 @@
+{
+  "generated_utc": "2026-08-23T20:22:33.812741+00:00",
+  "base": "anchors.zlecenie60.jsonl",
+  "dropped": [
+    {
+      "index": 6,
+      "chunk_id": "sejm_eli_du_2024_1061_art_759",
+      "reason": "statute out of range: KC art 759 (umowa agencyjna chapter)"
+    },
+    {
+      "index": 9,
+      "chunk_id": "sejm_eli_du_2024_1061_art_763",
+      "reason": "statute out of range: KC art 763 (agencyjna)"
+    },
+    {
+      "index": 10,
+      "chunk_id": "sejm_eli_du_2024_1061_art_764",
+      "reason": "statute out of range: KC art 764(1) (agencyjna)"
+    },
+    {
+      "index": 13,
+      "chunk_id": "sejm_eli_du_2024_1061_art_760",
+      "reason": "statute out of range: KC art 760(2) (agencyjna)"
+    },
+    {
+      "index": 17,
+      "chunk_id": "sejm_eli_du_2024_1061_art_796",
+      "reason": "statute out of range: KC art 796 (poza zleceniem)"
+    },
+    {
+      "index": 18,
+      "chunk_id": "sejm_eli_du_2024_1061_art_752",
+      "reason": "statute out of range: KC art 752 (komis chapter)"
+    },
+    {
+      "index": 26,
+      "chunk_id": "uokik_items:uokik_9df747432ec060c8",
+      "reason": "wrong domain: budowlany Inwestor/Wykonawca wstrzymanie zaplaty"
+    },
+    {
+      "index": 27,
+      "chunk_id": "uokik_items:uokik_4906e13cea90ee6f",
+      "reason": "wrong domain: budowlany Zamawiający odstapienie robót"
+    },
+    {
+      "index": 29,
+      "chunk_id": "uokik_items:uokik_b911a389e7f56a50",
+      "reason": "wrong domain: pośrednictwo nieruchomości wynagrodzenie"
+    },
+    {
+      "index": 31,
+      "chunk_id": "uokik_items:uokik_f235720528e58b0d",
+      "reason": "wrong domain: ubezpieczeniowy odszkodowanie Zleceniobiorcy"
+    },
+    {
+      "index": 32,
+      "chunk_id": "uokik_items:uokik_c126f67f04619bb5",
+      "reason": "exact duplicate of index 28"
+    },
+    {
+      "index": 34,
+      "chunk_id": "uokik_items:uokik_1eac8ceb3a13f4a3",
+      "reason": "wrong domain: pośrednictwo nieruchomości umowa przedwstępna"
+    },
+    {
+      "index": 37,
+      "chunk_id": "uokik_items:uokik_4f11bece174bd2ae",
+      "reason": "wrong domain: kurierski Nadawca/odbiorca cesja wierzytelności"
+    },
+    {
+      "index": 40,
+      "chunk_id": "uokik_items:uokik_10b5a5dad3f8d71f",
+      "reason": "wrong domain: ubezpieczenia postępowanie likwidacyjne"
+    },
+    {
+      "index": 41,
+      "chunk_id": "uokik_abusive_clause_112",
+      "reason": "wrong domain: pośrednictwo nieruchomości zakaz sąsiedzki"
+    },
+    {
+      "index": 42,
+      "chunk_id": "uokik_items:uokik_4be4ec8c968f1994",
+      "reason": "wrong domain: sprzedaż Sprzedający/Kupujący kara umowna zadatek"
+    },
+    {
+      "index": 43,
+      "chunk_id": "uokik_items:uokik_07027dfb3b0f9b01",
+      "reason": "exact duplicate of index 34"
+    },
+    {
+      "index": 51,
+      "chunk_id": "uokik_items:uokik_ea0c9667d31a4574",
+      "reason": "wrong domain: regulamin sklepu cesja praw"
+    },
+    {
+      "index": 52,
+      "chunk_id": "uokik_items:uokik_ebb202f794b60f4e",
+      "reason": "exact duplicate of index 51"
+    },
+    {
+      "index": 53,
+      "chunk_id": "uokik_items:uokik_8fe6c7b047ed12c5",
+      "reason": "off-type: umowa do dochodzenia roszczeń (adwokacka) bez świadczenia usług"
+    },
+    {
+      "index": 54,
+      "chunk_id": "sejm_eli_du_2024_17_art_148a",
+      "reason": "wrong statute: Kodeks karny art 148a (substring trap 'zleceni')"
+    },
+    {
+      "index": 58,
+      "chunk_id": "sejm_eli_du_2024_1061_art_70",
+      "reason": "generic KC art 70(5) - not zlecenie-specific"
+    }
+  ],
+  "reclassified_to_statute": [
+    45,
+    46,
+    47,
+    48,
+    49,
+    50
+  ],
+  "added": [
+    {
+      "chunk_id": "sejm_eli_du_2024_226_art_41",
+      "kind": "taxzus"
+    },
+    {
+      "chunk_id": "sejm_eli_du_2022_1233_art_11",
+      "kind": "clauses"
+    },
+    {
+      "chunk_id": "sejm_eli_du_2022_1233_art_23",
+      "kind": "clauses"
+    },
+    {
+      "chunk_id": "uokik_items:uokik_bed886a11d4e34e3",
+      "kind": "clauses"
+    },
+    {
+      "chunk_id": "uokik_items:uokik_e18b1879a00e0d0a",
+      "kind": "clauses"
+    },
+    {
+      "chunk_id": "uokik_items:uokik_7b0febcda0adcd7a",
+      "kind": "clauses"
+    }
+  ],
+  "final_n": 44,
+  "kind_distribution": {
+    "statute": 25,
+    "clauses": 17,
+    "taxzus": 2
+  },
+  "sha256": "9eee23210b82fe8f1075ec572e9bf585ed8c5d1b95107e68b59edde28ab4b8f5",
+  "wave2_expansion": {
+    "generated_utc": "2026-08-23T20:41:07.701066+00:00",
+    "base": "anchors.final44.jsonl",
+    "gathered_candidates": 171,
+    "reviewed": "top-scored subset incl. all wave1/wave2/wave4 + scored wave3; full-text or snippet READ before every admit",
+    "admitted": [
+      {
+        "chunk_id": "sejm_eli_du_2024_226_art_13",
+        "kind": "taxzus",
+        "why": "PIT art.13 - przychody z dzialalnosci wykonywanej osobiscie; pkt 8 definiuje przychody z umow zlecenia/o dzielo (web-verified MF source)"
+      },
+      {
+        "chunk_id": "sejm_eli_du_2024_1061_art_363",
+        "kind": "statute",
+        "why": "KC art.363 - forma naprawienia szkody (przywrócenie stanu vs suma pieniezna); grounds zlecenie liability/damages clauses"
+      },
+      {
+        "chunk_id": "extractor_v9:broad_0021_curated_eval_label_ebb0955bf35ceae0",
+        "kind": "clauses",
+        "why": "curated principle: kara umowna za samo opóznienie w zapłacie wynagrodzenia niezaleznie od odsetek"
+      },
+      {
+        "chunk_id": "extractor_v9:broad_0025_curated_eval_label_a9f9913d29071827",
+        "kind": "clauses",
+        "why": "curated principle: po rezygnacji zamawiajacego rozliczenie wykonanych prac i rzeczywistych kosztów, zwrot niewykorzystanej zaliczki"
+      },
+      {
+        "chunk_id": "uokik_items:uokik_f257b46580e0aaf9",
+        "kind": "clauses",
+        "why": "clause: prawo wstrzymania uslug przy nieuregulowaniu rachunku w terminie"
+      },
+      {
+        "chunk_id": "uokik_items:uokik_032b42b1d236cf1b",
+        "kind": "clauses",
+        "why": "clause: platne wezwanie do zaplaty po nieoplaconej fakturze"
+      },
+      {
+        "chunk_id": "uokik_items:uokik_1176ceb45c030028",
+        "kind": "clauses",
+        "why": "clause: start przedmiotu umowy warunkowany dostarczeniem dokumentów i wniesieniem oplaty"
+      }
+    ],
+    "notable_rejects": [
+      "PIT arts 22a/22d/22e/22f/22h/22l/22o/23a = fixed-asset AMORTIZATION and leasing definitions, not zlecenie taxation",
+      "KP chunk was art. 22^3 (e-mail monitoring), not §1 reclassification test; corpus lacks KP 22 §1 itself",
+      "sejm_eli_du_2024_1568_art_736 = KPC security-measure procedure, not KC 736",
+      "KC arts 741/749/750^1/353^1/385^1/484^2 absent from corpus under tried ids",
+      "banking payment-order 'zlecenie' clauses, estate brokerage, studies/TOS, travel-operator, abusive-pattern specimen fragments"
+    ],
+    "final_n": 51,
+    "sha256": "0fff7762f1c06159008fa2db8910b36769588d3a40c7f12b04904f1584c65dfd"
+  },
+  "wave3_v2": {
+    "generated_utc": "2026-08-23T22:05:45.413501+00:00",
+    "base": "anchors.final51.jsonl",
+    "sweep": "anchors.zlecenie75.jsonl (post-ingest re-sweep, target 75)",
+    "admitted_taxzus": [
+      "sejm_eli_du_2024_1773_art_8a",
+      "sejm_eli_du_2024_1773_art_8b",
+      "sejm_eli_du_2024_1773_art_8c",
+      "sejm_eli_du_2024_1773_art_8e",
+      "sejm_eli_du_2025_350_art_18",
+      "sejm_eli_du_2025_350_art_6",
+      "sejm_eli_du_2025_350_art_9"
+    ],
+    "admitted_clauses": [
+      "uokik_items:uokik_16ba30e925a46e39",
+      "uokik_items:uokik_385338582e7ba050",
+      "uokik_items:uokik_3bd5fc1c1c11481f",
+      "uokik_items:uokik_7a60d5c46cffebc9"
+    ],
+    "kind_relabel_note": "du_2024_1773 + du_2025_350 statute chunks -> taxzus (inflection broke substring classifier: 'stawki godzinowej')",
+    "rejected_families": "KC 752-796 agencyjna/komis x6, KK art 148a, KSH art 45, sus art 122 repeal-provisions, estate brokerage/courier/regulamin/insurance/windykacja clauses, dzielo kara 50000",
+    "final_n": 62,
+    "kind_distribution": {
+      "statute": 26,
+      "clauses": 26,
+      "taxzus": 10
+    },
+    "sha256": "972b5d9174e236280fef3f65a2ed79e9c218de33621270647634b461070fb18a"
+  },
+  "wave4_v2_audit_topup": {
+    "generated_utc": "2026-08-23T22:16:29.127346+00:00",
+    "trigger": "user check: unused zleceni* content across ALL corpus files (285 raw hits; mostly junk families + id-less cleaned_rag_chunks text-dups of kept clauses)",
+    "admitted": [
+      {
+        "chunk_id": "sejm_eli_du_2024_1773_art_8d",
+        "kind": "taxzus"
+      },
+      {
+        "chunk_id": "sejm_eli_du_2025_350_art_8",
+        "kind": "taxzus"
+      },
+      {
+        "chunk_id": "sejm_eli_du_2024_1061_art_751",
+        "kind": "statute"
+      }
+    ],
+    "notable_rejects": [
+      "sus art. 6a (childcare benefit titles), sus art. 16 (generic rate catalog)",
+      "uokik bezzwrotna oplat clause (credit-capital tail pollution)",
+      "uokik kancelaria sub-delegation (windykacja family consistency)"
+    ],
+    "final_n": 65,
+    "kind_distribution": {
+      "statute": 27,
+      "clauses": 26,
+      "taxzus": 12
+    },
+    "sha256": "a91a6f58c2036433fff05d665e039016d9992f9634c6ef1ea570fa7b73dd988c"
+  }
+}

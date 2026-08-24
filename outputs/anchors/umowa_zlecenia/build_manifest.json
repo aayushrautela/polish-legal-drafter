@@ -1,0 +1,210 @@
+{
+  "generated_utc": "2026-08-23T22:01:07.942036+00:00",
+  "doc_type": "umowa_zlecenia",
+  "target": 75,
+  "picked": 75,
+  "per_article_cap": 4,
+  "retrieval_endpoint": "https://nikkybrekas--legal-drafter-retrieval-retrievalservicegpu-app.modal.run",
+  "queries": [
+    {
+      "kind": "statute",
+      "query": "umowa zlecenia kodeks cywilny art 734 dokonanie czynności prawnej",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "statute",
+      "query": "art 735 wynagrodzenie za zlecenie odpłatność taryfa",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "statute",
+      "query": "art 738 powierzenie wykonania zlecenia osobie trzeciej zastępstwo",
+      "hits": 15,
+      "new": 12
+    },
+    {
+      "kind": "statute",
+      "query": "art 746 wypowiedzenie zlecenia ważne powody odwołanie",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "statute",
+      "query": "art 744 wynagrodzenie zlecenie po wykonaniu termin zapłaty",
+      "hits": 15,
+      "new": 9
+    },
+    {
+      "kind": "statute",
+      "query": "art 740 sprawozdanie z wykonania zlecenia informowanie zleceniodawcy",
+      "hits": 15,
+      "new": 12
+    },
+    {
+      "kind": "statute",
+      "query": "art 742 wydatki zleceniobiorcy zwrot zaliczka zlecenie",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "statute",
+      "query": "art 750 umowa o świadczenie usług odpowiednie stosowanie przepisów o zleceniu",
+      "hits": 15,
+      "new": 9
+    },
+    {
+      "kind": "statute",
+      "query": "art 491 wypowiedzenie umowy o staranne działanie termin zawód",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "statute",
+      "query": "art 471 nienależyte wykonanie zobowiązania naprawienie szkody",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "statute",
+      "query": "zlecenie śmierć strony art 747 rozwiązanie umowy",
+      "hits": 15,
+      "new": 10
+    },
+    {
+      "kind": "clauses",
+      "query": "umowa zlecenia wynagrodzenie stawka godzinowa postanowienie umowne",
+      "hits": 15,
+      "new": 6
+    },
+    {
+      "kind": "clauses",
+      "query": "ewidencja czasu pracy zleceniobiorca potwierdzenie liczby godzin klauzula",
+      "hits": 15,
+      "new": 11
+    },
+    {
+      "kind": "clauses",
+      "query": "wypowiedzenie umowy zlecenia okres wypowiedzenia postanowienie",
+      "hits": 15,
+      "new": 5
+    },
+    {
+      "kind": "clauses",
+      "query": "zakaz konkurencji poufność klauzula umowa zlecenia",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "clauses",
+      "query": "sprawozdanie rozliczenie zlecenia klauzula umowna",
+      "hits": 15,
+      "new": 12
+    },
+    {
+      "kind": "clauses",
+      "query": "zwrot kosztów podróży wydatków umowa zlecenia rozliczanie",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "clauses",
+      "query": "oświadczenie zleceniobiorcy inne tytuły do ubezpieczeń społecznych załącznik",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "clauses",
+      "query": "rachunek za wykonane usługi termin wystawienia płatność",
+      "hits": 15,
+      "new": 11
+    },
+    {
+      "kind": "clauses",
+      "query": "nieodpłatne zlecenie bez wynagrodzenia umowa",
+      "hits": 15,
+      "new": 5
+    },
+    {
+      "kind": "clauses",
+      "query": "podwykonawca zgoda na powierzenie czynności osobie trzeciej umowa zlecenia",
+      "hits": 15,
+      "new": 8
+    },
+    {
+      "kind": "taxzus",
+      "query": "minimalna stawka godzinowa umowa zlecenia 2026",
+      "hits": 15,
+      "new": 7
+    },
+    {
+      "kind": "taxzus",
+      "query": "umowa zlecenia składki ZUS student do 26 roku życia zwolnienie",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "taxzus",
+      "query": "zbieg tytułów do ubezpieczeń społecznych zlecenie etat minimum",
+      "hits": 15,
+      "new": 10
+    },
+    {
+      "kind": "taxzus",
+      "query": "ulga dla młodych PIT umowa zlecenia koszty uzyskania przychodu 20 procent",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "taxzus",
+      "query": "kontrola PIP minimalna stawka godzinowa kara grzywny zlecenie",
+      "hits": 15,
+      "new": 8
+    },
+    {
+      "kind": "services",
+      "query": "umowa zlecenia sprzątanie mieszkania biura usługi porządkowe",
+      "hits": 15,
+      "new": 8
+    },
+    {
+      "kind": "services",
+      "query": "umowa zlecenia marketing social media prowadzenie profilu",
+      "hits": 15,
+      "new": 10
+    },
+    {
+      "kind": "services",
+      "query": "umowa zlecenia opieka nad osobą starszą pomoc domowa",
+      "hits": 15,
+      "new": 6
+    },
+    {
+      "kind": "services",
+      "query": "umowa zlecenia konsultacje doradztwo usługi termin",
+      "hits": 15,
+      "new": 4
+    },
+    {
+      "kind": "services",
+      "query": "umowa zlecenia tłumaczenie tekstów usługa",
+      "hits": 15,
+      "new": 5
+    },
+    {
+      "kind": "services",
+      "query": "umowa o świadczenie usług przedsiębiorca usługi naprawa serwis",
+      "hits": 15,
+      "new": 9
+    }
+  ],
+  "kind_distribution": {
+    "statute": 35,
+    "clauses": 31,
+    "taxzus": 1,
+    "services": 8
+  },
+  "article_cap_respected": true,
+  "output": "anchors.zlecenie75.jsonl"
+}

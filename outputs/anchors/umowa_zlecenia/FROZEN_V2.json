@@ -1,0 +1,7 @@
+{
+  "file": "anchors.final_v265.jsonl",
+  "sha256": "a91a6f58c2036433fff05d665e039016d9992f9634c6ef1ea570fa7b73dd988c",
+  "n_anchors": 65,
+  "base": "anchors.final_v262.jsonl",
+  "frozen_utc": "2026-08-23T22:16:29.126930+00:00"
+}
