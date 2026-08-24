@@ -368,8 +368,12 @@ def format_template_payload(payload: dict) -> str:
     return "\n".join(out).strip()
 
 
-def get_template_real(store, doc_type: str) -> str | None:
+def get_template_real(store, doc_type: str, query: str | None = None, top_k: int = 1) -> str | None:
     """Retrieve the real structured template for ``doc_type`` from a Qdrant store.
+
+    ``query`` is optional free-text detail appended to the base doc_type query
+    (e.g. "for IT services with non-compete") to disambiguate between variants.
+    ``top_k`` controls how many candidates to consider (default 1).
 
     Returns the formatted template string, or ``None`` if no match is found
     (caller should fall back to the synthetic scaffold).
@@ -377,9 +381,10 @@ def get_template_real(store, doc_type: str) -> str | None:
     dt = (doc_type or "other").strip().lower() or "other"
     if dt == "other":
         return None
-    query = DOC_TYPE_QUERY.get(dt) or dt.replace("_", " ")
+    base_query = DOC_TYPE_QUERY.get(dt) or dt.replace("_", " ")
+    full_query = f"{base_query} {query}".strip() if query and query.strip() else base_query
     try:
-        hits = store.recall(query, top_k=1, candidate_k=10)
+        hits = store.recall(full_query, top_k=top_k, candidate_k=max(10, top_k * 5))
     except Exception:
         return None
     if not hits:

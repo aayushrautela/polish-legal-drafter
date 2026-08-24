@@ -197,8 +197,11 @@ def chunk_read(
     return out
 
 
-def get_template(doc_type: str | None = None) -> list[dict]:
+def get_template(doc_type: str | None = None, query: str | None = None) -> list[dict]:
     """Return the structural contract template for ``doc_type`` as one record.
+
+    ``query`` is optional free-text detail (e.g. "for IT services") appended
+    to the base doc_type query to disambiguate between variants.
 
     Prefers the REAL templates collection (built from the CC-BY-4.0
     legal-templates-multilingual dataset on Modal) when available locally; falls
@@ -215,7 +218,7 @@ def get_template(doc_type: str | None = None) -> list[dict]:
     try:
         local = QdrantHybridStore(collection_name="templates", path=DEFAULT_QDRANT_PATH)
         if local.exists():
-            text = get_template_real(local, dt)
+            text = get_template_real(local, dt, query=query)
     except Exception:
         text = None
     if not text:
@@ -335,14 +338,20 @@ TOOL_SCHEMAS = [
                 "rules), and adapt every clause to the specific facts and to the REAL sources "
                 "you retrieved. Fill or drop any {{placeholders}} as the facts require. Do "
                 "not paste the template's generic explanatory guidance verbatim into the "
-                "final document; PRESERVE its CC-BY-4.0 attribution."
+                "final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' "
+                "with extra detail (e.g. 'for IT services with hourly rate') to get a more "
+                "specific variant when multiple exist."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "doc_type": {
                         "type": "string",
-                        "description": "the doc_type being drafted (e.g. umowa_najmu)",
+                        "description": "the doc_type being drafted (e.g. umowa_zlecenia)",
+                    },
+                    "query": {
+                        "type": "string",
+                        "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')",
                     },
                 },
                 "required": ["doc_type"],

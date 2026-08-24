@@ -80,3 +80,6 @@ AGENTS.md
 # Local RAG index (Modal-built; never commit)
 .rag/
 src/.rag/
+
+# Thesis documents (kept local, synced via Overleaf — not part of the codebase)
+thesis/

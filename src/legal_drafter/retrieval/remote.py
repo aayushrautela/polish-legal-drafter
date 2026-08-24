@@ -30,8 +30,11 @@ class RemoteRetrieval:
     def chunk_read(self, **kw):
         return self._post("chunk_read", kw)
 
-    def get_template(self, doc_type: str):
-        return self._post("get_template", {"doc_type": doc_type})
+    def get_template(self, doc_type: str, query: str = None):
+        payload = {"doc_type": doc_type}
+        if query:
+            payload["query"] = query
+        return self._post("get_template", payload)
 
     def resolve_sources(self, refs):
         return self._post("resolve_sources", {"refs": list(refs or [])})

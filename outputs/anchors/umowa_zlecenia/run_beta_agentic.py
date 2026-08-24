@@ -32,24 +32,55 @@ from legal_drafter.retrieval.remote import RemoteRetrieval   # noqa: E402
 ENDPOINT = "https://nikkybrekas--legal-drafter-retrieval-retrievalservicegpu-app.modal.run"
 MAX_ITER = 6
 
-SYSTEM = (
-    "Jesteś doświadczonym polskim prawnikiem-redaktorem. Twoje zadanie: "
-    "rozszerzyć wzór UMOWY ZLECENIA o dodatkowe postanowienia dla konkretnych "
-    "sytuacji klientów. MASZ NARZĘDZIA RETRIEVAL: najpierw przeczytaj wzór "
-    "(get_template), potem sam zdecyduj, jakie materiały prawne i klauzule "
-    "pobrać z korpusu (semantic_search / keyword_search / chunk_read), żeby "
-    "edycje były poprawne prawnie i osadzone w prawdziwych źródłach. Pracuj "
-    "iteracyjnie: szukaj -> czytaj -> decyduj. "
-    "WAŻNE: W JEDNEJ TURZE WYWOŁAJ DOKŁADNIE JEDNO NARZĘDZIE."
+SYSTEM_RESEARCH = (
+    "You are an experienced Polish legal drafter researching material to "
+    "create a realistic VARIATION of a mandate contract (umowa zlecenia) "
+    "template. Each variation represents what a DIFFERENT client would need.\n\n"
+    "RETRIEVAL TOOLS:\n"
+    "- get_template(doc_type, query) — read the base template (query is optional detail)\n"
+    "- semantic_search(query) — semantic search over the corpus\n"
+    "- keyword_search(keywords) — keyword search\n"
+    "- chunk_read(chunk_ids) — full text of specific chunks\n\n"
+    "Read the base template, then search for provisions relevant to the "
+    "scenario direction provided. Ground everything in real material."
 )
 
-FORCED_LAST = (
-    "TO JEST OSTATECZNY KROK. Koniec wyszukiwania. Zwróć WYŁĄCZNIE strict JSON "
-    "(bez markdown): {\"edits\":[{\"op\":\"add|remove|modify\","
-    "\"target\":\"<sekcja lub fraza z wzoru>\",\"new_text\":\"<pełna polska "
-    "klauzula do wklejenia>\",\"old_text\":\"<fragment do usunięcia/zmiany, "
-    "puste dla add>\",\"cite_ref\":\"<chunk_id/source_ref użytego materiału>\","
-    "\"reason\":\"<jedno zdanie>\"}]} - 3 do 6 edycji."
+SYSTEM_DRAFT = (
+    "You are an experienced Polish legal drafter. Your ONLY task is to write "
+    "the COMPLETE modified mandate contract (umowa zlecenia) in Polish.\n\n"
+    "You will receive the RESEARCH HISTORY (base template + retrieved legal "
+    "provisions). Rules:\n"
+    "- Consider ONLY the RELEVANT chunks from the history; ignore noise.\n"
+    "- You may ADD, REMOVE, or REPLACE clauses in the base template to apply "
+    "the variation described in the initial goal — but every change must be "
+    "grounded in the retrieved provisions from the history. Do NOT invent "
+    "provisions, facts, or figures not present in the history.\n"
+    "- Start from the base template and use the retrieved provisions as support.\n"
+    "- Write a full, ready-to-use contract with all standard sections."
+)
+
+SYSTEM_QUESTIONS = (
+    "You write layperson questions in Polish that a client would ask to obtain "
+    "the given contract. Rules:\n"
+    "- Two questions: 'prosta' (1-3 short sentences, pure situation + need) and "
+    "'szczegolowa' (2-5 sentences with concrete details).\n"
+    "- Questions must NOT contain legal citations, article numbers, or lawyer "
+    "voice. They should sound like a real person describing their situation.\n"
+    "- Base them on what the contract actually covers."
+)
+
+FORCED_DRAFT = (
+    "Return ONLY strict JSON (no markdown):\n"
+    '{"summary": "<one-line: what client scenario this variation represents>",\n'
+    ' "contract": "<the COMPLETE modified contract in Polish, all sections>"}'
+)
+
+FORCED_QUESTIONS = (
+    "Return ONLY strict JSON (no markdown):\n"
+    '{"questions": [\n'
+    '  {"variant": "prosta", "text": "<1-3 sentences in Polish>"},\n'
+    '  {"variant": "szczegolowa", "text": "<2-5 sentences in Polish>"}\n'
+    ' ]}'
 )
 
 
@@ -81,44 +112,32 @@ def extract_json(text):
 
 
 def _parse_text_tag_args(raw: str) -> str:
-    """Parse Qwen/Hermes-style text-tag tool args that some providers
-    (KiloCode/tencent-hy3) pass through unconverted in the arguments field.
-    Extracts <arg_key>X</arg_key><arg_value>Y</arg_value> pairs into proper
-    JSON. Falls back to raw_decode for standard JSON args."""
-    import re
     raw_stripped = (raw or "").strip()
-    # try standard JSON first
     try:
-        obj = json.loads(raw_stripped)
-        return json.dumps(obj, ensure_ascii=False)
+        return json.dumps(json.loads(raw_stripped), ensure_ascii=False)
     except Exception:
         pass
-    # text-tag format: extract <arg_key>name</arg_key>...<arg_value>val</arg_value>
     keys = re.findall(r"<arg_key[^>]*>(.*?)</arg_key", raw_stripped)
     vals = re.findall(r"<arg_value[^>]*>(.*?)</arg_value", raw_stripped)
     if keys and vals and len(keys) == len(vals):
         obj = {}
-        for key, val in zip(keys, vals):
-            key = key.strip()
-            val = val.strip()
+        for k, v in zip(keys, vals):
+            k, v = k.strip(), v.strip()
             try:
-                val = json.loads(val)
+                v = json.loads(v)
             except Exception:
                 pass
-            obj[key] = val
+            obj[k] = v
         return json.dumps(obj, ensure_ascii=False)
-    # raw_decode fallback (litellm #20480 doubled JSON)
     try:
-        dec = json.JSONDecoder()
-        obj, _ = dec.raw_decode(raw_stripped)
+        obj, _ = json.JSONDecoder().raw_decode(raw_stripped)
         return json.dumps(obj, ensure_ascii=False)
     except Exception:
         pass
-    # last resort: if there's a {..} somewhere, extract it
-    start = raw_stripped.find("{")
-    if start >= 0:
+    i = raw_stripped.find("{")
+    if i >= 0:
         try:
-            obj, _ = dec.raw_decode(raw_stripped[start:])
+            obj, _ = json.JSONDecoder().raw_decode(raw_stripped[i:])
             return json.dumps(obj, ensure_ascii=False)
         except Exception:
             pass
@@ -126,19 +145,16 @@ def _parse_text_tag_args(raw: str) -> str:
 
 
 def _sanitize_tool_calls(calls, session_key: str):
-    """Fix corrupted tool calls from providers with broken FC bridges:
-    - text-tag args (Qwen/Hermes format passed through unconverted)
-    - litellm #20480 doubled-summary-args
-    - empty/duplicate ids
-    Also strips empty content from assistant messages (opencode pattern)."""
     out, seen = [], set()
     for k, tc in enumerate(calls):
         name = tc.function.name or f"tool_{k}"
-        raw = (tc.function.arguments or "")
-        args = _parse_text_tag_args(raw)
+        if not name or name in ("ExaWeb-web_search_exa", "web_search_exa",
+                                "web_fetch_exa", "ExaWeb-web_fetch_exa"):
+            continue
+        args = _parse_text_tag_args(tc.function.arguments)
         cid = tc.id or ""
         if not cid or cid in seen:
-            cid = f"call_{session_key}_{k}_{abs(hash(args)) % 99999}"
+            cid = f"call_{session_key}_{k}"
         seen.add(cid)
         out.append(types.SimpleNamespace(
             id=cid, type="function",
@@ -146,315 +162,344 @@ def _sanitize_tool_calls(calls, session_key: str):
     return out
 
 
-def make_stream_chat(client, model, session_id, temperature=0.2):
-    """Agent-1 style streaming turn WITH tools declared on EVERY request.
-    Fixes vs first pilot: (a) tools=TOOL_SCHEMAS actually sent - without it
-    the omnirouter injected its own Exa web-search tools; (b) litellm
-    session id groups the conversation; (c) tool-call deltas accumulated by
-    tc.id, NOT index (litellm #21331 collapses parallel indices to 0)."""
-
-    _turn = {"n": 0}
-    def chat(messages):
-        # STREAMING + tools; payload dumped per-turn so a 400 can be bisected
-        # against providers that work (opencode/codex drive this same route).
-        _turn["n"] += 1
-        tweak = os.environ.get("BETA_TWEAK", "")
-        kwargs = dict(model=model, messages=messages, temperature=temperature,
-                      max_tokens=int(os.environ.get("BETA_MAX_TOKENS", "16000")),
-                      timeout=600, stream=True,
-                      tools=TOOL_SCHEMAS, tool_choice="auto")
-        if tweak == "nochoice":
-            kwargs.pop("tool_choice")
-        if tweak == "notemp":
-            kwargs.pop("temperature")
-        if tweak == "nomax":
-            kwargs.pop("max_tokens")
-        if tweak == "contentnull":
-            cleaned = []
-            for m in messages:
-                m = dict(m)
-                if m.get("role") == "assistant" and m.get("tool_calls") and not (m.get("content") or "").strip():
-                    m.pop("content", None)
-                cleaned.append(m)
-            kwargs["messages"] = cleaned
-        Path(f"{HERE}/beta_experiment/last_request_t{_turn['n']}.json").write_text(
-            json.dumps(kwargs, ensure_ascii=False, default=str), encoding="utf-8")
-        parts, tc_map, vidx = [], {}, {}
-        next_vidx = 0
-        for chunk in client.chat.completions.create(**kwargs):
-            if not chunk.choices:
-                continue
-            d = chunk.choices[0].delta
-            if d is None:
-                continue
-            if getattr(d, "content", None):
-                parts.append(d.content)
-            for tc in getattr(d, "tool_calls", None) or []:
-                if tc.id:
-                    v = vidx.setdefault(tc.id, len(vidx))
-                else:
-                    v = vidx.get(tc.index, next_vidx)
-                slot = tc_map.setdefault(v, {"id": "", "name": "", "args": ""})
-                if getattr(tc, "index", 0) not in (None,) and tc.id is None:
-                    next_vidx = max(next_vidx, v + 1)
-                if tc.id:
-                    slot["id"] += tc.id
-                if getattr(tc.function, "name", None):
-                    slot["name"] += tc.function.name
-                if getattr(tc.function, "arguments", None):
-                    slot["args"] += tc.function.arguments
-        clean = [types.SimpleNamespace(
-                    id=s["id"], type="function",
-                    function=types.SimpleNamespace(name=s["name"], arguments=s["args"]))
-                 for _, s in sorted(tc_map.items()) if s["name"]]
-        message = types.SimpleNamespace(content="".join(parts), tool_calls=clean)
-        return types.SimpleNamespace(choices=[types.SimpleNamespace(message=message)])
-
-    return chat
+def is_successful_result(result):
+    """A tool call counts as successful only if it returned real content."""
+    if not isinstance(result, list) or not result:
+        return False
+    for r in result:
+        if isinstance(r, dict) and "error" not in r and (
+            r.get("text") or r.get("chunk_id")
+            or r.get("kind") == "structural_template"):
+            return True
+    return False
 
 
-def run_one(idx: int, client, model: str):
-    """Native tool-calling, ONE FORCED TOOL PER TURN (rotation):
-    get_template -> semantic_search -> keyword_search -> semantic_search ->
-    keyword_search -> final write (tools off). Native role:"tool" replies are
-    preserved; because each turn carries exactly one forced call, replays never
-    hit the multi-call streaming/replay bugs."""
-    set_remote(RemoteRetrieval(ENDPOINT))
-    chat_plain = make_stream_chat(client, model,
-                                  session_id=f"beta-agentic-{idx}", temperature=0.2)
+class CallCache:
+    """Detects repeated identical tool calls (loop guard)."""
 
-    def chat_forced(messages, name):
-        # force a specific single tool by overriding choice per-request
-        chatf = make_stream_chat(client, model,
-                                 session_id=f"beta-agentic-{idx}", temperature=0.2)
-        return chatf  # placeholder replaced below
+    def __init__(self, max_repeats: int = 3):
+        self.seen = {}
+        self.max_repeats = max_repeats
 
-    # build three chatters: forced-template, forced-search variants, free-write
-    def make(forced=None, use_tools=True):
-        kwargs_base = dict(session_id=f"beta-agentic-{idx}", temperature=0.2)
-        if not use_tools:
-            def chat_nt(messages):
-                kw = dict(model=model, messages=messages, temperature=0.2,
-                          max_tokens=16000, timeout=600)
-                resp = client.chat.completions.create(**kw)
-                return types.SimpleNamespace(choices=[types.SimpleNamespace(
-                    message=resp.choices[0].message)])
-            return chat_nt
-        def chat_f(messages):
-            kw = dict(model=model, messages=messages, temperature=0.2,
-                      max_tokens=16000, timeout=600, stream=True,
-                      tools=TOOL_SCHEMAS)
-            if forced:
-                kw["tool_choice"] = {"type": "function",
-                                     "function": {"name": forced}}
-            else:
-                kw["tool_choice"] = "auto"
-            Path(f"{HERE}/beta_experiment/last_request_{forced or 'auto'}.json") \
-                .write_text(json.dumps(
-                    {**{k: v for k, v in kw.items() if k != "messages"},
-                     "messages": kw["messages"]},
-                    ensure_ascii=False, default=str), encoding="utf-8")
-            parts, tc_map = [], {}
-            import time as _tt
-            _t0 = _tt.time(); _last = _t0; _n = 0
-            print(f"[stream] open", flush=True)
-            for chunk in client.chat.completions.create(**kw):
-                _now = _tt.time()
-                if _now - _last > 90:
-                    print(f"[stream][warn] gap {_now-_last:.0f}s", flush=True)
-                _last = _now; _n += 1
-                if _n == 1:
-                    print(f"[stream] first chunk {(_now-_t0):.1f}s", flush=True)
-                if not chunk.choices:
-                    continue
-                d = chunk.choices[0].delta
-                # INDEX-keyed accumulation (litellm #11407: ids missing after
-                # first chunk; #20480: trailing duplicate-summary chunk).
-                # Ids are captured from whichever chunk carries them first.
-                if d is None:
-                    continue
-                if getattr(d, "content", None):
-                    parts.append(d.content)
-                for tc in getattr(d, "tool_calls", None) or []:
-                    idx = getattr(tc, "index", 0) or 0
-                    slot = tc_map.setdefault(idx, {"id": "", "name": "", "args": ""})
-                    if tc.id and not slot["id"]:
-                        slot["id"] = tc.id          # first id wins, ignore rest
-                    fname = getattr(tc.function, "name", None)
-                    if fname and not slot["name"]:
-                        slot["name"] = fname
-                    cand = getattr(tc.function, "arguments", None)
-                    if cand:
-                        # duplicate-summary guard (#20480): final chunk repeats
-                        # the WHOLE args string - skip exact repeats
-                        if cand != slot["args"]:
-                            slot["args"] += cand
-            print(f"[stream] done chunks={_n} {(_tt.time()-_t0):.1f}s "
-                  f"content={len(parts)}ch calls={len(tc_map)}", flush=True)
-            message = types.SimpleNamespace(
-                content="".join(parts),
-                tool_calls=[types.SimpleNamespace(
-                    id=s["id"] or f"call_{k}", type="function",
-                    function=types.SimpleNamespace(name=s["name"], arguments=s["args"]))
-                    for k, s in sorted(tc_map.items())])
-            return types.SimpleNamespace(choices=[types.SimpleNamespace(message=message)])
-        return chat_f
+    def over_limit(self, tool: str, args: dict) -> bool:
+        key = (tool, json.dumps(args, sort_keys=True, ensure_ascii=False))
+        self.seen[key] = self.seen.get(key, 0) + 1
+        return self.seen[key] > self.max_repeats
 
-    schedule = ["get_template", "semantic_search", "keyword_search",
-                "semantic_search", "keyword_search"]
+
+def _stream_turn(client, model, messages, tools=None, temperature=0.2):
+    """One streaming turn. Returns SimpleNamespace with .content, .reasoning, .tool_calls."""
+    kwargs = dict(model=model, messages=messages, temperature=temperature,
+                  max_tokens=16000, timeout=600, stream=True)
+    if tools:
+        kwargs["tools"] = tools
+        kwargs["tool_choice"] = "auto"
+    parts, reasoning_parts, tc_map = [], [], {}
+    import time as _tt
+    _t0 = _tt.time()
+    for chunk in client.chat.completions.create(**kwargs):
+        if not chunk.choices:
+            continue
+        d = chunk.choices[0].delta
+        if d is None:
+            continue
+        if getattr(d, "content", None):
+            parts.append(d.content)
+        if getattr(d, "reasoning", None):
+            reasoning_parts.append(d.reasoning)
+        for tc in getattr(d, "tool_calls", None) or []:
+            i = getattr(tc, "index", 0) or 0
+            slot = tc_map.setdefault(i, {"id": "", "name": "", "args": ""})
+            if tc.id and not slot["id"]:
+                slot["id"] = tc.id
+            fname = getattr(tc.function, "name", None)
+            if fname and not slot["name"]:
+                slot["name"] = fname
+            cand = getattr(tc.function, "arguments", None)
+            if cand and cand != slot["args"]:
+                slot["args"] += cand
+    content = "".join(parts)
+    reasoning = "".join(reasoning_parts)
+    tool_calls = [types.SimpleNamespace(
+        id=s["id"] or f"call_{k}", type="function",
+        function=types.SimpleNamespace(name=s["name"], arguments=s["args"]))
+        for k, s in sorted(tc_map.items())]
+    print(f"[stream] {(_tt.time()-_t0):.1f}s content={len(content)}ch "
+          f"reasoning={len(reasoning)}ch calls={len(tool_calls)}", flush=True)
+    return types.SimpleNamespace(
+        choices=[types.SimpleNamespace(message=types.SimpleNamespace(
+            content=content, reasoning=reasoning, tool_calls=tool_calls))])
+
+
+COVERED_FILE = None
+
+
+def load_covered():
+    if COVERED_FILE and COVERED_FILE.exists():
+        return [l.strip() for l in COVERED_FILE.read_text(encoding="utf-8").splitlines() if l.strip()]
+    return []
+
+
+def save_covered(summaries):
+    if COVERED_FILE:
+        with open(COVERED_FILE, "a", encoding="utf-8") as f:
+            for s in summaries:
+                f.write(s + "\n")
+
+
+def run_one(idx: int, client, model: str, endpoint: str):
+    set_remote(RemoteRetrieval(endpoint))
+    covered = load_covered()
+    hints = []
+    hints_path = HERE / "beta_experiment" / "hints.txt"
+    if hints_path.exists():
+        hints = [l.strip() for l in hints_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    hint = hints[(idx - 1) % len(hints)] if hints else ""
+
+    # --- PHASE 1: RESEARCH (streaming + tools) ---
+    system = SYSTEM_RESEARCH
+    if covered:
+        system += "\n\nPreviously created variations (do NOT repeat):\n"
+        for c in covered:
+            system += f"- {c}\n"
+    system += f"\nScenario direction: {hint}."
 
     messages = [
-        {"role": "system", "content": SYSTEM},
+        {"role": "system", "content": system},
         {"role": "user", "content":
-         "Rozszerz wzór umowy zlecenia o 3-6 nowych postanowień dla różnych "
-         "sytuacji klientów. Wykonuj POJEDYNCZE wywołania narzędzi z planu "
-         "(wzór -> wyszukiwania), a na końcu zwróć finalny JSON edycji."},
+         "Research material for a variation of this mandate contract. "
+         "Read the template, then search for provisions relevant to the "
+         "scenario direction. You have 4 tool turns."},
     ]
-    trace, edits = [], []
+    trace = []
     read_set = set()
+    cache = CallCache(max_repeats=3)
+    success = 0
+    MAX_ITER = 10  # hard safety net; we break at 5 successful calls
 
-    for step_name in schedule:
-        chat_f = make(forced=step_name)
-        # NO user message here: assistant(tool_calls) must be followed by the
-        # matching role:"tool" reply with NOTHING in between (OpenAI spec;
-        # wedging a user turn caused provider 400). Steering rides in the
-        # initial task message + tool-result tails.
-        print(f"[run{idx}] forced {step_name}", flush=True)
-        try:
-            resp = chat_f(messages)
-        except Exception:
-            print(f"[run{idx}] FAILED - payload kept: last_request_t*.json", flush=True)
-            raise
+    for it in range(MAX_ITER):
+        print(f"[run{idx}] P1 turn {it} (success={success})", flush=True)
+        resp = _stream_turn(client, model, messages, tools=TOOL_SCHEMAS)
         msg = resp.choices[0].message
-        msg.tool_calls = _sanitize_tool_calls(msg.tool_calls or [],
-                                              session_key=f"{idx}")
-        tc = msg.tool_calls[0] if msg.tool_calls else None
-        # serialize assistant turn natively (with its tool_call)
-        messages.append({"role": "assistant",
-                         "content": (msg.content or "").strip() or None,
-                         "tool_calls": [{"id": getattr(tc, "id", "call_x"),
-                                         "type": "function",
+        msg.tool_calls = _sanitize_tool_calls(msg.tool_calls or [], str(idx))
+        if not msg.tool_calls:
+            trace.append({"p1_turn": it, "note": "no tool calls, stopping research"})
+            break
+        messages.append({"role": "assistant", "content": msg.content or None,
+                         "reasoning": msg.reasoning or "",
+                         "tool_calls": [{"id": tc.id, "type": "function",
                                          "function": {"name": tc.function.name,
                                                       "arguments": tc.function.arguments}}
-                                        for tc in ([tc] if tc else [])
-                                        ] } )
-        if not tc:
-            trace.append({"step": step_name, "note": "no tool call emitted"})
-            # strip nothing; next forced turn continues
-            continue
-        try:
-            args = json.loads(tc.function.arguments or "{}")
-        except Exception:
-            args = {}
-        if tc.function.name == "get_template" and not args.get("doc_type"):
-            args["doc_type"] = "umowa_zlecenia"
-        if tc.function.name == "chunk_read" and "exclude_ids" not in args:
-            args["exclude_ids"] = sorted(read_set)
-        print(f"[run{idx}] exec {tc.function.name} args={str(args)[:90]}", flush=True)
-        result = None
-        for attempt in (1, 2):
+                                        for tc in msg.tool_calls]})
+        for tc in msg.tool_calls:
             try:
-                import time as _t
-                if attempt == 2:
-                    _t.sleep(3)
+                args = json.loads(tc.function.arguments or "{}")
+            except Exception:
+                args = _parse_text_tag_args(tc.function.arguments)
+                args = json.loads(args) if args else {}
+            if not isinstance(args, dict):
+                args = {}
+            if tc.function.name == "get_template" and not args.get("doc_type"):
+                args["doc_type"] = "umowa_zlecenia"
+            if tc.function.name == "chunk_read" and "exclude_ids" not in args:
+                args["exclude_ids"] = sorted(read_set)
+            print(f"[run{idx}]   {tc.function.name} {str(args)[:80]}", flush=True)
+            if cache.over_limit(tc.function.name, args):
+                messages.append({"role": "tool", "tool_call_id": tc.id,
+                                 "content": json.dumps(
+                                     [{"warning": "duplicate call suppressed; "
+                                                 "try a different approach"}])})
+                continue
+            try:
                 result = execute_tool(None, tc.function.name, args)
-                break
             except Exception as exc:
-                if attempt == 2:
-                    names = [t["function"]["name"] for t in TOOL_SCHEMAS]
-                    result = [{"error": f"{type(exc).__name__}: {exc}",
-                               "hint": f"available tools: {names}"}]
-        if tc.function.name == "chunk_read":
-            for rr in (result if isinstance(result, list) else []):
-                cid = rr.get("chunk_id") if isinstance(rr, dict) else None
-                if cid and isinstance(rr, dict) and not rr.get("already_read"):
-                    read_set.add(str(cid))
-        if isinstance(result, list) and result and isinstance(result[0], dict) \
-                and "error" in result[0]:
-            names = [t["function"]["name"] for t in TOOL_SCHEMAS]
-            result[0]["hint"] = f"available tools: {names}"
-        trace.append({"step": step_name, "tool": tc.function.name,
-                      "args_head": str(args)[:80], "items": len(result)})
-        # native tool reply (single id matches the single call)
-        # RAW TEXT like opencode (no JSON envelope): join items as readable
-        # blocks; content is opaque to the API anyway
-        if isinstance(result, list):
-            body = "\n\n".join(
-                (r.get("text") if isinstance(r, dict) and r.get("text")
-                 else json.dumps(r, ensure_ascii=False))
-                for r in result)
-        else:
-            body = str(result)
-        if len(body) > 60000:
-            print(f"[run{idx}] tool result truncated {len(body)}->60000", flush=True)
-            body = body[:60000]
-        messages.append({"role": "tool", "tool_call_id": getattr(tc, "id", "") or "call_x",
-                         "content": body +
-                          "\n\n[Kontynuuj: następne narzędzie z planu "
-                          "(semantic_search/keyword_search) albo, gdy masz "
-                          "dość materiału, zakończ — zarządamy finalny JSON.]"
-                          + ("\n[OSTATECZNY KROK. " + FORCED_LAST + "]"
-                             if step_name == schedule[-1] else "")})
+                result = [{"error": str(exc)}]
+            if tc.function.name == "chunk_read":
+                for rr in (result if isinstance(result, list) else []):
+                    cid = rr.get("chunk_id") if isinstance(rr, dict) else None
+                    if cid:
+                        read_set.add(str(cid))
+            blob = json.dumps(result, ensure_ascii=False)
+            messages.append({"role": "tool", "tool_call_id": tc.id,
+                             "content": blob[:60000]})
+            if is_successful_result(result):
+                success += 1
+        if success >= 5:
+            print(f"[run{idx}] reached 5 successful tool calls, stopping research",
+                  flush=True)
+            break
 
-    # FINAL WRITE: history already ends with the last tool reply whose tail
-    # carries FORCED_LAST - provider continues straight into the JSON.
-    chat_w = make(use_tools=False)
-    resp = chat_w(messages)
-    raw_write = resp.choices[0].message.content or ""
-    print(f"[run{idx}] WRITE: {len(raw_write)}ch | head: {raw_write[:200]}", flush=True)
-    parsed = extract_json(raw_write)
-    if not parsed:
-        print(f"[run{idx}] WRITE: extract_json FAILED on {len(raw_write)}ch", flush=True)
-        print(f"[run{idx}] WRITE tail: {raw_write[-300:]}", flush=True)
-    edits = (parsed or {}).get("edits", [])
-    trace.append({"step": "write", "edits": len(edits), "raw_len": len(raw_write)})
-    print(f"[run{idx}] DONE edits={len(edits)}", flush=True)
-    return {"edits": edits, "trace": trace}
+    # --- PHASE 2: DRAFTING BRIEF (streaming, NO tools) ---
+    print(f"[run{idx}] P2 drafting brief", flush=True)
+    transcript = []
+    for m in messages:
+        role = m["role"]
+        if role == "system":
+            continue
+        if role == "user":
+            transcript.append(f"USER TASK: {m.get('content','')}")
+        elif role == "assistant":
+            if m.get("content"):
+                transcript.append(f"DRAFTER: {m['content']}")
+            for tc in (m.get("tool_calls") or []):
+                fn = tc["function"]["name"]
+                args = tc["function"]["arguments"]
+                transcript.append(f"DRAFTER CALLED {fn}({args})")
+        elif role == "tool":
+            try:
+                parsed = json.loads(m.get("content") or "[]")
+            except Exception:
+                parsed = None
+            if isinstance(parsed, list):
+                # keep full template text; cap other chunk text at 3000 chars
+                items = []
+                for r in parsed:
+                    if isinstance(r, dict):
+                        r = dict(r)
+                        if "text" in r and len(r["text"]) > 3000 and r.get("kind") != "structural_template":
+                            r["text"] = r["text"][:3000] + " …[truncated]"
+                        items.append(r)
+                    else:
+                        items.append(r)
+                blob = json.dumps(items, ensure_ascii=False)
+            else:
+                blob = (m.get("content") or "")[:6000]
+            transcript.append(f"RESULT: {blob}")
+    transcript_text = "\\n".join(transcript)
+
+    p2_messages = [
+        {"role": "system", "content": SYSTEM_DRAFT},
+        {"role": "user", "content": (
+            f"INITIAL GOAL: making a {hint} mandate contract, applying the "
+            f"extra applicable provisions found in the research.\n\n"
+            "RESEARCH HISTORY (use ONLY this material):\n" + transcript_text +
+            "\n\n" + FORCED_DRAFT
+        )},
+    ]
+    p2_resp = _stream_turn(client, model, p2_messages)
+    p2_raw = p2_resp.choices[0].message.content or ""
+    print(f"[run{idx}] P2 draft: {len(p2_raw)}ch", flush=True)
+    p2_parsed = extract_json(p2_raw)
+    if not p2_parsed:
+        print(f"[run{idx}] P2 extract_json FAILED", flush=True)
+    summary = (p2_parsed or {}).get("summary", "")
+    contract = (p2_parsed or {}).get("contract", "")
+
+    # --- PHASE 3: QUESTIONS from contract (streaming, NO tools) ---
+    print(f"[run{idx}] P3 questions", flush=True)
+    p3_system = SYSTEM_QUESTIONS + (
+        f"\n\nINITIAL GOAL: {hint}\n\nCONTRACT:\n" + (contract or "")[:45000]
+    )
+    p3_messages = [
+        {"role": "system", "content": p3_system},
+        {"role": "user", "content": FORCED_QUESTIONS},
+    ]
+    p3_resp = _stream_turn(client, model, p3_messages)
+    raw = p3_resp.choices[0].message.content or ""
+    print(f"[run{idx}] P3 output: {len(raw)}ch", flush=True)
+    parsed = extract_json(raw)
+
+    variation = {
+        "run": idx,
+        "hint": hint,
+        "summary": summary,
+        "contract": contract,
+        "questions": (parsed or {}).get("questions", []),
+        "research_summary": transcript_text[:2000],
+    }
+    # Distillation-ready trajectory: full Phase-1 research trace (with reasoning)
+    # + the drafted contract. Phase-3 questions are the input framings.
+    trajectory = {
+        "run": idx,
+        "hint": hint,
+        "scenario": hint,
+        "tools": TOOL_SCHEMAS,
+        "messages": [
+            {"role": "system", "content": SYSTEM_RESEARCH},
+            {"role": "user", "content":
+             "Research material for a variation of this mandate contract. "
+             "Read the template, then search for provisions relevant to the "
+             "scenario direction. You have 4 tool turns."},
+            *[{"role": m["role"],
+               "content": m.get("content"),
+               **({"reasoning": m["reasoning"]} if m.get("reasoning") else {}),
+               **({"tool_calls": m["tool_calls"]} if m.get("tool_calls") else {}),
+               **({"tool_call_id": m["tool_call_id"], "name": m.get("name")}
+                  if m["role"] == "tool" else {})}
+              for m in messages if m["role"] != "system"],
+            {"role": "assistant", "content": contract or "",
+             "note": "Phase-2 drafted contract (final answer)"},
+        ],
+        "contract": contract,
+        "questions": (parsed or {}).get("questions", []),
+    }
+    if not variation["contract"]:
+        print(f"[run{idx}] WARN: empty contract", flush=True)
+
+    if variation["summary"]:
+        save_covered([variation["summary"]])
+    print(f"[run{idx}] DONE: contract={len(variation['contract'])}ch "
+          f"questions={len(variation['questions'])}", flush=True)
+    return variation, trajectory
 
 
 def main() -> int:
+    global COVERED_FILE
+    COVERED_FILE = HERE / "beta_experiment" / "covered.txt"
     env = load_env(os.path.join(HERE, "..", "..", "..", ".env"))
     from openai import OpenAI
-    client = OpenAI(base_url=env["TEACHER_BASE_URL"], api_key=env["TEACHER_API_KEY"])
-    model = env["TEACHER_MODEL"]
+    client = OpenAI(base_url=env["TEACHER_BASE_URL"],
+                    api_key=env["CHECKER_API_KEY"] or env["TEACHER_API_KEY"])
+    model = env["CHECKER_MODEL"]
+    endpoint = os.environ.get(
+        "RETRIEVAL_ENDPOINT",
+        "https://nikkybrekas--legal-drafter-retrieval-retrievalservicegpu-app.modal.run")
+    print(f"[beta] model={model} endpoint={endpoint[:60]}...", flush=True)
+
+    # Warm up the Modal retrieval endpoint so the first tool call isn't a cold start
+    try:
+        warm = RemoteRetrieval(endpoint)
+        print("[beta] warming up retrieval endpoint...", flush=True)
+        warm.get_template("umowa_zlecenia")
+        print("[beta] endpoint warm.", flush=True)
+    except Exception as e:
+        print(f"[beta] warmup warning: {e}", flush=True)
+
+    out_dir = HERE / "beta_experiment"
+    n_runs = int(os.environ.get("BETA_RUNS", "3"))
+    workers = int(os.environ.get("BETA_WORKERS", "1"))
+    run_ids = list(range(1, n_runs + 1))
 
     results, errors = {}, {}
 
     def work(i):
         try:
-            results[f"run{i}"] = run_one(i, client, model)
+            variation, trajectory = run_one(i, client, model, endpoint)
+            results[f"run{i}"] = variation
+            out_path = out_dir / f"variation_{i}.json"
+            out_path.write_text(json.dumps(variation, ensure_ascii=False, indent=1),
+                                encoding="utf-8")
+            traj_path = out_dir / f"trajectory_{i}.json"
+            traj_path.write_text(json.dumps(trajectory, ensure_ascii=False, indent=1),
+                                 encoding="utf-8")
+            print(f"[save] variation_{i}.json + trajectory_{i}.json", flush=True)
         except Exception as e:
             errors[f"run{i}"] = f"{type(e).__name__}: {e}"
+            print(f"[run{i}] ERROR: {e}", flush=True)
 
-    workers = int(os.environ.get("BETA_WORKERS", "3"))
-    run_ids = list(range(1, int(os.environ.get("BETA_RUNS", "4"))))[:max(workers,1)] \
-        if False else [i for i in (1, 2, 3)]
     with ThreadPoolExecutor(max_workers=workers) as ex:
-        list(ex.map(work, run_ids[:workers] if workers < 3 else run_ids))
-
-    out_dir = HERE / "beta_experiment"
-    for rid, data in results.items():
-        (out_dir / f"agentic_{rid}.json").write_text(
-            json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+        list(ex.map(work, run_ids))
 
     lines = []
-    bank_refs = None
     for rid, data in sorted(results.items()):
-        eds = data.get("edits", [])
-        ops = {}
-        for e in eds:
-            ops[e.get("op")] = ops.get(e.get("op"), 0) + 1
-        n_calls = sum(len(s.get("calls", [])) for s in data.get("trace", []))
-        lines.append(f"{rid}: {len(eds)} edits {ops} | tool_calls={n_calls} "
-                     f"| iters={len(data.get('trace', []))}")
-        for e in eds:
-            lines.append(f"   [{e.get('op')}] {str(e.get('target'))[:60]} "
-                         f"cite={str(e.get('cite_ref'))[:44]}")
+        lines.append(f"{rid}: contract={len(data.get('contract',''))}ch "
+                     f"questions={len(data.get('questions',[]))} | "
+                     f"{data.get('summary','')[:60]}")
     if errors:
-        lines.append("ERRORS: " + json.dumps(errors))
+        lines.append(f"ERRORS: {json.dumps(errors)}")
     digest = "\n".join(lines)
     (out_dir / "compare_agentic.txt").write_text(digest, encoding="utf-8")
-    print(digest)
+    print(digest, flush=True)
     return 0
 
 

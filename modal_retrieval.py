@@ -236,6 +236,7 @@ class _RetrievalMixin:
             )
 
             dt = (item or {}).get("doc_type", "other")
+            query = (item or {}).get("query")
             text = None
             # These two doc_types resolve to a WRONG sales-agreement entry in
             # the templates collection (semantic-match collision at build
@@ -243,7 +244,7 @@ class _RetrievalMixin:
             # them onto the fallback path.
             if dt not in ("klauzula_niedozwolona", "kara_umowna"):
                 if getattr(self, "template_store", None) is not None:
-                    text = get_template_real(self.template_store, dt)
+                    text = get_template_real(self.template_store, dt, query=query)
             if not text:
                 text = get_template_text(dt)
             return template_result(dt, text)
