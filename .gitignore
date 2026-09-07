@@ -33,6 +33,7 @@ outputs/eval100/*
 !outputs/eval100/eval100_final.jsonl
 !outputs/eval100/holdout_ids_true42.json
 !outputs/eval100/external_58.jsonl
+!outputs/eval100/*.sha256
 !outputs/eval100/README.md
 !outputs/eval100/sampling_notes.md
 !outputs/qa_pairs_all_final/
