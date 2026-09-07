@@ -2,12 +2,12 @@
 
 Research prototype for structured Polish legal-document drafting with
 deterministic rendering, retrieval-aware validation, and verifier scaffolding.
-Developed as part of an engineering thesis on synthesising grounded,
-tool-trajectory training data for a small agentic drafting model.
+Built as an engineering thesis on synthesising grounded, tool-trajectory
+training data for a small agentic drafting model.
 
-This repository ships the code path **plus the frozen research artifacts**
-(training bank, evaluation sets, corpus sources, anchors, LoRA adapters) so
-that every number in the thesis is reproducible from the repo contents.
+The repo ships the code and the frozen research artifacts: training bank,
+evaluation sets, corpus sources, anchors, and the trained LoRA adapters, all
+with SHA-256 sidecars so the datasets behind the thesis numbers can be checked.
 
 This is a research prototype, not legal advice.
 
@@ -33,11 +33,11 @@ thesis/                     LaTeX sources + PDF (local; not tracked)
 
 Key docs:
 
-- `PIPELINES.md` — end-to-end stage-by-stage flow with rerun commands.
-- `EVAL_RECIPE.md` — how to serve base/LoRA checkpoints with vLLM and replay eval100.
-- `docs/ARCHITECTURE.md`, `docs/VERIFIER_SPEC.md` — design notes.
+- `PIPELINES.md`: end-to-end stage-by-stage flow with rerun commands.
+- `EVAL_RECIPE.md`: how to serve base/LoRA checkpoints with vLLM and replay eval100.
+- `docs/ARCHITECTURE.md`, `docs/VERIFIER_SPEC.md`: design notes.
 
-## Pipeline (summary)
+## Pipeline
 
 ```text
 corpus (9 JSONL, 14,197 chunks)
@@ -51,12 +51,12 @@ corpus (9 JSONL, 14,197 chunks)
                                            blinded two-judge comparison (replayed + external set)
 ```
 
-## Results (thesis headline)
+## Results
 
-Three-way blinded judge comparison on the 100-question replay: decisive win
-rates base-vs-lora250 0.561, base-vs-final 0.529, lora250-vs-final 0.368 —
-all within the ±0.22–0.24 detectable-effect band, i.e. no configuration is
-distinguishable at this sample size. Full analysis and error accounting are in
+Blinded two-judge comparison on the 100-question replay gives decisive win
+rates of 0.561 (base vs lora250), 0.529 (base vs final), and 0.368 (lora250 vs
+final), all inside the ±0.22-0.24 detectable-effect band: at this sample size
+no configuration is distinguishable. Full analysis and error accounting are in
 `thesis/WUT-Thesis/` (built locally with `./tectonic`).
 
 ## Setup
@@ -68,7 +68,7 @@ pip install -e .[dev]
 cp .env.example .env
 ```
 
-## Run the public smoke path
+## Smoke run
 
 ```bash
 legal-drafter validate-config
@@ -76,10 +76,10 @@ legal-drafter smoke --facts-file examples/facts_umowa_zlecenia.txt --out-dir out
 ```
 
 The smoke path supports `UMOWA_ZLECENIA` (mandate/work-services agreement) only
-and does not call an LLM: it verifies that public configuration loads correctly
-and writes a deterministic sample draft/report under `outputs/`, which is
-ignored by Git. The 25 supported document types of the full system live in the
-shipped specs/templates and the frozen data.
+and does not call an LLM: it checks that public configuration loads and writes
+a deterministic sample draft/report under `outputs/`, which is ignored by Git.
+The full pipeline covers 25 document types; their per-type anchors and training
+data are in `outputs/anchors/` and the frozen bank.
 
 ## Verify shipped artifacts
 
