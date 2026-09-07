@@ -15,7 +15,7 @@ RERANKER_ID = "BAAI/bge-reranker-v2-m3"
 def _bge_model():
     from FlagEmbedding import BGEM3FlagModel
 
-    return BGEM3FlagModel(BGE_MODEL_ID, use_fp16=False)
+    return BGEM3FlagModel(BGE_MODEL_ID, use_fp16=True)
 
 
 @lru_cache(maxsize=1)
@@ -29,7 +29,7 @@ def _reranker():
     except ImportError:  # pragma: no cover - fallback for older envs
         from FlagEmbedding import FlagReranker
 
-        return FlagReranker(RERANKER_ID, use_fp16=False)
+        return FlagReranker(RERANKER_ID, use_fp16=True)
 
 
 def encode(texts: Sequence[str]) -> tuple[List[List[float]], List[dict]]:

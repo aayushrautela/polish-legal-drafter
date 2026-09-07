@@ -83,3 +83,8 @@ src/.rag/
 
 # Thesis documents (kept local, synced via Overleaf — not part of the codebase)
 thesis/
+
+# Never commit: private keys, local build tools, run logs
+vast_ai_key*
+tectonic
+*.log

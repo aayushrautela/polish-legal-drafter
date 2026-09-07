@@ -2,7 +2,8 @@
 
 Downloads the consolidated-text PDF from api.sejm.gov.pl ELI, splits it into
 per-article chunks, and emits records with EXACTLY the same schema as
-corpus_ingest.fetch_sejm_act so modal_build_index can embed them unchanged.
+corpus_ingest.fetch_sejm_act so the index builder (scripts/rag/build_index.py)
+can embed them unchanged.
 origin is set to ``sejm_eli_pdf`` to mark the different extraction path.
 """
 from __future__ import annotations

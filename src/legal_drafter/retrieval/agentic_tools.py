@@ -20,13 +20,13 @@ from typing import Any
 
 from .embeddings import rerank_scores
 from .hybrid import DEFAULT_QDRANT_PATH, QdrantHybridStore
-from .templates import get_template_real, get_template_text, template_result
+from .templates import get_template_text, template_result
 
 _CACHE: dict[str, list[tuple[int, dict]]] = {}
 _ID_INDEX: dict[str, dict[str, int]] = {}
 _SOURCE_INDEX: dict[str, dict[str, list[int]]] = {}
 
-# Optional remote backend (Modal retrieval-as-a-service). When set, every tool
+# Optional remote backend (retrieval tool service over HTTP). When set, every tool
 # call is dispatched over HTTP instead of running the embedder locally.
 _REMOTE = None
 
@@ -200,12 +200,11 @@ def chunk_read(
 def get_template(doc_type: str | None = None, query: str | None = None) -> list[dict]:
     """Return the structural contract template for ``doc_type`` as one record.
 
-    ``query`` is optional free-text detail (e.g. "for IT services") appended
-    to the base doc_type query to disambiguate between variants.
-
-    Prefers the REAL templates collection (built from the CC-BY-4.0
-    legal-templates-multilingual dataset on Modal) when available locally; falls
-    back to the small synthetic SCAFFOLD for doc types not yet covered.
+    Serves the hand-curated template set deterministically (alias map, then
+    exact key match, then fuzzy match against Polish declension variants,
+    with a synthetic scaffold as fallback for unrecognised document types).
+    The ``query`` argument is accepted for schema compatibility but has no
+    effect: there are no per-type variants to disambiguate.
 
     The template is a STRUCTURAL GUIDE (standard sections + required clauses +
     statutory refs + common pitfalls), meant to be used as a structural/style
@@ -214,16 +213,7 @@ def get_template(doc_type: str | None = None, query: str | None = None) -> list[
     rather than the template.
     """
     dt = (doc_type or "other").strip().lower() or "other"
-    text = None
-    try:
-        local = QdrantHybridStore(collection_name="templates", path=DEFAULT_QDRANT_PATH)
-        if local.exists():
-            text = get_template_real(local, dt, query=query)
-    except Exception:
-        text = None
-    if not text:
-        text = get_template_text(dt)
-    return template_result(dt, text)
+    return template_result(dt, get_template_text(dt))
 
 
 TOOL_SCHEMAS = [
@@ -330,17 +320,15 @@ TOOL_SCHEMAS = [
         "function": {
             "name": "get_template",
             "description": (
-                "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given "
+                "Fetch the hand-curated Polish template/guide for the given "
                 "doc_type. It provides the authoritative section structure, standard clause "
                 "language, and real statutory references for that document type. Use it as the "
                 "STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its "
-                "correct clause wording and statutory citations (they are real, sourced "
-                "rules), and adapt every clause to the specific facts and to the REAL sources "
-                "you retrieved. Fill or drop any {{placeholders}} as the facts require. Do "
+                "correct clause wording and statutory citations, and adapt every clause "
+                "to the specific facts and to the REAL sources "
+                "you retrieved. Fill or drop any ____ blanks as the facts require. Do "
                 "not paste the template's generic explanatory guidance verbatim into the "
-                "final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' "
-                "with extra detail (e.g. 'for IT services with hourly rate') to get a more "
-                "specific variant when multiple exist."
+                "final document."
             ),
             "parameters": {
                 "type": "object",

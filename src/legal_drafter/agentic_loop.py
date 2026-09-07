@@ -161,6 +161,13 @@ def run_agentic(
                 "role": "assistant",
                 "content": msg.content or "",
                 "tool_calls": _tc_to_dict(msg),
+                # Qwen3.5 emits its thinking trace as reasoning_content (or
+                # reasoning); capture it so reasoning is preserved in the
+                # distilled trace. Dropping it (old behaviour) produced a
+                # tool-use-only trace with 0% reasoning examples.
+                "reasoning_content": getattr(msg, "reasoning_content", None)
+                or getattr(msg, "reasoning", None)
+                or "",
             }
         )
         if msg.tool_calls:

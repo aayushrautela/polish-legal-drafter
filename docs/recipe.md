@@ -30,7 +30,7 @@ follow this.
    confirm license situation (statutes = public domain, pr. aut. art. 4 ust. 2).
 2. Fetch into `dataset/03_drafting_tasks_sources/sources/*.jsonl`:
    - preferred: `legal-drafter rag ingest --year Y --position P …` (ELI `/struct` route)
-   - fallback when `/struct` is 404 (textPDF-only acts): `fetch_acts_pdf.py`
+   - fallback when `/struct` is 404 (textPDF-only acts): `scripts/fetch_acts_pdf.py`
      pattern (pypdf extract → split on `Art\. \d+[a-z]*`, same record schema,
      `origin="sejm_eli_pdf"`). One-off regulations may need single-chunk handling (`§` text).
 3. Clean before indexing: dedupe duplicate chunk_ids keeping the LONGEST text;

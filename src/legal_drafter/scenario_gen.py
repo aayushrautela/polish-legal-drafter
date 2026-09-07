@@ -679,6 +679,7 @@ def main() -> int:
     ap.add_argument("--n", type=int, default=150)
     ap.add_argument("--parallel", type=int, default=3)
     ap.add_argument("--out", default="outputs/scenarios/synthetic_v1.jsonl")
+    ap.add_argument("--invalid-out", default="outputs/scenarios/synthetic_v1_invalid.jsonl")
     ap.add_argument("--log", default="outputs/scenarios/synthetic_v1.log")
     ap.add_argument("--qdrant-path", default=".rag/qdrant")
     ap.add_argument("--collection", default=DEFAULT_COLLECTION)
@@ -845,6 +846,7 @@ def main() -> int:
 
     write_lock_local = threading.Lock()
     out_f = open(args.out, mode)
+    invalid_out_f = open(args.invalid_out, mode) if args.invalid_out else None
     done = len(done_i)
 
     def _gen_one(i: int) -> dict:
@@ -936,20 +938,29 @@ def main() -> int:
         for fut in as_completed(futs):
             rec = fut.result()
             with write_lock_local:
-                out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-                out_f.flush()
                 done += 1
-                if rec.get("generation", {}).get("valid") or (rec.get("valid") and "error" not in rec):
-                    stats["ok"] += 1
-                elif rec.get("error"):
+                if rec.get("error"):
                     stats["error"] += 1
+                    if invalid_out_f:
+                        invalid_out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                        invalid_out_f.flush()
+                elif rec.get("expected_output") and len(rec.get("expected_output", "")) > 100:
+                    stats["ok"] += 1
+                    out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    out_f.flush()
                 else:
                     stats["invalid"] += 1
+                    if invalid_out_f:
+                        invalid_out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                        invalid_out_f.flush()
+
                 if done % 10 == 0 or done == args.n:
                     logline(f"progress {done}/{args.n} | ok={stats['ok']} invalid={stats['invalid']} err={stats['error']}")
 
     out_f.close()
-    logline(f"DONE. {args.n} scenarios written to {args.out} | ok={stats['ok']} invalid={stats['invalid']} err={stats['error']}")
+    if invalid_out_f:
+        invalid_out_f.close()
+    logline(f"DONE. {args.n} scenarios written to {args.out} (ok) and {args.invalid_out} (invalid) | ok={stats['ok']} invalid={stats['invalid']} err={stats['error']}")
     log.close()
     return 0
 

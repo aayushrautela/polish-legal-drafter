@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 # Best-effort .env loading; harmless if python-dotenv is not installed or the
-# file is absent. Real deployments (Modal secrets, shell env) work without it.
+# file is absent. Real deployments (secret stores, shell env) work without it.
 try:  # pragma: no cover - optional dependency
     from dotenv import load_dotenv
 
