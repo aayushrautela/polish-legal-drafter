@@ -1,0 +1,62 @@
+Wezwanie do zapłaty faktury za usługi consultingowe po terminie
+Wezwanie do zapłaty za towar dostarczony na podstawie umowy sprzedaży
+Wezwanie do zapłaty raty pożyczki prywatnej przeterminowanej
+Wezwanie do zapłaty czynszu najmu za dwa miesiące zaległości
+Wezwanie do zapłaty odszkodowania z polisy OC sprawcy kolizji
+Wezwanie do zapłaty za wykonane roboty budowlane (faktura bez zapłaty)
+Wezwanie do zapłaty za dostawę oprogramowania wdrożeniowego
+Wezwanie do zapłaty wynagrodzenia z umowy zlecenia niewypłaconego
+Wezwanie do zapłaty za usługę transportową międzynarodową
+Wezwanie do zapłaty za wykonany projekt graficzny (brak akceptacji płatności)
+Wezwanie do zapłaty z odsetkami ustawowymi za opóźnienie w transakcjach handlowych
+Wezwanie do zapłaty z odsetkami ustawowymi za opóźnienie świadczenia pieniężnego
+Wezwanie do zapłaty z odsetkami umownymi wyższymi niż ustawowe
+Wezwanie do zapłaty wraz z wezwaniem do zapłaty kosztów windykacji
+Wezwanie ostateczne przed skierowaniem sprawy do sądu
+Wezwanie do zapłaty z zagrożeniem skierowania do sądu polubownego
+Wezwanie do zapłaty długu przedawnionego (bez zawiadomienia o przerwaniu biegu)
+Wezwanie do zapłaty po częściowej wpłacie na poczet długu
+Wezwanie do zapłaty z wyliczeniem odsetek od dnia wymagalności
+Wezwanie do zapłaty należności głównej i kosztów sądowych zainwestowanych
+Wezwanie do zapłaty za zamówienie złożone przez internet (e-commerce)
+Wezwanie do zapłaty za usługę noclegową nieopłaconą przez touroperatora
+Wezwanie do zapłaty za dostawę paliwa przedsiębiorstwu
+Wezwanie do zapłaty za wykonaną usługę prawną (kancelaria)
+Wezwanie do zapłaty za subskrypcję roczną niewypowiedzianą
+Wezwanie do zapłaty za najem powierzchni reklamowej
+Wezwanie do zapłaty za serwis i naprawę pojazdu
+Wezwanie do zapłaty kary umownej z tytułu nienależytego wykonania
+Wezwanie do zapłaty za zrealizowane szkolenie pracowników
+Wezwanie do zapłaty alimentów zaległych za kwartał
+Wezwanie do zapłaty za dostawę towaru z opcją późniejszego odbioru
+Wezwanie do zapłaty po upływie 7 dni od ostatecznego terminu
+Wezwanie do zapłaty po upływie 14 dni od ostatecznego terminu
+Wezwanie do zapłaty z propozycją ugody i rozłożenia na raty
+Wezwanie do zapłaty z informacją o wpisie do rejestru dłużników BIG
+Wezwanie do zapłaty z żądaniem zapłaty w ciągu 3 dni
+Wezwanie do zapłaty z żądaniem zapłaty w ciągu 14 dni
+Wezwanie do zapłaty od przedsiębiorcy do konsumenta (odwrócone role)
+Wezwanie do zapłaty za licencję oprogramowania niewykupioną
+Wezwanie do zapłaty za dzierżawę gruntu rolniczego
+Wezwanie do zapłaty za usługę cateringową na imprezę
+Wezwanie do zapłaty za wykonany audyt energetyczny
+Wezwanie do zapłaty za usługę księgową zaległą
+Wezwanie do zapłaty za dostawę mebli na wymiar nieterminową
+Wezwanie do zapłaty za przewóz osób (busem) nieopłacony
+Wezwanie do zapłaty za wykonaną stronę internetową
+Wezwanie do zapłaty z tytułu nienależnie pobranej zaliczki
+Wezwanie do zapłaty za mediów wspólnotowych dla właściciela lokalu
+Wezwanie do zapłaty za usługę detektywistyczną
+Wezwanie do zapłaty za wycenę nieruchomości
+Wezwanie do zapłaty za przechowanie rzeczy w składzie
+Wezwanie do zapłaty z podaniem numeru konta bankowego do przelewu
+Wezwanie do zapłaty z załączonym dowodem przelewu własnego kosztem dłużnika
+Wezwanie do zapłaty za dostawę energii elektrycznej zaległą
+Wezwanie do zapłaty za usługę telekomunikacyjną rozwiązaną
+Wezwanie do zapłaty za wynajem sprzętu budowlanego
+Wezwanie do zapłaty z odsetkami za opóźnienie i kosztami monitu
+Wezwanie do zapłaty za zrealizowany transport zwłok (pogrzebowy)
+Wezwanie do zapłaty za szkolenie ratownicze nieodwołane
+Wezwanie do zapłaty należności z tytułu czynszu dzierżawnego
+Wezwanie do zapłaty z zagrożeniem wpisu do biura informacji gospodarczej
+Wezwanie do zapłaty po bezskutecznym wezwaniu przedsądowym wcześniejszym

@@ -1,0 +1,17 @@
+{
+ "run": 27,
+ "hint": "Dzierżawa z karami umownymi za samowolną poddzierżawę",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć swój lokal, ale boję się, że najemca podwynajmie go komuś innemu bez mojej zgody. Czy możecie przygotować umowę z karą za taką samowolną poddzierżawę?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Wynajmuję lokal użytkowy o powierzchni 120 m² na 3 lata i chcę zabezpieczyć się na wypadek, gdyby najemca chciał podwynająć go dalej lub oddać do użytkowania innej firmie bez mojej wiedzy. Zależy mi na konkretnej kwotie kary umownej za każdy dzień takiego naruszenia oraz na możliwości natychmiastowego rozwiązania umowy w takiej sytuacji."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_dzierzawy\", \"query\": \"dzierżawa z karami umownymi za samowolną poddzierżawę\"})\\nRESULT: [{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa dzierżawy gruntu\\nUmowa dzierżawy gruntu w Polsce to umowa, przez którą wydzierżawiający zobowiązuje się oddać dzierżawcy grunt do używania i pobierania pożytków przez czas oznaczony lub nieoznaczony, a dzierżawca zobowiązuje się płacić wydzierżawiającemu umówiony czynsz — uregulowana w art. 693 § 1 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pierwsze zdanie tego dokumentu bezpośrednio odpowiada na pytanie: dzierżawa gruntu to instytucja prawna odrębna od najmu, ponieważ dzierżawcy przysługuje nie tylko prawo używania gruntu, lecz również prawo do pobierania z niego pożytków — naturalnych lub cywilnych.\\n\\nOdróżnienie dzierżawy od najmu ma fundamentalne znaczenie praktyczne. Najem na podstawie art. 659 KC daje jedynie prawo używania rzeczy, natomiast dzierżawa zgodnie z art. 693 KC przyznaje ponadto prawo do pożytków. Pożytki naturalne gruntu to plony, zbiory lub inne korzyści wynikające z prawidłowej gospodarki; pożytki cywilne to dochody, jakie grunt przynosi na podstawie stosunku prawnego, takie jak czynsze za poddzierżawę. Właśnie to rozszerzone uprawnienie uzasadnia stosowanie dzierżawy przy gruntach rolnych, ogrodniczych, rekreacyjnych czy budowlanych przeznaczonych pod inwestycje.\\n\\nCzynsz dzierżawny może być oznaczony w pieniądzach lub w ułamku pożytków (art. 693 § 2 KC). Strony mają zatem swobodę umówienia się na czynsz gotówkowy, proporcjonalny do zbiorów lub w innej formie odpowiadającej specyfice gruntu. Wolność ta wynika z zasady swobody umów z art. 353¹ KC, ograniczonej jednak przepisami szczególnymi dotyczącymi na przykład "
+}

@@ -1,0 +1,61 @@
+Umowa o pracę na czas nieokreślony ze stałym miejscem pracy
+Umowa o pracę na czas określony (1 rok) z możliwością przedłużenia
+Umowa o pracę na okres próbny (3 miesiące) poprzedzająca stałą
+Umowa o pracę na zastępstwo nieobecnego pracownika
+Umowa o pracę w pełnym wymiarze czasu pracy (etat 1/1)
+Umowa o pracę w pół etatu (1/2 wymiaru) z elastycznym grafikiem
+Umowa o pracę z wynagrodzeniem miesięcznym brutto zasadniczym
+Umowa o pracę z prowizją od sprzedaży (składniki zmienne)
+Umowa o pracę z premią uznaniową i regulaminową
+Umowa o pracę z dodatkiem za staż pracy (nabyte lata)
+Umowa o pracę z dodatkiem funkcyjnym za stanowisko kierownicze
+Umowa o pracę z godzinami nadliczbowymi i ich rozliczeniem
+Umowa o pracę z systemem równoważnym czasu pracy
+Umowa o pracę z telepracy (praca zdalna) i zwrotem kosztów
+Umowa o pracę z pracą zmianową (nocną) z dodatkiem
+Umowa o pracę z zakazem konkurencji po ustaniu stosunku (art. 101 KP)
+Umowa o pracę z umową o zakazie konkurencji w trakcie zatrudnienia
+Umowa o pracę z powierzeniem mienia pracodawcy (odpowiedzialność)
+Umowa o pracę z odpowiedzialnością materialną do kwoty 3-krotności
+Umowa o pracę z okresem wypowiedzenia 3 miesiące (staż powyżej 3 lat)
+Umowa o pracę z wypowiedzeniem bez wypowiedzenia za ciężkie naruszenie
+Umowa o pracę z rozwiązaniem za porozumieniem stron
+Umowa o pracę z urlopem wypoczynkowym 26 dni rocznie
+Umowa o pracę z urlopem bezpłatnym na badania lub studia
+Umowa o pracę z obowiązkiem poddania się badaniom lekarskim (art. 229 KP)
+Umowa o pracę z szkoleniem BHP przed dopuszczeniem do pracy (art. 207 KP)
+Umowa o pracę z odpowiedzialnością porządkową (kary porządkowe)
+Umowa o pracę z regulaminem wynagradzania jako załącznikiem
+Umowa o pracę z klauzulą poufności informacji (tajemnica przedsiębiorstwa)
+Umowa o pracę z przeszkoleniem zawodowym kosztem pracodawcy
+Umowa o pracę z oddelegowaniem do innej miejscowości (delegacja)
+Umowa o pracę z oddelegowaniem do pracy za granicą
+Umowa o pracę z pracownikiem młodocianym (nauka zawodu)
+Umowa o pracę z osobą niepełnosprawną i przystosowaniem stanowiska
+Umowa o pracę z wynagrodzeniem minimalnym godzinowym
+Umowa o pracę z ekwiwalentem za niewykorzystany urlop
+Umowa o pracę z obowiązkiem dochowania lojalności wobec pracodawcy
+Umowa o pracę z zatrudnieniem na stanowisku kierowcy (badania)
+Umowa o pracę z zakazem podejmowania zajęć zarobkowych
+Umowa o pracę z odstąpieniem w okresie próbnym (z 3-dniowym terminem)
+Umowa o pracę z wypowiedzeniem zmieniającym warunki (art. 42 KP)
+Umowa o pracę z przywróceniem do pracy przez sąd pracy
+Umowa o pracę z odszkodowaniem za niezgodne z prawem wypowiedzenie
+Umowa o pracę z zaliczeniem okresu zatrudnienia do stażu
+Umowa o pracę z obowiązkiem zachowania tajemnicy (RODO)
+Umowa o pracę z pracą w niedzielę (handel) i dniem wolnym
+Umowa o pracę z wynagrodzeniem w walucie obcej (EUR)
+Umowa o pracę z dodatkiem za pracę w warunkach uciążliwych
+Umowa o pracę z zakazem konkurencji i odszkodowaniem 25% wynagrodzenia
+Umowa o pracę z odpowiedzialnością za powierzone narzędzia
+Umowa o pracę z udziałem w zyskach przedsiębiorstwa (partycypacja)
+Umowa o pracę z czasem pracy skróconym (niepełnosprawny)
+Umowa o pracę z obowiązkiem szkolenia językowego
+Umowa o pracę z zatrudnieniem na czas wykonania określonej pracy
+Umowa o pracę z prawem do przerwy na karmienie dziecka
+Umowa o pracę z nadgodzinami limitowanymi (150h rocznie)
+Umowa o pracę z zapisem o równej liczbie kobiet i mężczyzn (kwota)
+Umowa o pracę z obowiązkiem powiadomienia o chorobie
+Umowa o pracę z polityką antymobbingową pracodawcy
+Umowa o pracę z obowiązkiem przekwalifikowania przy zmianie organizacji
+Umowa o pracę z wynagrodzeniem prowizyjnym z gwarancją minimalną

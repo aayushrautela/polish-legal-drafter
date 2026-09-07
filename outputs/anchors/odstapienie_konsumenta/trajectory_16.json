@@ -1,0 +1,291 @@
+{
+ "run": 19,
+ "hint": "Odstąpienie od umowy kupna mebli na wymiar przez internet",
+ "scenario": "Odstąpienie od umowy kupna mebli na wymiar przez internet",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='odstapienie_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_d5ea1a85fd6b4e678ebbb53f",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"odstapienie_konsumenta\"}"
+     }
+    },
+    {
+     "id": "call_d2054da20dac4ba3a2e56cef",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odstąpienie od umowy kupna mebli na wymiar przez internet prawo odstąpienia umowy rzeczy zrobionej na zamówienie\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"odstapienie_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Odstąpienie od umowy zawartej poza lokalem przedsiębiorstwa\\nOdstąpienie od umowy zawartej poza lokalem przedsiębiorstwa w Polsce to pisemne oświadczenie konsumenta, na podstawie którego konsument bez podawania przyczyny i bez ponoszenia kosztów rezygnuje z umowy zawartej w okolicznościach innych niż siedziba lub lokal przedsiębiorcy. Podstawę prawną tego dokumentu stanowią art. 27 i art. 40 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.), która implementuje dyrektywę Parlamentu Europejskiego i Rady 2011/83/UE w sprawie praw konsumentów.\\n\\nUmową zawartą poza lokalem przedsiębiorstwa jest umowa zawarta przy jednoczesnej obecności fizycznej stron w miejscu, które nie jest lokalem przedsiębiorcy, na przykład w miejscu zamieszkania konsumenta, w pracy konsumenta, podczas targów, na pokazach handlowych, w hotelach, na ulicy lub w środkach transportu publicznego. Umową poza lokalem jest też umowa zawarta bezpośrednio po tym, jak konsument był nagabywany w publicznym miejscu lub na wycieczce zorganizowanej przez przedsiębiorcę w celu promocji lub sprzedaży produktów. Taka sytuacja — presja sprzedawcy w niespodziewanych okolicznościach — uzasadnia szczególną ochronę konsumenta w postaci prawa do namysłu i bezkosztowego wycofania się z transakcji.\\n\\nKonsument, który zawarł umowę poza lokalem przedsiębiorstwa, może odstąpić od niej w terminie 14 dni bez podania przyczyny i bez ponoszenia kosztów, z wyjątkami określonymi w ustawie. Termin biegnie od dnia zawarcia umowy, a przy umowach sprzedaży — od dnia objęcia towaru w posiadanie. Jeżeli przedsiębiorca nie poinformował konsumenta o prawie odstąpienia, termin wydłuża się o dodatkowe 12 miesięcy, czyli łącznie do 12 miesięcy i 14 dni, zgodnie z art. 29 ustawy o prawach konsumenta. To wyjątkowo długi termin będący sankcją za naruszenie obowiązku informacyjnego.\\n\\nSkutek odstąpienia jest bardzo korzystny dla konsumenta: umowę uważa się za niezawartą, strony zwracają sobie wzajemnie świadczenia. Przedsiębiorca musi zwrócić konsumentowi wszystkie dokonane przez niego płatności — cenę, opłaty za dostawę — w terminie 14 dni od otrzymania oświadczenia o odstąpieniu, bez obciążania konsumenta kosztami, które nie wynikają z jego własnego wyboru droższego środka dostawy. Koszty bezpośredniego zwrotu rzeczy ponosi konsument, chyba że przedsiębiorca nie poinformował go o tym obowiązku lub zgodził się pokryć te koszty. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) strzeże przestrzegania praw konsumentów przez przedsiębiorców w Polsce.\\n\\nPrawo do odstąpienia od umowy poza lokalem nie jest nieograniczone — ustawa o prawach konsumenta w art. 38 wymienia sytuacje, gdy prawo to nie przysługuje. Dotyczy to między innymi umów dotyczących rzeczy nieprefabrykowanych wytworzonych według specyfikacji konsumenta, rzeczy ulegających szybkiemu zepsuciu lub mających krótki termin przydatności, nagrań dźwiękowych lub wizualnych lub oprogramowania w zapieczętowanym opakowaniu otwartym przez konsumenta, świadczenia usług, które zostały już w pełni wykonane za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia. Konsument powinien sprawdzić, czy zachodzi któryś z wyjątków, zanim złoży oświadczenie. Wzorzec formularza odstąpienia od umowy poza lokalem stanowi załącznik nr 2 do ustawy o prawach konsumenta, a gotowy formularz zapewnia formy-legal.com.\\n\\nOświadczenie o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce jest potrzebne wszędzie tam, gdzie konsument zawarł umowę w okolicznościach innych niż lokal przedsiębiorcy i chce skorzystać z ustawowego prawa odstąpienia w terminie 14 dni. Dokument jest najczęściej stosowany po zakupach podczas pokazów handlowych, na targach, na spotkaniach organizowanych przez firmy sprzedażowe w hotelach, przy sprzedaży obwoźnej dokonywanej przez akwizytorów przychodzących do domu, w trakcie wycieczek promujących produkty lub w każdej innej sytuacji, gdy transakcja nie odbyła się w regularnym sklepie stacjonarnym.\\n\\nTypowe sytuacje, w których dokument jest niezbędny, obejmują: zakup garnków, odkurzaczy, filtrów wody lub kosmetyków na pokazach handlowych, podpisanie umowy z firmą świadczącą usługi remontowe lub budowlane w domu konsumenta, zakup systemu alarmowego lub instalacji fotowoltaicznej podczas wizyty sprzedawcy, a także wszelkie inne zakupy towarów lub usług w miejscu innym niż lokal sprzedawcy. Presja sprzedawcy i niespodzianie warunki pokazu często prowadzą do pochopnych decyzji, którym ustawa daje konsumentowi prawo naprawić.\\n\\nDokument jest potrzebny niezwłocznie — konsument powinien wysłać oświadczenie o odstąpieniu najpóźniej 14. dnia od zawarcia umowy lub od objęcia towaru w posiadanie. Data stempla pocztowego lub data wysłania wiadomości e-mail jest wystarczająca do dochowania terminu, nie jest konieczne, by oświadczenie dotarło do przedsiębiorcy w ciągu 14 dni. Warto pamiętać, że jeżeli przedsiębiorca nie poinformował konsumenta o prawie odstąpienia, termin 14 dni w ogóle nie zaczął biec i konsument ma łącznie do 12 miesięcy i 14 dni na złożenie oświadczenia, co wynika wprost z art. 29 ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\\n\\nDokument jest potrzebny niezależnie od tego, czy towar jest wadliwy, czy nie, i bez konieczności podawania jakiegokolwiek uzasadnienia. Prawo do odstąpienia od umowy poza lokalem jest prawem bezwarunkowym — konsument nie musi tłumaczyć, dlaczego rezygnuje z umowy. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) regularnie interweniuje w sprawach przedsiębiorców utrudniających wykonanie tego prawa lub stosujących niedozwolone klauzule wyłączające prawo odstąpienia w sytuacjach, gdy jest ono ustawowo gwarantowane.\\n\\nPismo jest stosowane również w sytuacjach, gdy konsument podpisał umowę pod wpływem nacisku sprzedawcy lub bez pełnego zrozumienia jej treści. Prawo do namysłu wbudowane w art. 27 ustawy o prawach konsumenta chroni przed pochopnymi decyzjami zakupowymi podejmowanymi w nieoczekiwanych okolicznościach. Miejski lub powiatowy rzecznik konsumentów udziela bezpłatnej pomocy prawnej konsumentom, którzy mają trudności z egzekwowaniem prawa odstąpienia od umowy poza lokalem przedsiębiorstwa.\\n\\nPrawidłowe oświadczenie o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce powinno zawierać wszystkie elementy przewidziane w art. 27 i art. 40 ustawy z dnia 30 maja 2014 r. o prawach konsumenta oraz w ustawowym wzorcu formularza stanowiącym załącznik nr 2 do tej ustawy.\\n\\nOznaczenie konsumenta: imię, nazwisko, adres zamieszkania i adres e-mail konsumenta, a także numer rachunku bankowego, na który ma zostać zwrócona zapłacona cena lub wynagrodzenie. Podanie numeru rachunku we wstępnej korespondencji znacząco przyspiesza zwrot płatności.\\n\\nOznaczenie przedsiębiorcy: pełna firma i adres siedziby przedsiębiorcy, z którym zawarto umowę poza lokalem. Adres do doręczenia oświadczenia może być inny niż adres siedziby, jeżeli przedsiębiorca wskazał adres reklamacyjny w umowie lub regulaminie.\\n\\nOkoliczności zawarcia umowy: data zawarcia umowy, miejsce jej zawarcia poza lokalem przedsiębiorstwa, na przykład \\\"w moim domu przy ul. Różanej 3/10 w Poznaniu podczas wizyty sprzedawcy w dniu 15.05.2025 r.\\\" lub \\\"podczas pokazu handlowego w hotelu Ibis w Krakowie w dniu 10.04.2025 r.\\\" Wskazanie miejsca poza lokalem ma istotne znaczenie dowodowe — to ono przesądza o zastosowaniu ustawy o prawach konsumenta.\\n\\nPrzedmiot umowy i cena: dokładny opis towaru lub usługi objętej umową oraz cena lub wynagrodzenie, które konsument zapłacił lub miał zapłacić. Jeżeli umowa została zawarta na czas określony, należy wskazać jej czas trwania.\\n\\nPowołanie podstawy prawnej: wyraźne stwierdzenie, że konsument odstępuje od umowy na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta. Powołanie przepisu porządkuje sprawę i wskazuje przedsiębiorcy właściwą podstawę działania konsumenta.\\n\\nŻądanie zwrotu płatności: wniosek o zwrot zapłaconej ceny lub wynagrodzenia na wskazany rachunek bankowy w terminie 14 dni. Serwis forms-legal.com udostępnia kompletny wzór oświadczenia spełniający wszystkie wymagania ustawowe. Oświadczenie należy wysłać listem poleconym lub e-mailem z potwierdzeniem odbioru i zachować dowód daty wysłania — liczy się data wysłania, nie odbioru, dla zachowania 14-dniowego terminu odstąpienia wynikającego z art. 27 ustawy o prawach konsumenta.\\n\\nWypełnianie oświadczenia o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce zacznij od wpisania swoich danych jako konsumenta — imienia i nazwiska, adresu zamieszkania, adresu e-mail i numeru rachunku bankowego do zwrotu. Podanie numeru rachunku we wstępnym oświadczeniu przyspiesza zwrot płatności przez przedsiębiorcę.\\n\\nW polu przedsiębiorcy wpisz pełną firmę i adres przedsiębiorcy, z którym zawarto umowę poza lokalem. Dane te znajdziesz w umowie, na fakturze lub na stronie internetowej firmy. Pamiętaj, że składasz oświadczenie przedsiębiorcy, u którego dokonałeś zakupu lub zawarłeś umowę, a nie pośrednikowi.\\n\\nW sekcji dotyczącej umowy wpisz datę jej zawarcia, miejsce — ważne, żeby precyzyjnie wskazać, że umowę zawarto poza lokalem przedsiębiorcy, na przykład \\\"podczas pokazu handlowego w hotelu Marriott w Warszawie\\\" lub \\\"w moim mieszkaniu podczas wizyty sprzedawcy\\\" — oraz przedmiot umowy i zapłaconą lub należną cenę. Numer umowy lub zamówienia ułatwi przedsiębiorcy identyfikację transakcji.\\n\\nW oświadczeniu zaznacz, że odstępujesz od umowy na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta i że umowę uważa się za niezawartą. Wskaż, że oczekujesz zwrotu ceny na wskazany rachunek bankowy w terminie 14 dni. Wpisz miejscowość i datę złożenia oświadczenia oraz złóż podpis. Oświadczenie wyślij listem poleconym lub e-mailem z potwierdzeniem odbioru niezwłocznie — termin 14 dni od zawarcia umowy lub objęcia towaru w posiadanie jest bezwzględny, a za zachowanie terminu uważa się datę wysłania, nie dostarczenia. Zachowaj potwierdzenie nadania jako dowód dochowania terminu.\\n\\nWymogi prawne oświadczenia o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce wynikają z art. 27-40 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.), wdrażającej dyrektywę Parlamentu Europejskiego i Rady 2011/83/UE z dnia 25 października 2011 r. w sprawie praw konsumentów.\\n\\nArt. 27 ustawy przyznaje konsumentowi prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość w terminie 14 dni bez podawania przyczyny. Art. 40 nakazuje przedsiębiorcy niezwłocznie wydać konsumentowi pisemne potwierdzenie zawarcia umowy wraz z informacją o prawie odstąpienia oraz dołączyć ustawowy wzorzec formularza odstąpienia stanowiący załącznik nr 2 do ustawy. Brak tej informacji skutkuje wydłużeniem terminu do odstąpienia o dodatkowe 12 miesięcy (art. 29 ustawy).\\n\\nPrzedsiębiorcy zobowiązani są do wykonania obowiązków informacyjnych przed zawarciem umowy poza lokalem, określonych w art. 12 i art. 39 ustawy o prawach konsumenta. Należą do nich informacje o prawie odstąpienia, terminie, sposobie i skutkach odstąpienia, a także o kosztach zwrotu rzeczy ponoszonych przez konsumenta. Naruszenie tych obowiązków jest praktyka naruszającą zbiorowe interesy konsumentów, za którą Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) może nałożyć administracyjną karę pieniężną na podstawie ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów.\\n\\nArt. 32 ustawy o prawach konsumenta nakazuje przedsiębiorcy zwrócić konsumentowi wszystkie płatności — cenę i koszty dostawy — w terminie 14 dni od dnia otrzymania oświadczenia o odstąpieniu. Przedsiębiorca może wstrzymać zwrot do chwili otrzymania rzeczy lub potwierdzenia jej odesłania. Koszty bezpośredniego zwrotu rzeczy ponosi konsument, chyba że nie poinformowano go o tym obowiązku. Zwrot płatności przy umowie zawartej poza lokalem przedsiębiorstwa jest analogiczny do zwrotu przy umowie zawartej na odległość i podlega tym samym rygorom terminów i formy, przy czym prawem strzegącym tych praw konsumentów jest Prezes UOKiK.\\n\\nNajczęstsze błędy przy odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce zaczynają się od przekroczenia terminu 14 dni na złożenie oświadczenia. Termin ten biegnie od dnia zawarcia umowy lub od dnia objęcia towaru w posiadanie przy umowach sprzedaży i jest terminem bezwzględnym. Zwlekanie z podjęciem decyzji lub oczekiwanie na odpowiedź przedsiębiorcy przed złożeniem oświadczenia może skutkować utratą prawa odstąpienia. Oświadczenie najlepiej wysłać niezwłocznie po podjęciu decyzji o rezygnacji.\\n\\nKolejnym błędem jest brak pisemnej formy lub niedochowanie dowodu wysłania oświadczenia. Choć prawo nie wymaga bezwzględnie formy pisemnej — oświadczenie można też złożyć ustnie lub przez formularz elektroniczny na stronie przedsiębiorcy — to pisemna forma z dowodem daty wysłania jest najlepszym zabezpieczeniem prawnym konsumenta. Listy polecone ze zwrotnym potwierdzeniem odbioru lub wiadomości e-mail z potwierdzeniem dostarczenia są optymalne. Data wysłania, nie data odbioru, decyduje o zachowaniu terminu 14 dni wynikającego z art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\\n\\nBłędem jest niezgłaszanie prawa do odstąpienia z obawy przed odmową przedsiębiorcy. Przedsiębiorca jest prawnie zobowiązany przyjąć oświadczenie i zwrócić płatność. Jeżeli odmawia lub utrudnia skorzystanie z prawa, konsument może zwrócić się do miejskiego lub powiatowego rzecznika konsumentów, złożyć skargę do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) lub wniesieniu pozwu do Sądu Rejonowego.\\n\\nCzęstą pułapką jest próba odstąpienia od umowy w sytuacji, gdy w grę wchodzi wyjątek z art. 38 ustawy o prawach konsumenta. Prawo odstąpienia nie przysługuje na przykład przy rzeczach wytworzonych na zamówienie konsumenta, rzeczach szybko psujących się lub nagraniach w zapieczętowanym opakowaniu otwartym przez konsumenta. Warto sprawdzić, czy umowa nie wchodzi w zakres jednego z wyjątków, zanim złoży się oświadczenie.\\n\\nNajczęstszym uchybieniem jest wreszcie brak podania numeru rachunku bankowego w oświadczeniu, co może opóźnić zwrot płatności przez przedsiębiorcę. Przedsiębiorca ma 14 dni na zwrot, ale nie może tego wykonać bez znajomości numeru konta konsumenta. Podanie rachunku we wstępnym oświadczeniu skraca czas oczekiwania na zwrot pieniędzy.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/odstapienie-od-umowy-zawartej-poza-lokalem (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_d5ea1a85fd6b4e678ebbb53f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_0b4ee9e0a1e04512\", \"source_id\": \"uokik_rejestr_klauzul_5775\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sklep potwierdza przyjęcie zamówienia drogą internetową lub telefonicznie w ciagu 48 godzin od jego otrzymania, jednocześnie zastrzegając sobie prawo odstąpienia umowy, w ciągu 5 dni roboczych od daty złożenia zamówienia przez kupującego\"}, {\"chunk_id\": \"uokik_items:uokik_5a4a6557c6228216\", \"source_id\": \"uokik_rejestr_klauzul_7132\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient będący konsumentem ma prawo do odstąpienia od zawartej umowy w terminie 10 dni od dnia wydania rzeczy (otrzymania towaru), bez podania przyczyny, składając oświadczenie na piśmie oraz dokonując zwrotu towaru wraz z oryginalnym dowodem zakupu (paragon fiskalny).\"}, {\"chunk_id\": \"uokik_items:uokik_526d7a9e32c40832\", \"source_id\": \"uokik_rejestr_klauzul_5719\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient będący konsumentem ma prawo do odstąpienia od zawartej umowy w terminie 10 dni od dnia wydania rzeczy (otrzymania towaru), bez podania przyczyny, składając oświadczenie na piśmie oraz dokonując zwrotu towaru wraz z oryginalnym dowodem zakupu (faktura VAT)\"}, {\"chunk_id\": \"uokik_items:uokik_aa7b5c2c5999591f\", \"source_id\": \"uokik_rejestr_klauzul_6431\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sklep Internetowy zastrzega sobie prawo do odstąpienia od realizacji zamówienia, w przypadku, gdy dane podane przez Klienta są niepełne lub błędne. O każdorazowym odstąpieniu od realizacji zamówienia Sklep Internetowy zobowiązany jest niezwłocznie powiadomić Klienta ze wskazaniem przyczyny odmowy\"}, {\"chunk_id\": \"uokik_items:uokik_408a8e5adb3c0676\", \"source_id\": \"uokik_rejestr_klauzul_3788\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Właściciel sklepu internetowego dokłada wszelkich starań, aby opisy i dane techniczne umieszczonych w sklepie produktów/usług były zgodne z rzeczywistością. Nie ponosi jednak odpowiedzialności za błędne podanie parametrów i właściwości towaru, lub nagłą ich zmianę przez jego producenta. Niemniej, w każdym przypadku, gdy dane (w tym opisy i dane techniczne produktów) prezentowane na witrynie internetowej sklepu w dniu złożenia przez konsumenta zamówienia nie pokrywałyby się z rzeczywistością, w ciągu 10 dni od daty zakupu ma on prawo odstąpienia od umowy bez podania przyczyn, zgodnie z przepisa ...\"}]",
+   "tool_call_id": "call_d2054da20dac4ba3a2e56cef",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_fb2a4506ce7f47a08ac3a27c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 38\", \"rzeczy wytworzone na zamówienie\", \"konsumenta\", \"prawo odstąpienia\"]}"
+     }
+    },
+    {
+     "id": "call_4413a08834b043fdbae6ec67",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"meble na wymiar zamówione przez internet prawo odstąpienia od umowy rzeczy nieprefabrykowane art. 38 ustawa o prawach konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 385 3 . W razie wątpliwości uważa się, że niedozwolonymi postanowieniami umownymi są te, które w szczególności: 1) wyłączają lub ograniczają odpowiedzialność względem konsumenta za szkody na osobie; 2) wyłączają lub istotnie ograniczają odpowiedzialność względem konsumenta za niewykonanie lub nienależyte wykonanie zobowiązania; 3) wyłączają lub istotnie ograniczają potrącenie wierzytelności konsumenta z wierzytelnością drugiej strony; 4) przewid ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_32a\", \"source_id\": \"sejm_eli_du_2024_1796_art_32a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 32a. 1. W przypadku odstąpienia od umowy o dostarczanie treści cyfrowej lub usługi cyfrowej przedsiębiorca od dnia otrzymania oświadczenia konsumenta o odstąpieniu od umowy nie może wykorzystywać treści innych niż dane osobowe dostarczone lub wytworzone przez konsumenta w trakcie korzystania z treści cyfrowych lub usługi cyfrowej dostarczonych przez przedsiębiorcę, z wyjątkiem treści, które: 1) są użyteczne wyłącznie w związku z treścią cy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}]",
+   "tool_call_id": "call_fb2a4506ce7f47a08ac3a27c",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_1\", \"source_id\": \"sejm_eli_du_2024_1796_art_1\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 1. Ustawa określa prawa przysługujące konsumentowi, w szczególności: 1) obowiązki przedsiębiorcy zawierającego umowę z konsumentem; 2) zasady i tryb zawierania z konsumentem umowy na odległość i poza lokalem przedsiębiorstwa; 3) zasady i tryb wykonania przysługującego konsumentowi prawa odstąpienia od umowy zawartej na odległość lub poza lokalem przedsiębiorstwa; 4) zasady i tryb zawierania z konsumentem umowy na odległość dotyczącej usług ...\"}]",
+   "tool_call_id": "call_4413a08834b043fdbae6ec67",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I need to read the full text of Art. 38 to see the specific exception for custom-made goods (rzeczy nieprefabrykowane wytworzone według specyfikacji konsumenta). Let me read the full chunk.",
+   "tool_calls": [
+    {
+     "id": "call-847428e0-f2f5-459c-8b36-cff14ab833ed",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1796_art_38\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od umowy, i przyjął to do wiadomości; 2) w której cena lub wynagrodzenie zależy od wahań na rynku finansowym, nad którymi przedsiębiorca nie sprawuje kontroli, i które mogą wystąpić przed upływem terminu do odstąpienia od umowy; 3) w której przedmiotem świadczenia jest towar nieprefabrykowany, wyprodukowany według specyfikacji konsumenta lub służący zaspokojeniu jego zindywidualizowanych potrzeb; 4) w której przedmiotem świadczenia jest towar ulegający szybkiemu zepsuciu lub mający krótki termin przydatności do użycia; 5) w której przedmiotem świadczenia jest towar dostarczany w zapieczętowanym opakowaniu, którego po otwarciu opakowania nie można zwrócić ze względu na ochronę zdrowia lub ze względów higienicznych, jeżeli opakowanie zostało otwarte po dostarczeniu; 6) w której przedmiotem świadczenia są towary, które po dostarczeniu, ze względu na swój charakter, zostają nierozłącznie połączone z innymi towarami; 7) w której przedmiotem świadczenia są napoje alkoholowe, których cena została uzgodniona przy zawarciu umowy sprzedaży, a których dostarczenie może nastąpić dopiero po upływie 30 dni i których wartość zależy od wahań na rynku, nad którymi przedsiębiorca nie ma kontroli; 8) w której konsument wyraźnie żądał, aby przedsiębiorca do niego przyjechał w celu dokonania pilnej naprawy lub konserwacji; jeżeli przedsiębiorca świadczy dodatkowo inne usługi niż te, których wykonania konsument żądał, lub dostarcza towary inne niż części zamienne niezbędne do wykonania naprawy lub konserwacji, prawo odstąpienia od umowy przysługuje konsumentowi w odniesieniu do dodatkowych usług lub towarów; 9) w której przedmiotem świadczenia są nagrania dźwiękowe lub wizualne albo programy komputerowe dostarczane w zapieczętowanym opakowaniu, jeżeli opakowanie zostało otwarte po dostarczeniu; 10) o dostarczanie dzienników, periodyków lub czasopism, z wyjątkiem umowy o prenumeratę; 11) zawartej w drodze aukcji publicznej; 12) o świadczenie usług w zakresie zakwaterowania, innych niż do celów mieszkalnych, przewozu towarów, najmu samochodów, gastronomii, usług związanych z wypoczynkiem, wydarzeniami rozrywkowymi, sportowymi lub kulturalnymi, jeżeli w umowie oznaczono dzień lub okres świadczenia usługi; 13) o dostarczanie treści cyfrowych niedostarczanych na nośniku materialnym, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca rozpoczął świadczenie za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od umowy, i przyjął to do wiadomości, a przedsiębiorca przekazał konsumentowi potwierdzenie, o którym mowa w art. 15 ust. 1 i 2 albo art. 21 ust. 1; 14) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, w przypadku których konsument wyraźnie zażądał od przedsiębiorcy, aby przyjechał do niego w celu dokonania naprawy, a usługa została już w pełni wykonana za wyraźną i uprzednią zgodą konsumenta. 2. Przepisów ust. 1 pkt 1-3 i 5 nie stosuje się do umów zawieranych podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki.\"}]",
+   "tool_call_id": "call-847428e0-f2f5-459c-8b36-cff14ab833ed",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Odstąpienie od umowy zawartej na odległości (zakup mebli na wymiar przez internet)\n\n**Dane konsumenta:**\nImię i nazwisko: ..................................................................................\nAdres zamieszkania: ..................................................................................\nAdres e-mail: ..................................................................................\nNumer telefonu: ..................................................................................\nNumer rachunku bankowego do zwrotu płatności: ..................................................................................\n\n**Dane przedsiębiorcy (sprzedawcy):**\nPełna firma / Nazwa: ..................................................................................\nAdres siedziby: ..................................................................................\nNIP: ..................................................................................\nAdres do korespondencji / reklamacji (jeśli inny): ..................................................................................\nAdres e-mail do kontaktów: ..................................................................................\n\n**Przedmiot umowy i okoliczności zawarcia:**\n1. Data zawarcia umowy (data złożenia zamówienia przez internet): ..................................................................................\n2. Numer zamówienia / umowy: ..................................................................................\n3. Opis towaru: Meble na wymiar wyprodukowane według indywidualnej specyfikacji konsumenta (szczegóły: wymiary, kolory, materiały, dodatkowe funkcje) – zgodnie z załącznikami do zamówienia / projektem zaakceptowanym w dniu ..................................................................................\n4. Cena całkowita zapłacona / do zapłaty: .................................................................................. PLN\n5. Data otrzymania towaru (jeśli już dostarczono): ..................................................................................\n6. Sposób zawarcia umowy: za pośrednictwem sklepu internetowego / strony www przedsiębiorcy (umowa na odległości w rozumieniu art. 2 pkt 13 ustawy o prawach konsumenta).\n\n**Oświadczenie o odstąpieniu:**\nNiniejszym, działając na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.), zwaną dalej „ustawą o prawach konsumenta”, odstępuję od powyżej określonej umowy sprzedaży mebli na wymiar zawartej na odległości.\n\n**Uzasadnienie prawne i rezerwy:**\n1. Zgodnie z art. 27 ust. 1 ustawy o prawach konsumenta, konsumentowi przysługuje prawo odstąpienia od umowy zawartej na odległości w terminie 14 dni bez podawania przyczyny.\n2. Termin do odstąpienia biegnie od dnia, w którym konsument objął rzecz w posiadanie (art. 27 ust. 2). W moim przypadku termin ten upływa w dniu ..................................................................................\n3. **Wskazuję na istnienie wyjątku z art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta**, zgodnie z którym prawo odstąpienia nie przysługuje w umowach, w których przedmiotem świadczenia jest towar nieprefabrykowany, wyprodukowany według specyfikacji konsumenta lub służący zaspokojeniu jego zindywidualizowanych potrzeb. Meble objęte niniejszym zamówieniem zostały wyprodukowane na indywidualne zamówienie zgodnie z moją specyfikacją.\n4. **Mimo powyższego, złożenie niniejszego oświadczenia uzasadniam następującymi okolicznościami (zaznacz stosowne / uzupełnij):**\n   □ Przedsiębiorca nie poinformował mnie przed zawarciem umowy o wyłączeniu prawa odstąpienia z powodu charakteru towaru (art. 12 ust. 1 pkt 11 oraz art. 39 ustawy o prawach konsumenta). Brak takiej informacji może wpływać na skuteczność wyjątku.\n   □ Towar nie odpowiada specyfikacji, której dokonałem / zaakceptowałem (robież wymiary, kolorystyka, materiały, wykonanie) – co może oznaczać, że nie jest to towar „wyprodukowany według specyfikacji konsumenta” w rozumieniu art. 38 ust. 1 pkt 3.\n   □ Towar posiada wady fizyczne / prawne (niezgodność z umową) – w takim przypadku przysługują mi prawa z tytułu gwarancji / rękojmi (art. 556–576 Kodeksu cywilnego) niezależnie od prawa odstąpienia.\n   □ Przedsiębiorca nie dostarczył mi wzorca formularza odstąpienia (załącznik nr 2 do ustawy) ani nie poinformował o terminie i sposobie jego wykonywania – co zgodnie z art. 29 ustawy przedłuża termin odstąpienia do 12 miesięcy i 14 dni od upływu pierwotnego terminu.\n   □ Inne uzasadnienie: ..................................................................................\n\n**Żądania:**\nW związku z powyższym żądam:\n1. Potwierdzenia otrzymania niniejszego oświadczenia o odstąpieniu od umowy.\n2. Zwrotu wszystkich dokonanych przeze mnie płatności – ceny towaru oraz kosztów dostawy – na wskazany powyżej rachunek bankowy w terminie 14 dni od dnia otrzymania przez przedsiębiorcę niniejszego oświadczenia, zgodnie z art. 32 ust. 1 ustawy o prawach konsumenta.\n3. W przypadku odrzucenia odstąpienia przez przedsiębiorcę – uzasadnienia pisemnego z powołaniem na konkretne przepisy ustawy o prawach konsumenta.\n4. Informacji o sposobie i terminie zwrotu towaru (jeśli towar został już dostarczony). Zgodnie z art. 32 ust. 3 ustawy, koszty bezpośredniego zwrotu rzeczy ponoszę ja, chyba że przedsiębiorca nie poinformował mnie o tym obowiązku lub zgodził się je pokryć.\n\n**Zastrzeżenia:**\nNiniejsze oświadczenie nie stanowi uznania, że prawo odstąpienia mi nie przysługuje. Zastrzegam prawo do dochodzenia roszczeń w drodze sądowej lub za pośrednictwem organów ochrony konsumentów (Rzecznik Konsumentów, UOKiK) w przypadku odmowy uznania odstąpienia lub opóźnienia zwrotu płatności.\n\n**Tryb doręczenia:**\nNiniejsze oświadczenie kieruję do przedsiębiorcy:\n- listem poleconym z potwierdzeniem odbioru na adres siedziby / adres do korespondencji,\n- oraz / lub wiadomością e-mail z potwierdzeniem dostarczenia / odczytania na adres e-mail przedsiębiorcy.\n\nData i miejsce: .................................................................................., dnia ..................................................................................\n\n..................................................................................\n(podpis konsumenta)\n\n---\n\n**Załączniki (opcjonalnie):**\n1. Kopia potwierdzenia zamówienia / umowy.\n2. Kopia dowodu zapłaty (przelew, paragon, faktura).\n3. Zdjęcia towaru (jeśli dostarczony) dokumentujące niezgodność z zamówieniem.\n4. Korespondencja z przedsiębiorcą w sprawie zamówienia.\n5. Wzór formularza odstąpienia (załącznik nr 2 do ustawy o prawach konsumenta) – jeśli nie został dostarczony przez przedsiębiorcę.\n\n**Wskazówki praktyczne:**\n- Data nadania listu poleconego / wysłania e-maila decyduje o zachowaniu terminu 14 dni (art. 27 ust. 3 ustawy).\n- Zachowaj dowód nadania (potwierdzenie pocztowe, zrzut ekranu z potwierdzeniem wysłania e-maila).\n- Jeśli przedsiębiorca nie zwróci płatności w terminie 14 dni, naliczone zostają odsetki ustawowe za opóźnienie.\n- W spornych przypadkach skontaktuj się z miejskim/powiatowym rzecznikiem konsumentów lub złoż skargę do UOKiK.\n\n**Podstawa prawna:**\n- Ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.), w szczególności art. 27, 29, 32, 38, 39, 40.\n- Dyrektywa Parlamentu Europejskiego i Rady 2011/83/UE w sprawie praw konsumentów.\n- Kodeks cywilny (art. 556–576 – rękojmia za wady; art. 385¹–385⁴ – niedozwolone postanowienia umowne).",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Odstąpienie od umowy zawartej na odległości (zakup mebli na wymiar przez internet)\n\n**Dane konsumenta:**\nImię i nazwisko: ..................................................................................\nAdres zamieszkania: ..................................................................................\nAdres e-mail: ..................................................................................\nNumer telefonu: ..................................................................................\nNumer rachunku bankowego do zwrotu płatności: ..................................................................................\n\n**Dane przedsiębiorcy (sprzedawcy):**\nPełna firma / Nazwa: ..................................................................................\nAdres siedziby: ..................................................................................\nNIP: ..................................................................................\nAdres do korespondencji / reklamacji (jeśli inny): ..................................................................................\nAdres e-mail do kontaktów: ..................................................................................\n\n**Przedmiot umowy i okoliczności zawarcia:**\n1. Data zawarcia umowy (data złożenia zamówienia przez internet): ..................................................................................\n2. Numer zamówienia / umowy: ..................................................................................\n3. Opis towaru: Meble na wymiar wyprodukowane według indywidualnej specyfikacji konsumenta (szczegóły: wymiary, kolory, materiały, dodatkowe funkcje) – zgodnie z załącznikami do zamówienia / projektem zaakceptowanym w dniu ..................................................................................\n4. Cena całkowita zapłacona / do zapłaty: .................................................................................. PLN\n5. Data otrzymania towaru (jeśli już dostarczono): ..................................................................................\n6. Sposób zawarcia umowy: za pośrednictwem sklepu internetowego / strony www przedsiębiorcy (umowa na odległości w rozumieniu art. 2 pkt 13 ustawy o prawach konsumenta).\n\n**Oświadczenie o odstąpieniu:**\nNiniejszym, działając na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.), zwaną dalej „ustawą o prawach konsumenta”, odstępuję od powyżej określonej umowy sprzedaży mebli na wymiar zawartej na odległości.\n\n**Uzasadnienie prawne i rezerwy:**\n1. Zgodnie z art. 27 ust. 1 ustawy o prawach konsumenta, konsumentowi przysługuje prawo odstąpienia od umowy zawartej na odległości w terminie 14 dni bez podawania przyczyny.\n2. Termin do odstąpienia biegnie od dnia, w którym konsument objął rzecz w posiadanie (art. 27 ust. 2). W moim przypadku termin ten upływa w dniu ..................................................................................\n3. **Wskazuję na istnienie wyjątku z art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta**, zgodnie z którym prawo odstąpienia nie przysługuje w umowach, w których przedmiotem świadczenia jest towar nieprefabrykowany, wyprodukowany według specyfikacji konsumenta lub służący zaspokojeniu jego zindywidualizowanych potrzeb. Meble objęte niniejszym zamówieniem zostały wyprodukowane na indywidualne zamówienie zgodnie z moją specyfikacją.\n4. **Mimo powyższego, złożenie niniejszego oświadczenia uzasadniam następującymi okolicznościami (zaznacz stosowne / uzupełnij):**\n   □ Przedsiębiorca nie poinformował mnie przed zawarciem umowy o wyłączeniu prawa odstąpienia z powodu charakteru towaru (art. 12 ust. 1 pkt 11 oraz art. 39 ustawy o prawach konsumenta). Brak takiej informacji może wpływać na skuteczność wyjątku.\n   □ Towar nie odpowiada specyfikacji, której dokonałem / zaakceptowałem (robież wymiary, kolorystyka, materiały, wykonanie) – co może oznaczać, że nie jest to towar „wyprodukowany według specyfikacji konsumenta” w rozumieniu art. 38 ust. 1 pkt 3.\n   □ Towar posiada wady fizyczne / prawne (niezgodność z umową) – w takim przypadku przysługują mi prawa z tytułu gwarancji / rękojmi (art. 556–576 Kodeksu cywilnego) niezależnie od prawa odstąpienia.\n   □ Przedsiębiorca nie dostarczył mi wzorca formularza odstąpienia (załącznik nr 2 do ustawy) ani nie poinformował o terminie i sposobie jego wykonywania – co zgodnie z art. 29 ustawy przedłuża termin odstąpienia do 12 miesięcy i 14 dni od upływu pierwotnego terminu.\n   □ Inne uzasadnienie: ..................................................................................\n\n**Żądania:**\nW związku z powyższym żądam:\n1. Potwierdzenia otrzymania niniejszego oświadczenia o odstąpieniu od umowy.\n2. Zwrotu wszystkich dokonanych przeze mnie płatności – ceny towaru oraz kosztów dostawy – na wskazany powyżej rachunek bankowy w terminie 14 dni od dnia otrzymania przez przedsiębiorcę niniejszego oświadczenia, zgodnie z art. 32 ust. 1 ustawy o prawach konsumenta.\n3. W przypadku odrzucenia odstąpienia przez przedsiębiorcę – uzasadnienia pisemnego z powołaniem na konkretne przepisy ustawy o prawach konsumenta.\n4. Informacji o sposobie i terminie zwrotu towaru (jeśli towar został już dostarczony). Zgodnie z art. 32 ust. 3 ustawy, koszty bezpośredniego zwrotu rzeczy ponoszę ja, chyba że przedsiębiorca nie poinformował mnie o tym obowiązku lub zgodził się je pokryć.\n\n**Zastrzeżenia:**\nNiniejsze oświadczenie nie stanowi uznania, że prawo odstąpienia mi nie przysługuje. Zastrzegam prawo do dochodzenia roszczeń w drodze sądowej lub za pośrednictwem organów ochrony konsumentów (Rzecznik Konsumentów, UOKiK) w przypadku odmowy uznania odstąpienia lub opóźnienia zwrotu płatności.\n\n**Tryb doręczenia:**\nNiniejsze oświadczenie kieruję do przedsiębiorcy:\n- listem poleconym z potwierdzeniem odbioru na adres siedziby / adres do korespondencji,\n- oraz / lub wiadomością e-mail z potwierdzeniem dostarczenia / odczytania na adres e-mail przedsiębiorcy.\n\nData i miejsce: .................................................................................., dnia ..................................................................................\n\n..................................................................................\n(podpis konsumenta)\n\n---\n\n**Załączniki (opcjonalnie):**\n1. Kopia potwierdzenia zamówienia / umowy.\n2. Kopia dowodu zapłaty (przelew, paragon, faktura).\n3. Zdjęcia towaru (jeśli dostarczony) dokumentujące niezgodność z zamówieniem.\n4. Korespondencja z przedsiębiorcą w sprawie zamówienia.\n5. Wzór formularza odstąpienia (załącznik nr 2 do ustawy o prawach konsumenta) – jeśli nie został dostarczony przez przedsiębiorcę.\n\n**Wskazówki praktyczne:**\n- Data nadania listu poleconego / wysłania e-maila decyduje o zachowaniu terminu 14 dni (art. 27 ust. 3 ustawy).\n- Zachowaj dowód nadania (potwierdzenie pocztowe, zrzut ekranu z potwierdzeniem wysłania e-maila).\n- Jeśli przedsiębiorca nie zwróci płatności w terminie 14 dni, naliczone zostają odsetki ustawowe za opóźnienie.\n- W spornych przypadkach skontaktuj się z miejskim/powiatowym rzecznikiem konsumentów lub złoż skargę do UOKiK.\n\n**Podstawa prawna:**\n- Ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.), w szczególności art. 27, 29, 32, 38, 39, 40.\n- Dyrektywa Parlamentu Europejskiego i Rady 2011/83/UE w sprawie praw konsumentów.\n- Kodeks cywilny (art. 556–576 – rękojmia za wady; art. 385¹–385⁴ – niedozwolone postanowienia umowne).",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Zamówiłem meble na wymiar przez internet, ale teraz chcę zrezygnować z tego zamówienia. Jak mogę odstąpić od umowy i odzyskać swoje pieniądze?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Zamówiłem przez internet szafy na wymiar w konkretnym kolorze i wymiarach, ale sprzedawca przed zakupem nie poinformował mnie, że nie mogę ich zwrócić. Meble już dostarczyli, ale nie pasują do reszty wnętrza i chcę zrezygnować z umowy. Potrzebuję pisma do sklepu, w którym odstąpię od zamówienia i żądam zwrotu pieniędzy na moje konto."
+  }
+ ]
+}

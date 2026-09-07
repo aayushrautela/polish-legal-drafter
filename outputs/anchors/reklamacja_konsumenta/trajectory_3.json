@@ -1,0 +1,306 @@
+{
+ "run": 3,
+ "hint": "Reklamacja butów z pękającym materiałem w ciągu miesiąca",
+ "scenario": "Reklamacja butów z pękającym materiałem w ciągu miesiąca",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a consumer complaint (reklamacja_konsumenta) template, specifically for shoes with cracking material within a month. I need to:\n\n1. First read the base template for reklamacja_konsumenta\n2. Then search for relevant provisions related to this scenario (shoes, cracking material, short timeframe, consumer rights)\n\nLet me start with getting the template.",
+   "tool_calls": [
+    {
+     "id": "call-b2caa158-462f-469c-b665-c37407d130cb",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"reklamacja_konsumenta\", \"query\": \"reklamacja butów pękający materiał w ciągu miesiąca\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Reklamacja obuwia\\nReklamacja obuwia w Polsce to pisemne zgłoszenie skierowane przez kupującego do sprzedawcy, w którym kupujący informuje o wadzie zakupionych butów i żąda skorzystania z przysługujących mu uprawnień z tytułu rękojmi uregulowanej w art. 556-576 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Obuwie jest towarem konsumpcyjnym, wobec którego pełne zastosowanie znajdują przepisy o rękojmi za wady, a w relacji kupujący–sprzedawca będący przedsiębiorcą — także szczególna ochrona konsumencka wynikająca z ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.).\\n\\nZgodnie z art. 556 Kodeksu cywilnego sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną. Wada fizyczna obuwia, w rozumieniu art. 556¹ Kodeksu cywilnego, to niezgodność z umową objawiająca się w szczególności tym, że obuwie nie ma właściwości, które powinno mieć ze względu na cel, przeznaczenie i normalne użytkowanie — na przykład podeszwa odkleja się po kilku tygodniach noszenia, szwy pękają przy pierwszym kontakcie z wodą, skóra pęka lub łuszczy się bez ingerencji kupującego, górna część buta rozwarstwiła się od wewnątrz, rozmiar nie odpowiada deklarowanemu, albo but wydaje nieprawidłowe dźwięki wskazujące na uszkodzenie konstrukcji. Niezgodność z umową zachodzi też wówczas, gdy sprzedawca zapewniał o konkretnych właściwościach obuwia, których w rzeczywistości brak.\\n\\nRękojmia jest instytucją prawa ustawowego, co oznacza, że przysługuje niezależnie od woli sprzedawcy i bez żadnej dodatkowej opłaty. Należy ją odróżnić od gwarancji — gwarancja regulowana art. 577-581 Kodeksu cywilnego jest dobrowolnym oświadczeniem gwaranta (najczęściej producenta) i kieruje się ją do gwaranta, a nie do sprzedawcy. Kupujący może wykonywać uprawnienia z tytułu rękojmi i z gwarancji niezależnie od siebie, wybierając korzystniejszą ścieżkę.\\n\\nReklamację obuwia z tytułu rękojmi kieruje się zawsze do sprzedawcy, u którego dokonano zakupu. Dotyczy to zarówno zakupów w sklepie stacjonarnym, jak i na odległość przez internet lub telefon. Przy zakupie przez internet kupujący-konsument korzysta równolegle z odrębnego prawa odstąpienia od umowy w terminie czternastu dni bez podania przyczyny na podstawie art. 27 ustawy o prawach konsumenta — jest to jednak odmienną instytucją od reklamacji wadliwego towaru.\\n\\nTermin odpowiedzialności sprzedawcy z tytułu rękojmi za obuwie wynosi dwa lata od dnia jego wydania kupującemu, co wynika z art. 568 § 1 Kodeksu cywilnego. W obrocie konsumenckim obowiązuje korzystne dla kupującego domniemanie z art. 556² Kodeksu cywilnego: jeżeli wada fizyczna ujawniła się przed upływem roku od wydania rzeczy, domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego, co przerzuca ciężar dowodu na sprzedawcę. Ochronę konsumentów w Polsce nadzoruje Urząd Ochrony Konkurencji i Konsumentów (UOKiK), a bezpłatną pomoc prawną świadczą miejscy i powiatowi rzecznicy konsumentów.\\n\\nReklamacja obuwia w Polsce jest potrzebna w każdej sytuacji, gdy zakupione buty okazują się wadliwe lub niezgodne z umową w ciągu dwóch lat od wydania, a kupujący chce skorzystać z ustawowych uprawnień wobec sprzedawcy wynikających z art. 556-576 Kodeksu cywilnego.\\n\\nNajczęstsze przypadki uzasadniające złożenie reklamacji obuwia to: odklejenie podeszwy lub jej pękanie przy normalnym użytkowaniu, rozwarstwianie się materiału wierzchniego lub jego podszewki, pękanie czy łuszczenie się skóry lub ekoskóry bez narażenia na nadmierne czynniki zewnętrzne, pękanie lub rozchodzenie się szwów łączących elementy buta, obluzowanie lub wypadanie obcasu, deformacja cholewki uniemożliwiająca użytkowanie, niezgodność rozmiaru z deklarowanym (mierzonym według standardu europejskiego), a także ukryte wady konstrukcyjne, takie jak brak amortyzacji wkładki czy nieprawidłowe wykonanie nośnika.\\n\\nDokument jest potrzebny niezależnie od tego, gdzie obuwie zostało zakupione — w sklepie stacjonarnym, galerii handlowej, na bazarze (gdy sprzedawca jest przedsiębiorcą) lub w sklepie internetowym. Przy zakupach online, poza reklamacją wadliwego towaru, konsument dysponuje dodatkowo prawem do zwrotu towaru bez podania przyczyny w ciągu czternastu dni na podstawie art. 27 ustawy o prawach konsumenta, jeśli umowa zawarta była na odległość.\\n\\nReklamację najlepiej złożyć niezwłocznie po wykryciu wady, szczególnie przed upływem roku od wydania obuwia, ponieważ wówczas działa korzystne domniemanie z art. 556² Kodeksu cywilnego, przerzucające ciężar dowodu na sprzedawcę. Przed upływem dwuletniego terminu z art. 568 § 1 Kodeksu cywilnego kupujący zachowuje uprawnienia z rękojmi.\\n\\nDokument jest szczególnie potrzebny, gdy sprzedawca odmawia przyjęcia reklamacji lub powołuje się wyłącznie na gwarancję producenta. Pisemna reklamacja z precyzyjnym opisem wady, wskazaniem żądania i datą składa się jako formalny dokument potwierdzający zgłoszenie — umożliwia późniejsze dochodzenie praw przed Sądem Rejonowym, skorzystanie z pomocy miejskiego lub powiatowego rzecznika konsumentów albo złożenie skargi do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nPrawidłowa reklamacja obuwia w Polsce, oparta na art. 556-576 Kodeksu cywilnego i ustawie o prawach konsumenta z dnia 30 maja 2014 r., powinna zawierać następujące elementy.\\n\\nDane kupującego: imię, nazwisko, adres korespondencyjny, adres e-mail i numer telefonu składającego reklamację. Przy żądaniu obniżenia ceny lub odstąpienia od umowy należy podać numer rachunku bankowego, na który sprzedawca ma dokonać zwrotu. Kompletne dane ułatwiają sprzedawcy kontakt i prawidłowe rozliczenie reklamacji.\\n\\nDane sprzedawcy: pełna nazwa i adres przedsiębiorcy, do którego kierowana jest reklamacja. Reklamację z tytułu rękojmi kieruje się wyłącznie do sprzedawcy, u którego dokonano zakupu, a nie do producenta lub importera. Dane sprzedawcy znajdują się na paragonie fiskalnym, fakturze lub w regulaminie sklepu internetowego.\\n\\nOpis reklamowanego obuwia: marka, model, rozmiar, kolor i inne cechy identyfikacyjne pary butów, a także numer i data dokumentu zakupu (paragon, faktura, potwierdzenie zamówienia). Data zakupu lub wydania jest kluczowa, bo od niej biegnie dwuletni termin rękojmi z art. 568 § 1 Kodeksu cywilnego.\\n\\nOpis wady: precyzyjny opis niezgodności z umową w rozumieniu art. 556¹ Kodeksu cywilnego — np. \\\"odkleja się podeszwa lewego buta przy normalnym użytkowaniu\\\" — wraz z datą wykrycia wady. Im dokładniejszy opis, tym łatwiej sprzedawcy ocenić zasadność reklamacji.\\n\\nŻądanie z tytułu rękojmi: jednoznaczne wskazanie uprawnienia z art. 560-561 Kodeksu cywilnego: usunięcia wady (naprawy), wymiany obuwia na wolne od wad, obniżenia ceny albo odstąpienia od umowy przy wadzie istotnej. Od umowy nie można odstąpić, jeżeli wada jest nieistotna.\\n\\nWezwanie do rozpatrzenia i postanowienia końcowe: wniosek o rozpatrzenie reklamacji w terminie czternastu dni, z zaznaczeniem, że brak ustosunkowania się do żądania konsumenta w tym terminie uznaje się za jego przyjęcie. Należy dołączyć kopię dowodu zakupu i dokumentację fotograficzną wady oraz wnieść o pisemne potwierdzenie przyjęcia reklamacji z datą. Serwis forms-legal.com udostępnia bezpłatny wzór reklamacji obuwia dostosowany do polskich wymogów prawnych. Przesłanie reklamacji listem poleconym lub e-mailem z potwierdzeniem odbioru zapewnia dowód daty zgłoszenia, co jest kluczowe dla biegu czternastodniowego terminu milczącego uznania.\\n\\nWypełnianie reklamacji obuwia w Polsce zacznij od wpisania swoich danych jako kupującego — imienia i nazwiska, adresu do korespondencji, adresu e-mail oraz numeru telefonu. Podanie numeru rachunku bankowego jest potrzebne przy wyborze żądania obniżenia ceny lub odstąpienia od umowy, by sprzedawca mógł dokonać przelewu zwrotu.\\n\\nW sekcji sprzedawcy wpisz pełną nazwę i adres sklepu. Dane te znajdziesz na paragonie, fakturze VAT lub w regulaminie sklepu internetowego w sekcji \\\"Dane sprzedawcy\\\". Pamiętaj, że reklamację z tytułu rękojmi kierujesz do sprzedawcy, a nie do producenta butów.\\n\\nW polu opisu obuwia podaj markę, model, rozmiar i kolor, np. \\\"buty skórzane damskie, marka ABC, model XY-2024, rozmiar 38, kolor czarny\\\". Następnie wpisz numer dowodu zakupu (paragon, fakturę lub numer zamówienia online) oraz datę zakupu lub wydania butów. Data wydania jest szczególnie ważna, bo od niej biegnie dwuletni termin rękojmi zgodnie z art. 568 § 1 Kodeksu cywilnego.\\n\\nW polu opisu wady opisz możliwie dokładnie, na czym polega defekt, np. \\\"podeszwa lewego buta odkleja się na odcinku 5 cm od czubka, mimo normalnego użytkowania zgodnego z przeznaczeniem obuwia\\\". Podaj datę wykrycia wady. Do opisu warto dołączyć zdjęcia — stanowią ważny dowód w ewentualnym postępowaniu reklamacyjnym lub sądowym.\\n\\nW sekcji żądania wybierz jedno z czterech uprawnień z art. 560-561 Kodeksu cywilnego: naprawę, wymianę, obniżenie ceny lub — przy wadzie istotnej — odstąpienie od umowy. Przy żądaniu obniżenia ceny podaj proponowaną kwotę. Na koniec uzupełnij miejscowość i datę złożenia reklamacji oraz złóż podpis. Reklamację wyślij listem poleconym lub e-mailem z żądaniem potwierdzenia odbioru, zachowując dowód nadania — pozwoli to dokładnie ustalić bieg czternastodniowego terminu na rozpatrzenie żądania konsumenta.\\n\\nWymogi prawne reklamacji obuwia w Polsce wynikają przede wszystkim z art. 556-576 Kodeksu cywilnego oraz ustawy z dnia 30 maja 2014 r. o prawach konsumenta. Zgodnie z art. 556 Kodeksu cywilnego sprzedawca odpowiada względem kupującego, gdy rzecz sprzedana ma wadę fizyczną lub prawną. Wadą fizyczną obuwia jest niezgodność z umową zdefiniowana w art. 556¹ Kodeksu cywilnego — obuwie nie ma właściwości, które powinno mieć ze względu na swój cel i przeznaczenie.\\n\\nUprawnienia kupującego określone są w art. 560 i art. 561 Kodeksu cywilnego. Kupujący może złożyć oświadczenie o obniżeniu ceny albo o odstąpieniu od umowy przy wadzie istotnej, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności wymieni obuwie na wolne od wad albo wadę usunie. Może też żądać wymiany lub usunięcia wady. Wybór należy do kupującego, z uwzględnieniem ograniczenia odstąpienia przy wadzie nieistotnej.\\n\\nTermin odpowiedzialności z tytułu rękojmi wynosi dwa lata od wydania obuwia (art. 568 § 1 Kodeksu cywilnego). Kluczowe jest domniemanie z art. 556² Kodeksu cywilnego: wada stwierdzona przed upływem roku od wydania rzeczy domniemywa się, że istniała w chwili przejścia niebezpieczeństwa na kupującego — sprzedawca musi wtedy udowodnić, że wada powstała później z winy kupującego.\\n\\nW relacji konsumenckiej brak ustosunkowania się sprzedawcy do żądania naprawy, wymiany albo obniżenia ceny w terminie czternastu dni od otrzymania reklamacji uznaje się za przyjęcie żądania. Zasada ta wynika z przepisów szczególnych chroniących konsumenta i mobilizuje sprzedawców do terminowej reakcji. W przypadku nierespektowania uprawnień przez sprzedawcę kupujący może zwrócić się do miejskiego lub powiatowego rzecznika konsumentów, skierować sprawę do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK), wnieść pozew do Sądu Rejonowego właściwego dla miejsca zamieszkania lub skorzystać z mediacji prowadzonej przez Inspekcję Handlową.\\n\\nNajczęstsze błędy przy reklamacji obuwia w Polsce zaczynają się od skierowania pisma do producenta zamiast do sprzedawcy. Reklamacja z tytułu rękojmi — inaczej niż reklamacja z gwarancji — kierowana jest wyłącznie do sprzedawcy, u którego dokonano zakupu. Producent odpowiada wyłącznie z tytułu ewentualnej gwarancji, jeżeli ją udzielił.\\n\\nKolejnym błędem jest zbyt ogólny opis wady. Sformułowanie \\\"buty są zepsute\\\" nie spełnia wymogu wskazania konkretnej niezgodności z umową w rozumieniu art. 556¹ Kodeksu cywilnego. Opis powinien precyzować, na czym polega wada — np. \\\"podeszwa odkleja się od przodu lewego buta\\\" — wraz z dokumentacją fotograficzną. Dokładny opis jest też kluczowy w przypadku ewentualnego postępowania przed Sądem Rejonowym.\\n\\nPowszechnym uchybieniem jest niezgłoszenie żadnego konkretnego żądania lub próba łączenia kilku żądań jednocześnie. Żądanie z art. 560-561 Kodeksu cywilnego powinno być jedno, wyraźnie wskazane — naprawa, wymiana, obniżenie ceny albo odstąpienie od umowy. Brak jednoznacznego żądania komplikuje obliczenie czternastodniowego terminu milczącego uznania.\\n\\nBłędem jest też samodzielna naprawa butów przed złożeniem reklamacji (np. doklejenie podeszwy) lub oddanie obuwia do szewca — może to utrudnić wykazanie pierwotnej wady i dać sprzedawcy argument, że uszkodzenie powstało z interwencji kupującego. Wadę należy udokumentować i zgłosić zanim podejmie się próby naprawy.\\n\\nWreszcie kupujący nierzadko zapominają o zachowaniu dowodu złożenia reklamacji i jej daty. Wysłanie pisma e-mailem bez żądania potwierdzenia odbioru lub wrzucenie do skrzynki sklepu bez potwierdzenia przyjęcia nie zapewnia dowodu daty zgłoszenia, co jest istotne dla biegu czternastodniowego terminu milczącego uznania oraz ewentualnego postępowania przed Sądem Rejonowym lub Urzędem Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/reklamacja-obuwia (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-b2caa158-462f-469c-b665-c37407d130cb",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have the base template. Now I need to search for specific provisions relevant to the scenario: shoes with cracking material within a month. This is a specific type of defect (cracking material) that appears very quickly (within a month), which would fall under the presumption in Art. 556² KC (defect appearing within 1 year is presumed to have existed at time of delivery). Let me search for more specific legal provisions and case law related to this.",
+   "tool_calls": [
+    {
+     "id": "call-b80b2656-af66-4a67-b7fc-197e3f5d657d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"pękanie materiału obuwia wada fizyczna rękojmia art 556 Kodeks cywilny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 1 . § 1. Wada polega na niezgodności rzeczy sprzedanej z umową. W szczególności rzecz sprzedana jest niezgodna z umową, jeżeli: 1) nie ma właściwości, które rzecz tego rodzaju powinna mieć ze względu na cel w umowie oznaczony albo wynikający z okoliczności lub przeznaczenia; 2) nie ma właściwości, o których istnieniu sprzedawca zapewnił kupującego, w tym przedstawiając próbkę lub wzór; 3) nie nadaje się do celu, o którym kupujący poinformowa ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_566\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 566. § 1. Jeżeli z powodu wady fizycznej rzeczy sprzedanej kupujący złożył oświadczenie o odstąpieniu od umowy albo obniżeniu ceny, może on żądać naprawienia szkody, którą poniósł przez to, że zawarł umowę, nie wiedząc o istnieniu wady, choćby szkoda była następstwem okoliczności, za które sprzedawca nie ponosi odpowiedzialności, a w szczególności może żądać zwrotu kosztów zawarcia umowy, kosztów odebrania, przewozu, przechowania i ubezpieczenia ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 2 . Jeżeli kupującym jest konsument, a wada została stwierdzona przed upływem roku od dnia wydania rzeczy sprzedanej, domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 3 . Rzecz dotknięta jest wadą prawną, jeżeli stanowi własność osoby trzeciej, jest obciążona prawem osoby trzeciej albo ograniczenie w korzystaniu lub rozporządzaniu rzeczą wynika z decyzji lub orzeczenia właściwego organu. W przypadku sprzedaży prawa wada prawna może również polegać na nieistnieniu prawa. Pozostałe wady stanowią wady fizyczne.\"}]",
+   "tool_call_id": "call-b80b2656-af66-4a67-b7fc-197e3f5d657d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I found the key statutory provisions. Let me also search for more specific provisions about the 14-day deadline for seller's response in consumer cases, and the specific rights (repair, replacement, price reduction, withdrawal).",
+   "tool_calls": [
+    {
+     "id": "call-ea6f9762-36a2-42c6-9baa-dcb3f160aa8c",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"termin 14 dni rozpatrzenie reklamacji konsumenta milczące uznanie art 561 Kodeks cywilny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}, {\"chunk_id\": \"uokik_items:uokik_308bba7052d8d46d\", \"source_id\": \"uokik_rejestr_klauzul_7217\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Termin rozpatrywania reklamacji wynosi 14 dni roboczych od dnia otrzymania przez(...)przesyłki zawierajacej reklamowany towar\"}, {\"chunk_id\": \"uokik_items:uokik_e2fc874d7166a9b1\", \"source_id\": \"uokik_rejestr_klauzul_6805\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie reklamacje rozpatrywane są najpóźniej w ciągu 14 dni roboczych od ich wpłynięcia\"}, {\"chunk_id\": \"uokik_items:uokik_177c59588262b544\", \"source_id\": \"uokik_rejestr_klauzul_3976\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacje rozpatrywane są w ciągu 14 dni roboczych od ich złożenia i w tym czasie Zamawiający zostanie poinformowany o dalszym postępowaniu reklamacyjnym\"}, {\"chunk_id\": \"uokik_items:uokik_7b3ed738c6e57233\", \"source_id\": \"uokik_rejestr_klauzul_4825\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacja może zostać zgłoszona w ciągu 14 dni, licząc od momentu ujawnienia się przyczyn reklamacji\"}]",
+   "tool_call_id": "call-ea6f9762-36a2-42c6-9baa-dcb3f160aa8c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I found the key provision about the 14-day deadline for the seller's response in consumer cases (Art. 561^5 KC). Let me also search for the specific provisions about the consumer's rights (repair, replacement, price reduction, withdrawal) and the presumption of defect existing at delivery (Art. 556^2 KC).",
+   "tool_calls": [
+    {
+     "id": "call-44fce29b-0f50-49f0-badd-00bb53cd6f7d",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_556\", \"sejm_eli_du_2024_1061_art_561\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 5 . Przepisów art. 563 oraz art. 567 § 2 dotyczących kupującego nie stosuje się do osoby fizycznej zawierającej umowę bezpośrednio związaną z jej działalnością gospodarczą, gdy z treści tej umowy wynika, że nie posiada ona dla tej osoby charakteru zawodowego, wynikającego w szczególności z przedmiotu wykonywanej przez nią działalności gospodarczej, udostępnionego na podstawie przepisów o Centralnej Ewidencji i Informacji o Działalności Gospodarczej.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call-44fce29b-0f50-49f0-badd-00bb53cd6f7d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_2f7084c99be849a087d0b2bc",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 560\", \"art. 561\", \"rękojmia\", \"wymiana\", \"naprawa\", \"obniżenie ceny\", \"odstąpienie od umowy\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_773ac283ae72c0c6\", \"source_id\": \"uokik_rejestr_klauzul_2619\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie rezygnacji z wycieczki bez skutecznego wezwania innej osoby (lub osób) wstępującej w miejsce Klienta oraz pozostałych osób, na rzecz których zawarto umowę, Klient będzie obciążony poniższymi kosztami; - jeżeli odstąpienie od umowy nastąpiło w terminie do 50 dni przed rozpoczęciem wycieczki, 10 % ceny, - jeżeli odstapienie od umowy nastąpiło w terminie od 49 do 35 dnia przed rozpoczęciem wycieczki, 50 % ceny, - jeżeli odstąpienie od umowy nastapiło w terminie po 35 dniu do dnia rozpoczęcia wycieczki, 100 % ceny, pomniejszonej o świadczenia przewidziane na uczestnika wycieczki za które P ...\"}, {\"chunk_id\": \"uokik_items:uokik_acd316ed58bf1e34\", \"source_id\": \"uokik_rejestr_klauzul_5310\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Odstąpienie od Umowy przez konsumenta w terminie 7 dni od zawarcia Umowy, powoduje potrącenie z wpłaconej zaliczki kwoty 900,00 PLN, tytułem kosztów związanych z opracowaniem dokumentacji, pomniejszonej o wpłatę na poczet kosztu opracowania projektu. Odstąpienie od umowy po upływie 7 dni od jej zawarcia, powoduje potrącenie ...% wartości kuchni z dokonanej przedpłaty, na poczet ceny, nie mniej jednak niż kwota 1.200,00 PLN\"}, {\"chunk_id\": \"uokik_items:uokik_889e2a33ebf8d0a8\", \"source_id\": \"uokik_rejestr_klauzul_5410\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku gdy strony uzgodnią, że wpłacona zaliczka ma charakter zadatku, odstąpienie od umowy przez Sprzedawcę zgodnie z pkt. 6 pozwala na zachowanie otrzymanego zadatku w pełnej wysokości, a odstąpienie od umowy przez klienta w myśl pkt. 7 rodzi zobowiązanie sprzedawcy do zwrotu zadatku w podwójnej wysokości. Nie dotyczy to przypadku odstąpienia od umowy przez Klienta w razie niemożliwości świadczenia (pkt. 3 ust. C). W takim przypadku, strony uzgadniają zwrot zadatku w wysokości kwoty wpłaconej\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43n\", \"source_id\": \"sejm_eli_du_2024_1796_art_43n\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43n. 1. Jeżeli treść cyfrowa lub usługa cyfrowa są niezgodne z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) doprowadzenie do zgodności treści cyfrowej lub usługi cyfrowej z umową jest niemożliwe albo wymaga nadmiernych kosztów stosownie do art. 43m ust. 2 i 3; 2) przedsiębiorca nie doprowadził treści cyfrowej lub usługi cyfrowej do zgodności z umową zgodnie z art. 43m ust. 4; 3) brak zgodnoś ...\"}]",
+   "tool_call_id": "call_2f7084c99be849a087d0b2bc",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Reklamacja obuwia – pękający materiał w ciągu miesiąca od zakupu\n\n**Miejscowość, data:** ..............................................\n\n## 1. Dane kupującego (konsumenta)\nImię i nazwisko: ................................................................................\nAdres korespondencyjny: ................................................................................\nAdres e-mail: ................................................................................\nNumer telefonu: ................................................................................\nNumer rachunku bankowego (do ewentualnego zwrotu): ................................................................................\n\n## 2. Dane sprzedawcy\nPełna nazwa przedsiębiorcy: ................................................................................\nAdres siedziby / miejsca prowadzenia działalności: ................................................................................\nNIP: ................................................................................\n\n## 3. Opis reklamowanego obuwia\nMarka: ................................................................................\nModel: ................................................................................\nRozmiar: ................................................................................\nKolor: ................................................................................\nNumer dowodu zakupu (paragon / faktura / potwierdzenie zamówienia): ................................................................................\nData zakupu / wydania towaru: ................................................................................\n\n## 4. Opis wady\n**Wada fizyczna w rozumieniu art. 556¹ Kodeksu cywilnego:**\nMateriał wierzchniego buta (cholewki) pęka / łuszczy się / rozwarstwia w wielu miejscach przy normalnym użytkowaniu zgodnym z przeznaczeniem obuwia. Wada ujawniła się w ciągu **pierwszego miesiąca** od daty wydania butów do użytkowania (data wykrycia: ..............................................).\n\nSzczegółowy opis lokalizacji i charakteru pęknięć:\n................................................................................\n................................................................................\n................................................................................\n\n**Podstawa prawna:** Zgodnie z art. 556 § 1 K.C. sprzedawca odpowiada za wady fizyczne. Art. 556¹ K.C. definiuje wadę fizyczną jako niezgodność rzeczy z umową – w szczególności brak właściwości, które rzecz tego rodzaju powinna mieć ze względu na swoje przeznaczenie. Materiał buta pękający przy normalnym noszeniu po miesiącu nie spełnia oczekiwań co do trwałości i nadaje się do normalnego użytkowania.\n\n**Domniemanie art. 556² K.C.:** Ponieważ wada ujawniła się przed upływem roku od wydania rzeczy (w tym przypadku: w ciągu miesiąca), domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego. Ciężar dowodu leży zatem na sprzedawcy.\n\n## 5. Żądanie z tytułu rękojmi (wybierz jedno, zaznacz X)\nZgodnie z art. 560–561 K.C. oraz art. 43e ustawy o prawach konsumenta, żądam:\n\n☐ **Wymiany obuwia na nowe, wolne od wad** (art. 560 § 1 K.C.)\n☐ **Usunięcia wady (naprawy)** – w tym przypadku: wymiany materiału / cholewki na trwały (art. 560 § 1 K.C.)\n☐ **Obniżenia ceny** o kwotę: ...................... PLN (art. 560 § 2 K.C.)\n☐ **Odstąpienia od umowy** (zwrot ceny za odesłanie butów) – wada jest istotna, uniemożliwia normalne użytkowanie (art. 561 § 1 K.C.)\n\n*Uwaga: Od umowy nie można odstąpić, jeżeli wada jest nieistotna (art. 561 § 2 K.C.). Pękanie materiału w ciągu miesiąca przy normalnym użytkowaniu stanowi wadę istotną.*\n\n## 6. Wezwanie do rozpatrzenia i termin odpowiedzi\nNa podstawie art. 561⁵ K.C. wezwam do rozpatrzenia niniejszej reklamacji i złożenia postanowienia w terminie **14 dni** od daty jej otrzymania.\n\n**Przypominam:** Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione (art. 561⁵ K.C.).\n\n## 7. Załączniki\n☐ Kopia dowodu zakupu (paragon / faktura / potwierdzenie zamówienia)\n☐ Zdjęcia wad (materiał pękający – zbliżenia i ogólne widoki obu butów)\n☐ Ewentualne inne dokumenty (np. korespondencja ze sprzedawcą)\n\n## 8. Adres do zwrotu towaru (w przypadku wymiany / odstąpienia)\nProszę o wskazanie adresu, na który mam doręczyć reklamowane buty (koszt przesyłki pokrywa sprzedawca – art. 560 § 3 K.C.):\n................................................................................\n................................................................................\n\n## 9. Oświadczenie i podpis\nOświadczam, że powyższe informacje są prawdziwe, a buty nie były naprawiane samodzielnie ani przez osoby trzecie przed złożeniem reklamacji. Niniejszą reklamację złożoną w trybie rękojmi (art. 556–576 K.C.), a nie z gwarancji producenta.\n\n................................................................................\n(podpis kupującego)\n\n---\n\n### Instrukcja doręczenia\n1. Reklamację wyślij **listem poleconym z potwierdzeniem odbioru** lub **e-mailem z żądaniem potwierdzenia przeczytania / odbioru** na adres sprzedawcy.\n2. Zachowaj kopię pisma oraz dowód nadania / doręczenia – są one kluczowe dla biegu 14-dniowego terminu milczącego uznania (art. 561⁵ K.C.) oraz ewentualnego postępowania sądowego.\n3. Termin odpowiedzialności sprzedawcy z tytułu rękojmi wynosi **2 lata** od dnia wydania obuwia (art. 568 § 1 K.C.).\n4. W przypadku braku reakcji lub odrzucenia reklamacji możesz zwrócić się o pomoc do **miejskiego/powiatowego rzecznika konsumentów**, złożyć skargę do **UOKiK** lub wnieść pozew do **Sądu Rejonowego** właściwego dla Twojego miejsca zamieszkania.\n\n---\n\n**Podstawa prawna:**\n- Art. 556–576 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 2024 poz. 1061 ze zm.)\n- Ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.) – w szczególności art. 43e\n- Przepisy o ochronie konsumentów w relacji B2C",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Reklamacja obuwia – pękający materiał w ciągu miesiąca od zakupu\n\n**Miejscowość, data:** ..............................................\n\n## 1. Dane kupującego (konsumenta)\nImię i nazwisko: ................................................................................\nAdres korespondencyjny: ................................................................................\nAdres e-mail: ................................................................................\nNumer telefonu: ................................................................................\nNumer rachunku bankowego (do ewentualnego zwrotu): ................................................................................\n\n## 2. Dane sprzedawcy\nPełna nazwa przedsiębiorcy: ................................................................................\nAdres siedziby / miejsca prowadzenia działalności: ................................................................................\nNIP: ................................................................................\n\n## 3. Opis reklamowanego obuwia\nMarka: ................................................................................\nModel: ................................................................................\nRozmiar: ................................................................................\nKolor: ................................................................................\nNumer dowodu zakupu (paragon / faktura / potwierdzenie zamówienia): ................................................................................\nData zakupu / wydania towaru: ................................................................................\n\n## 4. Opis wady\n**Wada fizyczna w rozumieniu art. 556¹ Kodeksu cywilnego:**\nMateriał wierzchniego buta (cholewki) pęka / łuszczy się / rozwarstwia w wielu miejscach przy normalnym użytkowaniu zgodnym z przeznaczeniem obuwia. Wada ujawniła się w ciągu **pierwszego miesiąca** od daty wydania butów do użytkowania (data wykrycia: ..............................................).\n\nSzczegółowy opis lokalizacji i charakteru pęknięć:\n................................................................................\n................................................................................\n................................................................................\n\n**Podstawa prawna:** Zgodnie z art. 556 § 1 K.C. sprzedawca odpowiada za wady fizyczne. Art. 556¹ K.C. definiuje wadę fizyczną jako niezgodność rzeczy z umową – w szczególności brak właściwości, które rzecz tego rodzaju powinna mieć ze względu na swoje przeznaczenie. Materiał buta pękający przy normalnym noszeniu po miesiącu nie spełnia oczekiwań co do trwałości i nadaje się do normalnego użytkowania.\n\n**Domniemanie art. 556² K.C.:** Ponieważ wada ujawniła się przed upływem roku od wydania rzeczy (w tym przypadku: w ciągu miesiąca), domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego. Ciężar dowodu leży zatem na sprzedawcy.\n\n## 5. Żądanie z tytułu rękojmi (wybierz jedno, zaznacz X)\nZgodnie z art. 560–561 K.C. oraz art. 43e ustawy o prawach konsumenta, żądam:\n\n☐ **Wymiany obuwia na nowe, wolne od wad** (art. 560 § 1 K.C.)\n☐ **Usunięcia wady (naprawy)** – w tym przypadku: wymiany materiału / cholewki na trwały (art. 560 § 1 K.C.)\n☐ **Obniżenia ceny** o kwotę: ...................... PLN (art. 560 § 2 K.C.)\n☐ **Odstąpienia od umowy** (zwrot ceny za odesłanie butów) – wada jest istotna, uniemożliwia normalne użytkowanie (art. 561 § 1 K.C.)\n\n*Uwaga: Od umowy nie można odstąpić, jeżeli wada jest nieistotna (art. 561 § 2 K.C.). Pękanie materiału w ciągu miesiąca przy normalnym użytkowaniu stanowi wadę istotną.*\n\n## 6. Wezwanie do rozpatrzenia i termin odpowiedzi\nNa podstawie art. 561⁵ K.C. wezwam do rozpatrzenia niniejszej reklamacji i złożenia postanowienia w terminie **14 dni** od daty jej otrzymania.\n\n**Przypominam:** Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione (art. 561⁵ K.C.).\n\n## 7. Załączniki\n☐ Kopia dowodu zakupu (paragon / faktura / potwierdzenie zamówienia)\n☐ Zdjęcia wad (materiał pękający – zbliżenia i ogólne widoki obu butów)\n☐ Ewentualne inne dokumenty (np. korespondencja ze sprzedawcą)\n\n## 8. Adres do zwrotu towaru (w przypadku wymiany / odstąpienia)\nProszę o wskazanie adresu, na który mam doręczyć reklamowane buty (koszt przesyłki pokrywa sprzedawca – art. 560 § 3 K.C.):\n................................................................................\n................................................................................\n\n## 9. Oświadczenie i podpis\nOświadczam, że powyższe informacje są prawdziwe, a buty nie były naprawiane samodzielnie ani przez osoby trzecie przed złożeniem reklamacji. Niniejszą reklamację złożoną w trybie rękojmi (art. 556–576 K.C.), a nie z gwarancji producenta.\n\n................................................................................\n(podpis kupującego)\n\n---\n\n### Instrukcja doręczenia\n1. Reklamację wyślij **listem poleconym z potwierdzeniem odbioru** lub **e-mailem z żądaniem potwierdzenia przeczytania / odbioru** na adres sprzedawcy.\n2. Zachowaj kopię pisma oraz dowód nadania / doręczenia – są one kluczowe dla biegu 14-dniowego terminu milczącego uznania (art. 561⁵ K.C.) oraz ewentualnego postępowania sądowego.\n3. Termin odpowiedzialności sprzedawcy z tytułu rękojmi wynosi **2 lata** od dnia wydania obuwia (art. 568 § 1 K.C.).\n4. W przypadku braku reakcji lub odrzucenia reklamacji możesz zwrócić się o pomoc do **miejskiego/powiatowego rzecznika konsumentów**, złożyć skargę do **UOKiK** lub wnieść pozew do **Sądu Rejonowego** właściwego dla Twojego miejsca zamieszkania.\n\n---\n\n**Podstawa prawna:**\n- Art. 556–576 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 2024 poz. 1061 ze zm.)\n- Ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.) – w szczególności art. 43e\n- Przepisy o ochronie konsumentów w relacji B2C",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem buty, a po miesiącu materiał zaczął pękać. Jak napisać reklamację, żeby sklep wymienił mi je na nowe?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Miesiąc temu kupiłem w sklepie buty za 300 zł, a dzisiaj zauważyłem, że skóra na cholewce pęka i łuszczy się w kilku miejscach. Noszę je normalnie do pracy, a nie w żadnych ekstremalnych warunkach. Chcę złożyć reklamację i żądać wymiany na nowe, wolne od wad, ale nie wiem, jak sformułować to pismo, żeby było skuteczne. Czy jest jakiś gotowy wzór, który mogę wypełnić?"
+  }
+ ]
+}

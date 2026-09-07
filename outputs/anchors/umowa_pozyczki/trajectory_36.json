@@ -1,0 +1,292 @@
+{
+ "run": 42,
+ "hint": "Pożyczka z podpisem notarialnie poświadczonym",
+ "scenario": "Pożyczka z podpisem notarialnie poświadczonym",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_pozyczki'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a loan agreement (umowa_pozyczki) where the contract is signed with a notarially certified signature (podpisem notarialnie poświadczonym). I need to:\n\n1. First read the base template for umowa_pozyczki\n2. Then search for provisions relevant to notarially certified signatures in loan agreements\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-a99cf985-d5b0-4d23-8669-022056d50f74",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_pozyczki\", \"query\": \"pożyczka z podpisem notarialnie poświadczonym\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży\\nUmowa sprzedaży w Polsce to umowa cywilnoprawna, przez którą sprzedawca zobowiązuje się przenieść na kupującego własność rzeczy i wydać mu rzecz, a kupujący zobowiązuje się rzecz odebrać i zapłacić sprzedawcy cenę. Podstawą prawną jest art. 535 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), a szczegółowe przepisy o sprzedaży zawiera art. 535–602 Kodeksu cywilnego. Sprzedaż jest najpowszechniejszą umową obrotu gospodarczego i podstawą wymiany dóbr między przedsiębiorcami oraz między przedsiębiorcami a konsumentami.\\n\\nNajważniejszą cechą sprzedaży jest jej wzajemny i odpłatny charakter: świadczeniu sprzedawcy (przeniesienie własności i wydanie rzeczy) odpowiada świadczenie kupującego (odbiór rzeczy i zapłata ceny). Cena jest elementem przedmiotowo istotnym — zgodnie z art. 536 Kodeksu cywilnego może być oznaczona przez wskazanie podstaw do jej ustalenia. Jeżeli sprzedawca jest czynnym podatnikiem podatku od towarów i usług, do ceny netto dolicza się podatek VAT, którego stawka podstawowa wynosi 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług.\\n\\nKluczowe znaczenie ma moment przejścia ryzyka. Art. 548 Kodeksu cywilnego stanowi, że z chwilą wydania rzeczy przechodzą na kupującego korzyści i ciężary związane z rzeczą oraz niebezpieczeństwo jej przypadkowej utraty lub uszkodzenia. Oznacza to, że od chwili wydania to kupujący ponosi ryzyko związane z rzeczą, niezależnie od tego, czy zapłacił już całą cenę. Strony mogą jednak zastrzec własność rzeczy do czasu zapłaty ceny (art. 589 Kodeksu cywilnego), co stanowi zabezpieczenie sprzedawcy w sprzedaży z odroczonym terminem płatności.\\n\\nSprzedawca odpowiada wobec kupującego z tytułu rękojmi za wady. Art. 556 i nast. Kodeksu cywilnego rozróżniają wady fizyczne (art. 556[1]) i wady prawne (art. 556[3]). W razie wady kupującemu przysługują uprawnienia: żądanie usunięcia wady, wymiana rzeczy na wolną od wad, obniżenie ceny, a przy wadach istotnych — odstąpienie od umowy (art. 560 Kodeksu cywilnego). Termin rękojmi wynosi co do zasady dwa lata od wydania rzeczy zgodnie z art. 568 Kodeksu cywilnego. Niezależnie od rękojmi sprzedawca lub producent mogą udzielić gwarancji jakości (art. 577–581 Kodeksu cywilnego).\\n\\nForma umowy sprzedaży rzeczy ruchomych jest dowolna — może być zawarta ustnie, jednak forma pisemna ma istotne znaczenie dowodowe i porządkujące, zwłaszcza w obrocie gospodarczym i przy rzeczach o znacznej wartości. Dla niektórych przedmiotów obowiązują wymogi szczególne: sprzedaż nieruchomości wymaga formy aktu notarialnego (art. 158 Kodeksu cywilnego), a sprzedaż udziałów w spółce z ograniczoną odpowiedzialnością — formy pisemnej z podpisami notarialnie poświadczonymi (art. 180 Kodeksu spółek handlowych).\\n\\nUmowa sprzedaży ma fundamentalne znaczenie w obrocie B2B: dokumentuje transakcję dla celów rachunkowych i podatkowych, stanowi podstawę wystawienia faktury VAT oraz określa odpowiedzialność stron. W transakcjach handlowych zastosowanie ma także ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, która chroni sprzedawcę przed zatorami płatniczymi, przyznając odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensatę za koszty odzyskiwania należności. Dobrze sporządzona umowa precyzuje przedmiot, cenę, termin i sposób wydania, przejście ryzyka oraz zasady rękojmi, dzięki czemu obie strony znają swoje prawa i obowiązki.\\n\\nUmowa sprzedaży w Polsce jest potrzebna zawsze, gdy dochodzi do odpłatnego przeniesienia własności rzeczy z jednej strony na drugą, a strony chcą jednoznacznie udokumentować warunki transakcji zgodnie z art. 535 Kodeksu cywilnego.\\n\\nSprzedaż towarów w obrocie B2B. Przedsiębiorcy zawierają umowę sprzedaży przy zbyciu maszyn, urządzeń, surowców, towarów handlowych czy wyposażenia. Pisemna umowa porządkuje cenę z VAT 23%, termin wydania, przejście ryzyka oraz zasady rękojmi, co ma znaczenie księgowe i podatkowe wobec Krajowej Administracji Skarbowej (KAS).\\n\\nSprzedaż rzeczy o znacznej wartości. Przy transakcjach dotyczących droższych przedmiotów — sprzętu produkcyjnego, pojazdów, instalacji — pisemna umowa zabezpiecza obie strony, dokumentuje stan techniczny i pozwala precyzyjnie określić zakres odpowiedzialności sprzedawcy za wady.\\n\\nSprzedaż z odroczonym terminem płatności. Gdy zapłata następuje po wydaniu rzeczy, sprzedawca może zabezpieczyć się przez zastrzeżenie własności rzeczy do czasu zapłaty ceny (art. 589 Kodeksu cywilnego). Pisemna umowa jest niezbędna do skutecznego ustanowienia takiego zabezpieczenia.\\n\\nSprzedaż między przedsiębiorcą a osobą fizyczną. Przy zbyciu towaru osobie prywatnej umowa porządkuje cenę, wydanie i rękojmię. Należy pamiętać, że jeżeli kupującym jest konsument, zastosowanie mają dodatkowo przepisy ustawy z dnia 30 maja 2014 r. o prawach konsumenta oraz przepisy o zgodności towaru z umową.\\n\\nSprzedaż likwidacyjna i zbycie majątku. Przy zbywaniu majątku przedsiębiorstwa, środków trwałych czy zapasów w toku likwidacji lub restrukturyzacji umowa sprzedaży dokumentuje przeniesienie własności poszczególnych składników i podstawę rozliczeń podatkowych.\\n\\nDostawy powtarzalne. Przy regularnych dostawach towarów strony często zawierają umowę ramową, a poszczególne transakcje realizują na podstawie zamówień. Jednostkowa umowa sprzedaży sprawdza się natomiast przy transakcjach jednorazowych lub okazjonalnych.\\n\\nSprzedaż wymagająca formy szczególnej. Niektóre przedmioty wymagają zachowania formy szczególnej: sprzedaż nieruchomości — formy aktu notarialnego (art. 158 Kodeksu cywilnego), a sprzedaż udziałów w spółce z ograniczoną odpowiedzialnością — formy pisemnej z podpisami notarialnie poświadczonymi (art. 180 Kodeksu spółek handlowych). Dla tych transakcji niezbędny jest udział notariusza, a niniejszy wzór dotyczy sprzedaży rzeczy ruchomych.\\n\\nUmowa sprzedaży w Polsce powinna zawierać następujące elementy zgodne z art. 535 i nast. Kodeksu cywilnego, aby jednoznacznie określić transakcję i odpowiedzialność stron.\\n\\nOznaczenie stron. Pełne dane sprzedawcy i kupującego: firma lub imię i nazwisko, adres, NIP i REGON dla przedsiębiorców, PESEL dla osób fizycznych, numer KRS dla spółek z Krajowego Rejestru Sądowego. Precyzyjne oznaczenie stron pozwala ustalić podatnika VAT oraz zakres odpowiedzialności i jest podstawą prawidłowego wystawienia faktury.\\n\\nPrzedmiot sprzedaży. Dokładny opis rzeczy: rodzaj, ilość, cechy identyfikujące (marka, model, numer seryjny), stan techniczny. Precyzyjne określenie przedmiotu pozwala ocenić zgodność rzeczy z umową i zakres rękojmi za wady. forms-legal.com zaleca dołączenie specyfikacji lub protokołu stanu technicznego dla przedmiotów o znacznej wartości.\\n\\nCena i jej wysokość. Cena oznaczona cyfrowo i słownie, z wyodrębnieniem podatku od towarów i usług, jeżeli sprzedawca jest czynnym podatnikiem VAT. Stawka podstawowa VAT wynosi 23% zgodnie z ustawą o podatku od towarów i usług. Zgodnie z art. 536 Kodeksu cywilnego cena może być oznaczona przez wskazanie podstaw do jej ustalenia.\\n\\nSposób i termin zapłaty. Określenie, kiedy cena staje się wymagalna i w jakiej formie jest płatna — przelew na rachunek bankowy, gotówka, zaliczka. W razie opóźnienia kupującego sprzedawcy przysługują odsetki ustawowe za opóźnienie (art. 481 Kodeksu cywilnego), a w transakcjach handlowych dodatkowo odsetki i rekompensata za koszty odzyskiwania należności.\\n\\nWydanie rzeczy. Miejsce i termin wydania przedmiotu sprzedaży oraz sposób dostawy lub odbioru. Element ten ma kluczowe znaczenie, ponieważ zgodnie z art. 548 Kodeksu cywilnego z chwilą wydania na kupującego przechodzą korzyści, ciężary oraz niebezpieczeństwo przypadkowej utraty lub uszkodzenia rzeczy.\\n\\nOświadczenia sprzedawcy. Zapewnienie, że przedmiot sprzedaży stanowi wyłączną własność sprzedawcy, jest wolny od wad prawnych oraz praw i roszczeń osób trzecich. Oświadczenia te chronią kupującego przed nabyciem rzeczy obciążonej i są podstawą odpowiedzialności z tytułu rękojmi za wady prawne (art. 556[3] Kodeksu cywilnego).\\n\\nRękojmia za wady. Postanowienia o odpowiedzialności sprzedawcy za wady fizyczne i prawne na zasadach art. 556 i nast. Kodeksu cywilnego. Uprawnienia kupującego obejmują żądanie usunięcia wady, wymianę rzeczy, obniżenie ceny oraz odstąpienie od umowy przy wadach istotnych (art. 560). Termin rękojmi wynosi dwa lata od wydania rzeczy (art. 568). W obrocie profesjonalnym rękojmia może być rozszerzona, ograniczona lub wyłączona.\\n\\nZastrzeżenie własności i zabezpieczenia. Przy sprzedaży z odroczoną płatnością zastrzeżenie własności rzeczy do czasu zapłaty ceny (art. 589 Kodeksu cywilnego) zabezpiecza sprzedawcę. Strony mogą też wprowadzić kary umowne za zwłokę w wydaniu lub odbiorze (art. 483 Kodeksu cywilnego), pamiętając, że kary umownej nie zastrzega się za świadczenia pieniężne.\\n\\nGwarancja jakości. Opcjonalne postanowienia o gwarancji jakości udzielonej przez sprzedawcę lub producenta na zasadach art. 577–581 Kodeksu cywilnego, działającej obok rękojmi i określającej okres oraz zakres ochrony.\\n\\nPostanowienia końcowe i rozstrzyganie sporów. Odesłanie do przepisów Kodeksu cywilnego w sprawach nieuregulowanych, wymóg formy pisemnej dla zmian, liczba egzemplarzy oraz klauzula wskazująca sąd właściwy (Sąd Rejonowy do 100 000 zł, Sąd Okręgowy powyżej tej wartości).\\n\\nUmowa sprzedaży w Polsce wypełniana jest według kolejnych kroków, które zapewniają zgodność z art. 535 i nast. Kodeksu cywilnego oraz prawidłowe rozliczenie transakcji.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane sprzedawcy i kupującego: firmę lub imię i nazwisko, adres, NIP i REGON albo PESEL, a dla spółek numer KRS. Zweryfikuj status sprzedawcy jako czynnego podatnika VAT na białej liście podatników VAT oraz reprezentację w Krajowym Rejestrze Sądowym (KRS).\\n\\nKrok 2 — opisz przedmiot sprzedaży. Określ dokładnie rzecz: rodzaj, ilość, markę, model, numer seryjny i stan techniczny. Dla przedmiotów o znacznej wartości dołącz specyfikację lub protokół stanu technicznego, co ułatwi ocenę ewentualnych wad.\\n\\nKrok 3 — ustal cenę. Wpisz cenę cyfrowo i słownie. Jeżeli sprzedawca jest czynnym podatnikiem VAT, wyodrębnij kwotę netto, stawkę VAT 23% oraz kwotę brutto. Pamiętaj, że zgodnie z art. 536 Kodeksu cywilnego cena może być oznaczona przez wskazanie podstaw do jej ustalenia.\\n\\nKrok 4 — określ sposób i termin zapłaty. Wpisz, kiedy cena staje się wymagalna i w jakiej formie jest płatna, w tym numer rachunku bankowego i ewentualną zaliczkę. Rozważ zastrzeżenie własności do czasu zapłaty (art. 589 Kodeksu cywilnego) przy sprzedaży z odroczonym terminem.\\n\\nKrok 5 — ureguluj wydanie rzeczy. Wpisz miejsce i termin wydania oraz sposób dostawy lub odbioru. Pamiętaj, że z chwilą wydania na kupującego przechodzą korzyści, ciężary i ryzyko przypadkowej utraty lub uszkodzenia rzeczy (art. 548 Kodeksu cywilnego).\\n\\nKrok 6 — wybierz zakres rękojmi. Zdecyduj, czy rękojmia obowiązuje na zasadach ustawowych, jest rozszerzona o gwarancję jakości, czy wyłączona. Pamiętaj, że wyłączenie rękojmi jest dopuszczalne wyłącznie w obrocie między przedsiębiorcami i nie działa wobec konsumenta.\\n\\nKrok 7 — dodaj zabezpieczenia. Rozważ kary umowne za zwłokę w wydaniu lub odbiorze rzeczy (art. 483 Kodeksu cywilnego). Pamiętaj, że kary umownej nie można zastrzec za zobowiązanie pieniężne, takie jak zapłata ceny — na to służą odsetki za opóźnienie.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę zawarcia, a następnie podpisz dokument w dwóch jednobrzmiących egzemplarzach. Dla spółek podpis składa osoba uprawniona do reprezentacji według wpisu w KRS. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego. Sprzedawca będący podatnikiem VAT wystawia fakturę zgodnie z ustawą o podatku od towarów i usług.\\n\\nUmowa sprzedaży w Polsce podlega regulacji prawa cywilnego, prawa podatkowego oraz przepisów o przeciwdziałaniu zatorom płatniczym.\\n\\nKodeks cywilny (art. 535–602). Sprzedaż jest umową nazwaną. Art. 535 określa jej istotę, art. 536 reguluje cenę, art. 548 określa przejście korzyści, ciężarów i ryzyka z chwilą wydania rzeczy, art. 556 i nast. regulują rękojmię za wady, art. 560 wymienia uprawnienia kupującego, art. 568 określa dwuletni termin rękojmi, art. 577–581 dotyczą gwarancji jakości, a art. 589 pozwala zastrzec własność rzeczy do czasu zapłaty ceny.\\n\\nForma umowy. Sprzedaż rzeczy ruchomych nie wymaga formy szczególnej i może być zawarta ustnie, jednak forma pisemna ma znaczenie dowodowe i porządkujące, zwłaszcza w obrocie gospodarczym. Sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 Kodeksu cywilnego), a sprzedaż udziałów w spółce z ograniczoną odpowiedzialnością — formy pisemnej z podpisami notarialnie poświadczonymi (art. 180 Kodeksu spółek handlowych).\\n\\nPodatek od towarów i usług (VAT). Sprzedaż towarów przez czynnego podatnika podlega opodatkowaniu podatkiem VAT zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług. Stawka podstawowa wynosi 23%, a dla niektórych towarów stosuje się stawki obniżone 8%, 5% lub 0%. Sprzedawca wystawia fakturę zawierającą obowiązkowe elementy określone w art. 106a–106q ustawy o VAT. Faktury ustrukturyzowane przekazywane są przez Krajowy System e-Faktur (KSeF).\\n\\nRękojmia za wady. Sprzedawca odpowiada z tytułu rękojmi za wady fizyczne (art. 556[1] Kodeksu cywilnego) i wady prawne (art. 556[3]). Kupujący może żądać usunięcia wady, wymiany rzeczy, obniżenia ceny lub odstąpić od umowy przy wadach istotnych (art. 560). Termin rękojmi wynosi co do zasady dwa lata od wydania rzeczy (art. 568). W obrocie między przedsiębiorcami strony mogą rozszerzyć, ograniczyć lub wyłączyć rękojmię, czego nie wolno czynić wobec konsumenta.\\n\\nOdpowiedzialność za niewykonanie zobowiązania. Za niewykonanie lub nienależyte wykonanie umowy strony odpowiadają na zasadach art. 471 Kodeksu cywilnego. Strony mogą zastrzec kary umowne za niewykonanie lub nienależyte wykonanie zobowiązania niepieniężnego (art. 483 Kodeksu cywilnego), z możliwością miarkowania kary rażąco wygórowanej (art. 484 § 2).\\n\\nOdsetki i transakcje handlowe. W razie opóźnienia w zapłacie ceny sprzedawcy przysługują odsetki ustawowe za opóźnienie zgodnie z art. 481 Kodeksu cywilnego, których wysokość odpowiada stopie referencyjnej Narodowego Banku Polskiego (NBP) powiększonej o ustawowy wskaźnik. W obrocie profesjonalnym zastosowanie ma ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, przyznająca odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensatę za koszty odzyskiwania należności.\\n\\nOchrona konsumenta. Jeżeli kupującym jest konsument, zastosowanie mają przepisy ustawy z dnia 30 maja 2014 r. o prawach konsumenta oraz przepisy o zgodności towaru z umową, które wzmacniają pozycję konsumenta i ograniczają możliwość wyłączenia odpowiedzialności sprzedawcy. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) nadzoruje przestrzeganie tych przepisów.\\n\\nPrzedawnienie roszczeń. Roszczenia z umowy sprzedaży dokonanej w zakresie działalności przedsiębiorstwa sprzedawcy przedawniają się z upływem dwóch lat zgodnie z art. 554 Kodeksu cywilnego. Roszczenia związane z prowadzeniem działalności gospodarczej przedawniają się co do zasady z upływem trzech lat (art. 118 Kodeksu cywilnego).\\n\\nUmowa sprzedaży w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć przy starannym jej sporządzeniu.\\n\\nBłąd 1 — nieprecyzyjny opis przedmiotu. Ogólnikowe określenie rzeczy uniemożliwia ocenę zgodności z umową i osłabia uprawnienia z rękojmi. Zalecenie: opisz rodzaj, ilość, markę, model, numer seryjny i stan techniczny, a dla przedmiotów wartościowych dołącz specyfikację lub protokół.\\n\\nBłąd 2 — pominięcie VAT w cenie. Brak wyodrębnienia podatku VAT prowadzi do sporów o to, czy cena jest brutto czy netto, oraz do błędów w rozliczeniu z urzędem skarbowym. Zalecenie: wskaż kwotę netto, stawkę VAT 23% oraz kwotę brutto, jeżeli sprzedawca jest czynnym podatnikiem VAT.\\n\\nBłąd 3 — brak uregulowania momentu wydania i ryzyka. Nieokreślenie chwili wydania rzeczy rodzi spory o to, kto ponosi ryzyko jej utraty lub uszkodzenia. Zalecenie: określ miejsce i termin wydania, pamiętając, że z tą chwilą ryzyko przechodzi na kupującego (art. 548 Kodeksu cywilnego).\\n\\nBłąd 4 — niedozwolone wyłączenie rękojmi wobec konsumenta. Wyłączenie odpowiedzialności sprzedawcy w umowie z konsumentem jest bezskuteczne i może stanowić klauzulę abuzywną kwestionowaną przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK). Zalecenie: wyłączenie lub ograniczenie rękojmi stosuj tylko w obrocie między przedsiębiorcami.\\n\\nBłąd 5 — brak zastrzeżenia własności przy odroczonej płatności. Sprzedaż z odroczonym terminem bez zastrzeżenia własności naraża sprzedawcę na ryzyko utraty rzeczy bez zapłaty. Zalecenie: przy sprzedaży na kredyt kupiecki zastrzeż własność rzeczy do czasu zapłaty ceny (art. 589 Kodeksu cywilnego).\\n\\nBłąd 6 — kara umowna za świadczenie pieniężne. Zastrzeżenie kary umownej za opóźnienie w zapłacie ceny jest nieskuteczne, ponieważ kary umownej nie zastrzega się za zobowiązanie pieniężne (art. 483 Kodeksu cywilnego). Zalecenie: na opóźnienie w zapłacie stosuj odsetki ustawowe za opóźnienie (art. 481), a kary umowne zastrzegaj za zobowiązania niepieniężne.\\n\\nBłąd 7 — pominięcie oświadczeń o stanie prawnym. Brak zapewnienia, że rzecz jest wolna od wad prawnych oraz praw osób trzecich, osłabia pozycję kupującego. Zalecenie: zamieść oświadczenie sprzedawcy o własności rzeczy i braku obciążeń, co stanowi podstawę odpowiedzialności za wady prawne (art. 556[3] Kodeksu cywilnego).\\n\\nBłąd 8 — niezachowanie wymaganej formy szczególnej. Sprzedaż nieruchomości bez aktu notarialnego (art. 158 Kodeksu cywilnego) lub udziałów w spółce z ograniczoną odpowiedzialnością bez podpisów notarialnie poświadczonych (art. 180 Kodeksu spółek handlowych) jest nieważna. Zalecenie: dla tych transakcji skorzystaj z udziału notariusza; niniejszy wzór dotyczy rzeczy ruchomych.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-sprzedazy (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-a99cf985-d5b0-4d23-8669-022056d50f74",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "The template returned was for a sales contract rather than a loan agreement. Let me search directly for the relevant provisions on loan agreements and notarially certified signatures.",
+   "tool_calls": [
+    {
+     "id": "call_d605faf3a51a4997aa488c42",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 720 K.C.\", \"umowa pożyczki\", \"forma dokumentowa\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_52f7ad7689ed47d5b1d42efa",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"podpis notarialnie poświadczony\", \"art. 78 K.C.\", \"forma pisemna\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720. § 1. Przez umowę pożyczki dający pożyczkę zobowiązuje się przenieść na własność biorącego określoną ilość pieniędzy albo rzeczy oznaczonych tylko co do gatunku, a biorący zobowiązuje się zwrócić tę samą ilość pieniędzy albo tę samą ilość rzeczy tego samego gatunku i tej samej jakości. § 2. Umowa pożyczki, której wartość przekracza tysiąc złotych, wymaga zachowania formy dokumentowej.\"}, {\"chunk_id\": \"uokik_abusive_clause_14\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"po udzieleniu przez (...) uczestnikowi pożyczki, niniejsza umowa ulega rozwiązaniu, a dalsze zobowiązania pomiędzy stronami reguluje zawarta umowa pożyczki\"}]",
+   "tool_call_id": "call_d605faf3a51a4997aa488c42",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_1159\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1159. § 1. W zakresie uregulowanym przepisami niniejszej części sąd może podejmować czynności jedynie wtedy, gdy ustawa tak stanowi. § 2. Na postanowienie sądu przysługuje zażalenie w wypadkach wskazanych w ustawie. § 3. W wypadkach, o których mowa w art. 1171, 1172, 1177, 1178 i 1179, sąd może orzec na posiedzeniu niejawnym. Przed rozstrzygnięciem sąd może wysłuchać strony, wysłuchanie może odbyć się także przez odebranie oś ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_74\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 74. § 1. Zastrzeżenie formy pisemnej, dokumentowej albo elektronicznej bez rygoru nieważności ma ten skutek, że w razie niezachowania zastrzeżonej formy nie jest w sporze dopuszczalny dowód z zeznań świadków lub z przesłuchania stron na fakt dokonania czynności. Przepisu tego nie stosuje się, gdy zachowanie formy pisemnej, dokumentowej albo elektronicznej jest zastrzeżone jedynie dla wywołania określonych skutków czynności prawnej. § 2. Jednakże ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_246\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 246. Jeżeli ustawa lub umowa stron wymaga dla czynności prawnej zachowania formy pisemnej, dowód ze świadków lub z przesłuchania stron w sprawie między uczestnikami tej czynności na fakt jej dokonania jest dopuszczalny w wypadku, gdy dokument obejmujący czynność został zagubiony, zniszczony lub zabrany przez osobę trzecią, a jeżeli forma pisemna była zastrzeżona tylko dla celów dowodowych, także w wypadkach określonych w kode ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0031_statute_13954d0ed2779279\", \"source_id\": \"sejm_eli_du_2024_1061_art_74\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli forma pisemna, dokumentowa albo elektroniczna jest zastrzeżona dla oświadczenia jednej ze stron, w razie jej niezachowania dowód z zeznań świadków lub z przesłuchania stron na fakt dokonania tej czynności jest dopuszczalny także na żądanie drugiej strony. § 4. Przepisów o skutkach niezachowania formy pisemnej, dokumentowej albo elektronicznej przewidzianej dla celów dowodowych nie stosuje się do czynności prawnych w stosunkach między przedsiębiorcami.\"}]",
+   "tool_call_id": "call_52f7ad7689ed47d5b1d42efa",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about notarially certified signatures and loan agreements.",
+   "tool_calls": [
+    {
+     "id": "call-ef669981-e7c4-43f1-9b34-0dc04c99a3d8",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 78 K.C.\", \"podpis notarialnie poświadczony\", \"forma pisemna\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-91dd9053-ebf4-44ba-9ea9-9113ca1f4a7c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 777 KPC\", \"klauzula wykonalności\", \"oświadczenie o poddaniu się egzekucji\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_1159\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1159. § 1. W zakresie uregulowanym przepisami niniejszej części sąd może podejmować czynności jedynie wtedy, gdy ustawa tak stanowi. § 2. Na postanowienie sądu przysługuje zażalenie w wypadkach wskazanych w ustawie. § 3. W wypadkach, o których mowa w art. 1171, 1172, 1177, 1178 i 1179, sąd może orzec na posiedzeniu niejawnym. Przed rozstrzygnięciem sąd może wysłuchać strony, wysłuchanie może odbyć się także przez odebranie oś ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_74\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 74. § 1. Zastrzeżenie formy pisemnej, dokumentowej albo elektronicznej bez rygoru nieważności ma ten skutek, że w razie niezachowania zastrzeżonej formy nie jest w sporze dopuszczalny dowód z zeznań świadków lub z przesłuchania stron na fakt dokonania czynności. Przepisu tego nie stosuje się, gdy zachowanie formy pisemnej, dokumentowej albo elektronicznej jest zastrzeżone jedynie dla wywołania określonych skutków czynności prawnej. § 2. Jednakże ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_246\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 246. Jeżeli ustawa lub umowa stron wymaga dla czynności prawnej zachowania formy pisemnej, dowód ze świadków lub z przesłuchania stron w sprawie między uczestnikami tej czynności na fakt jej dokonania jest dopuszczalny w wypadku, gdy dokument obejmujący czynność został zagubiony, zniszczony lub zabrany przez osobę trzecią, a jeżeli forma pisemna była zastrzeżona tylko dla celów dowodowych, także w wypadkach określonych w kode ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0031_statute_13954d0ed2779279\", \"source_id\": \"sejm_eli_du_2024_1061_art_74\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli forma pisemna, dokumentowa albo elektroniczna jest zastrzeżona dla oświadczenia jednej ze stron, w razie jej niezachowania dowód z zeznań świadków lub z przesłuchania stron na fakt dokonania tej czynności jest dopuszczalny także na żądanie drugiej strony. § 4. Przepisów o skutkach niezachowania formy pisemnej, dokumentowej albo elektronicznej przewidzianej dla celów dowodowych nie stosuje się do czynności prawnych w stosunkach między przedsiębiorcami.\"}]",
+   "tool_call_id": "call-ef669981-e7c4-43f1-9b34-0dc04c99a3d8",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_775\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 775. Art. 775_1. Dział II - Tytuły egzekucyjne i klauzula wykonalności Dział IIa - Zaświadczenie europejskiego tytułu egzekucyjnego Dział IIb - Stwierdzenie wykonalności europejskiego nakazu zapłaty Dział IIc - Zaświadczenie dotyczące orzeczenia wydanego w europejskim postępowaniu w sprawie drobnych roszczeń Dział IId - Zaświadczenia dotyczące orzeczeń, ugód i innych tytułów egzekucyjnych w sprawach cywilnych i handlowych Dzi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_775\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 775 1 . Komornik, który przyjął wniosek o wszczęcie egzekucji, do prowadzenia której nie jest właściwy według przepisów niniejszego kodeksu, nie może odmówić przyjęcia innych wniosków o wszczęcie egzekucji przeciwko temu samemu dłużnikowi, jeżeli następni wierzyciele wnoszą o przeprowadzenie egzekucji według tych samych sposobów co wcześniejsi wierzyciele. Dział II Tytuły egzekucyjne i klauzula wykonalności\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_783\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 783. § 1. Postanowienie o nadaniu klauzuli wykonalności wymienia także tytuł egzekucyjny, a w razie potrzeby oznacza świadczenie podlegające egzekucji i zakres egzekucji oraz wskazuje czy orzeczenie podlega wykonaniu jako prawomocne, czy jako natychmiast wykonalne. Jeżeli przepis szczególny nie stanowi inaczej, tytułowi egzekucyjnemu opiewającemu na świadczenie pieniężne w walucie obcej sąd nada klauzulę wykonalności ze zobow ...\"}, {\"chunk_id\": \"uokik_items:uokik_b0c59df87518f671\", \"source_id\": \"uokik_rejestr_klauzul_1222\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Po rozwiązaniu umowy najmu osoby zajmujące lokal bez tytułu prawnego wyraża zgodę na dobrowolne poddanie się egzekucji w trybie art. 777 kpc eksmisji z lokalu bez prawa do lokalu socjalnego.\"}]",
+   "tool_call_id": "call-91dd9053-ebf4-44ba-9ea9-9113ca1f4a7c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA POŻYCZKI Z PODPISAMI NOTARIALNIE POŚWIADCZONYMI\n\nzawarta w dniu ................................................ w ................................................, pomiędzy:\n\nDającym pożyczkę:\n\n1. Imię i nazwisko / Nazwa: ........................................................................................\n2. Adres zamieszkania / Siedziba: ........................................................................................\n3. Numer PESEL / Numer KRS / Numer NIP: ........................................................................................\n4. Seria i numer dokumentu tożsamości: ........................................................................................\n\na\n\nBiorącym pożyczkę:\n\n1. Imię i nazwisko / Nazwa: ........................................................................................\n2. Adres zamieszkania / Siedziba: ........................................................................................\n3. Numer PESEL / Numer KRS / Numer NIP: ........................................................................................\n4. Seria i numer dokumentu tożsamości: ........................................................................................\n\n§ 1. Przedmiot pożyczki\n\n1. Dający pożyczkę zobowiązuje się przenieść na własność Biorącego określoną ilość pieniędzy, a Biorący zobowiązuje się zwrócić tę samą ilość pieniędzy (art. 720 § 1 Kodeksu cywilnego).\n2. Pożyczka wynosi: ........................................................................................ złotych (słownie: ........................................................................................ złotych).\n3. Pożyczka została wypłacona Biorącemu w dniu ................................................ / zostanie wypłacona w dniu .................................................\n\n§ 2. Forma dokumentowa\n\n1. Strony postanawiają, że niniejsza umowa wymaga zachowania formy dokumentowej zgodnie z art. 720 § 2 Kodeksu cywilnego, gdyż wartość pożyczki przekracza kwotę 1000 złotych.\n2. W razie niezachowania formy dokumentowej nie jest w sporze dopuszczalny dowód z zeznań świadków lub z przesłuchania stron na fakt dokonania czynności (art. 74 § 1 Kodeksu cywilnego).\n3. Strony oświadczają, że podpisy umowy zostały notarialnie poświadczone, co spełnia wymóg formy dokumentowej.\n\n§ 3. Oprocentowanie i warunki zwrotu\n\n1. Pożyczka jest oprocentowana w wysokości ................................................ % rocznie / Pożyczka jest nieoprocentowana.\n2. Termin zwrotu pożyczki: Biorący zobowiązuje się zwrócić pożyczkę w całości w dniu .................................................\n3. Sposób zwrotu: przelewem na rachunek bankowy Dającego o numerze: ........................................................................................ / gotówką.\n4. Biorący może dokonać wcześniejszego zwrotu pożyczki w całości lub części z zachowaniem formy dokumentowej.\n\n§ 4. Odsetki za opóźnienie\n\n1. W razie opóźnienia w zwrocie pożyczki Biorący zapłaci odsetki ustawowe za opóźnienie wynikające z art. 481 Kodeksu cywilnego.\n2. Strony mogą zastrzec odsetki umowne w wysokości nie wyższej niż odsetki ustawowe za opóźnienie.\n\n§ 5. Oświadczenie o poddaniu się egzekucji (klauzula wykonalności)\n\n1. Biorący pożyczkę składa oświadczenie o poddaniu się egzekucji w trybie art. 777 Kodeksu postępowania cywilnego do kwoty ........................................................................................ złotych wraz z odsetkami i kosztami.\n2. W przypadku niewywiązania się Biorącego z terminowego zwrotu pożyczki Dający pożyczkę może wystąpić po stwierdzeniu wykonalności niniejszej umowy do sądu.\n\n§ 6. Oświadczenia stron\n\n1. Dający pożyczkę oświadcza, że kwota stanowi jego własność i jest wolna od praw osób trzecich.\n2. Biorący pożyczkę oświadcza, że zapoznał się z treścią umowy i że umowa odpowiada jego rzeczywistej woli.\n3. Strony oświadczają, że treść umowy została im odczytana, zrozumiana i zaakceptowana.\n\n§ 7. Postanowienia końcowe\n\n1. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego.\n2. Zmiana umowy wymaga formy pisemnej z podpisami notarialnie poświadczonymi pod rygorem nieważności.\n3. Wszelkie spory wynikające z niniejszej umowy strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby / miejsca zamieszkania Dającego pożyczkę.\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n§ 8. Podpisy notarialnie poświadczone\n\nOświadczam tożsamość osób, które podpisały się pod dokumentem, oraz podpisy tych osób.\n\nPodpis Dającego pożyczkę: ................................................\n\nPodpis Biorącego pożyczkę: ................................................\n\n................................................\nPodpis i pieczęć notariusza\n\n................................................\nMiejscowość i data\n\n................................................\nNumer repertorium notarialnego",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA POŻYCZKI Z PODPISAMI NOTARIALNIE POŚWIADCZONYMI\n\nzawarta w dniu ................................................ w ................................................, pomiędzy:\n\nDającym pożyczkę:\n\n1. Imię i nazwisko / Nazwa: ........................................................................................\n2. Adres zamieszkania / Siedziba: ........................................................................................\n3. Numer PESEL / Numer KRS / Numer NIP: ........................................................................................\n4. Seria i numer dokumentu tożsamości: ........................................................................................\n\na\n\nBiorącym pożyczkę:\n\n1. Imię i nazwisko / Nazwa: ........................................................................................\n2. Adres zamieszkania / Siedziba: ........................................................................................\n3. Numer PESEL / Numer KRS / Numer NIP: ........................................................................................\n4. Seria i numer dokumentu tożsamości: ........................................................................................\n\n§ 1. Przedmiot pożyczki\n\n1. Dający pożyczkę zobowiązuje się przenieść na własność Biorącego określoną ilość pieniędzy, a Biorący zobowiązuje się zwrócić tę samą ilość pieniędzy (art. 720 § 1 Kodeksu cywilnego).\n2. Pożyczka wynosi: ........................................................................................ złotych (słownie: ........................................................................................ złotych).\n3. Pożyczka została wypłacona Biorącemu w dniu ................................................ / zostanie wypłacona w dniu .................................................\n\n§ 2. Forma dokumentowa\n\n1. Strony postanawiają, że niniejsza umowa wymaga zachowania formy dokumentowej zgodnie z art. 720 § 2 Kodeksu cywilnego, gdyż wartość pożyczki przekracza kwotę 1000 złotych.\n2. W razie niezachowania formy dokumentowej nie jest w sporze dopuszczalny dowód z zeznań świadków lub z przesłuchania stron na fakt dokonania czynności (art. 74 § 1 Kodeksu cywilnego).\n3. Strony oświadczają, że podpisy umowy zostały notarialnie poświadczone, co spełnia wymóg formy dokumentowej.\n\n§ 3. Oprocentowanie i warunki zwrotu\n\n1. Pożyczka jest oprocentowana w wysokości ................................................ % rocznie / Pożyczka jest nieoprocentowana.\n2. Termin zwrotu pożyczki: Biorący zobowiązuje się zwrócić pożyczkę w całości w dniu .................................................\n3. Sposób zwrotu: przelewem na rachunek bankowy Dającego o numerze: ........................................................................................ / gotówką.\n4. Biorący może dokonać wcześniejszego zwrotu pożyczki w całości lub części z zachowaniem formy dokumentowej.\n\n§ 4. Odsetki za opóźnienie\n\n1. W razie opóźnienia w zwrocie pożyczki Biorący zapłaci odsetki ustawowe za opóźnienie wynikające z art. 481 Kodeksu cywilnego.\n2. Strony mogą zastrzec odsetki umowne w wysokości nie wyższej niż odsetki ustawowe za opóźnienie.\n\n§ 5. Oświadczenie o poddaniu się egzekucji (klauzula wykonalności)\n\n1. Biorący pożyczkę składa oświadczenie o poddaniu się egzekucji w trybie art. 777 Kodeksu postępowania cywilnego do kwoty ........................................................................................ złotych wraz z odsetkami i kosztami.\n2. W przypadku niewywiązania się Biorącego z terminowego zwrotu pożyczki Dający pożyczkę może wystąpić po stwierdzeniu wykonalności niniejszej umowy do sądu.\n\n§ 6. Oświadczenia stron\n\n1. Dający pożyczkę oświadcza, że kwota stanowi jego własność i jest wolna od praw osób trzecich.\n2. Biorący pożyczkę oświadcza, że zapoznał się z treścią umowy i że umowa odpowiada jego rzeczywistej woli.\n3. Strony oświadczają, że treść umowy została im odczytana, zrozumiana i zaakceptowana.\n\n§ 7. Postanowienia końcowe\n\n1. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego.\n2. Zmiana umowy wymaga formy pisemnej z podpisami notarialnie poświadczonymi pod rygorem nieważności.\n3. Wszelkie spory wynikające z niniejszej umowy strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby / miejsca zamieszkania Dającego pożyczkę.\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n§ 8. Podpisy notarialnie poświadczone\n\nOświadczam tożsamość osób, które podpisały się pod dokumentem, oraz podpisy tych osób.\n\nPodpis Dającego pożyczkę: ................................................\n\nPodpis Biorącego pożyczkę: ................................................\n\n................................................\nPodpis i pieczęć notariusza\n\n................................................\nMiejscowość i data\n\n................................................\nNumer repertorium notarialnego",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę pożyczyć bratu pieniądze i potrzebuję umowy z notarialnie poświadczonymi podpisami, żeby mieć pewność, że wszystko jest uregulowane. Jak to zrobić?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Zamierzam pożyczyć znajomej 40 tysięcy złotych na otworzenie firmy. Chcę, żeby umowa była sporządzona z podpisami notarialnie poświadczonymi, żeby w razie problemów ze zwrotem mieć możliwość szybszego dochodzenia należności przed sądem. Ustaliliśmy, że pieniądze zostaną zwrócone za rok z odsetkami. Czy może Pan/Pani przygotować taką umowę?"
+  }
+ ]
+}

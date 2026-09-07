@@ -1,0 +1,291 @@
+{
+ "run": 7,
+ "hint": "Umowa NDA z wyłączeniem informacji publicznie dostępnych",
+ "scenario": "Umowa NDA z wyłączeniem informacji publicznie dostępnych",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_zachowanie_poufnosci'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_dab8588d7d9c43c2afa232a0",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_o_zachowanie_poufnosci\"}"
+     }
+    },
+    {
+     "id": "call_aae4531c13724d0cb21bdffe",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"wyłączenie informacji publicznie dostępnych z zobowiązania poufnych NDA\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"kind\": \"structural_template\", \"text\": \"# Umowa o zachowaniu poufności jednostronna (NDA)\\nJednostronna umowa o zachowaniu poufności (NDA — Non-Disclosure Agreement) w Polsce to umowa nienazwana zawierana na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (Dz.U. 1993 nr 47 poz. 211 ze zm.), w której wyłącznie jedna strona — odbiorca — zobowiązuje się do zachowania poufności przekazanych jej informacji przez drugą stronę — ujawniającego. Ujawniający nie przyjmuje żadnych zobowiązań co do poufności — przekazuje informacje jednostronnie, a odbiorca zobowiązuje się do ich ochrony. To klasyczna forma NDA stosowana przy asymetrycznej relacji: inwestor due diligence, rozmowa z potencjalnym kontrahentem, doradcą, dostawcą lub pracownikiem przed podpisaniem umowy o pracę.\\n\\nJednostronny charakter NDA odróżnia ją od wzajemnej umowy o zachowaniu poufności (mutual NDA), w której obowiązek poufności ciąży na obu stronach. Wzajemne NDA stosuje się, gdy obie strony wymieniają wzajemnie wrażliwe informacje — np. podczas negocjacji joint venture lub fuzji. Jednostronne NDA jest wystarczające, gdy tylko jedna strona ujawnia informacje poufne, a druga je jedynie przyjmuje.\\n\\nPodstawą prawną ochrony tajemnicy przedsiębiorstwa w Polsce jest art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Stanowi on, że czynem nieuczciwej konkurencji jest: ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa — informacji technicznych, technologicznych, organizacyjnych lub handlowych posiadających wartość ekonomiczną, które nie są powszechnie znane i w stosunku do których uprawniony podjął działania w celu zachowania ich poufności. NDA jest właśnie dokumentem potwierdzającym, że podjęto działania w celu zachowania poufności, co jest jednym z warunków skuteczności ochrony na podstawie art. 11 u.z.n.k. Naruszenie tajemnicy przedsiębiorstwa uprawnia poszkodowanego do żądania zaniechania, usunięcia skutków, odszkodowania i wydania bezpodstawnie uzyskanych korzyści.\\n\\nNDA jest obowiązkowym dokumentem w procesach due diligence (przedinwestycyjnych badań spółek), w negocjacjach umów technologicznych, przy udostępnianiu know-how lub bazy danych klientów potencjalnym partnerom, a także przed przekazaniem innowacyjnego projektu lub rozwiązania technologicznego do oceny. Bez NDA ujawnienie informacji osobie trzeciej może utrudnić późniejszą ochronę patentową wynalazku (wymóg nowości) lub dochodzenie roszczeń za bezprawne wykorzystanie know-how.\\n\\nDobrze skonstruowana jednostronna NDA powinna precyzyjnie definiować zakres informacji poufnych, cele ujawnienia, wyłączenia spod obowiązku poufności, czas trwania obowiązku, kary umowne za naruszenie, obowiązki RODO w przypadku danych osobowych oraz sąd właściwy. Właściwy Sąd Okręgowy (sąd gospodarczy) jest właściwy dla sporów o naruszenie tajemnicy przedsiębiorstwa, a strona może wnioskować o tymczasowe zabezpieczenie przez zakaz dalszego ujawniania.\\n\\nJednostronna umowa NDA w Polsce jest potrzebna w każdej sytuacji, gdy jedna strona ujawnia drugiej poufne informacje handlowe, technologiczne lub finansowe, a chce zachować pełną kontrolę nad ich dalszym wykorzystaniem.\\n\\nDue diligence i negocjacje inwestycyjne. Startupy i spółki poszukujące finansowania podpisują jednostronną NDA z potencjalnymi inwestorami (fundusze VC, aniołowie biznesu) przed udostępnieniem dokumentów finansowych, prognoz, bazy klientów lub danych technologicznych. NDA chroni założycieli przed nieuprawnionym wykorzystaniem informacji w przypadku niepowodzenia negocjacji inwestycyjnych.\\n\\nNegocjacje partnerskie i B2B. Firma chcąca omówić potencjalną współpracę z kontrahentem lub dostawcą, któremu musi przedstawić szczegóły technologii lub modelu biznesowego, podpisuje jednostronną NDA przed przekazaniem wrażliwych informacji. Drugiej stronie — potencjalnemu kontrahentowi — nie grozi ujawnienie informacji, więc nie ma powodu do wzajemności.\\n\\nPrezentacja wynalazku lub projektu technologicznego. Twórca lub wynalazca chcący poddać swój projekt ocenie przez eksperta, inwestora lub producenta musi chronić poufność pomysłu przed złożeniem wniosku patentowego w Urzędzie Patentowym Rzeczypospolitej Polskiej (UPRP) lub Europejskim Urzędzie Patentowym (EPO). Publiczne ujawnienie wynalazku przed złożeniem zgłoszenia patentowego niszczy wymóg nowości (art. 24 ustawy z dnia 30 czerwca 2000 r. Prawo własności przemysłowej).\\n\\nRozmowy z potencjalnymi pracownikami lub doradcami. Przed zatrudnieniem specjalisty z dostępem do wrażliwych informacji (np. head of sales — baza klientów; CTO — kod źródłowy) pracodawca podpisuje jednostronną NDA jako uzupełnienie umowy o pracę lub przed jej zawarciem.\\n\\nAgencje reklamowe i kreatywne. Klient zlecający agencji kampanię reklamową przed przekazaniem briefu z poufnymi informacjami o produkcie, strategii i budżecie podpisuje jednostronną NDA, aby agencja nie mogła udostępnić tych informacji konkurentom.\\n\\nProcesy M&A i sprzedaż spółki. Spółka rozważająca sprzedaż lub fuzję udostępnia szczegóły finansowe i operacyjne potencjalnym nabywcom na podstawie jednostronnej NDA, zanim obie strony podpiszą wzajemną NDA lub umowę przedwstępną.\\n\\nJednostronna umowa NDA w Polsce powinna zawierać następujące elementy, aby skutecznie chronić tajemnicę przedsiębiorstwa i zapewniać możliwość dochodzenia roszczeń w razie naruszenia.\\n\\nOznaczenie stron. Pełne dane ujawniającego i odbiorcy: firma lub imię i nazwisko, adres siedziby lub zamieszkania, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), dane osoby podpisującej. Wyraźne wskazanie, która strona jest ujawniającym, a która odbiorcą.\\n\\nCel ujawnienia informacji. Konkretny cel, w jakim odbiorca otrzymuje informacje poufne — bez ograniczenia celu odbiorca mógłby twierdzić, że nie wiedział, do czego wolno mu używać informacji. Poza wskazanym celem odbiorca nie może korzystać z informacji.\\n\\nDefinicja informacji poufnych. Jak najszersza, lecz jednoznaczna definicja informacji chronionych NDA — musi obejmować: technologię, know-how, kod źródłowy, dane finansowe i prognozowe, bazę klientów i dostawców, strategię, plany produktowe i marketingowe, dane osobowe pracowników, partnerów i klientów. forms-legal.com zaleca klauzulę, że informacje poufne obejmują wszelkie informacje przekazane w trakcie rozmów, prezentacji i dokumentacji, niezależnie od ich formy (pisemna, elektroniczna, ustna, wizualna).\\n\\nWyłączenia spod obowiązku poufności. Standardowe wyłączenia chroniące odbiorcę: informacje powszechnie dostępne w momencie ujawnienia lub które stały się powszechnie dostępne bez winy odbiorcy; informacje znane odbiorcy przed podpisaniem NDA; informacje ujawnione przez osobę trzecią uprawnioną do ich ujawnienia; informacje ujawnione na żądanie sądu, prokuratury lub organu regulacyjnego. Wyłączenia muszą być wąskie, aby nie umożliwiały obejścia NDA.\\n\\nZobowiązania odbiorcy. Konkretne obowiązki: zachowanie poufności; udostępnianie wyłącznie osobom z konieczności wiedzenia (need-to-know), objętym pisemnym obowiązkiem poufności; zakaz kopiowania ponad potrzebę; zakaz wykorzystywania poza wskazanym celem; natychmiastowe powiadomienie o naruszeniu; zwrot lub niszczenie materiałów na żądanie.\\n\\nKara umowna. Kara umowna za każde naruszenie (art. 483 KC) — musi być na tyle wysoka, aby skutecznie odstraszać (standardowo 20 000 – 100 000 zł za naruszenie). Niezbędne postanowienie: zapłata kary nie wyłącza prawa do odszkodowania przekraczającego kwotę kary (art. 484 § 1 KC).\\n\\nCzas trwania. Precyzyjny czas obowiązywania obowiązku poufności (standardowo 2–5 lat od podpisania NDA). Klauzula o możliwości przedłużenia na pisemny wniosek.\\n\\nObowiązki RODO. Jeżeli informacje poufne obejmują dane osobowe, wskazanie podstawy prawnej ich przetwarzania (art. 6 RODO), upoważnienia i obowiązku stosowania środków bezpieczeństwa (art. 32 RODO).\\n\\nRozwiązywanie sporów. Sąd właściwy dla siedziby ujawniającego (Sąd Rejonowy lub Sąd Okręgowy — sąd gospodarczy), klauzula mediacyjna (art. 183[1] KPC), możliwość wnioskowania o zabezpieczenie w postępowaniu sądowym.\\n\\nJednostronna umowa NDA w Polsce jest wypełniana według kolejnych kroków zapewniających maksymalną ochronę informacji poufnych.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy) lub imiona i nazwiska, adresy, NIP, REGON i KRS lub wpisy do CEIDG. Wyraźnie oznacz, która strona jest ujawniającym (Discloser), a która odbiorcą (Recipient). Wskaż osoby uprawnione do podpisania umowy.\\n\\nKrok 2 — określ cel ujawnienia. Wpisz konkretny, ograniczony cel, w jakim odbiorca otrzymuje informacje poufne — np. ocena potencjalnej inwestycji, due diligence spółki, negocjacje umowy partnerskiej. Im węższy cel, tym skuteczniej NDA ogranicza odbiorcę.\\n\\nKrok 3 — zdefiniuj informacje poufne. Wpisz jak najszerszą definicję obejmującą wszystkie kategorie informacji, które zamierzasz ujawnić. Jeżeli planujesz ujawnić kod źródłowy — wskaż to wprost. Jeżeli baza klientów — wskaż. Ogólna definicja jest lepsza niż enumeratywna lista, ponieważ chroni przed argumentem, że dana informacja nie była wymieniona w NDA.\\n\\nKrok 4 — doprecyzuj wyłączenia. Wpisz standardowe wyłączenia: informacje publiczne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu. Zadbaj, by wyłączenia były wąskie — zbyt szerokie umożliwiają obejście NDA.\\n\\nKrok 5 — ustal karę umowną. Wpisz wysokość kary umownej za każde naruszenie — standardowo 50 000 zł za naruszenie w relacjach B2B. Pamiętaj, że kara umowna dotyczy zobowiązania niepieniężnego (obowiązek poufności — art. 483 KC) i że nie wyłącza prawa do odszkodowania wyższego (art. 484 § 1 KC).\\n\\nKrok 6 — ustal czas trwania. Wpisz czas obowiązywania obowiązku poufności — standardowo 2–5 lat. Przy projektach wysokiego ryzyka (technologia, patenty) rozważ 5 lat lub bezterminowy obowiązek poufności w odniesieniu do kluczowych informacji.\\n\\nKrok 7 — uwzględnij RODO. Jeżeli ujawniasz dane osobowe (np. dane klientów, pracowników), wskaż podstawę prawną ich przetwarzania przez odbiorcę (art. 6 RODO) i obowiązek stosowania środków bezpieczeństwa.\\n\\nKrok 8 — podpisz NDA przed ujawnieniem. Kluczowa zasada: podpisz NDA zawsze przed ujawnieniem jakichkolwiek informacji poufnych. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym — umożliwia szybkie podpisanie na odległość.\\n\\nJednostronna umowa NDA w Polsce podlega przepisom Kodeksu cywilnego, ustawy o zwalczaniu nieuczciwej konkurencji i RODO — w zależności od rodzaju chronionych informacji.\\n\\nTajemnica przedsiębiorstwa — art. 11 u.z.n.k. Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (implementująca dyrektywę UE 2016/943 o tajemnicach handlowych) definiuje tajemnicę przedsiębiorstwa jako informacje techniczne, technologiczne, organizacyjne lub handlowe, posiadające wartość ekonomiczną, niepowszechnie znane, wobec których uprawniony podjął działania zachowania poufności. NDA jest właśnie takim działaniem — jego zawarcie stanowi warunek kwalifikacji informacji jako tajemnicy przedsiębiorstwa. Naruszenie tajemnicy przez ujawnienie, pozyskanie lub wykorzystanie przez odbiorcę stanowi czyn nieuczciwej konkurencji, uzasadniający żądanie: zaniechania niedozwolonych działań; usunięcia skutków naruszenia; zapłaty odszkodowania; wydania bezpodstawnie uzyskanych korzyści; złożenia oświadczenia odpowiedniej treści i formy. Sąd Okręgowy (sąd gospodarczy) jest właściwy rzeczowo dla tych spraw.\\n\\nKara umowna — art. 483-484 KC. Kara umowna zastrzeżona za naruszenie obowiązku poufności (zobowiązanie niepieniężne) jest skuteczna i należy się bez wykazywania szkody. Sąd może miarkować rażąco wygórowaną karę (art. 484 § 2 KC). Strony mogą wyłączyć miarkowanie przez wyraźne postanowienie \\\"kara nie podlega zmniejszeniu\\\". Strony mogą zastrzec, że w razie szkody przekraczającej karę poszkodowany może dochodzić odszkodowania wyższego (art. 484 § 1 zdanie 2 KC).\\n\\nRODO i u.o.d.o. Jeżeli informacje poufne obejmują dane osobowe (np. baza klientów, dane pracowników), przetwarzanie tych danych przez odbiorcę wymaga podstawy prawnej (art. 6 RODO) — zazwyczaj prawnie uzasadniony interes administratora (ujawniającego) lub umowa. Odbiorca musi stosować środki bezpieczeństwa (art. 32 RODO). W razie naruszenia danych — powiadomić Prezesa Urzędu Ochrony Danych Osobowych (PUODO) w ciągu 72 godzin (art. 33 RODO).\\n\\nForma umowy NDA. Ustawa o zwalczaniu nieuczciwej konkurencji nie wymaga formy pisemnej dla NDA. Jednak forma pisemna lub elektroniczna z kwalifikowanym podpisem jest zalecana dla celów dowodowych — w sporze sądowym ujawniający musi wykazać istnienie i zakres zobowiązania do zachowania poufności. Kara umowna w każdym przypadku wymaga formy pisemnej (art. 483 § 1 KC w zw. z art. 78 KC).\\n\\nJednostronne umowy NDA w Polsce często zawierają błędy osłabiające ochronę tajemnicy przedsiębiorstwa. Poniżej najważniejsze z nich.\\n\\nBłąd 1 — podpisanie NDA po ujawnieniu informacji. Najczęstszy błąd: inwestor lub kontrahent już otrzymał wrażliwe informacje, a dopiero potem prosi o NDA. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Zalecenie: podpisuj NDA zawsze przed przekazaniem jakichkolwiek dokumentów lub prezentacji.\\n\\nBłąd 2 — zbyt wąska definicja informacji poufnych. Enumeratywna lista kategorii (np. \\\"plany finansowe i technologia\\\") może pomijać inne wrażliwe informacje (np. bazę klientów, know-how organizacyjny). Zalecenie: stosuj szeroką definicję obejmującą wszelkie informacje przekazane w trakcie negocjacji, prezentacji i dokumentacji, w dowolnej formie.\\n\\nBłąd 3 — zbyt szerokie wyłączenia. Wyłączenia sformułowane zbyt ogólnie (np. \\\"informacje dostępne z innych źródeł\\\") mogą obejmować informacje, które odbiorca zdobył niezgodnie z prawem i próbuje uzasadnić ich pominięciem przez wyłączenie. Zalecenie: ograniczaj wyłączenia do standardowych, precyzyjnych kategorii — informacje publicznie dostępne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu.\\n\\nBłąd 4 — brak kary umownej lub zbyt niska kara. Brak kary umownej lub kara 1 000 zł nie odstraszy poważnego kontrahenta. Zalecenie: ustal karę umowną na poziomie realnej szkody — standardowo 20 000 – 100 000 zł za naruszenie w relacjach B2B.\\n\\nBłąd 5 — brak obowiązku zwrotu lub zniszczenia materiałów. Odbiorca może zachować kopie dokumentów po zakończeniu negocjacji. Zalecenie: wskaż wyraźnie obowiązek zwrotu lub trwałego zniszczenia wszystkich materiałów (w tym kopii elektronicznych) na żądanie ujawniającego lub po zakończeniu negocjacji.\\n\\nBłąd 6 — pominięcie RODO. Jeżeli ujawniasz dane osobowe bez regulacji RODO w NDA, narażasz się na sankcję PUODO. Zalecenie: wskaż wprost, że dane osobowe zawarte w materiałach poufnych są przetwarzane przez odbiorcę wyłącznie dla wskazanego celu, na podstawie art. 6 ust. 1 lit. f RODO i z zachowaniem środków bezpieczeństwa art. 32 RODO.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-zachowaniu-poufnosci-jednostronna (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_dab8588d7d9c43c2afa232a0",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_17_art_266\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 266. § 1. Kto, wbrew przepisom ustawy lub przyjętemu na siebie zobowiązaniu, ujawnia lub wykorzystuje informację, z którą zapoznał się w związku z pełnioną funkcją, wykonywaną pracą, działalnością publiczną, społeczną, gospodarczą lub naukową, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. § 2. Funkcjonariusz publiczny, który ujawnia osobie nieuprawnionej informację niejawną o klauzuli „zastrzeżone” lub „poufne” l ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_180\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 180. § 1. Osoby obowiązane do zachowania w tajemnicy informacji niejawnych o klauzuli tajności „zastrzeżone” lub „poufne” lub tajemnicy związanej z wykonywaniem zawodu lub funkcji mogą odmówić zeznań co do okoliczności, na które rozciąga się ten obowiązek, chyba że sąd lub prokurator dla dobra wymiaru sprawiedliwości zwolni te osoby od obowiązku zachowania tajemnicy, jeżeli ustawy szczególne nie stanowią inaczej. Na postanowienie w t ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_223a\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 223a 168) Dodany przez art. 7 pkt 4 ustawy, o której mowa w odnośniku 21. . § 1. Kto publicznie nawołuje do udostępnienia informacji dotyczących życia prywatnego funkcjonariusza organu powołanego do ochrony bezpieczeństwa publicznego albo funkcjonariusza Służby Więziennej, których udostępnienie może spowodować zagrożenie bezpieczeństwa tego funkcjonariusza lub osoby dla niego najbliższej, podlega karze pozbawienia wolności do lat 3. § 2. Tej samej  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_179\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 179. § 1. Osoby obowiązane do zachowania w tajemnicy informacji niejawnych o klauzuli tajności „tajne” lub „ściśle tajne” mogą być przesłuchane co do okoliczności, na które rozciąga się ten obowiązek, tylko po zwolnieniu tych osób od obowiązku zachowania tajemnicy przez uprawniony organ przełożony. § 2. Zwolnienia wolno odmówić tylko wtedy, gdyby złożenie zeznania wyrządzić mogło poważną szkodę państwu. § 3. Sąd lub prokurator może z ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_265\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 265. § 1. Kto ujawnia lub wbrew przepisom ustawy wykorzystuje informacje niejawne o klauzuli „tajne” lub „ściśle tajne”, podlega karze pozbawienia wolności od 3 miesięcy do lat 5. § 2. Jeżeli informację określoną w § 1 ujawniono osobie działającej w imieniu lub na rzecz podmiotu zagranicznego, sprawca podlega karze pozbawienia wolności od 6 miesięcy do lat 8. § 3. Kto nieumyślnie ujawnia informację określoną w § 1, z którą zapoznał się w związku z  ...\"}]",
+   "tool_call_id": "call_aae4531c13724d0cb21bdffe",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_34f03c925e58496f88015cff",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 11 u.z.n.k.\", \"tajemnica przedsiębiorstwa\", \"informacje publicznie dostępne\"]}"
+     }
+    },
+    {
+     "id": "call_5bae434182ba45bfb69d57f7",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"klauzula wyłączenia informacji publicznych z NDA definicja informacji poufnych nieuczciwa konkurencja\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 33 . § 1. W postępowaniu przed sądem ochrony konkurencji i konsumentów chroni się tajemnicę przedsiębiorstwa oraz inne tajemnice podlegające ochronie na podstawie odrębnych przepisów. § 2. Sąd ochrony konkurencji i konsumentów może, w drodze postanowienia, ujawnić stronie postępowania sądowego informacje chronione w postępowaniu przed Prezesem Urzędu jako tajemnica przedsiębiorstwa drugiej strony tylko wtedy, gdy: 1) zmie ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0059_statute_b11238a6a94979cd\", \"source_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 479 33 . § 1. W postępowaniu przed sądem ochrony konkurencji i konsumentów chroni się tajemnicę przedsiębiorstwa oraz inne tajemnice podlegające ochronie na podstawie odrębnych przepisów. § 2. Sąd ochrony konkurencji i konsumentów może, w drodze postanowienia, ujawnić stronie postępowania sądowego informacje chronione w postępowaniu przed Prezesem Urzędu jako tajemnica przedsiębiorstwa drugiej strony tylko wtedy, gdy: 1) zmieniły się istotnie okoliczności będące podstawą wydania przez Prezesa Urzędu postanowienia ograniczającego prawo wglądu do materiału dowodowego załączonego przez stron ...\"}]",
+   "tool_call_id": "call_34f03c925e58496f88015cff",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo d ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_3\", \"source_id\": \"sejm_eli_du_2022_1233_art_3\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 3. 1. Czynem nieuczciwej konkurencji jest działanie sprzeczne z prawem lub dobrymi obyczajami, jeżeli zagraża lub narusza interes innego przedsiębiorcy lub klienta. 2. Czynami nieuczciwej konkurencji są w szczególności: wprowadzające w błąd oznaczenie przedsiębiorstwa, fałszywe lub oszukańcze oznaczenie pochodzenia geograficznego towarów albo usług, wprowadzające w błąd oznaczenie towarów lub usług, naruszenie tajemnicy przedsiębiorstwa, nakłanianie do rozwiązania lub niewykonani ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_14\", \"source_id\": \"sejm_eli_du_2022_1233_art_14\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 14. 1. Czynem nieuczciwej konkurencji jest rozpowszechnianie nieprawdziwych lub wprowadzających w błąd wiadomości o swoim lub innym przedsiębiorcy albo przedsiębiorstwie, w celu przysporzenia korzyści lub wyrządzenia szkody. 2. Wiadomościami, o których mowa w ust. 1, są nieprawdziwe lub wprowadzające w błąd informacje, w szczególności o: 1) osobach kierujących przedsiębiorstwem; 2) wytwarzanych towarach lub świadczonych usługach; 3) stosowanych cenach; 4) sytuacji gospodarczej lu ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_15b\", \"source_id\": \"sejm_eli_du_2022_1233_art_15b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 15b. 1. Czynem nieuczciwej konkurencji jest wytwarzanie, import, dystrybucja, sprzedaż, najem lub oddawanie do używania pod innym tytułem prawnym oraz posiadanie, w celach zarobkowych, urządzeń niedozwolonych, w rozumieniu przepisów o ochronie niektórych usług świadczonych drogą elektroniczną opartych lub polegających na dostępie warunkowym. 2. Czynem nieuczciwej konkurencji jest także instalacja, serwis lub wymiana urządzeń niedozwolonych, w celach zarobkowych, oraz wykorzystywa ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_17f\", \"source_id\": \"sejm_eli_du_2022_1233_art_17f\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 17f. 1. Czynem nieuczciwej konkurencji jest przekazanie przez wierzyciela informacji gospodarczej do biura informacji gospodarczej z naruszeniem ustawy z dnia 9 kwietnia 2010 r. o udostępnianiu informacji gospodarczych i wymianie danych gospodarczych ( Dz. U. z 2021 r. poz. 2057 ) albo niezażądanie przez wierzyciela aktualizacji albo usunięcia informacji gospodarczej mimo zaistnienia obowiązku jej aktualizacji albo usunięcia zgodnie z tą ustawą. 2. Czynem nieuczciwej konkurencji  ...\"}]",
+   "tool_call_id": "call_5bae434182ba45bfb69d57f7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the key statutory provision - Article 11 of the Act on Combating Unfair Competition (u.z.n.k.) which defines trade secret (tajemnica przedsiębiorstwa). Let me read the full text of Article 11 to get the exact definition, especially the part about information not being publicly known.",
+   "tool_calls": [
+    {
+     "id": "call-936f5069-0f81-4127-bfcc-dcc4005401f4",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2022_1233_art_11\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo dostępne dla takich osób, o ile uprawniony do korzystania z informacji lub rozporządzania nimi podjął, przy zachowaniu należytej staranności, działania w celu utrzymania ich w poufności. 3. Pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji, w szczególności gdy następuje bez zgody uprawnionego do korzystania z informacji lub rozporządzania nimi i wynika z nieuprawnionego dostępu, przywłaszczenia, kopiowania dokumentów, przedmiotów, materiałów, substancji, plików elektronicznych obejmujących te informacje lub umożliwiających wnioskowanie o ich treści. 4. Wykorzystanie lub ujawnienie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji, w szczególności gdy następuje bez zgody uprawnionego do korzystania z informacji lub rozporządzania nimi i narusza obowiązek ograniczenia ich wykorzystywania lub ujawniania wynikający z ustawy, czynności prawnej lub z innego aktu albo gdy zostało dokonane przez osobę, która pozyskała te informacje, dokonując czynu nieuczciwej konkurencji. 5. Ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji także wówczas, gdy w chwili ich ujawnienia, wykorzystania lub pozyskania osoba wiedziała lub przy zachowaniu należytej staranności mogła wiedzieć, że informacje zostały pozyskane bezpośrednio lub pośrednio od tego, kto wykorzystał lub ujawnił je w okolicznościach określonych w ust. 4. 6. Wykorzystywanie informacji stanowiących tajemnicę przedsiębiorstwa polegające na produkowaniu, oferowaniu, wprowadzaniu do obrotu, a także przywozie, wywozie i przechowywaniu w tych celach towarów stanowi czyn nieuczciwej konkurencji, jeżeli osoba dokonująca wskazanej czynności wiedziała lub przy zachowaniu należytej staranności mogła wiedzieć o tym, że właściwości towarów, w tym estetyczne lub funkcjonalne, proces ich wytwarzania lub zbywania zostały w znacznym stopniu ukształtowane w następstwie czynu określonego w ust. 1, dokonanego w okolicznościach określonych w ust. 4. 7. Pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa nie stanowi czynu nieuczciwej konkurencji, jeżeli nastąpiło w wyniku niezależnego odkrycia lub wytworzenia albo obserwacji, badania, rozłożenia na części, testowania przedmiotu dostępnego publicznie lub posiadanego zgodnie z prawem przez osobę, która pozyskała informacje i której uprawnienie do pozyskania informacji nie było ograniczone w chwili ich pozyskania. 8. Ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa nie stanowi czynu nieuczciwej konkurencji, gdy nastąpiło w celu ochrony uzasadnionego interesu chronionego prawem, w ramach korzystania ze swobody wypowiedzi lub w celu ujawnienia nieprawidłowości, uchybienia, działania z naruszeniem prawa dla ochrony interesu publicznego, lub gdy ujawnienie informacji stanowiących tajemnicę przedsiębiorstwa wobec przedstawicieli pracowników w związku z pełnieniem przez nich funkcji na podstawie przepisów prawa było niezbędne dla prawidłowego wykonywania tych funkcji.\"}]",
+   "tool_call_id": "call-936f5069-0f81-4127-bfcc-dcc4005401f4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę podpisać umowę o poufności z partnerem biznesowym, ale nie chcę, by objęła ona informacje, które i tak są publicznie dostępne."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję przekazać inwestorowi szczegóły naszej nowej technologii i planów rozwoju, ale na stronie www i w materiałach prasowych mamy już sporo informacji. Chcę umowę NDA, która chroni to, co tajne, a nie to, co każdy może znaleźć w sieci."
+  }
+ ]
+}

@@ -1,0 +1,327 @@
+{
+ "run": 41,
+ "hint": "Sprzedaż psa rasowego z rodowodem",
+ "scenario": "Sprzedaż psa rasowego z rodowodem",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_sprzedazy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a sales contract (umowa_sprzedazy) for the sale of a purebred dog with a pedigree (rodowód). I need to:\n\n1. First read the base template for umowa_sprzedazy\n2. Then search for provisions relevant to selling a purebred dog with pedigree\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-dfd414f4-22ec-4306-9706-1bf4d9a1cd90",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_sprzedazy\", \"query\": \"sprzedaż psa rasowego z rodowodem\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_sprzedazy\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży psa\\nUmowa sprzedaży psa w Polsce to umowa cywilnoprawna, przez którą sprzedawca — hodowca, właściciel lub osoba fizyczna — zobowiązuje się przenieść na kupującego własność psa i wydać mu zwierzę, a kupujący zobowiązuje się odebrać psa i zapłacić uzgodnioną cenę. Podstawa prawna to art. 535 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), który definiuje umowę sprzedaży, a w zakresie szczególnej ochrony zwierząt — ustawa z dnia 21 sierpnia 1997 r. o ochronie zwierząt (Dz.U. 1997 nr 111 poz. 724 ze zm.).\\n\\nZwierzę w polskim prawie ma szczególny status prawny. Art. 1 ust. 1 ustawy o ochronie zwierząt stanowi, że zwierzę jako istota żyjąca, zdolna do odczuwania cierpienia, nie jest rzeczą. Jednocześnie art. 1 ust. 2 ustawy doprecyzowuje, że w sprawach nieuregulowanych ustawą do zwierząt stosuje się odpowiednio przepisy dotyczące rzeczy, w tym przepisy Kodeksu cywilnego o sprzedaży. Oznacza to, że umowa sprzedaży psa korzysta z regulacji art. 535–602 KC, jednak jest uzupełniona obowiązkami wynikającymi z ustawy o ochronie zwierząt.\\n\\nPolski Związek Kynologiczny (PZK), działający jako organizacja afiliowana przy Fédération Cynologique Internationale (FCI), prowadzi Polską Księgę Rodowodową (PKR) dla psów rasowych. Dla psów z rodowodem PZK umowa powinna wskazywać numer rodowodu, potwierdzając przynależność do hodowli. Dla psów bezrasowych lub bez rodowodu wystarczy opis zwierzęcia z numerem mikroczipa.\\n\\nNumer mikroczipa stanowi obowiązkowy element identyfikacji psa w Polsce. Obowiązek znakowania psów wynika z art. 11a ustawy o ochronie zwierząt oraz regulacji samorządowych — wiele gmin wprowadziło nakaz rejestracji i mikroczip­owania psów. Krajowa Baza Danych PSI przy Polskim Towarzystwie Kynologicznym oraz ogólnoeuropejski system PETBASE umożliwiają weryfikację właściciela na podstawie numeru mikroczipa.\\n\\nPrawidłowo sporządzona umowa sprzedaży psa chroni obie strony: sprzedawcę przed bezpodstawnymi roszczeniami dotyczącymi stanu zdrowia po wydaniu zwierzęcia, a kupującego przed nabyciem chorego psa lub zwierzęcia o sfałszowanej tożsamości. Sąd Rejonowy właściwy według miejsca zamieszkania pozwanego rozpatruje spory z umów sprzedaży zwierząt w postępowaniu cywilnym na podstawie Kodeksu postępowania cywilnego (KPC).\\n\\nUmowa sprzedaży psa w Polsce jest potrzebna w każdej sytuacji odpłatnego przeniesienia własności psa — zarówno przy transakcjach hodowlanych, jak i przy sprzedaży między osobami prywatnymi.\\n\\nZakup psa z hodowli rasowej. Hodowca rejestrowany w Polskim Związku Kynologicznym (PZK) lub FCI wystawia szczeniaka wraz z rodowodem i książeczką zdrowia. Pisemna umowa dokumentuje przekazanie rodowodu, stan szczepień, numer mikroczipa i zakres gwarancji zdrowotnej. Bez umowy trudno udowodnić warunki zakupu przy reklamacji do hodowcy lub sprawie w Sądzie Rejonowym.\\n\\nZakup psa bez rodowodu lub mieszańca. Nawet przy zakupie psa bez rodowodu pisemna umowa chroni kupującego: precyzuje stan zdrowia potwierdzony przez lekarza weterynarii, numer mikroczipa i stan szczepień. Pozwala dochodzić roszczeń z tytułu rękojmi, jeśli pies okaże się chory.\\n\\nSprzedaż przez pośrednika lub portal ogłoszeniowy. Przy sprzedaży ogłoszonej przez internet — na portalach OLX, Allegro Lokalnie czy dedykowanych serwisach — pisemna umowa zabezpiecza obie strony przed sporami co do warunków transakcji i stanu psa w chwili wydania.\\n\\nWymagania ubezpieczyciela lub weterynarza. Kliniki weterynaryjne oraz ubezpieczyciele oferujący polisy dla zwierząt domowych mogą wymagać dokumentu potwierdzającego nabycie psa i datę przejęcia opieki nad zwierzęciem.\\n\\nSpory z sąsiadami lub służbami. W razie incydentu — ugryzienia przez psa lub szkody wyrządzonej przez zwierzę — umowa sprzedaży służy jako dowód w postępowaniu przed Sądem Rejonowym lub w postępowaniu administracyjnym prowadzonym przez organy weterynaryjne (Powiatowy Lekarz Weterynarii) lub gminne.\\n\\nKontrola przestrzegania ustawy o ochronie zwierząt. Inspekcja Weterynaryjna (Główny Lekarz Weterynarii i Powiatowy Lekarz Weterynarii) oraz Towarzystwo Opieki nad Zwierzętami (TOZ) mogą żądać okazania dokumentów potwierdzających legalne nabycie psa i wywiązywanie się z obowiązków właściciela.\\n\\nUmowa sprzedaży psa w Polsce powinna zawierać poniższe elementy, aby była skuteczna prawnie i zapewniała ochronę obu stron zgodnie z Kodeksem cywilnym oraz ustawą o ochronie zwierząt.\\n\\nDane identyfikacyjne stron. Pełne imię i nazwisko (lub nazwa hodowli), adres zamieszkania lub siedziby oraz PESEL (lub NIP dla przedsiębiorcy) sprzedawcy i kupującego. Precyzyjne oznaczenie stron umożliwia dochodzenie roszczeń przed Sądem Rejonowym i identyfikację podatnika przy ewentualnym zgłoszeniu transakcji do urzędu skarbowego.\\n\\nDokładny opis psa. Rasa (lub adnotacja \\\"mieszaniec\\\"), imię, data urodzenia, płeć, umaszczenie, numer mikroczipa (obowiązkowo — art. 11a ustawy o ochronie zwierząt) oraz numer rodowodu w Polskiej Księdze Rodowodowej Polskiego Związku Kynologicznego lub FCI, jeśli pies jest rasowy. Opis powinien być wystarczająco szczegółowy, by jednoznacznie identyfikować zwierzę.\\n\\nStan zdrowia i dokumentacja weterynaryjna. Wykaz aktualnych szczepień (wścieklizna, nosówka, parwowiroza, adeno­wirus, leptospiroza) z datami i nazwami preparatów, informacja o odrobaczeniu, wyniki badań weterynaryjnych z datą i danymi lekarza weterynarii. Zapewnienia sprzedawcy o stanie zdrowia psa stanowią podstawę rękojmi za wady (art. 556 KC).\\n\\nCena i sposób płatności. Cena cyfrowo i słownie, forma płatności (gotówka lub przelew bankowy) i termin. Przy transakcjach powyżej 1 000 zł powinien być stosowany przelew, co ułatwia wykazanie zapłaty w razie sporu. Przy cenie przekraczającej 10 000 zł zastosowanie mają przepisy o przeciwdziałaniu praniu pieniędzy.\\n\\nZakres gwarancji zdrowotnej. Precyzyjne określenie, czy sprzedawca udziela gwarancji na wady genetyczne lub choroby wrodzone charakterystyczne dla rasy, przez jaki czas i na jakich warunkach (wymiana psa, zwrot ceny, pokrycie kosztów leczenia). Brak klauzuli gwarancyjnej nie wyklucza roszczeń z tytułu rękojmi na podstawie art. 556 KC, ale skraca termin dochodzenia roszczeń. Na forms-legal.com dostępny jest gotowy wzór z różnymi wariantami gwarancji.\\n\\nZobowiązania kupującego wynikające z ustawy o ochronie zwierząt. Art. 5 ustawy o ochronie zwierząt nakłada na właściciela obowiązek zapewnienia zwierzęciu właściwych warunków bytowania, wyżywienia i opieki weterynaryjnej. Włączenie tych zobowiązań do umowy dokumentuje świadomy wybór nowego opiekuna i może mieć znaczenie dowodowe w razie postępowania przed Towarzystwem Opieki nad Zwierzętami (TOZ) lub Powiatowym Lekarzem Weterynarii.\\n\\nPrzejście własności i ryzyka. Z chwilą wydania psa i zapłaty ceny własność przechodzi na kupującego, a wraz z nią odpowiedzialność za ewentualną szkodę wyrządzoną przez zwierzę na zasadzie art. 431 KC (odpowiedzialność za szkodę wyrządzoną przez zwierzę).\\n\\nZapis dotyczący rejestracji. Zobowiązanie kupującego do aktualizacji danych właściciela w rejestrze mikroczip­ów (np. Krajowa Baza Danych PSI, PETBASE) w terminie 14 dni od zawarcia umowy.\\n\\nUmowa sprzedaży psa w Polsce jest wypełniana krok po kroku, co zapewnia kompletność dokumentu i ochronę prawną obu stron.\\n\\nKrok 1 — dane stron. Wpisz pełne imię i nazwisko lub nazwę hodowli zarejestrowanej w Polskim Związku Kynologicznym (PZK), adres i numer PESEL (lub NIP dla hodowców prowadzących działalność gospodarczą). Kupujący podaje te same dane identyfikacyjne. Dane stron muszą być zgodne z dokumentem tożsamości — dowód osobisty lub paszport.\\n\\nKrok 2 — opis psa. Uzupełnij rasę (lub \\\"mieszaniec\\\"), imię, datę urodzenia, płeć, umaszczenie i numer mikroczipa. Numer mikroczipa można odczytać podczas wizyty u lekarza weterynarii — to 15-cyfrowy kod zgodny ze standardem ISO 11784/11785. Jeśli pies ma rodowód PZK lub FCI, wpisz jego numer.\\n\\nKrok 3 — dokumentacja weterynaryjna. Przepisz szczepienia z książeczki zdrowia psa: daty, nazwy preparatów, podpis i pieczęć lekarza weterynarii. Dołącz kopię karty zdrowia jako załącznik do umowy. Lekarz weterynarii (Powiatowy Lekarz Weterynarii pełni nadzór nad warunkami chowu) powinien potwierdzić aktualność szczepień.\\n\\nKrok 4 — cena. Wpisz kwotę cyfrowo i słownie. Przy płatności przelewem podaj numer rachunku bankowego sprzedawcy. Zachowaj dowód przelewu lub pokwitowanie odbioru gotówki jako dowód zapłaty.\\n\\nKrok 5 — gwarancja zdrowotna. Wybierz wariant gwarancji odpowiedni dla transakcji. Hodowcy rasowi zazwyczaj udzielają 12-miesięcznej gwarancji na wady genetyczne. Przy sprzedaży przez osobę prywatną możliwy jest brak gwarancji lub krótki termin (14 dni na stwierdzenie choroby zakaźnej).\\n\\nKrok 6 — podpisanie. Obie strony podpisują umowę w dniu przekazania psa. Umowę sporządza się w dwóch egzemplarzach — po jednym dla każdej ze stron. Sprzedawca przekazuje kupującemu książeczkę zdrowia, rodowód (jeśli dotyczy), zaświadczenie o szczepieniu przeciwko wściekliźnie (wymagane do przekraczania granic UE) oraz kartę szczepień.\\n\\nUmowa sprzedaży psa w Polsce podlega przepisom Kodeksu cywilnego, ustawy o ochronie zwierząt i przepisom weterynaryjnym.\\n\\nKodeks cywilny — sprzedaż i rękojmia. Art. 535 KC definiuje umowę sprzedaży. Art. 556 KC i nast. regulują rękojmię za wady. Przy wadach fizycznych (choroba, wada genetyczna) kupującemu przysługują: naprawa (leczenie — o ile możliwe), wymiana psa, obniżenie ceny lub odstąpienie od umowy (art. 560 KC). Termin rękojmi wynosi rok od wydania zwierzęcia. Art. 431 KC reguluje odpowiedzialność za szkodę wyrządzoną przez zwierzę: kto zwierzę chowa lub się nim posługuje, obowiązany jest do naprawienia wyrządzonej szkody. Od chwili wydania psa odpowiedzialność przechodzi na kupującego.\\n\\nUstawa o ochronie zwierząt (21.08.1997). Art. 1 ust. 1 uznaje zwierzę za istotę zdolną do odczuwania cierpienia, a nie rzecz. Art. 5 nakłada na właściciela obowiązek zapewnienia opieki. Art. 10 zakazuje znęcania się nad zwierzętami. Art. 11a i nast. regulują znakowanie i rejestrację psów (mikroczip, ewidencja). Art. 37 przewiduje kary za naruszenie ustawy — grzywna, aresztu, a w przypadku cięższych przestępstw — kara ograniczenia lub pozbawienia wolności. Nadzór sprawuje Inspekcja Weterynaryjna (Główny Lekarz Weterynarii).\\n\\nRozporządzenie o przesyłaniu zwierząt towarzyszących. Przy transgranicznym przewozie psa wymagany jest unijny paszport zwierzęcia, ważne szczepienie przeciwko wściekliźnie i oznakowanie mikroczipem (rozporządzenie UE 576/2013 o przemieszczaniu zwierząt towarzyszących). Brak paszportu skutkuje odmową wjazdu do strefy Schengen.\\n\\nPowiatowy Lekarz Weterynarii. Organ ten nadzoruje warunki hodowli i ochrony zwierząt na obszarze powiatu, przyjmuje zgłoszenia o podejrzeniu chorób zakaźnych zwierząt i może nakazać izolację lub uśpienie psa w razie stwierdzenia wścieklizny lub innej choroby zakaźnej z listy zagrożeń.\\n\\nPrzedawnienie roszczeń. Roszczenia z rękojmi za wady psa — jako ruchomości — przedawniają się z upływem roku od stwierdzenia wady (art. 568 § 2 KC). Roszczenia o naprawienie szkody wyrządzonej przez psa przedawniają się po trzech latach od dnia, w którym poszkodowany dowiedział się o szkodzie i o osobie zobowiązanej (art. 442[1] KC).\\n\\nUmowa sprzedaży psa w Polsce bywa wadliwa z powodu typowych błędów, których można uniknąć przy jej starannym sporządzeniu.\\n\\nBłąd 1 — brak numeru mikroczipa. Pominięcie numeru mikroczipa uniemożliwia jednoznaczną identyfikację psa. W razie sporu co do tożsamości zwierzęcia lub odpowiedzialności za szkodę brak tego numeru osłabia pozycję dowodową obu stron. Wpisz numer mikroczipa obowiązkowo — wymagają go zarówno przepisy samorządowe, jak i standard PETBASE/ISO 11784.\\n\\nBłąd 2 — nieaktualny wykaz szczepień. Pominięcie dat szczepień lub podanie niekompletnego wykazu (tylko wścieklizna, bez parwowirozy czy nosówki) uniemożliwia dochodzenie roszczeń z tytułu rękojmi przy chorobach zakaźnych i utrudnia przekraczanie granic UE. Zawsze przepisuj daty z książeczki zdrowia.\\n\\nBłąd 3 — brak gwarancji zdrowotnej lub jej niejasne brzmienie. Ogólna klauzula \\\"pies zdrowy w dniu sprzedaży\\\" bez określenia zakresu i terminu gwarancji prowadzi do sporów. Precyzuj, czy gwarancja obejmuje wady genetyczne, jakie choroby rasy są objęte i przez jak długi czas.\\n\\nBłąd 4 — nieuwzględnienie ustawy o ochronie zwierząt. Kupujący powinien potwierdzić znajomość obowiązków wynikających z art. 5 ustawy o ochronie zwierząt. Brak takiej klauzuli nie zwalnia go z odpowiedzialności, ale jej obecność dokumentuje świadome przyjęcie obowiązków właściciela.\\n\\nBłąd 5 — pominięcie ceny lub zaniżenie jej dla celów podatkowych. Wpisanie zaniżonej ceny w celu uniknięcia podatku od czynności cywilnoprawnych (PCC) może skutkować doroszacowaniem przez Urząd Skarbowy i sankcjami podatkowymi. Przy transakcjach powyżej 1 000 zł należy stosować przelew bankowy jako dowód faktycznej ceny.\\n\\nBłąd 6 — niezaktualizowanie danych właściciela w bazie mikroczip. Po zakupie psa kupujący jest zobowiązany zaktualizować dane w bazach mikroczip (np. Krajowa Baza Danych PSI, PETBASE) w możliwie krótkim czasie. Zaniedbanie tego powoduje, że w razie zaginięcia psa lub wypadku odpowiedzialność nadal widnieje przy poprzednim właścicielu.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-sprzedazy-psa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-dfd414f4-22ec-4306-9706-1bf4d9a1cd90",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_424f84874d0e431a8e3320d5",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż psa rasowego z rodowodem PZK FCI przepisy hodowlane\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_7bf72e0bdca54ed99e3e519b",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"rękojmia za wady\", \"wady genetyczne psa\", \"hodowla rasowa\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_829\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 829 3 . Zajęte zwierzęta hodowlane w rozumieniu ustawy z dnia 10 grudnia 2020 r. o organizacji hodowli i rozrodzie zwierząt gospodarskich ( Dz. U. z 2021 r. poz. 36 ) wyłącza się spod egzekucji, jeżeli nie mogą być sprzedane osobie, która wykaże, że posiada gospodarstwo rolne, w którym istnieją warunki do dalszej hodowli tych zwierząt.\"}, {\"chunk_id\": \"uokik_items:uokik_9de72204924895a4\", \"source_id\": \"uokik_rejestr_klauzul_4094\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie sprawy nie uregulowane niniejszym regulaminem będą rozstrzygane przez Sąd właściwy dla siedziby &quot;sprzedającego&quot; oraz zgodnie z odpowiednimi przepisami kodeksu cywilnego\"}, {\"chunk_id\": \"uokik_items:uokik_943fb6b17cb82c18\", \"source_id\": \"uokik_rejestr_klauzul_5793\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sądem właściwym dla rozpatrywania sporów wynikających z umowy sprzedaży jest sąd wybrany przez powoda\"}, {\"chunk_id\": \"uokik_items:uokik_62b6126ae10345af\", \"source_id\": \"uokik_rejestr_klauzul_3220\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Spory wynikające z umowy sprzedaży rozstrzyga sąd właściwy dla siedziby pozwanego\"}, {\"chunk_id\": \"uokik_items:uokik_722a1ea977256d04\", \"source_id\": \"uokik_rejestr_klauzul_2868\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sądem właściwym dla rozpatrywania sporów wynikających z umowy (regulaminu sprzedaży) jest (...)\"}]",
+   "tool_call_id": "call_424f84874d0e431a8e3320d5",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_7bf72e0bdca54ed99e3e519b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "Let me search for more specific provisions related to purebred dog sales, pedigree, and genetic defects warranty.",
+   "tool_calls": [
+    {
+     "id": "call-c901cd78-b7c5-463d-8c7e-6fdf6233b333",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"rodowód PZK Polska Księga Rodowodowa FCI hodowla psów rasowych przepisy\"}"
+     }
+    },
+    {
+     "id": "call-e2b488fd-0549-430c-999b-9e6e0c6c77e4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"gwarancja zdrowotna pies wady genetyczne choroby rasy rękojmia art 556 KC\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_428037ab9daba381\", \"source_id\": \"uokik_rejestr_klauzul_3432\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W komunikatach podawane są do wiadomości Posiadaczy (...) m.in.. (…) informacje dotyczące zmian w Regulaminie wynikających ze zmian powszehnie obowiązujących przepisów prawa\"}, {\"chunk_id\": \"uokik_items:uokik_8b0d8b33de06622c\", \"source_id\": \"uokik_rejestr_klauzul_3896\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sądem właściwym rzeczowo dla rozpatrywania wszelkich ewentualnych sporów mogących powstać w wyniku wykonywania postanowień niniejszego Regulaminu oraz działania (...), jest sąd właściwy rzeczowo dla siedziby (...)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_310\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 310. Przed wszczęciem postępowania na wniosek, a w toku postępowania również z urzędu, można zabezpieczyć dowód, gdy zachodzi obawa, że jego przeprowadzenie stanie się niewykonalne lub zbyt utrudnione, albo gdy z innych przyczyn zachodzi potrzeba stwierdzenia istniejącego stanu rzeczy.\"}, {\"chunk_id\": \"uokik_items:uokik_f9b3937aa4a7702a\", \"source_id\": \"uokik_rejestr_klauzul_2739\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sądem właściwym dla rozstrzygnięcia sporów mogących wynikać na tle stosowania niniejszego regulaminu jest sąd powszechny właściwy dla siedziby Klubu\"}, {\"chunk_id\": \"extractor_v9:broad_0090_statute_5b05e98b4d4f3187\", \"source_id\": \"sejm_eli_du_2024_1568_art_1163\", \"source_type\": \"statute\", \"top_category\": \"jurisdiction\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"civil_procedure\", \"contracts\", \"risk_checking\"], \"text\": \"Skład sądu polubownego wyznaczony w sprawie najwcześniej wszczętej rozpoznaje wszystkie pozostałe sprawy o uchylenie lub stwierdzenie nieważności tej samej uchwały zgromadzenia wspólników spółki z ograniczoną odpowiedzialnością albo walnego zgromadzenia spółki akcyjnej. § 3. Przepisy § 1 i 2 stosuje się odpowiednio do zapisów na sąd polubowny zawartych w statucie fundacji rodzinnej, spółdzielni lub stowarzyszenia.\"}]",
+   "tool_call_id": "call-c901cd78-b7c5-463d-8c7e-6fdf6233b333",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_557\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 557. § 1. Sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili zawarcia umowy. § 2. Gdy przedmiotem sprzedaży są rzeczy oznaczone tylko co do gatunku albo rzeczy mające powstać w przyszłości, sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili wydania rzeczy. § 3. Sprzedawca nie jest odpowiedzialny względem kupującego będącego konsument ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"uokik_items:uokik_9ca4218d9e0677f0\", \"source_id\": \"uokik_rejestr_klauzul_911\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca udziela gwarancji na sprzedany wyrób na okres 12 miesięcy od daty wydania. W zakresie odpowiedzialności z tytułu reklamacji i rękojmi obowiązują przepisy art. 556-568, 577-581 Kodeksu Cywilnego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_576\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 576. Do wykonywania uprawnień z tytułu rękojmi za wady prawne rzeczy sprzedanej stosuje się przepisy art. 568 § 2-5, z tym że bieg terminu, o którym mowa w art. 568 § 2, rozpoczyna się od dnia, w którym kupujący dowiedział się o istnieniu wady, a jeżeli kupujący dowiedział się o istnieniu wady dopiero na skutek powództwa osoby trzeciej - od dnia, w którym orzeczenie wydane w sporze z osobą trzecią stało się prawomocne. Dział II 1 (uchylony) Dzia ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_609\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 609. Dostawca ponosi odpowiedzialność z tytułu rękojmi za wady fizyczne dostarczonych rzeczy także w tym wypadku, gdy wytworzenie rzeczy nastąpiło w sposób określony przez odbiorcę lub według dostarczonej przez niego dokumentacji technologicznej, chyba że dostawca, mimo zachowania należytej staranności, nie mógł wykryć wadliwości sposobu produkcji lub dokumentacji technologicznej albo że odbiorca, mimo zwrócenia przez dostawcę uwagi na powyższe  ...\"}]",
+   "tool_call_id": "call-e2b488fd-0549-430c-999b-9e6e0c6c77e4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about animal protection law, microchipping requirements, and specific regulations for purebred dog sales.",
+   "tool_calls": [
+    {
+     "id": "call-5af626e9-2c07-404d-9442-d007f04ab41d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"ustawa o ochronie zwierząt mikroczip rejestracja pies art 11a znakowanie\"}"
+     }
+    },
+    {
+     "id": "call-8be37def-fc51-4078-8c9b-f460baaca868",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"PCC\", \"podatek od czynności cywilnoprawnych\", \"pies\", \"zwierzę\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_36\", \"source_id\": \"sejm_eli_du_2025_350_art_36\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 36. 1. Każda osoba objęta obowiązkowo ubezpieczeniami emerytalnym i rentowymi podlega zgłoszeniu do ubezpieczeń społecznych. 2. Obowiązek zgłoszenia do ubezpieczeń społecznych osób określonych w art. 6 ust. 1 pkt 1–4, 6–9b, 11, 12, 19 –22, ust. 2, 2a i 2d, duchownych będących członkami zakonów lub klasztorów oraz osób współpracujących, o których mowa w art. 8 ust. 11, należy do płatnika składek. 2a. Osoba przebywająca na urlopie wychowawczym jest obowiązana poinformować płatnika składek o ustaleniu prawa do emerytury ...\"}, {\"chunk_id\": \"sejm_eli_du_2019_1000_art_11\", \"source_id\": \"sejm_eli_du_2019_1000_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 11. Do postępowań w sprawie dokonania rezerwacji częstotliwości wszczętych i niezakończonych przed dniem wejścia w życie niniejszej ustawy nie stosuje się przepisów ustawy zmienianej w art. 3 w brzmieniu nadanym niniejszą ustawą.\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_40\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 40. Ustawa wchodzi w życie z dniem ogłoszenia 20) Ustawa została ogłoszona w dniu 10 lipca 2001 r. , z wyjątkiem art. 18 ust. 4 i art. 32, które wchodzą w życie z dniem 1 stycznia 2002 r. 1) Ze zmianą wprowadzoną przez art. 7 pkt 1 ustawy z dnia 7 lipca 2022 r. o zmianie niektórych ustaw w zakresie sposobu finansowania programów mieszkaniowych (Dz. U. poz. 1561), która weszła w ży ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_11a\", \"source_id\": \"sejm_eli_du_2023_1790_art_11a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 11a. 1. Oceny, czy postanowienia umowne są rażąco nieuczciwe wobec wierzyciela, dokonuje się, biorąc pod uwagę wszystkie okoliczności sprawy, w szczególności: 1) rażące odstępstwa od dobrych praktyk handlowych, które naruszają zasadę działania w dobrej wierze i zasadę rzetelności; 2) właściwość towaru lub usługi, które są przedmiotem transakcji handlowej, w szczególności czas zwykle potrzebny na zbycie towaru przez dłużnika na rzecz osób trzecich, lub 3 ...\"}]",
+   "tool_call_id": "call-5af626e9-2c07-404d-9442-d007f04ab41d",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_432\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 432. § 1. Posiadacz gruntu może zająć cudze zwierzę, które wyrządza szkodę na gruncie, jeżeli zajęcie jest potrzebne do zabezpieczenia roszczenia o naprawienie szkody. § 2. Na zajętym zwierzęciu posiadacz gruntu uzyskuje ustawowe prawo zastawu dla zabezpieczenia należnego mu naprawienia szkody oraz kosztów żywienia i utrzymania zwierzęcia. § 3. (uchylony)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_829\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 829 1 . Jeżeli dłużnikiem jest rolnik prowadzący gospodarstwo rolne, egzekucji nie podlegają również: 1) stado podstawowe zwierząt gospodarskich: a) bydła mlecznego, b) bydła mięsnego, c) koni, d) kóz, e) owiec, f) świń, g) drobiu, h) zwierząt futerkowych, i) innych gatunków, stanowiących podstawę produkcji zwierzęcej w gospodarstwie rolnym dłużnika; 2) zwierzęta gospodarskie, poza stadem podstawowym, w drugiej połowie okresu ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_181\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 181. § 1 130) W brzmieniu ustalonym przez art. 5 pkt 2 ustawy, o której mowa w odnośniku 26. . Kto powoduje zniszczenie w świecie roślinnym lub zwierzęcym w znacznych rozmiarach, podlega karze pozbawienia wolności od 6 miesięcy do lat 8. § 2 130) W brzmieniu ustalonym przez art. 5 pkt 2 ustawy, o której mowa w odnośniku 26. . Kto, wbrew przepisom obowiązującym na terenie objętym ochroną, niszczy lub uszkadza rośliny, zwierzęta, grzyby lub ich siedl ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_424\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 424. Kto zniszczył lub uszkodził cudzą rzecz albo zabił lub zranił cudze zwierzę w celu odwrócenia od siebie lub od innych niebezpieczeństwa grożącego bezpośrednio od tej rzeczy lub zwierzęcia, ten nie jest odpowiedzialny za wynikłą stąd szkodę, jeżeli niebezpieczeństwa sam nie wywołał, a niebezpieczeństwu nie można było inaczej zapobiec i jeżeli ratowane dobro jest oczywiście ważniejsze aniżeli dobro naruszone.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_431\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 431. § 1. Kto zwierzę chowa albo się nim posługuje, obowiązany jest do naprawienia wyrządzonej przez nie szkody niezależnie od tego, czy było pod jego nadzorem, czy też zabłąkało się lub uciekło, chyba że ani on, ani osoba, za którą ponosi odpowiedzialność, nie ponoszą winy. § 2. Chociażby osoba, która zwierzę chowa lub się nim posługuje, nie była odpowiedzialna według przepisów paragrafu poprzedzającego, poszkodowany może od niej żądać całkowit ...\"}]",
+   "tool_call_id": "call-8be37def-fc51-4078-8c9b-f460baaca868",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Sprzedaję psa rasowego z rodowodem i potrzebuję umowy, żeby wszystko było na piśmie. Chcę, żeby dokument zawierał dane psa, cenę i warunki sprzedaży."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam do sprzedaży suczkę rasy golden retriever z rodowodem ZKwP, ma 4 miesiące i jest zaszczepiona. Kupujący chce kupić ją jako psa towarzyszącego, bez prawa do hodowli. Potrzebuję umowy, która określi cenę, warunki zwrotu w razie problemów zdrowotnych i zobowiązanie kupującego do odpowiedniej opieki nad psem."
+  }
+ ]
+}

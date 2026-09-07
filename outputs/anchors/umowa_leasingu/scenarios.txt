@@ -1,0 +1,62 @@
+Leasing operacyjny samochodu osobowego z wykupem za 1% wartości
+Leasing finansowy koparki z amortyzacją po stronie korzystającego
+Leasing operacyjny ciężarówki z opłatą wstępną 20%
+Leasing z wakacjami leasingowymi przez pierwsze 3 miesiące
+Leasing z kary umownej za przedterminowe rozwiązanie
+Leasing IT (serwery) z serwisem w cenie
+Leasing z opcją nabycia po cenie rynkowej na koniec
+Leasing konsumencki pralki z ratami tygodniowymi
+Leasing z ubezpieczeniem AC wliczonym w ratę
+Leasing z cesją na rzecz banku jako zabezpieczenie kredytu
+Leasing z gwarancją wykupu przez finansującego (buy-back)
+Leasing pojazdu elektrycznego z dopłatą z programu
+Leasing z udziałem własnym 10% i resztą finansowaną
+Leasing z karem za przekroczenie limitu przebiegu rocznego
+Leasing z odstąpieniem przez korzystającego przy wadliwym przedmiocie
+Leasing dźwigu wieżowego dla firmy budowlanej
+Leasing z opcją przedłużenia umowy o kolejne 24 miesiące
+Leasing z zerowym wkładem własnym (100% finansowania)
+Leasing ciągnika rolniczego z dopłatą ARiMR
+Leasing tomografu dla przychodni (sprzęt medyczny)
+Leasing z odroczoną pierwszą ratą o 6 miesięcy
+Leasing z karem za zwłokę w płatności raty
+Leasing z prawem pierwokupu przedmiotu po zakończeniu
+Leasing walutowy (EUR) z ryzykiem kursowym
+Leasing z poręczeniem osoby trzeciej
+Leasing z wpisem przedmiotu do ewidencji środków trwałych korzystającego
+Leasing z opcją zwrotu przedmiotu zamiast wykupu
+Leasing z podziałem rat na sezonowe (wyższe w szczycie)
+Leasing autobusu miejskiego dla przewoźnika
+Leasing z oponami i serwisem wliczonymi w ratę
+Leasing z monitoringiem GPS przedmiotu
+Leasing z pomocą de minimis dla MŚP
+Leasing z karem za nieterminowy zwrot przedmiotu
+Leasing z ubezpieczeniem od utraty i uszkodzenia
+Leasing z minimalnym okresem trwania 36 miesięcy
+Leasing z odstąpieniem przez finansującego przy braku rat
+Leasing samolotu dla linii czarterowej
+Leasing statku żeglugowego
+Leasing z odpowiedzialnością solidarną współkorzystających
+Leasing z funduszem leasingowym zagranicznym (cross-border)
+Leasing z cyfrowym protokołem przekazania
+Leasing z karem za nadmierne zużycie (wear and tear)
+Leasing z ubezpieczeniem NNW kierowcy
+Leasing z wydłużonym okresem trwania 60 miesięcy
+Leasing z opcją zmiany wysokości rat (zmienna marża)
+Leasing z wadium zwrotnym przy zakończeniu
+Leasing z przeniesieniem ryzyka na korzystającego od razu
+Leasing z cesją wierzytelności z tytułu ubezpieczenia
+Leasing z podatkiem VAT płaconym w ratach (metoda ratalna VAT)
+Leasing z opcją dokupienia dodatkowego wyposażenia w trakcie
+Leasing z karem za brak aktualnego przeglądu
+Leasing z gwarancją zwrotu (money-back) przy reklamacji
+Leasing z opcją sub-leasingu (oddanie w poddzierżawę)
+Leasing z ustaleniem wynagrodzenia równego cenie nabycia plus marża
+Leasing z możliwością wcześniejszej spłaty i wykupu
+Leasing z karem za rozwiązanie bez wypowiedzenia
+Leasing z opcją zmiany przedmiotu na inny model
+Leasing z ubezpieczeniem casco i assistance
+Leasing z okresem wypowiedzenia 1 miesiąc
+Leasing z przeniesieniem pożytków na korzystającego (finansowy)
+Leasing z opcją wykupu po cenie rynkowej ustalonej w umowie
+Leasing z karą za nieterminowe uiszczenie opłaty wstępnej

@@ -1,0 +1,17 @@
+{
+ "run": 28,
+ "hint": "Pełnomocnictwo do zarejestrowania pojazdu",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem auto i nie mam czasu pojechać do urzędu, żeby je zarejestrować. Potrzebuję pełnomocnictwa, żeby mój kumpel załatwił tę sprawę za mnie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Niedawno kupiłem używane auto, ale pracuję na zmiany i nie mogę stanąć w kolejkach w starostwie. Chciałbym, żeby moja żona mogła zarejestrować ten pojazd w moim imieniu, czyli złożyć wniosek, opłacić składki i odebrać tablice rejestracyjne. Jak musi wyglądać takie pełnomocnictwo, żeby urzędnik je bez problemu przyjął?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"do zarejestrowania pojazdu\", \"doc_type\": \"pelnomocnictwo\"})\\nRESULT: [{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do rejestracji pojazdu\\nPełnomocnictwo do rejestracji pojazdu w Polsce to oświadczenie woli mocodawcy (właściciela pojazdu) upoważniające wskazaną osobę (pełnomocnika) do działania w jego imieniu przed Wydziałem Komunikacji właściwego starostwa lub urzędu miasta na prawach powiatu w zakresie czynności rejestracyjnych określonych w przepisach ustawy z dnia 20 czerwca 1997 r. Prawo o ruchu drogowym (Dz.U. 2023 poz. 1047 ze zm.) oraz rozporządzenia Ministra Infrastruktury w sprawie rejestracji i oznaczania pojazdów.\\n\\nPodstawę prawną pełnomocnictwa stanowią przepisy Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) — art. 96 KC (możliwość działania przez pełnomocnika), art. 98-109 KC (zakres, forma i odwołanie pełnomocnictwa) — uzupełnione przez przepisy art. 32-33 Kodeksu postępowania administracyjnego (ustawa z dnia 14 czerwca 1960 r., Dz.U. 1960 nr 30 poz. 168 ze zm.) regulujące pełnomocnictwo w postępowaniu administracyjnym przed organami rejestracyjnymi.\\n\\nPełnomocnictwo do rejestracji pojazdu jest pełnomocnictwem szczególnym — obejmuje wyłącznie konkretne czynności administracyjne związane z konkretnym pojazdem, a nie ogólne uprawnienie do działania w imieniu mocodawcy. W praktyce Wydziały Komunikacji akceptują pełnomocnictwo pisemne zwykłe (bez poświadczenia notarialnego), gdyż czynności rejestracyjne nie wymagają formy szczególnej pod rygorem nieważności. Jednak przy wartościowych pojazdach lub skomplikowanych sprawach (np. spory co do własności pojazdu) warto sporządzić pełnomocnictwo z podpisem notarialnie poświadczonym przez notariusza na podstawie ustawy "
+}

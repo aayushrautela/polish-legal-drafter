@@ -1,0 +1,325 @@
+{
+ "run": 6,
+ "hint": "Ubezpieczenie na życie (śmierć ubezpieczonego)",
+ "scenario": "Ubezpieczenie na życie (śmierć ubezpieczonego)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_ubezpieczenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of an insurance contract (umowa_ubezpieczenia) specifically for life insurance (death of the insured). I need to:\n1. First read the base template for umowa_ubezpieczenia\n2. Then search for provisions relevant to life insurance/death coverage\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-7984f877-5221-4300-8267-e624cef4b970",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_ubezpieczenia\", \"query\": \"ubezpieczenie na życie śmierć ubezpieczonego\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Wypowiedzenie umowy ubezpieczenia na życie\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce to jednostronne oświadczenie woli ubezpieczającego skierowane do towarzystwa ubezpieczeń życiowych, na mocy którego dochodzi do rozwiązania umowy ubezpieczenia i zakończenia ochrony ubezpieczeniowej. Instytucja ta uregulowana jest przede wszystkim w art. 812 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) oraz w ustawie z dnia 11 września 2015 r. o działalności ubezpieczeniowej i reasekuracyjnej (Dz.U. 2015 poz. 1844 ze zm.), zwanej dalej u.d.u.r., a także w ogólnych warunkach ubezpieczenia (OWU) danego produktu.\\n\\nRynek ubezpieczeń na życie w Polsce reguluje i nadzoruje Komisja Nadzoru Finansowego (KNF) z siedzibą w Warszawie, która wydaje zezwolenia na prowadzenie działalności ubezpieczeniowej i sprawuje kontrolę nad towarzystwami ubezpieczeń życiowych. Na polskim rynku działają zarówno krajowe towarzystwa ubezpieczeń życiowych (PZU Życie S.A., TUiR Warta S.A., Nationale-Nederlanden TUŻ S.A., Aviva Towarzystwo Ubezpieczeń na Życie S.A.), jak i oddziały zagranicznych zakładów ubezpieczeń.\\n\\nUbezpieczenia na życie dzielą się na kilka kategorii. Ubezpieczenia terminowe (Dział I, Grupa 1 klasyfikacji działów ubezpieczeń) zapewniają ochronę przez określony czas; nie mają komponentu oszczędnościowego i przy rezygnacji nie wypłaca się wartości wykupu. Ubezpieczenia całożyciowe (endowment) łączą ochronę z oszczędzaniem; przy rezygnacji ubezpieczający ma prawo do wartości wykupu polisy. Ubezpieczenia z ubezpieczeniowym funduszem kapitałowym (UFK) łączą ochronę z inwestycją w fundusze inwestycyjne; wartość wykupu odpowiada wartości zgromadzonych jednostek, pomniejszonej ewentualnie o opłatę likwidacyjną. Ubezpieczenia grupowe to polisy zawierane przez pracodawcę lub organizację jako ubezpieczającego na rzecz pracowników lub członków; wypowiedzenie grupowe wymaga zwykle zgody lub udziału ubezpieczającego.\\n\\nArtykuł 812 KC przewiduje dwa tryby wypowiedzenia. Paragraf 4 dotyczy umów zawartych na czas nieokreślony — ubezpieczający może je wypowiedzieć w każdym czasie z zachowaniem terminu wskazanego w umowie lub OWU, nie krótszego niż jeden miesiąc. Paragraf 5 reguluje umowy zawarte na rok lub dłużej — ubezpieczający może je wypowiedzieć w każdym czasie, z co najmniej trzydziestodniowym wyprzedzeniem, jeżeli umowa przewiduje taką możliwość. OWU mogą przyznawać ubezpieczającemu szersze uprawnienia do wypowiedzenia.\\n\\nSzczególne znaczenie ma prawo do wartości wykupu polisy przy ubezpieczeniach z UFK i całożyciowych. Po rozwiązaniu umowy towarzystwo ubezpieczeń jest zobowiązane do wypłaty wartości wykupu w terminie wskazanym w OWU — zazwyczaj 30 dni od dnia doręczenia wniosku. Przy polisach z UFK wartość wykupu zależy od aktualnej wyceny jednostek funduszu i może być niższa od sumy wpłaconych składek.\\n\\nWypowiedzenie umowy ubezpieczenia na życie powinno wskazywać dane ubezpieczającego, dane towarzystwa, numer polisy, datę zawarcia, rodzaj polisy, podstawę prawną, ewentualny wniosek o wartość wykupu oraz datę i podpis. Dokument należy złożyć w formie pisemnej, z zachowaniem dowodu doręczenia.\\n\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce jest potrzebne w różnych sytuacjach życiowych i finansowych. Poniżej opisano typowe przypadki.\\n\\nPoprawa sytuacji finansowej i rezygnacja z drogiej polisy. Ubezpieczeni niekiedy rezygnują z kosztownej polisy ubezpieczenia na życie z UFK, gdy okazuje się, że opłaty za zarządzanie pochłaniają znaczną część wpłacanych składek, a wyniki inwestycyjne są rozczarowujące. Wypowiedzenie jest jedynym sposobem na zakończenie tego stosunku prawnego i odzyskanie zgromadzonych środków (wartości wykupu).\\n\\nZmiana ubezpieczyciela na oferującego lepsze warunki. Ubezpieczający, który znalazł polisę terminową z niższą składką przy tej samej sumie ubezpieczenia lub ubezpieczenie całożyciowe o niższych opłatach, składa wypowiedzenie dotychczasowej polisy. Przy polisach terminowych rezygnacja jest prosta — nie ma wartości wykupu do rozliczenia.\\n\\nZmiana sytuacji rodzinnej — śmierć beneficjenta lub dziecka. Gdy osoba, na korzyść której ubezpieczający zawarł polisę (beneficjent), zmienia się lub znika (np. w wyniku śmierci), ubezpieczający może chcieć zrezygnować z polisy i zawrzeć nową, dostosowaną do aktualnej sytuacji rodzinnej.\\n\\nUtrata możliwości opłacania składek. Przy pogorszeniu się sytuacji materialnej ubezpieczający może nie być w stanie opłacać regularnych składek. Zamiast dopuścić do wygaśnięcia polisy wskutek nieopłacenia składek (art. 814 § 3 KC), co może wiązać się z utratą ochrony i brakiem zwrotu składek, warto złożyć formalne wypowiedzenie i ubiegać się o wartość wykupu (przy polisach oszczędnościowych).\\n\\nRezygnacja z polisy grupowej przy zmianie pracy. Ubezpieczenie grupowe na życie jest zwykle powiązane z zatrudnieniem u danego pracodawcy. Po zmianie pracy pracownik może chcieć sformalizować zakończenie uczestnictwa w grupowej polisie. Wypowiedzenie składa się wówczas do pracodawcy jako ubezpieczającego, a ten informuje towarzystwo ubezpieczeń.\\n\\nOdstąpienie od polisy zawartej na odległość lub poza lokalem. Polisy ubezpieczenia na życie zawarte przez telefon, internet lub podczas wizyty agenta ubezpieczeniowego w domu klienta podlegają prawu odstąpienia: 30 dni przy umowach ubezpieczenia na życie (art. 40 u.d.u.r.) lub 14 dni przy umowach zawartych na odległość (art. 27 u.p.k.). Jest to jeden z najkorzystniejszych trybów rezygnacji.\\n\\nWykrycie klauzul niedozwolonych w OWU. Gdy ubezpieczający odkrywa, że OWU zawierają niedozwolone klauzule (abuzywne w rozumieniu art. 385¹ KC) — np. rażąco wysokie opłaty likwidacyjne — może powołać się na niewiążący charakter tych postanowień i ubiegać się o korzystniejsze warunki wykupu lub złożyć skargę do Rzecznika Finansowego.\\n\\nPrawidłowe wypowiedzenie umowy ubezpieczenia na życie w Polsce musi zawierać kilka kluczowych elementów, aby było skuteczne i umożliwiało ubieganie się o wartość wykupu polisy. Poniżej opisano niezbędne składniki dokumentu.\\n\\nDane ubezpieczającego z PESEL. Pismo musi jednoznacznie identyfikować ubezpieczającego: imię i nazwisko, adres zamieszkania, PESEL. Numer PESEL jest kluczowym identyfikatorem w systemach towarzystw ubezpieczeń życiowych i umożliwia szybką identyfikację polisy.\\n\\nAdresat — pełna firma towarzystwa ubezpieczeń. Pismo adresuje się do konkretnego towarzystwa ubezpieczeń, podając jego pełną firmę i adres właściwego biura obsługi lub centrum rozliczeń polis.\\n\\nNumer polisy i data zawarcia. Wskazanie numeru polisy (widocznego na dokumencie polisy lub w panelu klienta) i daty zawarcia umowy umożliwia towarzystwu szybką identyfikację stosunku prawnego. Numer polisy jest kluczowym identyfikatorem — bez niego wniosek może zostać odrzucony.\\n\\nRodzaj polisy. Wskazanie rodzaju polisy (terminowa, całożyciowa, UFK, grupowa) pozwala towarzystwu zastosować właściwą procedurę rozwiązania umowy. Różne rodzaje polis mają różne procedury likwidacyjne i różne prawa do wartości wykupu.\\n\\nPodstawa prawna. Powołanie właściwej podstawy prawnej — art. 812 § 4 KC (umowy na czas nieokreślony), art. 812 § 5 KC (umowy zawarte na rok i dłużej), art. 27 u.p.k. lub art. 40 u.d.u.r. (odstąpienie od umowy na odległość lub poza lokalem) — precyzuje, z którego uprawnienia korzysta ubezpieczający. Wzory pism ubezpieczeniowych i odwoławczych dostępne są bezpłatnie w serwisie forms-legal.com.\\n\\nWniosek o wypłatę wartości wykupu. Przy polisach oszczędnościowych (całożyciowych, UFK) pismo powinno zawierać wyraźny wniosek o wypłatę wartości wykupu polisy po jej rozwiązaniu. Warto wskazać numer rachunku bankowego lub inną formę wypłaty. Przy polisach terminowych nie przysługuje wartość wykupu.\\n\\nŻądanie potwierdzenia i rozliczenia. Wypowiedzenie powinno zawierać żądanie pisemnego potwierdzenia przyjęcia, wskazania daty rozwiązania umowy i rozliczenia wszelkich nadpłaconych składek w terminie 30 dni.\\n\\nData, miejscowość i podpis. Wypowiedzenie powinno być opatrzone datą sporządzenia (DD.MM.YYYY), miejscowością i własnoręcznym podpisem ubezpieczającego.\\n\\nWypełnienie wypowiedzenia umowy ubezpieczenia na życie wymaga zebrania danych z dokumentu polisy i ustalenia właściwej podstawy prawnej. Poniżej opisano kolejne kroki.\\n\\nKrok 1 — zbierz dane z polisy. Odszukaj dokument polisy ubezpieczenia na życie lub zaloguj się do panelu klienta towarzystwa. Potrzebujesz: numeru polisy, daty zawarcia umowy, rodzaju polisy (terminowa, całożyciowa, UFK, grupowa), nazwy i adresu towarzystwa. Dane te są niezbędne do prawidłowego sporządzenia wypowiedzenia.\\n\\nKrok 2 — wpisz swoje dane. Podaj imię i nazwisko, adres zamieszkania i PESEL dokładnie tak, jak są wskazane w dokumentach polisy. Niezgodność danych może spowodować trudności z identyfikacją polisy.\\n\\nKrok 3 — wpisz dane towarzystwa. Wpisz pełną firmę towarzystwa ubezpieczeń życiowych (np. PZU Życie S.A., Nationale-Nederlanden TUŻ S.A.) i adres biura obsługi korespondencji lub centrum rozliczeń polis. Adresy te widnieją zwykle na dokumencie polisy lub na stronie internetowej towarzystwa.\\n\\nKrok 4 — wpisz numer polisy i datę zawarcia. Podaj numer polisy widoczny na dokumencie polisy i datę zawarcia umowy. Przy kilku polisach w jednym towarzystwie wskaż, którą konkretnie chcesz wypowiedzieć.\\n\\nKrok 5 — wybierz rodzaj polisy. Zaznacz właściwy rodzaj: terminowa, całożyciowa, z UFK lub grupowa. Rodzaj polisy wpływa na procedurę likwidacyjną i prawo do wartości wykupu.\\n\\nKrok 6 — wybierz podstawę prawną. Zaznacz właściwy przepis: art. 812 § 4 KC (umowy na czas nieokreślony), art. 812 § 5 KC (umowy na rok i dłużej), art. 27 u.p.k. (14 dni — umowy na odległość) lub art. 814 § 3 KC (nieopłacenie kolejnej składki). Wybór podstawy prawnej ma znaczenie dla trybu rozwiązania i prawa do wartości wykupu.\\n\\nKrok 7 — zdecyduj o wniosku o wartość wykupu. Jeżeli masz polisę oszczędnościową (całożyciową lub z UFK), zaznacz, że wnioskujesz o wypłatę wartości wykupu. Polisy terminowe nie mają wartości wykupu.\\n\\nKrok 8 — wpisz miejscowość, datę i podpisz. Wpisz miejscowość i datę sporządzenia w formacie DD.MM.YYYY i złóż własnoręczny podpis.\\n\\nKrok 9 — wyślij z dowodem doręczenia. Wyślij pismo listem poleconym za potwierdzeniem odbioru lub złóż osobiście w oddziale towarzystwa za pokwitowaniem. Zachowaj kopię i dowód doręczenia.\\n\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce podlega przepisom Kodeksu cywilnego i ustawy o działalności ubezpieczeniowej. Poniżej opisano kluczowe wymagania prawne.\\n\\nPrawo do wypowiedzenia — art. 812 KC. Artykuł 812 § 4 KC stanowi, że ubezpieczający może wypowiedzieć umowę ubezpieczenia zawartą na czas nieokreślony w każdym czasie z zachowaniem terminu wypowiedzenia wskazanego w umowie, nie krótszego niż jeden miesiąc. Artykuł 812 § 5 KC przewiduje, że w przypadku umów zawartych na rok lub dłużej ubezpieczający może wypowiedzieć umowę w każdym czasie z co najmniej trzydziestodniowym wyprzedzeniem, jeżeli umowa (lub OWU) takie uprawnienie przewiduje. Postanowienia OWU wyłączające lub nadmiernie ograniczające to uprawnienie mogą być abuzywne.\\n\\nPrawo do odstąpienia od umowy ubezpieczenia na życie. Artykuł 40 ust. 1 ustawy o działalności ubezpieczeniowej i reasekuracyjnej przewiduje, że ubezpieczający, który zawarł umowę ubezpieczenia na życie, może od niej odstąpić w terminie 30 dni od dnia zawarcia umowy. Przy umowach zawartych na odległość stosuje się art. 27 ustawy o prawach konsumenta i 14-dniowy termin odstąpienia. Skorzystanie z prawa odstąpienia jest wolne od jakichkolwiek kosztów, a towarzystwo zwraca składkę proporcjonalnie do okresu świadczonej ochrony.\\n\\nWartość wykupu i opłaty likwidacyjne. Ubezpieczenia z UFK i ubezpieczenia całożyciowe posiadają wartość wykupu — sumę, jaką ubezpieczający otrzymuje przy rozwiązaniu umowy przed jej naturalnym zakończeniem. OWU określają sposób obliczania wartości wykupu i ewentualne opłaty likwidacyjne. Komisja Nadzoru Finansowego (KNF) wielokrotnie wskazywała, że rażąco wysokie opłaty likwidacyjne mogą stanowić klauzule niedozwolone w rozumieniu art. 385¹ KC. Rzecznik Finansowy wydał rekomendacje w sprawie opłat likwidacyjnych, na które warto się powołać przy kwestionowaniu nadmiernych opłat.\\n\\nNieopłacenie kolejnej składki — art. 814 § 3 KC. Artykuł 814 § 3 KC stanowi, że jeżeli ubezpieczający nie zapłacił w terminie składki następnej (po pierwszej), a w umowie lub OWU zastrze-żono, że brak zapłaty powoduje wygaśnięcie umowy, umowa wygasa po upływie dodatkowego 7-dniowego terminu. Wygaśnięcie umowy nie jest tym samym co wypowiedzenie i może nie dawać prawa do wartości wykupu — dlatego przy problemach z płatnościami lepiej złożyć formalne wypowiedzenie.\\n\\nNadzór KNF i Rzecznik Finansowy. Nadzór nad towarzystwami ubezpieczeń życiowych sprawuje Komisja Nadzoru Finansowego (KNF). Przy sporach dotyczących wypowiedzenia polisy i wypłaty wartości wykupu ubezpieczający może: złożyć reklamację do towarzystwa; złożyć wniosek o interwencję do Rzecznika Finansowego; skierować sprawę do Sądu Polubownego przy KNF; wnieść powództwo do sądu powszechnego. Rzecznik Finansowy (rf.gov.pl) oferuje bezpłatną pomoc konsumentom usług ubezpieczeniowych i prowadzi postępowania polubowne.\\n\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce jest źródłem typowych błędów, które mogą prowadzić do utraty prawa do wartości wykupu lub konieczności poniesienia dodatkowych opłat. Poniżej opisano najczęstsze uchybienia.\\n\\nBłąd 1 — niepowołanie właściwej podstawy prawnej przy roszczeniu do bezkosztowego odstąpienia. Ubezpieczający, który zawarł polisę przez telefon lub internet, powinien powołać art. 27 u.p.k. (14 dni) lub art. 40 u.d.u.r. (30 dni), aby skorzystać z prawa do pełnego zwrotu składki. Wypowiedzenie bez tej podstawy może być traktowane jako zwykłe rozwiązanie umowy z potrąceniem opłat.\\n\\nBłąd 2 — niezłożenie wniosku o wartość wykupu. Ubezpieczający posiadający polisę z UFK lub całożyciową niekiedy wypowiada umowę, ale nie żąda wypłaty wartości wykupu. Towarzystwo jest wówczas zobowiązane do wypłaty z urzędu, ale brak wyraźnego żądania może opóźnić procedurę. Warto wprost wskazać konto do przelewu.\\n\\nBłąd 3 — zakwestionowanie opłaty likwidacyjnej — brak powołania się na orzecznictwo. Wiele OWU zawiera klauzule naliczania rażąco wysokich opłat likwidacyjnych (np. 80-90% wartości polisy w pierwszych latach). Ubezpieczający często akceptują te opłaty nie wiedząc, że Sąd Najwyższy i Sąd Ochrony Konkurencji i Konsumentów (SOKiK) wielokrotnie uznawały takie klauzule za abuzywne. Warto powołać się na decyzję UOKiK lub orzecznictwo przy sporze o wysokość opłaty.\\n\\nBłąd 4 — ignorowanie terminu odpowiedzi towarzystwa. Towarzystwo ubezpieczeń ma obowiązek rozpatrzeć reklamację w terminie 30 dni od jej złożenia (art. 20 u.d.u.r. w zw. z art. 7 ustawy o rozpatrywaniu reklamacji przez podmioty rynku finansowego). Brak odpowiedzi w tym terminie jest równoznaczny z uznaniem reklamacji. Ubezpieczający, który nie pilnuje terminu, traci tę korzyść procesową.\\n\\nBłąd 5 — pominięcie beneficjenta polisy. Przy ubezpieczeniu na życie ubezpieczony wskazuje beneficjenta, który otrzyma świadczenie na wypadek jego śmierci. Przy wypowiedzeniu polisy nie jest wymagana zgoda beneficjenta, jednak zmiana beneficjenta lub zakończenie polisy pozbawia go prawa do świadczenia na wypadek śmierci. Przed podjęciem decyzji o rezygnacji warto rozważyć, czy beneficjent jest zabezpieczony w inny sposób.\\n\\nBłąd 6 — dopuszczenie do wygaśnięcia polisy zamiast wypowiedzenia. Ubezpieczający niekiedy przestają opłacać składki, licząc, że polisa \\\"sama wygaśnie\\\". Przy polisach terminowych może to nie powodować żadnych konsekwencji finansowych, ale przy polisach UFK wygaśnięcie spowodowane nieopłacaniem składek może wiązać się z innymi zasadami rozliczenia wartości wykupu niż formalne wypowiedzenie.\\n\\nBłąd 7 — brak dowodu doręczenia. Bez potwierdzenia doręczenia wypowiedzenia towarzystwo może twierdzić, że go nie otrzymało, i nadal naliczać składki. Zawsze należy zachować dowód nadania lub doręczenia pisma.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/wypowiedzenie-umowy-ubezpieczenia-na-zycie (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-7984f877-5221-4300-8267-e624cef4b970",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_cea051192e8d446594dfa245",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa ubezpieczenia na życie śmierć ubezpieczonego zakres ubezpieczenia beneficjent\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_77ab7941efd344d7a7b57e6e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 812 KC\", \"ubezpieczenie na życie\", \"śmierć ubezpieczonego\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego d ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_831\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 831. § 1. Ubezpieczający może wskazać jedną lub więcej osób uprawnionych do otrzymania sumy ubezpieczenia w razie śmierci osoby ubezpieczonej; może również zawrzeć umowę ubezpieczenia na okaziciela. Ubezpieczający może każde z tych zastrzeżeń zmienić lub odwołać w każdym czasie. § 1 1 . W razie zawarcia umowy ubezpieczenia na cudzy rachunek do wykonywania uprawnień, o których mowa w paragrafie poprzedzającym, konieczna jest uprzednia zgoda ubezp ...\"}, {\"chunk_id\": \"uokik_items:uokik_743a0e4ded657a60\", \"source_id\": \"uokik_rejestr_klauzul_6044\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W okresie sześciu miesięcy od rozpoczęcia ochrony ubezpieczeniowej, Zakład Ubezpieczeń nie ponosi odpowiedzialności i jest zwolniony z obowiązku wypłaty świadczenia należnego z tytułu śmierci Ubezpieczonego, jeżeli zdarzenie to nastąpi pośrednio lub bezpośrednio na skutek urazu, choroby somatycznej lub psychicznej rozpoznanych przed objęciem Ubezpieczonego ochroną ubezpieczeniową\"}, {\"chunk_id\": \"uokik_items:uokik_616658b3b2b392ee\", \"source_id\": \"uokik_rejestr_klauzul_7213\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Odpowiedzialność ubezpieczyciela w odniesieniu do każdego z ubezpieczonych w okresie 24 miesięcy od pierwszego dnia miesiąca w którym ubezpieczający zgłosił ubezpieczonego do umowy ubezpieczenia jest wyłączona, w przypadku zajścia zdarzenia zgonu ubezpieczonego, jeżeli do jego spowodownia przyczyniła się choroba zdiagnozowana lub leczona przed tym dniem\"}]",
+   "tool_call_id": "call_cea051192e8d446594dfa245",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_c46c944e3e2b7bad\", \"source_id\": \"uokik_rejestr_klauzul_3185\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ubezpieczyciel nie wypłaci świadczenia, o którym mowa w § 14 ust. 1 pkt 2, jeżeli w dniu składania wniosku o ubezpieczenie na życie była u Ubezpieczonego zdiagnozowana nieuleczalna choroba. Uznanie schorzenia za nieuleczalną chorobę następuje w oparciu o dokumentację medyczną dotyczącą ww. schorzenia, na podstawie opinii lekarza konsultanta Ubezpieczyciela, wydanej zgodnie ze stanem wiedzy lekarskiej na dzień złożenia wniosku o ubezpieczenie na życie\"}]",
+   "tool_call_id": "call_77ab7941efd344d7a7b57e6e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_941ee541488f488caf58f27c",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_829\", \"sejm_eli_du_2024_1061_art_831\"], \"with_adjacent\": true}"
+     }
+    },
+    {
+     "id": "call_d356389edbfd461097914143",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 830 KC\", \"art. 832 KC\", \"art. 833 KC\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego dnia po tym, gdy ubezpieczony oświadczył stronie wskazanej w umowie, że chce skorzystać z zastrzeżenia na jego rzecz ochrony ubezpieczeniowej. Oświadczenie powinno obejmować także wysokość sumy ubezpieczenia. Zmiana umowy na niekorzyść ubezpieczonego lub osoby uprawnionej do otrzymania sumy ubezpieczenia w razie śmierci ubezpieczonego wymaga zgody tego ubezpieczonego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_831\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 831. § 1. Ubezpieczający może wskazać jedną lub więcej osób uprawnionych do otrzymania sumy ubezpieczenia w razie śmierci osoby ubezpieczonej; może również zawrzeć umowę ubezpieczenia na okaziciela. Ubezpieczający może każde z tych zastrzeżeń zmienić lub odwołać w każdym czasie. § 1 1 . W razie zawarcia umowy ubezpieczenia na cudzy rachunek do wykonywania uprawnień, o których mowa w paragrafie poprzedzającym, konieczna jest uprzednia zgoda ubezpieczonego; umowa lub ogólne warunki ubezpieczenia mogą przewidywać, że uprawnienia te ubezpieczony może wykonywać samodzielnie. § 2. Jeżeli wskazano kilka osób uprawnionych do otrzymania sumy ubezpieczenia, a nie oznaczono udziału każdej z nich w tej sumie, ich udziały są równe. § 3. Suma ubezpieczenia przypadająca uprawnionemu nie należy do spadku po ubezpieczonym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call_941ee541488f488caf58f27c",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_d356389edbfd461097914143",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_6c8de4b2d11d42e3b3822fb7",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 830 KC\", \"art. 832 KC\", \"art. 833 KC\", \"art. 834 KC\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_d74ee8442a5743aea4687c9a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ubezpieczenie na życie śmierć ubezpieczonego klauzule niedozwolone wyłączenie odpowiedzialności choroba przedwstępna\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_6c8de4b2d11d42e3b3822fb7",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_616658b3b2b392ee\", \"source_id\": \"uokik_rejestr_klauzul_7213\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Odpowiedzialność ubezpieczyciela w odniesieniu do każdego z ubezpieczonych w okresie 24 miesięcy od pierwszego dnia miesiąca w którym ubezpieczający zgłosił ubezpieczonego do umowy ubezpieczenia jest wyłączona, w przypadku zajścia zdarzenia zgonu ubezpieczonego, jeżeli do jego spowodownia przyczyniła się choroba zdiagnozowana lub leczona przed tym dniem\"}, {\"chunk_id\": \"uokik_items:uokik_743a0e4ded657a60\", \"source_id\": \"uokik_rejestr_klauzul_6044\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W okresie sześciu miesięcy od rozpoczęcia ochrony ubezpieczeniowej, Zakład Ubezpieczeń nie ponosi odpowiedzialności i jest zwolniony z obowiązku wypłaty świadczenia należnego z tytułu śmierci Ubezpieczonego, jeżeli zdarzenie to nastąpi pośrednio lub bezpośrednio na skutek urazu, choroby somatycznej lub psychicznej rozpoznanych przed objęciem Ubezpieczonego ochroną ubezpieczeniową\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego d ...\"}, {\"chunk_id\": \"uokik_items:uokik_bc73b2c3ec23c0d6\", \"source_id\": \"uokik_rejestr_klauzul_3184\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ubezpieczyciel nie wypłaci świadczenia z tytułu zgonu ubezpieczonego wskutek nieszczęśliwego wypadku w ruchu lądowym, wodnym lub powietrznym, jeżeli zgon Ubezpieczonego wskutek nieszczęśliwego wypadku w ruchu lądowym, wodnym lub powietrznym zaistniał bezpośrednio lub pośrednio w następstwie: - (...) popełnienia przez Ubezpieczonego czynu zabronionego pod groźbą kary, kwalifikowanego jako przestępstwo z winy umyślnej, co wykazano w toku postępowania przygotowawczego (o ile na skutek śmierci Ubezpieczonego nie wydano w stosunku do niego prawomocnego orzeczenia sądu), - (...) nieuzasadnionego nie ...\"}, {\"chunk_id\": \"uokik_items:uokik_c46c944e3e2b7bad\", \"source_id\": \"uokik_rejestr_klauzul_3185\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ubezpieczyciel nie wypłaci świadczenia, o którym mowa w § 14 ust. 1 pkt 2, jeżeli w dniu składania wniosku o ubezpieczenie na życie była u Ubezpieczonego zdiagnozowana nieuleczalna choroba. Uznanie schorzenia za nieuleczalną chorobę następuje w oparciu o dokumentację medyczną dotyczącą ww. schorzenia, na podstawie opinii lekarza konsultanta Ubezpieczyciela, wydanej zgodnie ze stanem wiedzy lekarskiej na dzień złożenia wniosku o ubezpieczenie na życie\"}]",
+   "tool_call_id": "call_d74ee8442a5743aea4687c9a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam ubezpieczenia na życie, które wypłaci pieniądze moim bliskim w razie mojej śmierci. Chcę mieć spokój, że nie będą mieli problemów finansowych."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem jedynym żywicielem rodziny i spłacam duży kredyt hipoteczny. Chcę wykupić ubezpieczenie na życie, żeby w razie mojej nagłej śmierci moja żona i dzieci dostali wystarczającą sumę na spłatę długów i utrzymanie się przez jakiś czas. Zależy mi, żeby polisa obejmowała zarówno wypadki, jak i choroby."
+  }
+ ]
+}

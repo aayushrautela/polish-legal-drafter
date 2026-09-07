@@ -1,0 +1,60 @@
+Umowa licencyjna na utwór (software) z polami eksploatacji w Internecie
+Umowa licencyjna wyłączna (art. 67 p.a.) na terytorium Polski
+Umowa licencyjna niewyłączna z prawem sublicencji (art. 43 p.a.)
+Umowa licencyjna z terytorium na całym świecie (worldwide)
+Umowa licencyjna z wynagrodzeniem ryczałtowym jednorazowym
+Umowa licencyjna z tantiemami (procent od przychodu licencjobiorcy)
+Umowa licencyjna z zaliczką zaliczaną na poczet tantiem
+Umowa licencyjna na znak towarowy z prawem używania w oznaczeniach
+Umowa licencyjna na bazę danych (prawa sui generis)
+Umowa licencyjna na wynalazek (patent) z polami eksploatacji
+Umowa licencyjna z prawem do modyfikacji utworu (utwór zależny)
+Umowa licencyjna z obowiązkiem zachowania integralności (dobra osobiste)
+Umowa licencyjna z wypowiedzeniem przy naruszeniu pól eksploatacji
+Umowa licencyjna z karą umowną za wykroczenie poza pola (art. 483 KC)
+Umowa licencyjna z odpowiedzialnością za wady prawne (art. 481 KC)
+Umowa licencyjna z czasem trwania 5 lat i możliwością odnowienia
+Umowa licencyjna z zakazem konkurencji licencjobiorcy
+Umowa licencyjna z obowiązkiem zgłaszania egzemplarzy (depozyt)
+Umowa licencyjna z audytem sprzedaży (royalty audit) przez licencjodawcę
+Umowa licencyjna z prawem do inspekcji kanałów dystrybucji
+Umowa licencyjna z sublicencją ograniczoną do podmiotów zależnych
+Umowa licencyjna z zastrzeżeniem praw do udzielania dalszych licencji
+Umowa licencyjna z tłumaczeniem utworu na inne języki (pola językowe)
+Umowa licencyjna z eksploatacją w sieci (streaming) jako pole
+Umowa licencyjna z eksploatacją na nośnikach (CD/DVD/pamięć)
+Umowa licencyjna z prawem do reklamy utworem (marketing)
+Umowa licencyjna z ograniczeniem terytorialnym do UE
+Umowa licencyjna z klauzulą najwyższego uprzywilejowania (most-favoured)
+Umowa licencyjna z obowiązkiem uiszczania opłat za odnowienie
+Umowa licencyjna z prawem licencjodawcy do wypowiedzenia za 30 dni
+Umowa licencyjna z odstąpieniem przy braku zapłaty tantiem
+Umowa licencyjna na oprogramowanie z prawem do dekompilacji (art. 75 p.a.)
+Umowa licencyjna z zachowaniem poufności know-how (trade secret)
+Umowa licencyjna z obowiązkiem oznaczania autorstwa (©)
+Umowa licencyjna z prawem do wytaczania powództw o naruszenie (art. 79 p.a.)
+Umowa licencyjna z podziałem dochodów z egzekucji roszczeń
+Umowa licencyjna z walutą rozliczeniową EUR
+Umowa licencyjna z minimalnymi gwarantowanymi tantiemami (MG)
+Umowa licencyjna z prawem pierwszeństwa do nowych wersji (upgrade)
+Umowa licencyjna z hostingiem utworu na serwerze licencjobiorcy
+Umowa licencyjna z zakazem cesji bez zgody licencjodawcy
+Umowa licencyjna z okresem przejściowym po wygaśnięciu (wind-down)
+Umowa licencyjna z obowiązkiem monitorowania naruszeń przez licencjobiorcę
+Umowa licencyjna z klauzulą o zmianie kontroli (change of control)
+Umowa licencyjna z prawem do udzielania licencji w pakiecie (bundle)
+Umowa licencyjna z ograniczeniem do celu niekomercyjnego
+Umowa licencyjna z prawem do badań i rozwoju (R&D) na utworze
+Umowa licencyjna z eksploatacją w grach komputerowych (pole)
+Umowa licencyjna z eksploatacją w utworach audiowizualnych
+Umowa licencyjna z prawem do adaptacji (ekranizacja)
+Umowa licencyjna z minimalnym nakładem (print run) przy publikacji
+Umowa licencyjna z obowiązkiem raportowania kwartalnego
+Umowa licencyjna z karą za nieterminowe przekazanie źródeł
+Umowa licencyjna z prawem do odstąpienia od sublicencji
+Umowa licencyjna z zabezpieczeniem roszczeń wekslem in blanco
+Umowa licencyjna z klauzulą siły wyższej (brak dostępu do serwera)
+Umowa licencyjna z podziałem praw do utworu zbiorowego
+Umowa licencyjna z obowiązkiem szkoleń z obsługi licencji
+Umowa licencyjna z wygaśnięciem po upływie okresu ochrony praw
+Umowa licencyjna z prawem do eksploatacji w reklamie produktu licencjobiorcy

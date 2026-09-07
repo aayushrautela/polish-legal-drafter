@@ -1,0 +1,62 @@
+Dostawa komponentów stalowych zgodnie ze specyfikacją techniczną
+Dostawa opakowań plastikowych w partiach miesięcznych
+Dostawa surowca spożywczego z certyfikatem jakości
+Dostawa mebli systemowych produkowanych na zamówienie
+Dostawa z rękojmią za wady fizyczne (art. 609 KC)
+Dostawa z karą umowną za opóźnienie w dostawie
+Dostawa z przejęciem ryzyka przy wydaniu przewoźnikowi
+Dostawa z miejscem odbioru w magazynie zamawiającego
+Dostawa z miejscem odbioru u dostawcy (ekspedycja)
+Dostawa z protokołem zdawczo-odbiorczym
+Dostawa z terminem dostawy sukcesywnej co tydzień
+Dostawa z wadami – reklamacja i żądanie wymiany
+Dostawa z ceną ustalaną w każdym zamówieniu (ramowa)
+Dostawa z gwarancją jakości na 24 miesiące
+Dostawa z obowiązkiem ubezpieczenia w transporcie
+Dostawa z podziałem na transze zależne od zamówień
+Dostawa z zakazem dostarczania towaru zastępczego
+Dostawa z prawem odmowy odbioru wadliwej partii
+Dostawa z opłatą za przestoje przy rozładunku
+Dostawa z wymogiem oznakowania zgodnego z normami UE
+Dostawa części zamiennych z dostawą just-in-time
+Dostawa z odpowiedzialnością za wady prawne
+Dostawa z rabatem ilościowym przy wolumenie
+Dostawa z harmonogramem opartym na prognozie popytu
+Dostawa z możliwością zawieszenia przy braku płatności
+Dostawa z zastrzeżeniem własności do zapłaty (zastrzeżenie własności rzeczy sprzedanej)
+Dostawa z karą za brak zgodności z parametrami
+Dostawa z odbiorem technicznym przez inspektora
+Dostawa z okresem minimów gwarantowanych
+Dostawa z subskrypcją comiesięczną (stały wolumen)
+Dostawa z możliwością zmiany specyfikacji po uzgodnieniu
+Dostawa z dokumentacją CE dla wyrobów
+Dostawa z terminem realizacji 48h (express)
+Dostawa z opakowaniem zwrotnym (kaucja opakowaniowa)
+Dostawa z ubezpieczeniem od uszkodzeń w transporcie
+Dostawa z prawem kontroli jakości u dostawcy
+Dostawa z zasadą przejęcia korzyści i niebezpieczeństwa
+Dostawa z karą za opóźnienie i odszkodowaniem
+Dostawa z wymogiem raportowania stanu dostaw
+Dostawa z zobowiązaniem do zapasów buforowych
+Dostawa z ceną waloryzowaną o wskaźnik inflacji
+Dostawa z możliwością cesji wierzytelności z tytułu dostaw
+Dostawa z prawem odstąpienia przy rażącym opóźnieniu
+Dostawa z obowiązkiem szkolenia z obsługi urządzenia
+Dostawa z klauzulą force majeure
+Dostawa z terminem płatności 60 dni
+Dostawa z odpowiedzialnością solidarną podwykonawców
+Dostawa z przetargiem na ceny w umowie ramowej
+Dostawa z wymogiem etykiety ekologicznej
+Dostawa z prawem do audytu u dostawcy
+Dostawa z zastrzeżeniem kar za wady ukryte
+Dostawa z odbiorem partii próbnej przed seryjną
+Dostawa z gwarancją ciągłości (SLA)
+Dostawa z montażem u zamawiającego
+Dostawa z dokumentem dostawy (WZ) i fakturą
+Dostawa z zabezpieczeniem należytego wykonania
+Dostawa z opcją zwiększenia wolumenu w szczycie sezonu
+Dostawa z prawem własności przechodzącym przy wydaniu
+Dostawa z karą za niezgodność z próbką
+Dostawa z rozliczeniem w walucie obcej (EUR)
+Dostawa z obowiązkiem powiadomienia o opóźnieniu produkcji
+Dostawa z prawem żądania zastępczego wykonania

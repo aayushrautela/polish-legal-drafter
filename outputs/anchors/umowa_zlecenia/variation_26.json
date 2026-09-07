@@ -1,0 +1,17 @@
+{
+ "run": 26,
+ "hint": "Opieka nad zwierzętami i wyprowadzanie psów dla stałego klienta",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam kogoś, kto regularnie wyprowadza mojego psa i pilnuje go, gdy nie mogę być w domu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Potrzebuję opiekuna, który wyprowadza mojego labradora trzy razy w tygodniu rano przed pracą, a w weekendy dłużej spaceruje z nim w parku. Raz na kilka miesięcy wyjeżdżam na kilka dni i chciałbym, żeby ktoś przychodził do mnie, karmił psa, dawał mu leki i zostawiał mi zdjęcia, żebym wiedział, że wszystko w porządku."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_zlecenia\", \"query\": \"pet care dog walking recurring services\"})\\nRESULT: [{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa o opiekę nad zwierzęciem\\nUmowa o opiekę nad zwierzęciem w Polsce to umowa o świadczenie usług lub umowa zlecenia, na podstawie której właściciel psa, kota lub innego zwierzęcia domowego powierza tymczasową opiekę nad swoim pupilem osobie trzeciej — opiekunowi, pet-sitterowi lub \\\"dozorowcy\\\". Podstawę prawną stanowi art. 750 w zw. z art. 734 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) — do umów o świadczenie usług nieuregulowanych odrębnymi przepisami stosuje się odpowiednio przepisy o zleceniu.\\n\\nW Polsce rynek usług pet-sitting dynamicznie rośnie. Właściciele zwierząt korzystają z usług opiekunów podczas urlopów, wyjazdów służbowych lub hospitalizacji. Pet-sitterzy działają jako osoby fizyczne lub w ramach działalności gospodarczej (CEIDG), coraz częściej za pośrednictwem platform internetowych takich jak Pawshake, DogBuddy czy rodzimego serwisu Opiekunpsa.pl. Niezależnie od formy działalności opiekuna, pisemna umowa o opiekę nad zwierzęciem w Polsce chroni obie strony.\\n\\nKluczowy aspekt prawny to odpowiedzialność za szkodę wyrządzoną przez zwierzę. Art. 431 Kodeksu cywilnego stanowi, że kto zwierzę chowa lub się nim posługuje, obowiązany jest do naprawienia wyrządzonej przez nie szkody niezależnie od winy — jest to odpowiedzialność obiektywna. W czasie sprawowania tymczasowej opieki to opiekun, jako faktyczny posiadacz zwierzęcia, ponosi tę odpowiedzialność wobec osób trzecich. Oznacza to, że gdy pies opiekuna ugryzi przechodnia podczas spaceru, poszkodowany może dochodzić odszkodowania od opiekuna przed Sądem Rejonowym.\\n\\nUstawa z dnia 21 sierpnia "
+}

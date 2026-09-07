@@ -1,0 +1,206 @@
+{
+  "generated_utc": "2026-08-23T18:54:34.646987+00:00",
+  "doc_type": "umowa_o_dzielo",
+  "target": 125,
+  "picked": 38,
+  "per_article_cap": 4,
+  "retrieval_endpoint": "https://nikkybrekas--legal-drafter-retrieval-retrievalservice-app.modal.run",
+  "queries": [
+    {
+      "kind": "statute",
+      "query": "umowa o dzieło kodeks cywilny art 627 wynagrodzenie",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "statute",
+      "query": "odstąpienie od umowy o dzieło art 635 opóźnienie",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "statute",
+      "query": "odbior dzieła wady art 637 rękojmia",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "statute",
+      "query": "wypowiedzenie umowy o dzieło art 639 śmierć strony",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "statute",
+      "query": "odsetki za opóźnienie wynagrodzenia dzieło art 481",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "statute",
+      "query": "niepełnoletni umowa o dzieło zgoda przedstawiciela",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "statute",
+      "query": "nienależyte wykonanie zobowiązania art 471 naprawienie szkody",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "statute",
+      "query": "swoboda umów art 353 granice społeczno gospodarcze",
+      "hits": 15,
+      "new": 12
+    },
+    {
+      "kind": "statute",
+      "query": "wypowiedzenie umowy starannym działaniu zawód art 491",
+      "hits": 15,
+      "new": 8
+    },
+    {
+      "kind": "clauses",
+      "query": "umowa o dzieło termin wykonania dzieła postanowienie umowne",
+      "hits": 15,
+      "new": 10
+    },
+    {
+      "kind": "clauses",
+      "query": "wynagrodzenie ryczałt etapami płatność umowa o dzieło",
+      "hits": 15,
+      "new": 9
+    },
+    {
+      "kind": "clauses",
+      "query": "kara umowna za opóźnienie wykonania dzieła klauzula",
+      "hits": 15,
+      "new": 10
+    },
+    {
+      "kind": "clauses",
+      "query": "odbiór dzieła protokół odbioru bez zastrzeżeń",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "clauses",
+      "query": "usunięcie wad dzieła w wyznaczonym terminie",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "clauses",
+      "query": "materiały powiernicze zwrot po wykonaniu dzieła",
+      "hits": 15,
+      "new": 14
+    },
+    {
+      "kind": "clauses",
+      "query": "zakaz konkurencji poufność umowa o dzieło",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "clauses",
+      "query": "podwykonawca zlecenie wykonania części dzieła",
+      "hits": 15,
+      "new": 10
+    },
+    {
+      "kind": "ip",
+      "query": "przeniesienie autorskich praw majątkowych do utworu pola eksploatacji",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "ip",
+      "query": "wynagrodzenie autorskie rozliczenie praw autorskich umowa",
+      "hits": 15,
+      "new": 11
+    },
+    {
+      "kind": "ip",
+      "query": "utworzenie dzieła współautorstwo prawa autorskie",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "ip",
+      "query": "zgoda na zmiany utworu integralność treści",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "construction",
+      "query": "umowa o dzieło remont wykończenie mieszkania termin",
+      "hits": 15,
+      "new": 9
+    },
+    {
+      "kind": "construction",
+      "query": "dzieło budowlane dokumentacja projektowa odbiór",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "construction",
+      "query": "prace wykończeniowe ekipa remontowa umowa",
+      "hits": 15,
+      "new": 8
+    },
+    {
+      "kind": "tax",
+      "query": "umowa o dzieło 50 procent koszty uzyskania przychód",
+      "hits": 15,
+      "new": 15
+    },
+    {
+      "kind": "tax",
+      "query": "umowa o dzieło składka ZUS student poniżej wieku",
+      "hits": 15,
+      "new": 13
+    },
+    {
+      "kind": "tax",
+      "query": "rozliczenie podatku dochodowego od umowy o dzieło ryczałt",
+      "hits": 15,
+      "new": 12
+    },
+    {
+      "kind": "media",
+      "query": "umowa o dzieło fotograf zdjęcia sesja licencja",
+      "hits": 15,
+      "new": 9
+    },
+    {
+      "kind": "media",
+      "query": "umowa o dzieło tłumaczenie tekstu termin dostarczenia",
+      "hits": 15,
+      "new": 9
+    },
+    {
+      "kind": "media",
+      "query": "projekt graficzny logo umowa o dzieło wersje",
+      "hits": 15,
+      "new": 4
+    },
+    {
+      "kind": "media",
+      "query": "tekst artykuł copywriting umowa o dzieło",
+      "hits": 15,
+      "new": 2
+    }
+  ],
+  "kind_distribution": {
+    "statute": 26,
+    "clauses": 3,
+    "ip": 1,
+    "construction": 5,
+    "tax": 2,
+    "media": 1
+  },
+  "article_cap_respected": true,
+  "output": "anchors.odzielo38.jsonl"
+}

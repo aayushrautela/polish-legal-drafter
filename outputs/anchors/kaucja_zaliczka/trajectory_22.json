@@ -1,0 +1,326 @@
+{
+ "run": 22,
+ "hint": "Zaliczka przy zamówieniu produkcji opakowań dla firmy",
+ "scenario": "Zaliczka przy zamówieniu produkcji opakowań dla firmy",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a contract template for \"kaucja_zaliczka\" (deposit/advance payment) specifically for \"Zaliczka przy zamówieniu produkcji opakowań dla firmy\" (Advance payment when ordering packaging production for a company).\n\nLet me start by reading the base template for kaucja_zaliczka, then search for relevant provisions related to packaging production, B2B contracts, advance payments, etc.",
+   "tool_calls": [
+    {
+     "id": "call-dc4efa21-0a10-4363-823c-be3e7552c93e",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"zaliczka przy zamówieniu produkcji opakowań dla firmy B2B\", \"doc_type\": \"kaucja_zaliczka\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Potwierdzenie przyjęcia zaliczki\\nPotwierdzenie przyjęcia zaliczki w Polsce to dokument wystawiany przez sprzedawcę lub usługodawcę (odbiorcę zaliczki) na rzecz kupującego lub zamawiającego (wpłacającego), potwierdzający przyjęcie kwoty pieniężnej na poczet przyszłego świadczenia — dostarczenia towaru lub wykonania usługi. Podstawą prawną pokwitowania jest art. 462 § 1 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.): dłużnik spełniający świadczenie może żądać pokwitowania.\\n\\nW polskim prawie cywilnym istnieje ważne rozróżnienie między zaliczką a zadatkiem (art. 394 KC), które ma fundamentalne znaczenie dla skutków prawnych przy niewykonaniu umowy. Zaliczka jest częściowym spełnieniem świadczenia pieniężnego z góry — wpłatą wchodzącą w skład ceny. Przy niewykonaniu umowy przez którąkolwiek ze stron zaliczka jest co do zasady zwrotna w całości, niezależnie od przyczyn. Nie ma charakteru odszkodowawczego. Zadatek natomiast jest instytucją uregulowaną w art. 394 KC: jeżeli umowy nie wykona strona, która dała zadatek, druga może od umowy odstąpić i zadatek zachować; jeżeli umowy nie wykona strona, która zadatek przyjęła, druga strona może od umowy odstąpić i żądać sumy dwukrotnie wyższej. Zadatek pełni zatem funkcję zabezpieczającą i ma charakter odszkodowawczy.\\n\\nKwestia podatkowa jest istotna przy potwierdzeniach zaliczek. Na podstawie art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (ustawa o VAT), jeżeli przed dokonaniem dostawy towaru lub wykonaniem usługi otrzymano całość lub część zapłaty, obowiązek podatkowy VAT powstaje z chwilą jej otrzymania w tej części. Oznacza to, że odbiorca zaliczki — jeżeli jest podatnikiem VAT — ma obowiązek wystawić fakturę zaliczkową w terminie 15. dnia miesiąca po miesiącu otrzymania zaliczki (lub wcześniej) i rozliczyć VAT od otrzymanej zaliczki. Stawka VAT na zaliczkę jest taka sama, jaka będzie stosowana do świadczenia głównego (23%, 8%, 5% lub 0%). Potwierdzenie przyjęcia zaliczki nie zastępuje faktury VAT, jeżeli odbiorca jest podatnikiem VAT.\\n\\nW obrocie z konsumentami, gdy odbiorcą jest przedsiębiorca, zaliczka na poczet umowy zawartej poza lokalem przedsiębiorstwa lub na odległość podlega przepisom ustawy z dnia 30 maja 2014 r. o prawach konsumenta — konsument może odstąpić od takiej umowy w terminie 14 dni (art. 27 u.p.k.) i żądać zwrotu zaliczki w pełnej wysokości.\\n\\nPotwierdzenie przyjęcia zaliczki w Polsce jest potrzebne zawsze, gdy zamawiający (kupujący) wpłaca część ceny z góry przed wykonaniem świadczenia, a strony chcą mieć pisemny dowód tej czynności.\\n\\nDokument jest niezbędny przy zamówieniach remontu lub budowy. Firmy budowlane i remontowe w Polsce powszechnie przyjmują zaliczki przed przystąpieniem do prac, a właściciele nieruchomości potrzebują potwierdzenia wpłaty, by chronić się przed ewentualnym sporem o kwotę i tytuł wpłaconych środków. Potwierdzenie zaliczki stanowi dowód dla sądu rejonowego lub sądu okręgowego, że środki zostały przekazane na poczet konkretnego zamówienia.\\n\\nDokument jest potrzebny przy zakupie towarów na zamówienie — mebli, urządzeń, samochodów, sprzętu — gdzie zaliczka rezerwuje dostępność lub uruchamia produkcję. Sprzedawca potwierdza przyjęcie zaliczki, wskazując jej kwotę, cel i termin realizacji.\\n\\nPotwierdzenie zaliczki jest kluczowe przy usługach hotelarskich, cateringowych i organizacji eventów, gdzie duże zaliczki wpłacane z wyprzedzeniem kilku miesięcy przed wydarzeniem muszą być udokumentowane zarówno dla klienta (dowód zapłaty), jak i dla usługodawcy (ewidencja finansowa i podatkowa).\\n\\nDokument jest potrzebny przy umowach z rzemieślnikami, artystami i freelancerami, którzy wymagają zaliczki przed przystąpieniem do pracy. Potwierdzenie zaliczki jasno określa, czy wpłata jest zaliczką (zwrotną przy niewykonaniu) czy zadatkiem (z surowszymi konsekwencjami), co eliminuje późniejsze spory.\\n\\nWreszcie, potwierdzenie jest przydatne do celów podatkowych i rachunkowych — zarówno dla nabywcy (dowód kosztu), jak i dla usługodawcy (podstawa do wystawienia faktury zaliczkowej i rozliczenia VAT). Przedsiębiorcy prowadzący działalność gospodarczą są zobowiązani do ewidencji przychodów na podstawie art. 14 ust. 1c ustawy o podatku dochodowym od osób fizycznych (PIT) lub art. 12 ust. 3a ustawy o CIT.\\n\\nPrawidłowe potwierdzenie przyjęcia zaliczki w Polsce musi zawierać elementy pozwalające jednoznacznie ustalić strony, przedmiot wpłaty i jej skutki prawne.\\n\\nDane odbiorcy (wystawiającego potwierdzenie): imię i nazwisko lub firma, NIP albo PESEL, adres. Jeżeli odbiorca jest przedsiębiorcą-podatnikiem VAT, numer NIP jest obligatoryjny dla faktury zaliczkowej, która powinna towarzyszyć potwierdzeniu.\\n\\nDane wpłacającego: imię i nazwisko lub firma, PESEL albo NIP, adres. Przy transakcjach B2C (przedsiębiorca-konsument) identyfikacja konsumenta jest ważna ze względu na jego uprawnienia z ustawy o prawach konsumenta.\\n\\nKwota zaliczki: cyfrowo i słownie, z oznaczeniem waluty (zł, PLN).\\n\\nRodzaj wpłaty: wyraźne wskazanie, czy jest to zaliczka (zwrotna, bez odszkodowawczego charakteru) czy zadatek (art. 394 KC — z konsekwencjami przepadku lub zwrotu w podwójnej wysokości). To rozróżnienie jest kluczowe dla skutków prawnych przy niewykonaniu umowy.\\n\\nOpis zamówienia: precyzyjny opis towaru, usługi lub prac, na poczet których zaliczka jest wpłacana — umożliwia identyfikację świadczenia głównego i zapobiega sporom interpretacyjnym.\\n\\nCałkowita cena umowy: łączna kwota zamówienia, od której odliczona zostanie zaliczka przy realizacji.\\n\\nTermin realizacji: planowany termin wykonania usługi lub dostawy towaru — umożliwia ocenę, czy realizacja nastąpiła w terminie.\\n\\nKwestia VAT: informacja o obowiązku wystawienia faktury zaliczkowej i rozliczenia VAT przez odbiorcę-podatnika VAT. Serwis forms-legal.com udostępnia wzór potwierdzenia zaliczki jako punkt wyjścia — przy zaliczkach powyżej 10 000 zł lub przy transakcjach konsumenckich zawieranych poza lokalem przedsiębiorstwa zalecana jest konsultacja z doradcą prawnym lub podatkowym.\\n\\nWypełnianie potwierdzenia przyjęcia zaliczki w Polsce zacznij od oznaczenia odbiorcy zaliczki — sprzedawcy lub usługodawcy. Wpisz pełną firmę lub imię i nazwisko, NIP (lub PESEL dla osoby fizycznej nieprowadzącej działalności) i adres prowadzenia działalności.\\n\\nNastępnie oznacz wpłacającego zaliczkę: imię i nazwisko (lub firma), PESEL lub NIP i adres zamieszkania lub siedziby.\\n\\nW sekcji szczegółów wpłaty wpisz kwotę cyfrowo i słownie. Wskaż dokładną datę otrzymania środków. Zaznacz sposób wpłaty (przelew, gotówka, BLIK).\\n\\nKluczowy element: zaznacz, czy wpłata jest zaliczką czy zadatkiem. Przy zaliczce środki są zwrotne bez żadnych konsekwencji przy niewykonaniu umowy przez obie strony. Przy zadatku stosuje się art. 394 KC — przy winie wpłacającego odbiorca zachowuje zadatek; przy winie odbiorcy wpłacający może żądać zwrotu w podwójnej wysokości. Wybierz świadomie — zadatek jest korzystniejszy dla odbiorcy, zaliczka dla wpłacającego.\\n\\nDokładnie opisz zamówienie: wpisz precyzyjny opis usługi lub towaru, adres realizacji (jeżeli dotyczy), datę zamówienia. Podaj całkowitą cenę umowy i termin realizacji.\\n\\nJeżeli jesteś przedsiębiorcą-podatnikiem VAT, pamiętaj o obowiązku wystawienia faktury zaliczkowej. Potwierdzenie nie zastępuje faktury VAT — faktura jest osobnym dokumentem, który wystawiasz nabywcy.\\n\\nPodpisz potwierdzenie — wystarczy podpis odbiorcy (wystawiającego pokwitowanie). Warto jednak poprosić wpłacającego o podpis potwierdzający odbiór dokumentu. Sporządź dwa egzemplarze — jeden dla wpłacającego, drugi zachowaj w dokumentacji.\\n\\nWymogi prawne potwierdzenia przyjęcia zaliczki w Polsce wynikają z kilku aktów prawnych regulujących zarówno stosunek cywilnoprawny między stronami, jak i obowiązki podatkowe.\\n\\nKodeks cywilny: art. 462 § 1 — prawo dłużnika do pokwitowania; art. 394 KC — instytucja zadatku: przepadek przy winie dającego, dwukrotny zwrot przy winie przyjmującego, zaliczenie na poczet ceny przy wykonaniu umowy, zwrot przy zgodnym rozwiązaniu i przy okolicznościach, za które żadna ze stron nie odpowiada. Art. 385¹-385³ KC — zakaz niedozwolonych postanowień konsumenckich: klauzula przepadku zaliczki (nie zadatku) przy drobnych uchybieniach może być uznana za abuzywną przez Prezesa UOKiK.\\n\\nUstawa o VAT art. 19a ust. 8: obowiązek podatkowy VAT powstaje z chwilą otrzymania całości lub części zapłaty (zaliczki) — w tej części. Podatnik VAT musi wystawić fakturę zaliczkową. Faktura zaliczkowa wystawiana jest nie później niż 15. dnia miesiąca po miesiącu otrzymania zaliczki, ale może być wystawiona wcześniej. Stawka VAT na fakturze zaliczkowej odpowiada stawce właściwej dla świadczenia głównego.\\n\\nUstawa o prawach konsumenta art. 27: konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może odstąpić w terminie 14 dni bez podania przyczyny. Przy odstąpieniu przedsiębiorca zobowiązany jest zwrócić wszystkie wpłaty, w tym zaliczkę, w terminie 14 dni. Klauzule wyłączające zwrot zaliczki przy skorzystaniu z prawa odstąpienia są niedozwolone.\\n\\nPodatek dochodowy: zaliczka nie jest przychodem w chwili wpłaty — przychód powstaje w chwili wykonania świadczenia (art. 14 ust. 1c ustawy o PIT lub art. 12 ust. 3a ustawy o CIT). Zaliczka jest zobowiązaniem (długiem) odbiorcy do wykonania świadczenia lub zwrotu środków.\\n\\nNajczęstsze błędy przy potwierdzeniach zaliczek w Polsce mają poważne konsekwencje finansowe i prawne.\\n\\nNieokreślenie, czy wpłata to zaliczka czy zadatek. To najpoważniejszy błąd — przy braku wyraźnego wskazania polskie sądy domyślnie traktują wpłatę jako zaliczkę (zwrotną), a nie zadatek. Jeżeli odbiorca chce skorzystać z prawa do zachowania zadatku przy winie wpłacającego (art. 394 KC), musi w dokumencie wyraźnie wskazać, że wpłata stanowi zadatek.\\n\\nBrak precyzyjnego opisu zamówienia. Ogólne sformułowanie \\\"zaliczka na usługę\\\" bez wskazania zakresu, adresu i terminu prowadzi do sporów o to, czy zaliczka obejmuje całość czy część uzgodnionego świadczenia. Przy sporze przed sądem rejonowym odbiorca musi wykazać, że zaliczka dotyczyła konkretnego zlecenia.\\n\\nZapomnienie o fakturze zaliczkowej. Przedsiębiorcy-podatnicy VAT często przyjmują zaliczkę gotówką lub przelewem i wystawiają tylko nieformalne potwierdzenie, zapominając o obowiązku wystawienia faktury zaliczkowej (art. 19a ust. 8 ustawy o VAT). Brak faktury zaliczkowej może skutkować ustaleniem zaległości podatkowej VAT przez urząd skarbowy podczas kontroli.\\n\\nNieprawidłowe postanowienia o przepadku zaliczki przy konsumencie. Klauzule o przepadku zaliczki (nie zadatku) przy każdym odstąpieniu konsumenta od umowy są niedozwolone (klauzule abuzywne, art. 385¹ KC). Prezes UOKiK może wszcząć postępowanie i nałożyć karę na przedsiębiorcę stosującego niedozwolone postanowienia.\\n\\nBrak przechowywania dokumentacji. Potwierdzeń zaliczek nie należy traktować jako dokumentów jednorazowego użytku — stanowią one dowód zobowiązania do realizacji zamówienia i mogą być wymagane podczas kontroli podatkowej KAS, w postępowaniach sądowych oraz przy rozliczeniu final invoice (faktury końcowej).\\n\\nŹródło: https://forms-legal.com/pl/financial/debt/potwierdzenie-przyjecia-zaliczki (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-dc4efa21-0a10-4363-823c-be3e7552c93e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. Let me search for provisions relevant to packaging production orders, B2B contracts, advance payments in manufacturing contexts, and any specific regulations that might apply.",
+   "tool_calls": [
+    {
+     "id": "call-d16e929f-2260-4fd8-b1b0-c7212084441f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa produkcji opakowań zamówienie B2B zaliczka przedpłata harmonogram płatności\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_0083de3f4fe1a3d5\", \"source_id\": \"uokik_rejestr_klauzul_941\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Pożyczkobiorca wraz z powiadomieniem o jakim mowa w § 3 ust. 2 otrzyma (…) harmonogram spłaty rat, który z tą chwilą staje się integralną częścią umowy przedwstępnej\"}, {\"chunk_id\": \"uokik_items:uokik_db5ba1d0d599cd85\", \"source_id\": \"uokik_rejestr_klauzul_5877\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W takim przypadku Umowa-Zamówienie ulega rozwiązaniu, a wpłacona zaliczka ulega przepadkowi na rzecz Sprzedającego tytułem pokrycia kosztów zawartej transakcji\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_11\", \"source_id\": \"sejm_eli_du_2023_1790_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 11. 1. Strony transakcji handlowej mogą ustalić w umowie harmonogram spełnienia świadczenia pieniężnego w częściach, pod warunkiem że ustalenie takie nie jest rażąco nieuczciwe wobec wierzyciela. 2. Jeżeli strony transakcji handlowej ustaliły w umowie, że świadczenie pieniężne będzie spełniane w częściach, uprawnienie do: 1) odsetek, o których mowa w art. 7 ust. 1 lub art. 8 ust. 1, 2) kwoty, o której mowa w art. 10 ust. 1, oraz zwrotu poniesionych kosz ...\"}, {\"chunk_id\": \"uokik_items:uokik_671bb6a8763100ab\", \"source_id\": \"uokik_rejestr_klauzul_6473\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W szczególnych przypadkach (...) może żądać od Klienta przedpłaty przed zrealizowaniem zamówienia znajdującego się w części zatytułowanej Płatności\"}, {\"chunk_id\": \"uokik_items:uokik_47d5daa85b547ee8\", \"source_id\": \"uokik_rejestr_klauzul_4550\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 5 ust. 22 - Kupujący zobowiązują się opłacać zaliczki na poczet kosztów opisanych powyżej w terminie do 10 (dziesiątego) dnia każdego miesiąca z góry, poczynając od Dnia Odbioru Przedmiotów Umów. Spółka ma także prawo żądania zapłaty zaległości z tytułu opłat wskazanych w zdaniu poprzednim przed podpisaniem Umowy Przyrzeczonej i Umowy Sprzedaży. Spółka ma także prawo żądania zapłaty zaliczki na poczet kosztów wskazanych w zdaniu pierwszym przed wydaniem (odbiorem) Przedmiotów Umów w kwocie odpowiadającej okresowi do dnia zawarcia Umowy Przyrzeczonej i Umowy Sprzedaży\"}]",
+   "tool_call_id": "call-d16e929f-2260-4fd8-b1b0-c7212084441f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions related to packaging production, manufacturing contracts, and B2B advance payments.",
+   "tool_calls": [
+    {
+     "id": "call-7667c0c0-ebe5-414c-930b-83e0f8c3cb59",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"produkcja opakowań\", \"zamówienie produkcji\", \"umowa o dzieło\", \"B2B zaliczka\", \"przedpłata produkcja\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_626\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 626. § 1. Jeżeli po zawarciu umowy kontraktacji producent wniósł posiadane gospodarstwo jako wkład do rolniczej spółdzielni produkcyjnej, spółdzielnia ta wstępuje w prawa i obowiązki producenta, chyba że stan wniesionego gospodarstwa stoi temu na przeszkodzie. § 2. Jeżeli stan gospodarstwa producenta w chwili jego przystąpienia do spółdzielni nie pozwala na wykonanie umowy kontraktacji przez spółdzielnię, umowa wygasa, a producent obowiązany jes ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_645\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 645. § 1. Umowa o dzieło, którego wykonanie zależy od osobistych przymiotów przyjmującego zamówienie, rozwiązuje się wskutek jego śmierci lub niezdolności do pracy. § 2. Jeżeli materiał był własnością przyjmującego zamówienie, a dzieło częściowo wykonane przedstawia ze względu na zamierzony cel umowy wartość dla zamawiającego, przyjmujący zamówienie lub jego spadkobierca może żądać, ażeby zamawiający odebrał materiał w stanie, w jakim się znajdu ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}]",
+   "tool_call_id": "call-7667c0c0-ebe5-414c-930b-83e0f8c3cb59",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_96a478897fac4fa28c04f747",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa o dzieło produkcja opakowań zaliczka przedpłata B2B przepady przy niewykonaniu\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_27e1a29216e2ffb7\", \"source_id\": \"uokik_rejestr_klauzul_4081\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Rezygnacja z zamówienia skierowanego już do realizacji skutkuje przepadkiem wpłaconej zaliczki\"}, {\"chunk_id\": \"uokik_items:uokik_1068b7fdd6cb3aba\", \"source_id\": \"uokik_rejestr_klauzul_912\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie wykonania umowy przez Kupującego wpłacona zaliczka przepada, a jeżeli z winy Sprzedawcy umowa nie zostanie wykonana, zaliczka podlega zwrotowi\"}, {\"chunk_id\": \"uokik_items:uokik_874fbb8ce80cbc9b\", \"source_id\": \"uokik_rejestr_klauzul_4261\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W wypadku rezygnacji z zamówienia przez Kupującego wpłacona zaliczka ulega przepadkowi na rzecz Sprzedawcy\"}, {\"chunk_id\": \"uokik_items:uokik_c04ba20a44d76da9\", \"source_id\": \"uokik_rejestr_klauzul_7147\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia przez Zleceniodawcę od wykonania umowy, kwota przedpłaty gwarancyjnej przepada na rzecz Usługodawcy (Art. 394 k.c.).\"}, {\"chunk_id\": \"uokik_items:uokik_ba351f5846da6dfc\", \"source_id\": \"uokik_rejestr_klauzul_630\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia od umowy przez Zamawiającego, zaliczka przepada na rzecz Przyjmującego zamówienie w całości\"}]",
+   "tool_call_id": "call_96a478897fac4fa28c04f747",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_d30f192e653e4db49937cc79",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"art. 627 KC\", \"art. 628 KC\", \"art. 631 KC\", \"umowa o dzieło zaliczka\", \"produkcja na zamówienie\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_d30f192e653e4db49937cc79",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me try a different search approach for the relevant Civil Code articles on umowa o dzieło (contract for specific work).",
+   "tool_calls": [
+    {
+     "id": "call-bf3ced17-cd9a-4f73-a307-f36cd46d79df",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa o dzieło art 627 628 631 632 633 Kodeks cywilny zaliczka przedpłata\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_627\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 627. Przez umowę o dzieło przyjmujący zamówienie zobowiązuje się do wykonania oznaczonego dzieła, a zamawiający do zapłaty wynagrodzenia.\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_130\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 130 4 . § 1. Strona, która wnosi o podjęcie czynności połączonej z wydatkami, obowiązana jest uiścić zaliczkę na ich pokrycie w wysokości i terminie oznaczonym przez sąd. Jeżeli więcej niż jedna strona wnosi o podjęcie czynności, sąd zobowiązuje każdą stronę, która z czynności wywodzi skutki prawne, do uiszczenia zaliczki w równych częściach lub w innym stosunku według swego uznania. § 2. Przewodniczący wzywa stronę zobowiąza ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_646\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 646. Roszczenia wynikające z umowy o dzieło przedawniają się z upływem lat dwóch od dnia oddania dzieła, a jeżeli dzieło nie zostało oddane - od dnia, w którym zgodnie z treścią umowy miało być oddane. Tytuł XVI Umowa o roboty budowlane\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_628\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 628. § 1. Wysokość wynagrodzenia za wykonanie dzieła można określić przez wskazanie podstaw do jego ustalenia. Jeżeli strony nie określiły wysokości wynagrodzenia ani nie wskazały podstaw do jego ustalenia, poczytuje się w razie wątpliwości, że strony miały na myśli zwykłe wynagrodzenie za dzieło tego rodzaju. Jeżeli także w ten sposób nie da się ustalić wysokości wynagrodzenia, należy się wynagrodzenie odpowiadające uzasadnionemu nakładowi prac ...\"}]",
+   "tool_call_id": "call-bf3ced17-cd9a-4f73-a307-f36cd46d79df",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA O PRZYJĘCIE ZALICZKI NA ZAMÓWIENIE PRODUKCJI OPAKOWAŃ (B2B)\n\nzawarte w dniu …………………………… r. w ……………………………\n\n**MIĘDZY:**\n\n**WYKONAWCA (Przyjmujący zamówienie / Odbiorca zaliczki)**\nNazwa firmy: …………………………………………………………………………………………………………\nSiedziba: ………………………………………………………………………………………………………………\nNIP: ……………………………………………………………………………………………………………………\nREGON: ………………………………………………………………………………………………………………\nKRS: ……………………………………………………………………………………………………………………\nPrzedstawiciel: ………………………………………………………………………………………………………\n(dalej: „Wykonawca”)\n\n**ZAMAwIAJĄCY (Zleceniodawca / Wpłacający zaliczkę)**\nNazwa firmy: …………………………………………………………………………………………………………\nSiedziba: ………………………………………………………………………………………………………………\nNIP: ……………………………………………………………………………………………………………………\nREGON: ………………………………………………………………………………………………………………\nKRS: ……………………………………………………………………………………………………………………\nPrzedstawiciel: ………………………………………………………………………………………………………\n(dalej: „Zamawiający”)\n\nrazem zwane „Stronami”.\n\n---\n\n## § 1. PRZEDMIOT ZAMÓWIENIA I PODSTAWA PRAWNA\n\n1. Przedmiotem niniejszej Umowy jest przyjęcie przez Wykonawcę zaliczki od Zamawiającego na poczet wynagrodzenia za wykonanie dzieła polegającego na **produkcji opakowań** zgodnie ze Specyfikacją Techniczną stanowiąącą **Załącznik nr 1** do niniejszej Umowy.\n2. Strony potwierdzają, że relacja prawna wynikająca z zamówienia produkcji opakowań na specyficzne wymagania Zamawiającego ma charakter **umowy o dzieło** w rozumieniu **art. 627 § 1 Kodeksu cywilnego** (Dz.U. 2024 poz. 1061 z późn. zm.): „Przez umowę o dzieło przyjmujący zamówienie zobowiązuje się do wykonania oznaczonego dzieła, a zamawiający do zapłaty wynagrodzenia”.\n3. Wynagrodzenie za dzieło ustala się na kwotę łączną **………………………… zł (słownie: …………………………………………………………………………………………………………) netto**, co przy stawce VAT **……%** daje kwotę brutto **………………………… zł**.\n4. Jeżeli Strony nie określiły wysokości wynagrodzenia ani nie wskazały podstaw do jego ustalenia, stosuje się **art. 628 § 1 K.c.** – poczytuje się, że Strony miały na myśli zwykłe wynagrodzenie za dzieło tego rodzaju.\n\n---\n\n## § 2. ZALICZKA – KWOTA, TYP, TERMIN I SPOSÓB WPŁATY\n\n1. Zamawiający zobowiązuje się wpłacić zaliczkę w wysokości **………………………… zł (słownie: …………………………………………………………………………………………………………) netto**, co stanowi **……%** ceny netto całkowitego wynagrodzenia.\n2. **Rodzaj wpłaty:** Strony wyraźnie wskazują, że wpłata ma charakter **zaliczki** (częściowego spełnienia świadczenia pieniężnego z góry), a **nie zadatku** w rozumieniu art. 394 K.c. Oznacza to, że przy niewykonaniu umowy przez którąkolwiek ze Stron zaliczka jest zwrotna w całości, niezależnie od przyczyny, i nie ma charakteru odszkodowawczego.\n3. Termin wpłaty zaliczki: **do dnia …………………………… r.**\n4. Sposób wpłaty: przelew na rachunek bankowy Wykonawcy:\n   Bank: ………………………………………………………………………………………………………………\n   Numer rachunku (IBAN): …………………………………………………………………………………………\n   Tytuł przelewu: „Zaliczka – zamówienie produkcji opakowań, Umowa nr …………… z dnia ……………”\n5. Data otrzymania środków na rachunku Wykonawcy jest datą przyjęcia zaliczki.\n\n---\n\n## § 3. HARMONOGRAM PŁATNOŚCI (ART. 11 USTAWY O PRZECIWDZIAŁANIU NADMIERNym OPÓŹNIENIOM)\n\n1. Strony ustalają harmonogram spełnienia świadczenia pieniężnego w częściach, zgodnie z **art. 11 ust. 1 ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (Dz.U. 2023 poz. 1790)**, który nie jest rażąco nieuczciwy wobec wierzyciela.\n2. **Harmonogram płatności:**\n   | Etap | Opis | Kwota netto | Termin płatności |\n   |------|------|-------------|------------------|\n   | 1. | Zaliczka przy zawarciu umowy | ……………… zł | ……………………… |\n   | 2. | Po zatwierdzeniu projektu/prototypu | ……………… zł | ……………………… |\n   | 3. | Po zakończeniu produkcji, przed wydaniem | ……………… zł | ……………………… |\n   | 4. | Saldo po odbiorze dzieła (faktura końcowa) | ……………… zł | do 14 dni od odbioru |\n3. Wpłacone zaliczki zalicza się na poczet kolejnych rat zgodnie z powyższym harmonogramem.\n4. W przypadku opóźnienia w płatności, Zamawiający ponosi odsetki ustawowe za opóźnienie w transakcjach handlowych (art. 7 lub 8 ustawy o przeciwdziałaniu nadmiernym opóźnieniom) oraz zwrot kosztów windykacji (art. 10 tej ustawy).\n\n---\n\n## § 4. OBIAŻKI PODATKOWE VAT – FAKTURA ZALICZKOWA\n\n1. Strony potwierdzają, że Wykonawca jest podatnikiem VAT. Zgodnie z **art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (Dz.U. 2024 poz. 361 z późn. zm.)**, obowiązek podatkowy VAT powstaje z chwilą otrzymania całości lub części zapłaty (zaliczki) – w tej części.\n2. Wykonawca zobowiązuje się wystawić **fakturę zaliczkową** w terminie nie później niż **15. dnia miesiąca następującego po miesiącu otrzymania zaliczki** (lub wcześniej), z stawką VAT właściwą dla świadczenia głównego (……%).\n3. Faktura zaliczkowa nie zastępuje niniejszego potwierdzenia przyjęcia zaliczki – oba dokumenty mają różne funkcje prawne.\n4. Faktura końcowa (korygująca) zostanie wystawiona w dniu wykonania świadczenia (oddania dzieła) z uwzględnieniem już rozliczonego VAT od zaliczek.\n\n---\n\n## § 5. REALIZACJA ZAMÓWIENIA – TERMINY I ODBIÓR\n\n1. Wykonawca zobowiązuje się rozpocząć produkcję w terminie **………………………… dni roboczych** od dnia zaksięgowania zaliczki na rachunku bankowym.\n2. Planowany termin zakończenia produkcji i gotowości do odbioru: **…………………………… r.**\n3. Miejsce odbioru: siedziba Wykonawcy / inna: …………………………………………………………………\n4. Odbiór dzieła nastąpi na podstawie **protokołu odbioru** podpisanego przez obie Strony, w którym zostanie potwierdzona zgodność wykonanych opakowań ze Specyfikacją Techniczną (Załącznik nr 1).\n5. W przypadku wykrycia wad, Zamawiający ma uprawnienia z tytułu rękojmi (art. 634–637 K.c.) – może żądać usunięcia wad, dostarczenia nowej rzeczy bez wad, obniżenia wynagrodzenia lub – jeśli wada jest istotna – odstąpienia od umowy.\n\n---\n\n## § 6. SKUTKI NIEWYKONANIA LUB NIEPRAWIDŁOWEGO WYKONANIA UMOWY\n\n1. **Odstąpienie Zamawiającego:** W przypadku odstąpienia Zamawiającego od umowy z przyczyn leżących po stronie Wykonawcy (nieterminowe wykonanie, wady nieusunięte w terminie dodatkowym), Zamawiający może żądać zwrotu zaliczki w pełnej wysokości oraz odszkodowania (art. 471 K.c.).\n2. **Odstąpienie Wykonawcy:** W przypadku odstąpienia Wykonawcy z przyczyn leżących po stronie Zamawiającego (opóźnienie w płatności raty następczej, brak możliwości odbioru), Wykonawca może zatrzymać zaliczkę na pokrycie poniesionych kosztów (materiałów, pracy) oraz żądać odszkodowania za utratę zysku, przy czym kwota zatrzymana nie może przekraczać realnych strat.\n3. **Rozwiązanie z porozumienia Stron:** W przypadku rozwiązania umowy z porozumienia Stron, zaliczka jest zwracana Zamawiającemu w całości w terminie 14 dni.\n4. **Siła wyższa:** W przypadku niewykonania umowy z przyczyn, za które żadna ze Stron nie odpowiada (siła wyższa), zaliczka jest zwracana w całości.\n5. **Zakaz klauzul przepadkowych:** Strony wyraźnie wykluczają stosowanie klauzul przewidujących automatyczny przepadek zaliczki na rzecz Wykonawcy przy każdym odstąpieniu Zamawiającego – takie klauzule zostały uznane za niedozwolone (abuzywne) przez Prezesa UOKiK w rejestrze klauzul niedozwolonych (np. decyzje: uokik_1068b7fdd6cb3aba, uokik_874fbb8ce80cbc9b, uokik_ba351f5846da6dfc), a w relacji B2B mogą być oceniane jako rażąco nieuczciwe.\n\n---\n\n## § 7. PRZEDAWNIENIE ROSZCZEŃ\n\nZgodnie z **art. 646 K.c.**, roszczenia wynikające z umowy o dzieło przedawniają się z upływem **lat dwóch** od dnia oddania dzieła, a jeżeli dzieło nie zostało oddane – od dnia, w którym zgodnie z treścią umowy miało zostać oddane.\n\n---\n\n## § 8. TAJEMNICA PRZEDSIĘBIORCZA I OCHRONA DANYCH\n\n1. Strony zobowiązują się zachować poufność wszystkich informacji uzyskanych w związku z realizacją umowy, w tym specyfikacji technicznych, projektów, cen i technologii produkcji, stanowiącej tajemnicę przedsiębieczą (ustawa z dnia 30 kwietnia 2004 r. o zwalczaniu nieuczciwej konkurencji).\n2. Dane osobowe przetwarzane są zgodnie z RODO (RO 2016/679) wyłącznie w celu realizacji umowy.\n\n---\n\n## § 9. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n2. Spory wynikające z niniejszej Umowy Strony będą starały się rozwiązać drodą negocjacji, a w przypadku niepowodzenia – w sądzie właściwym dla siedziby Wykonawcy.\n3. Prawo polskie jest prawem właściwym do niniejszej Umowy.\n4. Umowa sporządzona w **2 (dwóch) jednobrzmiących egzemplarzach**, po jednym dla każdej Strony.\n5. Załączniki:\n   - Załącznik nr 1 – Specyfikacja Techniczna opakowań\n   - Załącznik nr 2 – Wzór protokołu odbioru dzieła\n\n---\n\n**PODPISY STRON**\n\n……………………………………………………………\n(Miejsce, data)\n\n**WYKONAWCA**\n\n……………………………………………………………\n(Podpis uprawnionego przedstawiciela)\n\n**ZAMAwIAJĄCY**\n\n……………………………………………………………\n(Podpis uprawnionego przedstawiciela)\n\n---\n\n## POTWIERDZENIE ODBIORU ZALICZKI (do odręczenia i przekazania Zamawiającemu)\n\nJa niżej podpisany, …………………………………………………………………………………………………\n(dane Wykonawcy), potwierdzam otrzymanie od …………………………………………………………………\n(dane Zamawiającego) kwoty **………………………… zł (słownie: …………………………………………………………………………………………………………)** na rzecz zaliczki na zamówienie produkcji opakowań zgodnie z Umową nr …………… z dnia ……………. Kwota wpłacona przelewem / gotówką* w dniu ……………………… r.\n\n……………………………………………………………\n(Podpis Wykonawcy)\n\n* niepotrzebne skreślić\n\n---\n\n**UWAGI PRAWNE DLA STRON (nie stanowią części umowy, służą do informacji):**\n1. Niniejszy dokument to **potwierdzenie przyjęcia zaliczki** (art. 462 § 1 K.c.) – nie zastępuje faktury zaliczkowej VAT.\n2. Zaliczka ≠ zadatek. Przy zaliczce: zwrot w całości przy niewykonaniu. Przy zadatku (art. 394 K.c.): przepadek przy winie dającego, dwukrotny zwrot przy winie przyjmującego. Wybór zaliczki korzystny dla Zamawiającego.\n3. Produkcja opakowań na zamówienie = umowa o dzieło (art. 627 K.c.), nie umowa o pracę ani zlecenie. Wynagrodzenie za wynik, nie za wysiłek.\n4. Rękojmia za wady (art. 634 K.c.) – Zamawiający ma 2 lata od odbioru na zgłoszenie wad.\n5. Harmonogram płatności (art. 11 ustawy o opóźnieniach) – dozwolony w B2B, jeśli nie rażąco nieuczciwy.\n6. VAT od zaliczki – art. 19a ust. 8 ustawy o VAT – faktura zaliczkowa do 15. dnia nast. miesiąca.\n7. Klauzule automatycznego przepadku zaliczki – ryzyko uznania za niedozwolone (UOKiK), nawet w B2B (art. 353¹ K.c. – wolność umów ograniczona zasadami współżycia społecznego).\n8. Przechowywać: potwierdzenie zaliczki, faktury zaliczkowe, protokół odbioru, korespondencję – minimum 5 lat (kontrola KAS, dowody sądowe).",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA O PRZYJĘCIE ZALICZKI NA ZAMÓWIENIE PRODUKCJI OPAKOWAŃ (B2B)\n\nzawarte w dniu …………………………… r. w ……………………………\n\n**MIĘDZY:**\n\n**WYKONAWCA (Przyjmujący zamówienie / Odbiorca zaliczki)**\nNazwa firmy: …………………………………………………………………………………………………………\nSiedziba: ………………………………………………………………………………………………………………\nNIP: ……………………………………………………………………………………………………………………\nREGON: ………………………………………………………………………………………………………………\nKRS: ……………………………………………………………………………………………………………………\nPrzedstawiciel: ………………………………………………………………………………………………………\n(dalej: „Wykonawca”)\n\n**ZAMAwIAJĄCY (Zleceniodawca / Wpłacający zaliczkę)**\nNazwa firmy: …………………………………………………………………………………………………………\nSiedziba: ………………………………………………………………………………………………………………\nNIP: ……………………………………………………………………………………………………………………\nREGON: ………………………………………………………………………………………………………………\nKRS: ……………………………………………………………………………………………………………………\nPrzedstawiciel: ………………………………………………………………………………………………………\n(dalej: „Zamawiający”)\n\nrazem zwane „Stronami”.\n\n---\n\n## § 1. PRZEDMIOT ZAMÓWIENIA I PODSTAWA PRAWNA\n\n1. Przedmiotem niniejszej Umowy jest przyjęcie przez Wykonawcę zaliczki od Zamawiającego na poczet wynagrodzenia za wykonanie dzieła polegającego na **produkcji opakowań** zgodnie ze Specyfikacją Techniczną stanowiąącą **Załącznik nr 1** do niniejszej Umowy.\n2. Strony potwierdzają, że relacja prawna wynikająca z zamówienia produkcji opakowań na specyficzne wymagania Zamawiającego ma charakter **umowy o dzieło** w rozumieniu **art. 627 § 1 Kodeksu cywilnego** (Dz.U. 2024 poz. 1061 z późn. zm.): „Przez umowę o dzieło przyjmujący zamówienie zobowiązuje się do wykonania oznaczonego dzieła, a zamawiający do zapłaty wynagrodzenia”.\n3. Wynagrodzenie za dzieło ustala się na kwotę łączną **………………………… zł (słownie: …………………………………………………………………………………………………………) netto**, co przy stawce VAT **……%** daje kwotę brutto **………………………… zł**.\n4. Jeżeli Strony nie określiły wysokości wynagrodzenia ani nie wskazały podstaw do jego ustalenia, stosuje się **art. 628 § 1 K.c.** – poczytuje się, że Strony miały na myśli zwykłe wynagrodzenie za dzieło tego rodzaju.\n\n---\n\n## § 2. ZALICZKA – KWOTA, TYP, TERMIN I SPOSÓB WPŁATY\n\n1. Zamawiający zobowiązuje się wpłacić zaliczkę w wysokości **………………………… zł (słownie: …………………………………………………………………………………………………………) netto**, co stanowi **……%** ceny netto całkowitego wynagrodzenia.\n2. **Rodzaj wpłaty:** Strony wyraźnie wskazują, że wpłata ma charakter **zaliczki** (częściowego spełnienia świadczenia pieniężnego z góry), a **nie zadatku** w rozumieniu art. 394 K.c. Oznacza to, że przy niewykonaniu umowy przez którąkolwiek ze Stron zaliczka jest zwrotna w całości, niezależnie od przyczyny, i nie ma charakteru odszkodowawczego.\n3. Termin wpłaty zaliczki: **do dnia …………………………… r.**\n4. Sposób wpłaty: przelew na rachunek bankowy Wykonawcy:\n   Bank: ………………………………………………………………………………………………………………\n   Numer rachunku (IBAN): …………………………………………………………………………………………\n   Tytuł przelewu: „Zaliczka – zamówienie produkcji opakowań, Umowa nr …………… z dnia ……………”\n5. Data otrzymania środków na rachunku Wykonawcy jest datą przyjęcia zaliczki.\n\n---\n\n## § 3. HARMONOGRAM PŁATNOŚCI (ART. 11 USTAWY O PRZECIWDZIAŁANIU NADMIERNym OPÓŹNIENIOM)\n\n1. Strony ustalają harmonogram spełnienia świadczenia pieniężnego w częściach, zgodnie z **art. 11 ust. 1 ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (Dz.U. 2023 poz. 1790)**, który nie jest rażąco nieuczciwy wobec wierzyciela.\n2. **Harmonogram płatności:**\n   | Etap | Opis | Kwota netto | Termin płatności |\n   |------|------|-------------|------------------|\n   | 1. | Zaliczka przy zawarciu umowy | ……………… zł | ……………………… |\n   | 2. | Po zatwierdzeniu projektu/prototypu | ……………… zł | ……………………… |\n   | 3. | Po zakończeniu produkcji, przed wydaniem | ……………… zł | ……………………… |\n   | 4. | Saldo po odbiorze dzieła (faktura końcowa) | ……………… zł | do 14 dni od odbioru |\n3. Wpłacone zaliczki zalicza się na poczet kolejnych rat zgodnie z powyższym harmonogramem.\n4. W przypadku opóźnienia w płatności, Zamawiający ponosi odsetki ustawowe za opóźnienie w transakcjach handlowych (art. 7 lub 8 ustawy o przeciwdziałaniu nadmiernym opóźnieniom) oraz zwrot kosztów windykacji (art. 10 tej ustawy).\n\n---\n\n## § 4. OBIAŻKI PODATKOWE VAT – FAKTURA ZALICZKOWA\n\n1. Strony potwierdzają, że Wykonawca jest podatnikiem VAT. Zgodnie z **art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (Dz.U. 2024 poz. 361 z późn. zm.)**, obowiązek podatkowy VAT powstaje z chwilą otrzymania całości lub części zapłaty (zaliczki) – w tej części.\n2. Wykonawca zobowiązuje się wystawić **fakturę zaliczkową** w terminie nie później niż **15. dnia miesiąca następującego po miesiącu otrzymania zaliczki** (lub wcześniej), z stawką VAT właściwą dla świadczenia głównego (……%).\n3. Faktura zaliczkowa nie zastępuje niniejszego potwierdzenia przyjęcia zaliczki – oba dokumenty mają różne funkcje prawne.\n4. Faktura końcowa (korygująca) zostanie wystawiona w dniu wykonania świadczenia (oddania dzieła) z uwzględnieniem już rozliczonego VAT od zaliczek.\n\n---\n\n## § 5. REALIZACJA ZAMÓWIENIA – TERMINY I ODBIÓR\n\n1. Wykonawca zobowiązuje się rozpocząć produkcję w terminie **………………………… dni roboczych** od dnia zaksięgowania zaliczki na rachunku bankowym.\n2. Planowany termin zakończenia produkcji i gotowości do odbioru: **…………………………… r.**\n3. Miejsce odbioru: siedziba Wykonawcy / inna: …………………………………………………………………\n4. Odbiór dzieła nastąpi na podstawie **protokołu odbioru** podpisanego przez obie Strony, w którym zostanie potwierdzona zgodność wykonanych opakowań ze Specyfikacją Techniczną (Załącznik nr 1).\n5. W przypadku wykrycia wad, Zamawiający ma uprawnienia z tytułu rękojmi (art. 634–637 K.c.) – może żądać usunięcia wad, dostarczenia nowej rzeczy bez wad, obniżenia wynagrodzenia lub – jeśli wada jest istotna – odstąpienia od umowy.\n\n---\n\n## § 6. SKUTKI NIEWYKONANIA LUB NIEPRAWIDŁOWEGO WYKONANIA UMOWY\n\n1. **Odstąpienie Zamawiającego:** W przypadku odstąpienia Zamawiającego od umowy z przyczyn leżących po stronie Wykonawcy (nieterminowe wykonanie, wady nieusunięte w terminie dodatkowym), Zamawiający może żądać zwrotu zaliczki w pełnej wysokości oraz odszkodowania (art. 471 K.c.).\n2. **Odstąpienie Wykonawcy:** W przypadku odstąpienia Wykonawcy z przyczyn leżących po stronie Zamawiającego (opóźnienie w płatności raty następczej, brak możliwości odbioru), Wykonawca może zatrzymać zaliczkę na pokrycie poniesionych kosztów (materiałów, pracy) oraz żądać odszkodowania za utratę zysku, przy czym kwota zatrzymana nie może przekraczać realnych strat.\n3. **Rozwiązanie z porozumienia Stron:** W przypadku rozwiązania umowy z porozumienia Stron, zaliczka jest zwracana Zamawiającemu w całości w terminie 14 dni.\n4. **Siła wyższa:** W przypadku niewykonania umowy z przyczyn, za które żadna ze Stron nie odpowiada (siła wyższa), zaliczka jest zwracana w całości.\n5. **Zakaz klauzul przepadkowych:** Strony wyraźnie wykluczają stosowanie klauzul przewidujących automatyczny przepadek zaliczki na rzecz Wykonawcy przy każdym odstąpieniu Zamawiającego – takie klauzule zostały uznane za niedozwolone (abuzywne) przez Prezesa UOKiK w rejestrze klauzul niedozwolonych (np. decyzje: uokik_1068b7fdd6cb3aba, uokik_874fbb8ce80cbc9b, uokik_ba351f5846da6dfc), a w relacji B2B mogą być oceniane jako rażąco nieuczciwe.\n\n---\n\n## § 7. PRZEDAWNIENIE ROSZCZEŃ\n\nZgodnie z **art. 646 K.c.**, roszczenia wynikające z umowy o dzieło przedawniają się z upływem **lat dwóch** od dnia oddania dzieła, a jeżeli dzieło nie zostało oddane – od dnia, w którym zgodnie z treścią umowy miało zostać oddane.\n\n---\n\n## § 8. TAJEMNICA PRZEDSIĘBIORCZA I OCHRONA DANYCH\n\n1. Strony zobowiązują się zachować poufność wszystkich informacji uzyskanych w związku z realizacją umowy, w tym specyfikacji technicznych, projektów, cen i technologii produkcji, stanowiącej tajemnicę przedsiębieczą (ustawa z dnia 30 kwietnia 2004 r. o zwalczaniu nieuczciwej konkurencji).\n2. Dane osobowe przetwarzane są zgodnie z RODO (RO 2016/679) wyłącznie w celu realizacji umowy.\n\n---\n\n## § 9. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n2. Spory wynikające z niniejszej Umowy Strony będą starały się rozwiązać drodą negocjacji, a w przypadku niepowodzenia – w sądzie właściwym dla siedziby Wykonawcy.\n3. Prawo polskie jest prawem właściwym do niniejszej Umowy.\n4. Umowa sporządzona w **2 (dwóch) jednobrzmiących egzemplarzach**, po jednym dla każdej Strony.\n5. Załączniki:\n   - Załącznik nr 1 – Specyfikacja Techniczna opakowań\n   - Załącznik nr 2 – Wzór protokołu odbioru dzieła\n\n---\n\n**PODPISY STRON**\n\n……………………………………………………………\n(Miejsce, data)\n\n**WYKONAWCA**\n\n……………………………………………………………\n(Podpis uprawnionego przedstawiciela)\n\n**ZAMAwIAJĄCY**\n\n……………………………………………………………\n(Podpis uprawnionego przedstawiciela)\n\n---\n\n## POTWIERDZENIE ODBIORU ZALICZKI (do odręczenia i przekazania Zamawiającemu)\n\nJa niżej podpisany, …………………………………………………………………………………………………\n(dane Wykonawcy), potwierdzam otrzymanie od …………………………………………………………………\n(dane Zamawiającego) kwoty **………………………… zł (słownie: …………………………………………………………………………………………………………)** na rzecz zaliczki na zamówienie produkcji opakowań zgodnie z Umową nr …………… z dnia ……………. Kwota wpłacona przelewem / gotówką* w dniu ……………………… r.\n\n……………………………………………………………\n(Podpis Wykonawcy)\n\n* niepotrzebne skreślić\n\n---\n\n**UWAGI PRAWNE DLA STRON (nie stanowią części umowy, służą do informacji):**\n1. Niniejszy dokument to **potwierdzenie przyjęcia zaliczki** (art. 462 § 1 K.c.) – nie zastępuje faktury zaliczkowej VAT.\n2. Zaliczka ≠ zadatek. Przy zaliczce: zwrot w całości przy niewykonaniu. Przy zadatku (art. 394 K.c.): przepadek przy winie dającego, dwukrotny zwrot przy winie przyjmującego. Wybór zaliczki korzystny dla Zamawiającego.\n3. Produkcja opakowań na zamówienie = umowa o dzieło (art. 627 K.c.), nie umowa o pracę ani zlecenie. Wynagrodzenie za wynik, nie za wysiłek.\n4. Rękojmia za wady (art. 634 K.c.) – Zamawiający ma 2 lata od odbioru na zgłoszenie wad.\n5. Harmonogram płatności (art. 11 ustawy o opóźnieniach) – dozwolony w B2B, jeśli nie rażąco nieuczciwy.\n6. VAT od zaliczki – art. 19a ust. 8 ustawy o VAT – faktura zaliczkowa do 15. dnia nast. miesiąca.\n7. Klauzule automatycznego przepadku zaliczki – ryzyko uznania za niedozwolone (UOKiK), nawet w B2B (art. 353¹ K.c. – wolność umów ograniczona zasadami współżycia społecznego).\n8. Przechowywać: potwierdzenie zaliczki, faktury zaliczkowe, protokół odbioru, korespondencję – minimum 5 lat (kontrola KAS, dowody sądowe).",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zamówić produkcję opakowań na wymiar i muszę zapłacić zaliczkę. Potrzebuję umowy, która zabezpieczy moje pieniądze i ustali terminy produkcji oraz odbioru."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję zamówić u producenta partię opakowań zgodnie z moim projektem i specyfiką techniczną. Muszę wpłacić zaliczkę i chcę mieć pewność, że jeśli produkcja się opóźni lub opakowania będą wadliwe, odzyskam swoje pieniądze. Potrzebuję umowy, która ustali harmonogram płatności (zaliczka, po prototypie, po produkcji, saldo po odbiorze), terminy rozpoczęcia i zakończenia produkcji, sposób odbioru protokołem oraz zasady zwrotu zaliczki w różnych scenariuszach rozliczenia."
+  }
+ ]
+}

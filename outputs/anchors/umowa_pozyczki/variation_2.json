@@ -1,0 +1,17 @@
+{
+ "run": 8,
+ "hint": "Pożyczka z wekslem in blanco i deklaracją wekslową",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę pożyczyć pieniądze znajomemu i zabezpieczyć to wekslem in blanco oraz deklaracją wekslową. Czy możecie przygotować taki kontrakt?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję pożyczyć 30 000 złotych mojemu bratu na rozwój jego firmy, z terminem spłaty za pół roku i odsetkami 5% rocznie. Chcemy, żeby on podpisał weksel in blanco i deklarację wekslową, a ja chcę mieć pewność, że mogę wypełnić weksel, jeśli nie odda kasy na czas. Potrzebuję umowę, która to wszystko ureguluje, w tym co się dzieje przy opóźnieniu."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_pozyczki\"})\\nDRAFTER CALLED keyword_search({\"keywords\": [\"weksel in blanco\", \"deklaracja wekslowa\"]})\\nRESULT: [{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa o korepetycje\\nUmowa o korepetycje w Polsce to umowa cywilnoprawna, na podstawie której korepetytor (nauczyciel) zobowiązuje się świadczyć usługi edukacyjne na rzecz ucznia, a zleceniodawca (najczęściej rodzic lub uczeń pełnoletni) zobowiązuje się za te usługi zapłacić. Podstawą prawną jest art. 750 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), który do umów o świadczenie usług nieuregulowanych innymi przepisami nakazuje stosować odpowiednio przepisy o zleceniu (art. 734-751 Kodeksu cywilnego).\\n\\nKorepetycje to prywatne lekcje dodatkowe poza systemem szkolnym, uzupełniające lub rozszerzające treści realizowane w szkołach podstawowych, ponadpodstawowych (liceach ogólnokształcących, technikach) i wyższych uczelniach. Rynek prywatnych korepetycji w Polsce jest jednym z najbardziej dynamicznych segmentów rynku usług edukacyjnych — z usług korepetytorów korzysta corocznie kilka milionów polskich uczniów, szczególnie intensywnie przed egzaminem ósmoklasisty, maturą (organizowaną przez Centralną Komisję Egzaminacyjną) i egzaminami wstępnymi na studia.\\n\\nUmowa o korepetycje może być zawarta zarówno z osobą fizyczną — studentem, absolwentem lub nauczycielem — jak i z podmiotem prowadzącym działalność gospodarczą (szkołą językową, centrum edukacyjnym, agencją korepetytorów). Przy umowie z podmiotem gospodarczym wpisanym do CEIDG lub Krajowego Rejestru Sądowego (KRS) zastosowanie znajdują też przepisy o ochronie konsumentów (ustawa o prawach konsumenta z dnia 30 maja 2014 r., Dz.U. 2014 poz. 827 ze zm.) — rodzic jako konsument j"
+}

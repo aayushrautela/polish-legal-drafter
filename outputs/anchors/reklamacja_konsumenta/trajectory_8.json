@@ -1,0 +1,304 @@
+{
+ "run": 11,
+ "hint": "Reklamacja żądająca wymiany na nowy egzemplarz",
+ "scenario": "Reklamacja żądająca wymiany na nowy egzemplarz",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consumer complaint (reklamacja_konsumenta) template, specifically for a scenario demanding replacement with a new item (wymiana na nowy egzemplarz). I need to:\n\n1. First read the base template for reklamacja_konsumenta\n2. Then search for relevant provisions about replacement/wymiana\n\nLet me start with getting the template.",
+   "tool_calls": [
+    {
+     "id": "call-0f17b886-d363-471a-b557-3fd4585ffd66",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"reklamacja żądająca wymiany na nowy egzemplarz\", \"doc_type\": \"reklamacja_konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Żądanie wymiany towaru\\nŻądanie wymiany towaru w Polsce to pisemne oświadczenie kupującego lub konsumenta, w którym domaga się on od sprzedawcy zastąpienia wadliwego lub niezgodnego z umową towaru nowym egzemplarzem wolnym od wad, zamiast dokonania naprawy. Dokument ten jest jednym z konkretnych uprawnień przysługujących kupującemu z tytułu rękojmi za wady na podstawie art. 561 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) oraz przepisów ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.) dotyczących niezgodności towaru z umową.\\n\\nArt. 561 § 1 Kodeksu cywilnego stanowi, że jeżeli rzecz sprzedana ma wadę, kupujący może żądać wymiany rzeczy na wolną od wad albo usunięcia wady. Sprzedawca jest obowiązany wymienić rzecz wadliwą na wolną od wad w rozsądnym czasie i bez nadmiernych niedogodności dla kupującego. Prawo żądania wymiany jest odrębnym uprawnieniem od prawa do żądania naprawy, a wybór między naprawą a wymianą należy co do zasady do kupującego, choć sprzedawca może odmówić wymiany, jeżeli doprowadzenie rzeczy do stanu zgodnego z umową w sposób wybrany przez kupującego jest niemożliwe albo w porównaniu z drugim możliwym sposobem wymagałoby nadmiernych kosztów.\\n\\nW stosunkach konsumenckich regulowanych ustawą z dnia 30 maja 2014 r. o prawach konsumenta żądanie wymiany towaru jest pierwszym z dwóch preferowanych środków ochrony przy niezgodności towaru z umową — obok żądania naprawy. Konsument powinien w pierwszej kolejności żądać naprawy lub wymiany towaru, a dopiero w dalszej kolejności, przy odmowie lub bezskuteczności tych środków, może złożyć oświadczenie o obniżeniu ceny lub odstąpieniu od umowy. Hierarchia uprawnień konsumenta w ustawie o prawach konsumenta jest zatem określona — co odróżnia tę ustawę od Kodeksu cywilnego, gdzie kupujący może wybrać uprawnienie swobodniej, z zachowaniem ograniczeń wynikających z proporcjonalności kosztów.\\n\\nŻądanie wymiany towaru jest dokumentem szczególnie skutecznym w kilku sytuacjach: gdy towar jest wadliwy od chwili wydania, gdy wada jest istotna i uniemożliwia lub znacznie utrudnia korzystanie z towaru zgodnie z jego przeznaczeniem, gdy naprawa towaru nie jest możliwa ze względu na charakter wady lub naprawa byłaby droższa niż wymiana egzemplarza, gdy sprzedawca nie naprawił towaru skutecznie w terminie, a wada powróciła po naprawie, albo gdy towar był już naprawiany i nie funkcjonuje prawidłowo po naprawie. Zasadność żądania wymiany ocenia się z uwzględnieniem wszystkich okoliczności, w tym rodzaju wady, wartości towaru i kosztów wymiany.\\n\\nDlaczego warto wybrać żądanie wymiany zamiast naprawy? Wymiana daje konsumentowi nowy, sprawny towar bez ryzyka ukrytych wad pozostałych po naprawie, bez przerwy w użytkowaniu związanej z oczekiwaniem na serwis i bez konieczności akceptowania towaru naprawianego, który może mieć obniżoną wartość handlową w porównaniu z nowym egzemplarzem. Serwis forms-legal.com udostępnia profesjonalny wzór żądania wymiany towaru oparty na aktualnych przepisach polskiego prawa cywilnego i konsumenckiego, co pozwala konsumentowi skutecznie dochodzić swoich praw. Prawidłowości działania sprzedawców strzegą Urząd Ochrony Konkurencji i Konsumentów (UOKiK) i Inspekcja Handlowa.\\n\\nŻądanie wymiany towaru w Polsce jest potrzebne za każdym razem, gdy kupujący stwierdza, że zakupiony towar ma wadę lub jest niezgodny z umową i zamiast naprawy chce otrzymać nowy egzemplarz wolny od wad. Dokument ten jest stosowany zarówno w relacjach konsumenckich jak i między przedsiębiorcami, choć szczegóły prawne różnią się w zależności od relacji stron.\\n\\nNajczęstsze sytuacje, w których żądanie wymiany towaru jest stosowane: sprzęt elektroniczny — telewizor, laptop, smartfon, pralka — ma wadę fabryczną ujawnioną krótko po zakupie, towar ma ukrytą wadę strukturalną, która ujawnia się podczas normalnego użytkowania, wada towaru jest na tyle poważna, że naprawa nie przywróci pełnej sprawności lub wartości, sprzedawca próbował naprawić towar, lecz naprawa okazała się nieskuteczna i wada powróciła, towar posiada cechy inne niż opisane przez sprzedawcę lub producenta, na które kupujący polegał przy zakupie.\\n\\nDokument jest potrzebny niezwłocznie po stwierdzeniu wady lub niezgodności — termin odpowiedzialności sprzedawcy z tytułu rękojmi wynosi 2 lata od wydania rzeczy (art. 568 Kodeksu cywilnego), a przy niezgodności towaru z umową w relacji konsumenckiej — 2 lata od dostarczenia towaru. W obu przypadkach przez pierwsze 2 lata obowiązuje domniemanie, że wada lub niezgodność istniała w chwili wydania lub dostarczenia towaru, co jest korzystne dla kupującego.\\n\\nŻądanie wymiany jest szczególnie potrzebne, gdy sprzedawca sugeruje naprawę, a kupujący woli nowy egzemplarz. Kupujący ma prawo wybrać między żądaniem naprawy a żądaniem wymiany — jest to jego prawo podmiotowe, a sprzedawca może jedynie odmówić wymiany, jeżeli jest ona niemożliwa lub nieproporcjonalnie kosztowna w porównaniu z naprawą, co musi wykazać. Miejski lub powiatowy rzecznik konsumentów udziela bezpłatnej pomocy prawnej konsumentom w sporach dotyczących wymiany towaru, a Inspekcja Handlowa kontroluje prawidłowość rozpatrywania reklamacji przez sprzedawców. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) może interweniować przy systemowych naruszeniach praw konsumentów przez sklepy.\\n\\nPrawidłowe żądanie wymiany towaru w Polsce powinno zawierać wszystkie elementy niezbędne do jednoznacznej identyfikacji stron, towaru, wady i żądania. Kompletny dokument wzmacnia pozycję kupującego i przyspiesza rozpatrzenie sprawy przez sprzedawcę.\\n\\nOznaczenie kupującego: imię, nazwisko, adres zamieszkania, adres e-mail i opcjonalnie numer rachunku bankowego na wypadek, gdyby wymiana była niemożliwa i konieczny był zwrot ceny. Dane te umożliwiają sprzedawcy kontakt i realizację żądania.\\n\\nOznaczenie sprzedawcy: pełna firma i adres sprzedawcy, do którego kierowane jest żądanie. Żądanie wymiany z tytułu rękojmi kieruje się do sprzedawcy, u którego dokonano zakupu, a nie do producenta. W przypadku sklepu internetowego dane sprzedawcy widnieją w regulaminie i w potwierdzeniu zamówienia.\\n\\nIdentyfikacja towaru i dowód zakupu: dokładne oznaczenie towaru, numer paragonu, faktury lub zamówienia, data zakupu lub wydania rzeczy. Data wydania jest kluczowa dla ustalenia biegu dwuletniego terminu odpowiedzialności sprzedawcy wynikającego z art. 568 Kodeksu cywilnego.\\n\\nOpis wady: szczegółowy opis wady fizycznej lub niezgodności towaru z umową w rozumieniu art. 556¹ Kodeksu cywilnego lub ustawy z dnia 30 maja 2014 r. o prawach konsumenta, z podaniem daty jej wykrycia. Opis powinien być precyzyjny i odwoływać się do konkretnych cech towaru, które są wadliwe lub niezgodne z umową.\\n\\nHistoria dotychczasowych napraw: jeżeli sprzedawca podejmował wcześniej bezskuteczną próbę naprawy, należy opisać tę okoliczność — wzmacnia to żądanie wymiany i może przesądzić o niemożności dalszego odmawiania wymiany przez sprzedawcę.\\n\\nWskazanie podstawy prawnej: powołanie art. 561 § 1 Kodeksu cywilnego lub odpowiednich przepisów ustawy o prawach konsumenta jednoznacznie określa reżim odpowiedzialności i uprawnienie, z którego kupujący korzysta.\\n\\nWezwanie do rozpatrzenia w terminie: wniosek o rozpatrzenie żądania w terminie 14 dni, z zastrzeżeniem skutku milczącego uznania. Serwis forms-legal.com udostępnia gotowy wzór żądania wymiany towaru zgodny z aktualnym prawem polskim. Żądanie należy wysłać listem poleconym lub e-mailem z potwierdzeniem odbioru i zachować dowód daty dostarczenia.\\n\\nWypełnianie żądania wymiany towaru w Polsce zacznij od wpisania swoich danych — imienia i nazwiska, adresu zamieszkania, adresu e-mail i opcjonalnie numeru rachunku bankowego. Numer rachunku przyda się, jeżeli sprzedawca nie będzie w stanie zrealizować wymiany i konieczny okaże się zwrot ceny.\\n\\nW sekcji sprzedawcy wpisz pełną firmę i adres sprzedawcy, u którego kupiłeś/aś towar. Żądanie wymiany z tytułu rękojmi kierujesz do sprzedawcy, nie do producenta. Dane sprzedawcy znajdziesz na paragonie, fakturze lub w regulaminie sklepu internetowego.\\n\\nW sekcji towaru opisz dokładnie reklamowany produkt — nazwę, model, numer seryjny, jeżeli znasz. Wpisz numer dowodu zakupu i datę zakupu lub wydania towaru. Ta data jest istotna, ponieważ od niej biegnie 2-letni termin odpowiedzialności sprzedawcy wynikający z art. 568 Kodeksu cywilnego.\\n\\nW polu opisu wady opisz wadę możliwie szczegółowo — podaj, na czym polega niezgodność towaru z umową lub wada fizyczna, i wskaż datę jej ujawnienia. Im dokładniejszy opis, tym trudniej sprzedawcy kwestionować zasadność żądania.\\n\\nW polu wcześniejszej naprawy zaznacz, czy sprzedawca podejmował już próbę naprawy towaru, i opisz jej okoliczności, jeżeli tak. Nieskuteczna naprawa wzmacnia żądanie wymiany — sprzedawca, który nie naprawił towaru skutecznie w rozsądnym terminie, nie może odmówić wymiany.\\n\\nWpisz miejscowość i datę, złóż podpis. Dołącz kopię dowodu zakupu i dokumentację wady — zdjęcia, nagranie wideo. Żądanie wyślij listem poleconym lub e-mailem z potwierdzeniem odbioru. Zachowaj dowód daty dostarczenia żądania — od tej daty biegnie 14-dniowy termin na odpowiedź sprzedawcy.\\n\\nWymogi prawne żądania wymiany towaru w Polsce wynikają z Kodeksu cywilnego i ustawy z dnia 30 maja 2014 r. o prawach konsumenta. W stosunkach konsumenckich regulowanych ustawą o prawach konsumenta konsument może żądać wymiany towaru niezgodnego z umową na podstawie przepisów tej ustawy jako jeden z pierwszych środków ochrony — obok żądania naprawy. Żądanie wymiany powinno być zgłoszone w terminie 2 lat od dostarczenia towaru.\\n\\nW stosunkach, w których zastosowanie ma Kodeks cywilny — w szczególności w obrocie między przedsiębiorcami — żądanie wymiany oparte jest na art. 561 § 1 KC, zgodnie z którym kupujący może żądać wymiany rzeczy na wolną od wad albo usunięcia wady. Sprzedawca może odmówić wymiany, jeżeli byłaby ona niemożliwa albo wymagałaby nadmiernych kosztów w porównaniu z naprawą, z uwzględnieniem wartości rzeczy wolnej od wad, rodzaju i istotności stwierdzonej wady oraz niedogodności, na jakie byłby narażony kupujący. Ciężar wykazania, że wymiana jest niemożliwa lub nieproporcjonalnie kosztowna, spoczywa na sprzedawcy.\\n\\nTermin odpowiedzialności z tytułu rękojmi wynosi 2 lata od wydania rzeczy, co wynika z art. 568 Kodeksu cywilnego. W obrocie konsumenckim przez pierwsze 2 lata domniemywa się, że stwierdzona niezgodność lub wada istniała w chwili dostarczenia towaru — domniemanie to przerzuca ciężar dowodu na sprzedawcę. Sprzedawca musi odpowiedzieć na żądanie wymiany w terminie 14 dni — brak odpowiedzi oznacza milczące uznanie. Nadzór nad przestrzeganiem praw konsumentów sprawuje Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK), który może prowadzić postępowania wobec sprzedawców odmawiających zasadnych żądań wymiany lub stosujących niedozwolone klauzule ograniczające te uprawnienia.\\n\\nNajczęstsze błędy przy żądaniu wymiany towaru w Polsce zaczynają się od kierowania żądania do producenta zamiast do sprzedawcy. Żądanie wymiany z tytułu rękojmi lub niezgodności towaru z umową kieruje się wyłącznie do sprzedawcy, u którego dokonano zakupu — to sprzedawca jest stroną umowy sprzedaży i ponosi odpowiedzialność za wady. Do producenta kieruje się żądania z gwarancji, jeżeli gwarancji udzielił producent.\\n\\nKolejnym błędem jest zbyt ogólnikowy opis wady. Stwierdzenie \\\"towar nie działa\\\" bez wskazania, na czym dokładnie polega wada lub niezgodność, utrudnia sprzedawcy ocenę zasadności żądania i daje mu argument, że wada nie jest produkcyjna. Opis powinien być precyzyjny i udokumentowany zdjęciami lub nagraniem wideo.\\n\\nBłędem jest przekroczenie 2-letniego terminu odpowiedzialności sprzedawcy lub brak zachowania dowodu zakupu. Odpowiedzialność sprzedawcy wygasa po 2 latach od wydania towaru (art. 568 KC), a brak dowodu zakupu utrudnia wykazanie, kiedy i u kogo dokonano zakupu. Warto zachowywać paragony, faktury i potwierdzenia zamówień.\\n\\nCzęstym uchybieniem jest rezygnacja z żądania wymiany po nieskutecznej naprawie. Kupujący, którego towar był naprawiany nieskutecznie, ma wzmocnione prawo do żądania wymiany — sprzedawca, który nie naprawił towaru skutecznie w rozsądnym terminie, ma trudności z odmową wymiany. Warto opisać okoliczności nieskutecznej naprawy w żądaniu wymiany.\\n\\nWrakoniec, konsumenci nie zachowują dowodu daty dostarczenia żądania do sprzedawcy. Termin 14 dni na odpowiedź sprzedawcy liczy się od dnia dostarczenia żądania, a brak dowodu tej daty uniemożliwia skuteczne powołanie się na milczące uznanie żądania po 14 dniach. List polecony z potwierdzeniem odbioru lub e-mail z potwierdzeniem dostarczenia jest minimalnym zabezpieczeniem. W razie sporu warto skorzystać z bezpłatnej pomocy miejscowego lub powiatowego rzecznika konsumentów.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/zadanie-wymiany-towaru (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-0f17b886-d363-471a-b557-3fd4585ffd66",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I have the base template. Now I need to search for specific provisions relevant to the scenario - a consumer complaint demanding replacement with a new item. Let me search for relevant legal provisions about replacement (wymiana) under consumer law, particularly the Consumer Rights Act (ustawa o prawach konsumenta) and Civil Code provisions.",
+   "tool_calls": [
+    {
+     "id": "call-9872a28c-7b8c-43a0-ab55-6bf03cb246f2",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"wymiana towaru na nowy egzemplarz konsument uprawnienia art 561 KC ustawa o prawach konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 2 . § 1. Kupujący, który wykonuje uprawnienia z tytułu rękojmi, jest obowiązany na koszt sprzedawcy dostarczyć rzecz wadliwą do miejsca oznaczonego w umowie sprzedaży, a gdy takiego miejsca nie określono w umowie - do miejsca, w którym rzecz została wydana kupującemu. § 2. Jeżeli ze względu na rodzaj rzeczy lub sposób jej zamontowania dostarczenie rzeczy przez kupującego byłoby nadmiernie utrudnione, kupujący obowiązany jest udostępnić rzecz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 1 . § 1. Jeżeli rzecz wadliwa została zamontowana, kupujący może żądać od sprzedawcy demontażu i ponownego zamontowania po dokonaniu wymiany na wolną od wad lub usunięciu wady. W razie niewykonania tego obowiązku przez sprzedawcę kupujący jest upoważniony do dokonania tych czynności na koszt i niebezpieczeństwo sprzedawcy. § 2. Sprzedawca może odmówić demontażu i ponownego zamontowania, jeżeli koszt tych czynności przewyższa cenę rzeczy sprz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43d. 1. Jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. 2. Przedsiębiorca może dokonać wymiany, gdy konsument żąda naprawy, lub przedsiębiorca może dokonać naprawy, gdy konsument żąda wymiany, jeżeli doprowadzenie do zgodności towaru z umową w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy. Jeżeli naprawa i wymiana są niemożliwe lub wymagałyby nadmi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}]",
+   "tool_call_id": "call-9872a28c-7b8c-43a0-ab55-6bf03cb246f2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_28be54c934264fb3afc44aa2",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_561\", \"sejm_eli_du_2024_1796_art_43d\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43d. 1. Jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. 2. Przedsiębiorca może dokonać wymiany, gdy konsument żąda naprawy, lub przedsiębiorca może dokonać naprawy, gdy konsument żąda wymiany, jeżeli doprowadzenie do zgodności towaru z umową w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy. Jeżeli naprawa i wymiana są niemożliwe lub wymagałyby nadmiernych kosztów dla przedsiębiorcy, może on odmówić doprowadzenia towaru do zgodności z umową. 3. Przy ocenie nadmierności kosztów dla przedsiębiorcy uwzględnia się wszelkie okoliczności sprawy, w szczególności znaczenie braku zgodności towaru z umową, wartość towaru zgodnego z umową oraz nadmierne niedogodności dla konsumenta powstałe wskutek zmiany sposobu doprowadzenia towaru do zgodności z umową. 4. Przedsiębiorca dokonuje naprawy lub wymiany w rozsądnym czasie od chwili, w której przedsiębiorca został poinformowany przez konsumenta o braku zgodności z umową, i bez nadmiernych niedogodności dla konsumenta, uwzględniając specyfikę towaru oraz cel, w jakim konsument go nabył. Koszty naprawy lub wymiany, w tym w szczególności koszty opłat pocztowych, przewozu, robocizny i materiałów, ponosi przedsiębiorca. 5. Konsument udostępnia przedsiębiorcy towar podlegający naprawie lub wymianie. Przedsiębiorca odbiera od konsumenta towar na swój koszt. 6. Jeżeli towar został zamontowany przed ujawnieniem się braku zgodności towaru z umową, przedsiębiorca demontuje towar oraz montuje go ponownie po dokonaniu naprawy lub wymiany albo zleca wykonanie tych czynności na swój koszt. 7. Konsument nie jest zobowiązany do zapłaty za zwykłe korzystanie z towaru, który następnie został wymieniony.\"}]",
+   "tool_call_id": "call_28be54c934264fb3afc44aa2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_759f7c47dc424868bfec16c8",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 43d\", \"ustawa o prawach konsumenta\", \"wymiana towaru\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"uokik_items:uokik_0586bdb8a432c410\", \"source_id\": \"uokik_rejestr_klauzul_5423\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(…) Przesyłkę należy otworzyć w obecności doręczyciela i sprawdzić, czy towar nie uległ uszkodzeniu. Jeżeli towar ma jakiekolwiek uszkodzenia mechaniczne, należy sporządzić protokół szkód, tylko na podstawie takiego protokołu możliwa jest wymiana towaru na nowy. (...) Sprawdzenie przesyłki przy odbiorze jest niezbędnym warunkiem uwzględnienia ewentualnych roszczeń Klienta z tytułu uszkodzenia czy okradzenia przesyłki w transporcie\"}, {\"chunk_id\": \"uokik_items:uokik_188258e74c26630c\", \"source_id\": \"uokik_rejestr_klauzul_6643\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy zwrot, reklamacja lub wymiana towaru nie zostanie uznana, np. z powodu odesłania po upływie 30 dni, braku rachunku, braku opisu usterek, lub opakowania, będzie on odesłany na koszt Klienta\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43d. 1. Jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. 2. Przedsiębiorca może dokonać wymiany, gdy konsument żąda naprawy, lub przedsiębiorca może dokonać naprawy, gdy konsument żąda wymiany, jeżeli doprowadzenie do zgodności towaru z umową w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy. Jeżeli naprawa i wymiana są niemożliwe lub wymagałyby nadmi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43f\", \"source_id\": \"sejm_eli_du_2024_1796_art_43f\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43f. Konsument może powstrzymać się z zapłatą ceny do chwili wykonania przez przedsiębiorcę obowiązków wynikających z art. 43d i art. 43e.\"}]",
+   "tool_call_id": "call_759f7c47dc424868bfec16c8",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_81ff112d531440958847483c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 568 KC\", \"rękojmi\", \"2 lata\", \"domniemanie wady\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_867\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 867 1 . § 1. Przystępujący do przetargu jest obowiązany złożyć rękojmię w wysokości jednej dziesiątej sumy oszacowania, najpóźniej w dniu poprzedzającym przetarg. Rękojmi nie składa się, jeżeli suma oszacowania jest niższa niż pięć tysięcy złotych. § 2. Rękojmię złożoną przez licytanta, któremu udzielono przybicia, zatrzymuje się; pozostałym licytantom rękojmię zwraca się niezwłocznie. § 3. Jeżeli nabywca nie wykonał w termin ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_879\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 879 5 . § 1. Rękojmię należy złożyć na rachunek bankowy komornika najpóźniej na 2 dni robocze przed rozpoczęciem przetargu. Za datę złożenia rękojmi przyjmuje się dzień uznania rachunku bankowego komornika. Przepisu art. 867 1 § 4 nie stosuje się. § 2. Przed przystąpieniem do licytacji licytant obowiązany jest do podania w systemie teleinformatycznym danych niezbędnych do wydania postanowienia o przybiciu: numeru PESEL, numer ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_964\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 964. § 1. Nie składa rękojmi osoba, której przysługuje ujawnione w opisie i oszacowaniu prawo, jeżeli jego wartość nie jest niższa od wysokości rękojmi i jeżeli do tej wysokości znajduje ono pokrycie w cenie wywołania wraz z prawami stwierdzonymi w opisie i oszacowaniu, korzystającymi z pierwszeństwa przed jej prawem. § 2. Jeżeli w warunkach przewidzianych w paragrafie poprzedzającym wartość prawa jest niższa od wysokości ręk ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_969\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 969. § 1. Jeżeli nabywca nie wykonał w terminie warunków licytacyjnych co do zapłaty ceny, traci rękojmię, a skutki przybicia wygasają. Uiszczoną część ceny zwraca się. Następstwa te sąd stwierdza postanowieniem, na które przysługuje zażalenie. § 2. Od nabywcy nieskładającego rękojmi, który nie wykonał warunków licytacyjnych, ściąga się rękojmię w trybie egzekucji należności sądowych. § 3. Z rękojmi utraconej przez nabywcę lu ...\"}]",
+   "tool_call_id": "call_81ff112d531440958847483c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "Miejscowość, data: ................................................\n\nDane Sprzedawcy:\n........................................................................................................................................................................\n........................................................................................................................................................................\n........................................................................................................................................................................\n\nDane Kupującego (Konsumenta):\nImię i nazwisko: ................................................................................................................................................\nAdres zamieszkania: ...........................................................................................................................................\nAdres e-mail: ......................................................................................................................................................\nNumer rachunku bankowego: .............................................................................................................................\n\nŻĄDANIE WYMIANY TOWARU NA NOWY EGZEMPLARZ\n\nNa podstawie art. 43d ust. 1 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796) oraz art. 561 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061) zwracam się z żądaniem wymiany reklamowanego towaru na nowy egzemplarz wolny od wad.\n\n1. Identyfikacja towaru i dowód zakupu:\n- Oznaczenie towaru: ........................................................................................................................................\n- Numer seryjny (jeśli dotyczy): ........................................................................................................................\n- Numer paragonu/faktury/zamówienia: ..............................................................................................................\n- Data zakupu/wydania towaru: ........................................................................................................................\n\n2. Opis wady/niezgodności towaru z umową:\n........................................................................................................................................................................\n........................................................................................................................................................................\n........................................................................................................................................................................\nData ujawnienia wady: ......................................................................................................................................\n\n3. Historia dotychczasowych napraw (jeśli dotyczy):\n........................................................................................................................................................................\n........................................................................................................................................................................\n\n4. Podstawa prawna żądania:\nZgodnie z art. 43d ust. 1 ustawy o prawach konsumenta, jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. Wybór sposobu doprowadzenia towaru do zgodności z umową należy do konsumenta, a przedsiębiorca może odmówić wymiany wyłącznie wtedy, gdy doprowadzenie do zgodności w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy (art. 43d ust. 2). Zgodnie z art. 561 § 1 Kodeksu cywilnego, kupujący może żądać wymiany rzeczy na wolną od wad.\n\n5. Żądanie:\nW związku z powyższym żądam dokonania wymiany reklamowanego towaru na nowy egzemplarz wolny od wad w rozsądnym czasie i bez nadmiernych niedogodności dla mnie, zgodnie z art. 43d ust. 4 ustawy o prawach konsumenta.\n\n6. Koszty wymiany:\nZgodnie z art. 43d ust. 4 ustawy o prawach konsumenta, koszty naprawy lub wymiany, w tym w szczególności koszty opłat pocztowych, przewozu, robocizny i materiałów, ponosi przedsiębiorca. Wobec tego wymagać będę odbioru towaru wadliwego na koszt własny, zgodnie z art. 43d ust. 5.\n\n7. Demontaż i ponowne zamontowanie:\nW przypadku gdy towar został zamontowany przed ujawnieniem się braku zgodności z umową, żądam, aby przedsiębiorca dokonał demontażu towaru oraz jego ponownego zamontowania po dokonaniu wymiany, zgodnie z art. 43d ust. 6 ustawy o prawach konsumenta, na swój koszt.\n\n8. Odpowiedzialność sprzedawcy:\nPrzypominam, że zgodnie z art. 568 § 1 Kodeksu cywilnego, sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat od dnia wydania rzeczy kupującemu. W obrocie konsumenckim przez pierwsze 2 lata domniemywa się, że stwierdzona niezgodność istniała w chwili dostarczenia towaru.\n\n9. Termin na rozpatrzenie żądania:\nWezwanie sprzedawcy do ustosunkowania się do niniejszego żądania w terminie 14 dni od dnia doręczenia. Zgodnie z art. 561 § 5 Kodeksu cywilnego, jeżeli kupujący będący konsumentem zażądał wymiany rzeczy, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\n\n10. Prawo do wstrzymania zapłaty:\nZgodnie z art. 43f ustawy o prawach konsumenta, zastrzegam sobie prawo do powstrzymania się z zapłaty ceny do chwili wykonania przez przedsiębiorcę obowiązków wynikających z art. 43d ustawy.\n\n11. Informacja o zwykłym korzystaniu:\nZgodnie z art. 43d ust. 7 ustawy o prawach konsumenta, nie jestem zobowiązany do zapłaty za zwykłe korzystanie z towaru, który następnie został wymieniony.\n\nŻądanie przesyłam w formie pisemnej w celu udokumentowania daty doręczenia. Proszę o potwierdzenie odbioru niniejszego pisma.\n\nZ poważaniem,\n\n.........................................................\n(czytelny podpis Kupującego)\n\nZałączniki:\n1. Kopia dowodu zakupu (paragon/faktura)\n2. Dokumentacja wady (zdjęcia, nagrania wideo)\n3. Kopia korespondencji dotyczącej wcześniejszych napraw (jeśli dotyczy)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "Miejscowość, data: ................................................\n\nDane Sprzedawcy:\n........................................................................................................................................................................\n........................................................................................................................................................................\n........................................................................................................................................................................\n\nDane Kupującego (Konsumenta):\nImię i nazwisko: ................................................................................................................................................\nAdres zamieszkania: ...........................................................................................................................................\nAdres e-mail: ......................................................................................................................................................\nNumer rachunku bankowego: .............................................................................................................................\n\nŻĄDANIE WYMIANY TOWARU NA NOWY EGZEMPLARZ\n\nNa podstawie art. 43d ust. 1 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796) oraz art. 561 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061) zwracam się z żądaniem wymiany reklamowanego towaru na nowy egzemplarz wolny od wad.\n\n1. Identyfikacja towaru i dowód zakupu:\n- Oznaczenie towaru: ........................................................................................................................................\n- Numer seryjny (jeśli dotyczy): ........................................................................................................................\n- Numer paragonu/faktury/zamówienia: ..............................................................................................................\n- Data zakupu/wydania towaru: ........................................................................................................................\n\n2. Opis wady/niezgodności towaru z umową:\n........................................................................................................................................................................\n........................................................................................................................................................................\n........................................................................................................................................................................\nData ujawnienia wady: ......................................................................................................................................\n\n3. Historia dotychczasowych napraw (jeśli dotyczy):\n........................................................................................................................................................................\n........................................................................................................................................................................\n\n4. Podstawa prawna żądania:\nZgodnie z art. 43d ust. 1 ustawy o prawach konsumenta, jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. Wybór sposobu doprowadzenia towaru do zgodności z umową należy do konsumenta, a przedsiębiorca może odmówić wymiany wyłącznie wtedy, gdy doprowadzenie do zgodności w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy (art. 43d ust. 2). Zgodnie z art. 561 § 1 Kodeksu cywilnego, kupujący może żądać wymiany rzeczy na wolną od wad.\n\n5. Żądanie:\nW związku z powyższym żądam dokonania wymiany reklamowanego towaru na nowy egzemplarz wolny od wad w rozsądnym czasie i bez nadmiernych niedogodności dla mnie, zgodnie z art. 43d ust. 4 ustawy o prawach konsumenta.\n\n6. Koszty wymiany:\nZgodnie z art. 43d ust. 4 ustawy o prawach konsumenta, koszty naprawy lub wymiany, w tym w szczególności koszty opłat pocztowych, przewozu, robocizny i materiałów, ponosi przedsiębiorca. Wobec tego wymagać będę odbioru towaru wadliwego na koszt własny, zgodnie z art. 43d ust. 5.\n\n7. Demontaż i ponowne zamontowanie:\nW przypadku gdy towar został zamontowany przed ujawnieniem się braku zgodności z umową, żądam, aby przedsiębiorca dokonał demontażu towaru oraz jego ponownego zamontowania po dokonaniu wymiany, zgodnie z art. 43d ust. 6 ustawy o prawach konsumenta, na swój koszt.\n\n8. Odpowiedzialność sprzedawcy:\nPrzypominam, że zgodnie z art. 568 § 1 Kodeksu cywilnego, sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat od dnia wydania rzeczy kupującemu. W obrocie konsumenckim przez pierwsze 2 lata domniemywa się, że stwierdzona niezgodność istniała w chwili dostarczenia towaru.\n\n9. Termin na rozpatrzenie żądania:\nWezwanie sprzedawcy do ustosunkowania się do niniejszego żądania w terminie 14 dni od dnia doręczenia. Zgodnie z art. 561 § 5 Kodeksu cywilnego, jeżeli kupujący będący konsumentem zażądał wymiany rzeczy, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\n\n10. Prawo do wstrzymania zapłaty:\nZgodnie z art. 43f ustawy o prawach konsumenta, zastrzegam sobie prawo do powstrzymania się z zapłaty ceny do chwili wykonania przez przedsiębiorcę obowiązków wynikających z art. 43d ustawy.\n\n11. Informacja o zwykłym korzystaniu:\nZgodnie z art. 43d ust. 7 ustawy o prawach konsumenta, nie jestem zobowiązany do zapłaty za zwykłe korzystanie z towaru, który następnie został wymieniony.\n\nŻądanie przesyłam w formie pisemnej w celu udokumentowania daty doręczenia. Proszę o potwierdzenie odbioru niniejszego pisma.\n\nZ poważaniem,\n\n.........................................................\n(czytelny podpis Kupującego)\n\nZałączniki:\n1. Kopia dowodu zakupu (paragon/faktura)\n2. Dokumentacja wady (zdjęcia, nagrania wideo)\n3. Kopia korespondencji dotyczącej wcześniejszych napraw (jeśli dotyczy)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem wadliwy produkt i chcę go wymienić na nowy. Gdzie mogę znaleźć gotowy wzór pisma do sklepu?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Kupiłem pralkę dwa miesiące temu i po kilku tygodniach zaczęła hałasować i przerywać programy. Serwis już raz to naprawiał, ale wada wróciła. Chcę wysłać do sklepu oficjalne żądanie wymiany na nowy egzemplarz, ale nie wiem jak to sformułować. Szukam gotowego wzoru, który wypełnię swoimi danymi i opisem usterki."
+  }
+ ]
+}

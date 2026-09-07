@@ -1,0 +1,17 @@
+{
+ "run": 11,
+ "hint": "Pełnomocnictwo do spraw przed urzędem skarbowym",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Muszę załatwić sprawę w urzędzie skarbowym, ale nie mam czasu samemu pojechać. Czy możesz mnie tam reprezentować?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Dostałem pismo z urzędu skarbowego w sprawie mojego zeznania podatkowego za ostatni rok i nie wiem, jak na to zareagować. Potrzebuję kogoś, kto pojedzie tam za mnie, złoży stosowne wyjaśnienia i ewentualnie poda się do dokumentów. Czy możesz mi w tym pomóc i załatwić to za mnie?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"pelnomocnictwo\"})\\nDRAFTER CALLED semantic_search({\"query\": \"pełnomocnictwo do spraw przed urzędem skarbowym podatki\"})\\nDRAFTER CALLED keyword_search({\"keywords\": [\"urząd skarbowy\", \"pełnomocnictwo\", \"podatnik\"]})\\nRESULT: [{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do sprzedaży nieruchomości\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce to jednostronne oświadczenie woli właściciela nieruchomości (mocodawcy), przez które udziela on oznaczonej osobie (pełnomocnikowi) upoważnienia do dokonania w jego imieniu czynności prawnych związanych ze sprzedażą nieruchomości. Instytucję pełnomocnictwa regulują art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo do sprzedaży nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonej nieruchomości.\\n\\nArtykuł 99 par. 1 KC statuuje zasadę, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), pełnomocnictwo do sprzedaży nieruchomości musi być udzielone w formie aktu notarialnego przez notariusza. Pełnomocnictwo do sprzedaży nieruchomości sporządzone w zwykłej formie pisemnej lub ustnie jest nieważne i nie pozwoli pełnomocnikowi skutecznie zawrzeć umowy sprzedaży.\\n\\nZakres pełnomocnictwa musi być precyzyjnie określony. Pełnomocnictwo szczególne do sprzedaży nieruchomości powinno wskazywać: dane mocodawcy i pełnomocnika (z numerami PESEL i seriami dowodów osobistych), dokładny opis nieruchomości (adres, numer KW, numer dzia"
+}

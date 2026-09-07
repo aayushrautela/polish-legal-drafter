@@ -1,0 +1,17 @@
+{
+ "run": 54,
+ "hint": "Merchandising w sklepie, uzupełnianie półek i demonstracje produktów",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam kogoś, kto będzie uzupełniał półki w moim sklepie i demonstrował klientom nowe produkty. Potrzebuję umowy na takie usługi."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Prowadzę sklep spożywczy i chcę zatrudnić osobę do merchandisingu – czyli rozkładania towaru na półkach, dbanego o wygląd ekspozycji i prowadzenia degustacji dla klientów. Potrzebuję umowy, która określi zakres obowiązków, w godzinach porannych, trzy razy w tygodniu. Ważne, żeby było tam zapisane, że pracownik dba też o świeżość produktów i raportuje braki na półkach."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"merchandising w sklepie uzupełnianie półek demonstracje produktów\", \"doc_type\": \"umowa_zlecenia\"})\\nRESULT: [{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa merchandisingowa (licencja na wizerunek i markę)\\nUmowa merchandisingowa w Polsce to umowa licencyjna, na mocy której właściciel chronionych oznaczeń — znaku towarowego, wizerunku, postaci lub innego rozpoznawalnego elementu marki — upoważnia producenta lub dystrybutora (Licencjobiorcę) do umieszczania tych oznaczeń na określonych produktach handlowych i czerpania z tego zysku w zamian za wynagrodzenie w formie tantiem (royalties). Umowa ta stanowi połączenie licencji na znak towarowy (art. 163 ustawy z dnia 30 czerwca 2000 r. — Prawo własności przemysłowej, Dz.U. 2001 nr 49 poz. 508 ze zm.) i licencji na elementy autorskie (art. 67 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, Dz.U. 1994 nr 24 poz. 83 ze zm.) oraz umowy nienazwanej na podstawie art. 353¹ Kodeksu cywilnego.\\n\\nMerchandising w polskim obrocie handlowym obejmuje szerokie spektrum towarów: odzież, akcesoria, zabawki, artykuły papiernicze, kosmetyki, produkty spożywcze, elektronikę i wiele innych kategorii. Właścicielami licencjonowanych oznaczeń są przede wszystkim: kluby sportowe (ekstraklasa, reprezentacja narodowa), twórcy postaci z bajek i gier komputerowych, muzycy i artyści, firmy z rozpoznawalnymi logo i maskotkami oraz właściciele popularnych franczyz.\\n\\nW Polsce podstawą prawną ochrony znaków towarowych jest ustawa z dnia 30 czerwca 2000 r. — Prawo własności przemysłowej, a organem udzielającym praw ochronnych jest Urząd Patentowy Rzeczypospolitej Polskiej (UPRP). Znak zarejestrowany w UPRP jest chroniony na terytorium RP przez 10 lat z możliwością przedłużenia (art. 153 p."
+}

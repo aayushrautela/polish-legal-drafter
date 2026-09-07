@@ -1,0 +1,313 @@
+{
+ "run": 52,
+ "hint": "Zaliczka przy zamówieniu produkcji mebli szkolnych",
+ "scenario": "Zaliczka przy zamówieniu produkcji mebli szkolnych",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a contract template for \"kaucja_zaliczka\" (deposit/advance payment) specifically for \"Zaliczka przy zamówieniu produkcji mebli szkolnych\" (Advance payment for ordering production of school furniture).\n\nLet me start by reading the base template for kaucja_zaliczka, then search for relevant provisions related to school furniture production, B2B contracts, advance payments, etc.",
+   "tool_calls": [
+    {
+     "id": "call-892a0339-1cfa-4c1a-9117-9b06c06c709c",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"kaucja_zaliczka\", \"query\": \"zaliczka przy zamówieniu produkcji mebli szkolnych B2B\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Potwierdzenie przyjęcia zaliczki\\nPotwierdzenie przyjęcia zaliczki w Polsce to dokument wystawiany przez sprzedawcę lub usługodawcę (odbiorcę zaliczki) na rzecz kupującego lub zamawiającego (wpłacającego), potwierdzający przyjęcie kwoty pieniężnej na poczet przyszłego świadczenia — dostarczenia towaru lub wykonania usługi. Podstawą prawną pokwitowania jest art. 462 § 1 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.): dłużnik spełniający świadczenie może żądać pokwitowania.\\n\\nW polskim prawie cywilnym istnieje ważne rozróżnienie między zaliczką a zadatkiem (art. 394 KC), które ma fundamentalne znaczenie dla skutków prawnych przy niewykonaniu umowy. Zaliczka jest częściowym spełnieniem świadczenia pieniężnego z góry — wpłatą wchodzącą w skład ceny. Przy niewykonaniu umowy przez którąkolwiek ze stron zaliczka jest co do zasady zwrotna w całości, niezależnie od przyczyn. Nie ma charakteru odszkodowawczego. Zadatek natomiast jest instytucją uregulowaną w art. 394 KC: jeżeli umowy nie wykona strona, która dała zadatek, druga może od umowy odstąpić i zadatek zachować; jeżeli umowy nie wykona strona, która zadatek przyjęła, druga strona może od umowy odstąpić i żądać sumy dwukrotnie wyższej. Zadatek pełni zatem funkcję zabezpieczającą i ma charakter odszkodowawczy.\\n\\nKwestia podatkowa jest istotna przy potwierdzeniach zaliczek. Na podstawie art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (ustawa o VAT), jeżeli przed dokonaniem dostawy towaru lub wykonaniem usługi otrzymano całość lub część zapłaty, obowiązek podatkowy VAT powstaje z chwilą jej otrzymania w tej części. Oznacza to, że odbiorca zaliczki — jeżeli jest podatnikiem VAT — ma obowiązek wystawić fakturę zaliczkową w terminie 15. dnia miesiąca po miesiącu otrzymania zaliczki (lub wcześniej) i rozliczyć VAT od otrzymanej zaliczki. Stawka VAT na zaliczkę jest taka sama, jaka będzie stosowana do świadczenia głównego (23%, 8%, 5% lub 0%). Potwierdzenie przyjęcia zaliczki nie zastępuje faktury VAT, jeżeli odbiorca jest podatnikiem VAT.\\n\\nW obrocie z konsumentami, gdy odbiorcą jest przedsiębiorca, zaliczka na poczet umowy zawartej poza lokalem przedsiębiorstwa lub na odległość podlega przepisom ustawy z dnia 30 maja 2014 r. o prawach konsumenta — konsument może odstąpić od takiej umowy w terminie 14 dni (art. 27 u.p.k.) i żądać zwrotu zaliczki w pełnej wysokości.\\n\\nPotwierdzenie przyjęcia zaliczki w Polsce jest potrzebne zawsze, gdy zamawiający (kupujący) wpłaca część ceny z góry przed wykonaniem świadczenia, a strony chcą mieć pisemny dowód tej czynności.\\n\\nDokument jest niezbędny przy zamówieniach remontu lub budowy. Firmy budowlane i remontowe w Polsce powszechnie przyjmują zaliczki przed przystąpieniem do prac, a właściciele nieruchomości potrzebują potwierdzenia wpłaty, by chronić się przed ewentualnym sporem o kwotę i tytuł wpłaconych środków. Potwierdzenie zaliczki stanowi dowód dla sądu rejonowego lub sądu okręgowego, że środki zostały przekazane na poczet konkretnego zamówienia.\\n\\nDokument jest potrzebny przy zakupie towarów na zamówienie — mebli, urządzeń, samochodów, sprzętu — gdzie zaliczka rezerwuje dostępność lub uruchamia produkcję. Sprzedawca potwierdza przyjęcie zaliczki, wskazując jej kwotę, cel i termin realizacji.\\n\\nPotwierdzenie zaliczki jest kluczowe przy usługach hotelarskich, cateringowych i organizacji eventów, gdzie duże zaliczki wpłacane z wyprzedzeniem kilku miesięcy przed wydarzeniem muszą być udokumentowane zarówno dla klienta (dowód zapłaty), jak i dla usługodawcy (ewidencja finansowa i podatkowa).\\n\\nDokument jest potrzebny przy umowach z rzemieślnikami, artystami i freelancerami, którzy wymagają zaliczki przed przystąpieniem do pracy. Potwierdzenie zaliczki jasno określa, czy wpłata jest zaliczką (zwrotną przy niewykonaniu) czy zadatkiem (z surowszymi konsekwencjami), co eliminuje późniejsze spory.\\n\\nWreszcie, potwierdzenie jest przydatne do celów podatkowych i rachunkowych — zarówno dla nabywcy (dowód kosztu), jak i dla usługodawcy (podstawa do wystawienia faktury zaliczkowej i rozliczenia VAT). Przedsiębiorcy prowadzący działalność gospodarczą są zobowiązani do ewidencji przychodów na podstawie art. 14 ust. 1c ustawy o podatku dochodowym od osób fizycznych (PIT) lub art. 12 ust. 3a ustawy o CIT.\\n\\nPrawidłowe potwierdzenie przyjęcia zaliczki w Polsce musi zawierać elementy pozwalające jednoznacznie ustalić strony, przedmiot wpłaty i jej skutki prawne.\\n\\nDane odbiorcy (wystawiającego potwierdzenie): imię i nazwisko lub firma, NIP albo PESEL, adres. Jeżeli odbiorca jest przedsiębiorcą-podatnikiem VAT, numer NIP jest obligatoryjny dla faktury zaliczkowej, która powinna towarzyszyć potwierdzeniu.\\n\\nDane wpłacającego: imię i nazwisko lub firma, PESEL albo NIP, adres. Przy transakcjach B2C (przedsiębiorca-konsument) identyfikacja konsumenta jest ważna ze względu na jego uprawnienia z ustawy o prawach konsumenta.\\n\\nKwota zaliczki: cyfrowo i słownie, z oznaczeniem waluty (zł, PLN).\\n\\nRodzaj wpłaty: wyraźne wskazanie, czy jest to zaliczka (zwrotna, bez odszkodowawczego charakteru) czy zadatek (art. 394 KC — z konsekwencjami przepadku lub zwrotu w podwójnej wysokości). To rozróżnienie jest kluczowe dla skutków prawnych przy niewykonaniu umowy.\\n\\nOpis zamówienia: precyzyjny opis towaru, usługi lub prac, na poczet których zaliczka jest wpłacana — umożliwia identyfikację świadczenia głównego i zapobiega sporom interpretacyjnym.\\n\\nCałkowita cena umowy: łączna kwota zamówienia, od której odliczona zostanie zaliczka przy realizacji.\\n\\nTermin realizacji: planowany termin wykonania usługi lub dostawy towaru — umożliwia ocenę, czy realizacja nastąpiła w terminie.\\n\\nKwestia VAT: informacja o obowiązku wystawienia faktury zaliczkowej i rozliczenia VAT przez odbiorcę-podatnika VAT. Serwis forms-legal.com udostępnia wzór potwierdzenia zaliczki jako punkt wyjścia — przy zaliczkach powyżej 10 000 zł lub przy transakcjach konsumenckich zawieranych poza lokalem przedsiębiorstwa zalecana jest konsultacja z doradcą prawnym lub podatkowym.\\n\\nWypełnianie potwierdzenia przyjęcia zaliczki w Polsce zacznij od oznaczenia odbiorcy zaliczki — sprzedawcy lub usługodawcy. Wpisz pełną firmę lub imię i nazwisko, NIP (lub PESEL dla osoby fizycznej nieprowadzącej działalności) i adres prowadzenia działalności.\\n\\nNastępnie oznacz wpłacającego zaliczkę: imię i nazwisko (lub firma), PESEL lub NIP i adres zamieszkania lub siedziby.\\n\\nW sekcji szczegółów wpłaty wpisz kwotę cyfrowo i słownie. Wskaż dokładną datę otrzymania środków. Zaznacz sposób wpłaty (przelew, gotówka, BLIK).\\n\\nKluczowy element: zaznacz, czy wpłata jest zaliczką czy zadatkiem. Przy zaliczce środki są zwrotne bez żadnych konsekwencji przy niewykonaniu umowy przez obie strony. Przy zadatku stosuje się art. 394 KC — przy winie wpłacającego odbiorca zachowuje zadatek; przy winie odbiorcy wpłacający może żądać zwrotu w podwójnej wysokości. Wybierz świadomie — zadatek jest korzystniejszy dla odbiorcy, zaliczka dla wpłacającego.\\n\\nDokładnie opisz zamówienie: wpisz precyzyjny opis usługi lub towaru, adres realizacji (jeżeli dotyczy), datę zamówienia. Podaj całkowitą cenę umowy i termin realizacji.\\n\\nJeżeli jesteś przedsiębiorcą-podatnikiem VAT, pamiętaj o obowiązku wystawienia faktury zaliczkowej. Potwierdzenie nie zastępuje faktury VAT — faktura jest osobnym dokumentem, który wystawiasz nabywcy.\\n\\nPodpisz potwierdzenie — wystarczy podpis odbiorcy (wystawiającego pokwitowanie). Warto jednak poprosić wpłacającego o podpis potwierdzający odbiór dokumentu. Sporządź dwa egzemplarze — jeden dla wpłacającego, drugi zachowaj w dokumentacji.\\n\\nWymogi prawne potwierdzenia przyjęcia zaliczki w Polsce wynikają z kilku aktów prawnych regulujących zarówno stosunek cywilnoprawny między stronami, jak i obowiązki podatkowe.\\n\\nKodeks cywilny: art. 462 § 1 — prawo dłużnika do pokwitowania; art. 394 KC — instytucja zadatku: przepadek przy winie dającego, dwukrotny zwrot przy winie przyjmującego, zaliczenie na poczet ceny przy wykonaniu umowy, zwrot przy zgodnym rozwiązaniu i przy okolicznościach, za które żadna ze stron nie odpowiada. Art. 385¹-385³ KC — zakaz niedozwolonych postanowień konsumenckich: klauzula przepadku zaliczki (nie zadatku) przy drobnych uchybieniach może być uznana za abuzywną przez Prezesa UOKiK.\\n\\nUstawa o VAT art. 19a ust. 8: obowiązek podatkowy VAT powstaje z chwilą otrzymania całości lub części zapłaty (zaliczki) — w tej części. Podatnik VAT musi wystawić fakturę zaliczkową. Faktura zaliczkowa wystawiana jest nie później niż 15. dnia miesiąca po miesiącu otrzymania zaliczki, ale może być wystawiona wcześniej. Stawka VAT na fakturze zaliczkowej odpowiada stawce właściwej dla świadczenia głównego.\\n\\nUstawa o prawach konsumenta art. 27: konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może odstąpić w terminie 14 dni bez podania przyczyny. Przy odstąpieniu przedsiębiorca zobowiązany jest zwrócić wszystkie wpłaty, w tym zaliczkę, w terminie 14 dni. Klauzule wyłączające zwrot zaliczki przy skorzystaniu z prawa odstąpienia są niedozwolone.\\n\\nPodatek dochodowy: zaliczka nie jest przychodem w chwili wpłaty — przychód powstaje w chwili wykonania świadczenia (art. 14 ust. 1c ustawy o PIT lub art. 12 ust. 3a ustawy o CIT). Zaliczka jest zobowiązaniem (długiem) odbiorcy do wykonania świadczenia lub zwrotu środków.\\n\\nNajczęstsze błędy przy potwierdzeniach zaliczek w Polsce mają poważne konsekwencje finansowe i prawne.\\n\\nNieokreślenie, czy wpłata to zaliczka czy zadatek. To najpoważniejszy błąd — przy braku wyraźnego wskazania polskie sądy domyślnie traktują wpłatę jako zaliczkę (zwrotną), a nie zadatek. Jeżeli odbiorca chce skorzystać z prawa do zachowania zadatku przy winie wpłacającego (art. 394 KC), musi w dokumencie wyraźnie wskazać, że wpłata stanowi zadatek.\\n\\nBrak precyzyjnego opisu zamówienia. Ogólne sformułowanie \\\"zaliczka na usługę\\\" bez wskazania zakresu, adresu i terminu prowadzi do sporów o to, czy zaliczka obejmuje całość czy część uzgodnionego świadczenia. Przy sporze przed sądem rejonowym odbiorca musi wykazać, że zaliczka dotyczyła konkretnego zlecenia.\\n\\nZapomnienie o fakturze zaliczkowej. Przedsiębiorcy-podatnicy VAT często przyjmują zaliczkę gotówką lub przelewem i wystawiają tylko nieformalne potwierdzenie, zapominając o obowiązku wystawienia faktury zaliczkowej (art. 19a ust. 8 ustawy o VAT). Brak faktury zaliczkowej może skutkować ustaleniem zaległości podatkowej VAT przez urząd skarbowy podczas kontroli.\\n\\nNieprawidłowe postanowienia o przepadku zaliczki przy konsumencie. Klauzule o przepadku zaliczki (nie zadatku) przy każdym odstąpieniu konsumenta od umowy są niedozwolone (klauzule abuzywne, art. 385¹ KC). Prezes UOKiK może wszcząć postępowanie i nałożyć karę na przedsiębiorcę stosującego niedozwolone postanowienia.\\n\\nBrak przechowywania dokumentacji. Potwierdzeń zaliczek nie należy traktować jako dokumentów jednorazowego użytku — stanowią one dowód zobowiązania do realizacji zamówienia i mogą być wymagane podczas kontroli podatkowej KAS, w postępowaniach sądowych oraz przy rozliczeniu final invoice (faktury końcowej).\\n\\nŹródło: https://forms-legal.com/pl/financial/debt/potwierdzenie-przyjecia-zaliczki (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-892a0339-1cfa-4c1a-9117-9b06c06c709c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. Let me search for provisions relevant to school furniture production, B2B contracts, advance payments in manufacturing, and any specific regulations that might apply.",
+   "tool_calls": [
+    {
+     "id": "call-7b853475-1181-4f8f-941d-1fe65af2425c",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"umowa o dzieło produkcja mebli szkolnych zaliczka B2B harmonogram płatności faktura zaliczkowa VAT\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_645\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 645. § 1. Umowa o dzieło, którego wykonanie zależy od osobistych przymiotów przyjmującego zamówienie, rozwiązuje się wskutek jego śmierci lub niezdolności do pracy. § 2. Jeżeli materiał był własnością przyjmującego zamówienie, a dzieło częściowo wykonane przedstawia ze względu na zamierzony cel umowy wartość dla zamawiającego, przyjmujący zamówienie lub jego spadkobierca może żądać, ażeby zamawiający odebrał materiał w stanie, w jakim się znajdu ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_626\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 626. § 1. Jeżeli po zawarciu umowy kontraktacji producent wniósł posiadane gospodarstwo jako wkład do rolniczej spółdzielni produkcyjnej, spółdzielnia ta wstępuje w prawa i obowiązki producenta, chyba że stan wniesionego gospodarstwa stoi temu na przeszkodzie. § 2. Jeżeli stan gospodarstwa producenta w chwili jego przystąpienia do spółdzielni nie pozwala na wykonanie umowy kontraktacji przez spółdzielnię, umowa wygasa, a producent obowiązany jes ...\"}, {\"chunk_id\": \"uokik_items:uokik_1e77388c465704cf\", \"source_id\": \"uokik_rejestr_klauzul_6758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar należy dostarczyć do siedziby Sprzedawcy w komplecie: faktura VAT\"}, {\"chunk_id\": \"uokik_items:uokik_cf9288e793cbabf1\", \"source_id\": \"uokik_rejestr_klauzul_7379\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Każda płatność Zamawiającego będzie uwzględniała podatek VAT w stawce procentowej określonej aktualnymi w momencie płatności przepisami\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_35\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 35. 1. Do poboru zaliczek miesięcznych jako płatnicy są obowiązane: 1) osoby prawne i ich jednostki organizacyjne - od wypłacanych przez nie emerytur i rent z zagranicy, 2) osoby prawne i ich jednostki organizacyjne, zakłady pracy oraz inne jednostki organizacyjne - od wypłacanych przez nie stypendiów, 3) areszty śledcze oraz zakłady karne - od należności za pracę przypadającej tymczasowo aresztowanym oraz skazanym, 4) centr ...\"}]",
+   "tool_call_id": "call-7b853475-1181-4f8f-941d-1fe65af2425c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_5cef3995e0254d2bb07c8a0e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"umowa o dzieło art 627 KC wykonawca zaliczka materiał produkcja mebli rękojmi za wady\"}"
+     }
+    },
+    {
+     "id": "call_caf2bd80699348dd84f581b1",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 627 KC\", \"umowa o dzieło\", \"zaliczka\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_656\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 656. § 1. Do skutków opóźnienia się przez wykonawcę z rozpoczęciem robót lub wykończeniem obiektu albo wykonywania przez wykonawcę robót w sposób wadliwy lub sprzeczny z umową, do rękojmi za wady wykonanego obiektu, jak również do uprawnienia inwestora do odstąpienia od umowy przed ukończeniem obiektu stosuje się odpowiednio przepisy o umowie o dzieło. § 2. (uchylony)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_627\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 627. Przez umowę o dzieło przyjmujący zamówienie zobowiązuje się do wykonania oznaczonego dzieła, a zamawiający do zapłaty wynagrodzenia.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_621\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 621. Do rękojmi za wady fizyczne i prawne przedmiotu kontraktacji oraz środków produkcji dostarczonych producentowi przez kontraktującego stosuje się odpowiednio przepisy o rękojmi przy sprzedaży z tą zmianą, że prawo odstąpienia od umowy z powodu wad fizycznych przedmiotu kontraktacji przysługuje kontraktującemu tylko wtedy, gdy wady są istotne.\"}, {\"chunk_id\": \"uokik_items:uokik_1918ff1817f7ad61\", \"source_id\": \"uokik_rejestr_klauzul_3530\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Spółka ponosi wobec Nabywcy odpowiedzialność z tytułu rękojmi za wady fizyczne oraz za niezgodność towaru z umową na zasadach ogólnych określonych w obowiązujących przepisach prawa, i tak: 1) okres trwania rękojmi za wady fizyczne konstrukcji Mieszkania wynosi 3 lata od daty wydania, 2) okres odpowiedzialności za niezgodność z umową osprzętu, urządzeń, instalacji, tynków, wypraw malarskich, podłoży i posadzek, okien i drzwi, oraz innych przynależności wynosi 2 lata od dnia wydania\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_638\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 638. § 1. Do odpowiedzialności za wady dzieła stosuje się odpowiednio przepisy o rękojmi przy sprzedaży. Odpowiedzialność przyjmującego zamówienie jest wyłączona, jeżeli wada dzieła powstała z przyczyny tkwiącej w materiale dostarczonym przez zamawiającego. § 2. Jeżeli zamawiającemu udzielono gwarancji na wykonane dzieło, przepisy o gwarancji przy sprzedaży stosuje się odpowiednio.\"}]",
+   "tool_call_id": "call_5cef3995e0254d2bb07c8a0e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_195\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 195. § 1. Spółka może wypłacić zaliczkę na poczet przewidywanej dywidendy, jeżeli jej zatwierdzone sprawozdanie finansowe za poprzedni rok obrotowy wykazuje zysk. Zaliczka może stanowić najwyżej połowę zysku osiągniętego od końca poprzedniego roku obrotowego, powiększonego o kapitały rezerwowe utworzone z zysku, którymi w celu wypłaty zaliczek może dysponować zarząd, oraz pomniejszonego o niepokryte straty i udziały własne. § 1 1 . W pr ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_300\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 300 17 . § 1. Umowa spółki może upoważniać zarząd do wypłaty akcjonariuszom zaliczki na poczet przewidywanej dywidendy na koniec roku obrotowego. Zaliczka nie może być wypłacana z kapitału akcyjnego. Przepisy art. 300 15 § 2, 3 i 5 stosuje się odpowiednio. § 2. W przypadku gdy w danym roku obrotowym zaliczka na poczet przewidywanej dywidendy została wypłacona akcjonariuszom, a spółka odnotowała stratę albo osiągnęła zysk w wysokości mni ...\"}, {\"chunk_id\": \"uokik_items:uokik_1068b7fdd6cb3aba\", \"source_id\": \"uokik_rejestr_klauzul_912\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie wykonania umowy przez Kupującego wpłacona zaliczka przepada, a jeżeli z winy Sprzedawcy umowa nie zostanie wykonana, zaliczka podlega zwrotowi\"}, {\"chunk_id\": \"uokik_items:uokik_d10c7cb62b01f91a\", \"source_id\": \"uokik_rejestr_klauzul_5487\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zaliczka określona w §5 ustęp 1 niniejszej umowy jest wymagana w związku z koniecznością nabycia przez Sprzedawcę samochodu od przedstawiciela producenta oraz koniecznością poniesienia innych nakładów dla realizacji niniejszej umowy, wobec czego zaliczka nie podlega zwrotowi, z wyjątkami opisanymi poniżej\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_626\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 626. § 1. Jeżeli po zawarciu umowy kontraktacji producent wniósł posiadane gospodarstwo jako wkład do rolniczej spółdzielni produkcyjnej, spółdzielnia ta wstępuje w prawa i obowiązki producenta, chyba że stan wniesionego gospodarstwa stoi temu na przeszkodzie. § 2. Jeżeli stan gospodarstwa producenta w chwili jego przystąpienia do spółdzielni nie pozwala na wykonanie umowy kontraktacji przez spółdzielnię, umowa wygasa, a producent obowiązany jes ...\"}]",
+   "tool_call_id": "call_caf2bd80699348dd84f581b1",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions related to B2B contracts for furniture production, advance payments, VAT invoices, and any specific regulations for school furniture.",
+   "tool_calls": [
+    {
+     "id": "call-2b593e87-7ba5-4035-b3a3-12e88bbe2cfc",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"B2B produkcja mebli na zamówienie zaliczka faktura zaliczkowa VAT art 19a ust 8 ustawa o VAT\"}"
+     }
+    },
+    {
+     "id": "call-b3f9246a-3ff6-4b00-8ab3-9f118f06a265",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 19a ust. 8\", \"faktura zaliczkowa\", \"VAT\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_31a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 31a. 1. Podatnik składa płatnikowi na piśmie albo w inny sposób przyjęty u danego płatnika oświadczenia i wnioski mające wpływ na obliczenie zaliczki. 2. Oświadczenia i wnioski, o których mowa w art. 31b ust. 1, art. 32 ust. 3 i 6-8 oraz art. 41 ust. 11, mogą być składane według ustalonego wzoru. 3. Podatnik jest obowiązany wycofać lub zmienić złożone uprzednio oświadczenie lub wniosek, jeżeli uległy zmianie okoliczności maj ...\"}, {\"chunk_id\": \"uokik_items:uokik_1e77388c465704cf\", \"source_id\": \"uokik_rejestr_klauzul_6758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar należy dostarczyć do siedziby Sprzedawcy w komplecie: faktura VAT\"}, {\"chunk_id\": \"uokik_items:uokik_7677f312319bb6ac\", \"source_id\": \"uokik_rejestr_klauzul_6741\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wraz z odsyłanym produktem należy odesłać dowód zakupu, którym jest faktura VAT lub paragon oraz w oświadczenie z podaniem imienia, nazwiska, adresu, numeru zamówienia oraz dane niezbędne do dokonania przelewu (numer konta i nazwa banku).\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_42e\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 42e. 1. W przypadku gdy za zakład pracy wypłaty świadczeń określonych w art. 12 dokonuje organ egzekucyjny lub podmiot niebędący następcą prawnym zakładu pracy, przejmujący jego zobowiązania wynikające ze stosunku służbowego, stosunku pracy, pracy nakładczej oraz spółdzielczego stosunku pracy, jest on obowiązany, jako płatnik, do poboru zaliczki na podatek, stosując do wypłacanych świadczeń najniższą stawkę podatkową określo ...\"}, {\"chunk_id\": \"uokik_items:uokik_adea40d02264b76a\", \"source_id\": \"uokik_rejestr_klauzul_4510\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Od chwili złożenia zamówienia do 72 godzin od wpłaty środków na konto Sklepu, klient ma prawo anulowania zamówienia lub zażądać zmiany danych umieszczonych na fakturze. Anulowanie zamówienia po tym terminie, może skutkować naliczeniem przez Sklep opłaty w wysokości 5% wartości zamówienia, na pokrycie kosztów poniesionych przez Sklep w związku z obsługą zamówienia. Na powyższą opłatę zostanie wystawiony paragon lub faktura VAT\"}]",
+   "tool_call_id": "call-2b593e87-7ba5-4035-b3a3-12e88bbe2cfc",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_714b2f4f6141353b\", \"source_id\": \"uokik_rejestr_klauzul_885\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"“Do ceny netto zostanie doliczony podatek VAT zgodnie z obowiązującymi przepisami. Na dzień podpisania umowy stawka podatku VAT na lokal mieszkalny wynosi 7%, a na garaż i miejsce parkingowe 22%. W przypadku zmiany stawki podatku VAT nastąpi odpowiednia zmiana ceny\"}, {\"chunk_id\": \"uokik_items:uokik_747ad205c4126b1f\", \"source_id\": \"uokik_rejestr_klauzul_2000\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Inne opłaty - opłata za zawieszanie połączeń wychodzących z tytułu przekroczonego terminu płatności 36,60 zł z VAT (30 zł netto) - opłata za zawieszanie usług telekomunikacyjnych z tytułu przekroczonego terminu płatności 61,00 zł z VAT (50 zł netto) - pisemna informacja o zaległych należnościach 6,10 zł z VAT (5 zł netto)\"}, {\"chunk_id\": \"uokik_items:uokik_ff9984043545505b\", \"source_id\": \"uokik_rejestr_klauzul_3353\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wpłaty zostaną dokonane w złotych polskich. Do ceny netto zostanie doliczony podatek VAT zgodnie z obowiązującymi przepisami. Na dzień podpisania niniejszej umowy stawka podatku VAT na lokal mieszkalny wynosi 7 %, a na miejsce postojowe w garażu podziemnym 22 %. W przypadku zmiany stawki podatku VAT nastąpi odpowiednia zmiana ceny na sprzedaż lokali mieszkalnych, garaży lub miejsc postojowych\"}, {\"chunk_id\": \"uokik_items:uokik_7cac5a7bd7492603\", \"source_id\": \"uokik_rejestr_klauzul_5789\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena sprzedaży urządzeń, o których mowa w ust. 1 oraz cena sprzedaży majątkowych praw autorskich do dokumentacji techniczno-budowlanej zostanie ustalona na podstawie: 1) kosztorysu powykonawczego na roboty budowlano-montażowe związane z realizacją prac, o których mowa w § 5 ust. 4, dostarczonego przez podmiot przyłączany i zweryfikowanego przez przedsiębiorstwo energetyczne, w kwocie netto (bez podatku VAT), 2) faktur na roboty budowlane związane z realizacją prac, o których mowa w § 5 ust. 4 (pomiar geodezyjny powykonawczy, nadzory branżowe, zajęcie pasa drogi itp.), dostarczonych przez podmi ...\"}, {\"chunk_id\": \"uokik_items:uokik_b3318d4e75e7e41b\", \"source_id\": \"uokik_rejestr_klauzul_7419\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Do ceny określonej w pkt. 3.1. umowy doliczony zostanie podatek VAT. Stawka podatku VAT w dniu zawarcia umowy wynosi dla lokalu mieszkalnego 7%, zaś dla garażu 22% (dla lokalu użytkowego 22%). Strony ustalają, że w przypadku zmiany tych stawek Kupujący zobowiązany będzie do zapłaty ceny określonej w pkt. 3.1. powiększonej o nową stawkę podatku VAT, przy czym rozliczenie z tego tytułu nastąpi stosownie do obowiązujących przepisów podatkowych, a zapłata nastąpi wraz z momentem wejścia w życie nowych przepisów\"}]",
+   "tool_call_id": "call-b3f9246a-3ff6-4b00-8ab3-9f118f06a265",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA O DZIEŁO NA PRODUKCJĘ MEBLI SZKOLNYCH Z ZALICZKĄ\n\nzawarte w dniu …………………… r. w ……………………\n\nMIĘDZY:\n\n**Zamawiający**\nNazwa/Firma: ……………………………………………………………………………………\nSiedziba: …………………………………………………………………………………………\nNIP: ……………………………………  REGON: ……………………………………………\nPrzedstawiciel: …………………………………………………………………………………\n(dalej: „Zamawiający”)\n\ni\n\n**Wykonawca**\nNazwa/Firma: ……………………………………………………………………………………\nSiedziba: …………………………………………………………………………………………\nNIP: ……………………………………  REGON: ……………………………………………\nPrzedstawiciel: …………………………………………………………………………………\n(dalej: „Wykonawca”)\n\nrazem nazywane „Stronami”.\n\n§ 1. PRZEDMIOT UMOWY\n1. Przedmiotem niniejszej Umowy jest wykonanie przez Wykonawcę dzieła polegającego na produkcji i dostarczeniu mebli szkolnych zgodnie ze Specyfikacją Techniczną stanowiąącą Załącznik nr 1 do niniejszej Umowy (dalej: „Dzieło”).\n2. Dzieło obejmuje: projektowanie (jeśli dotyczy), produkcję, pakowanie, transport do miejsca odbioru, rozładunek, montaż (jeśli dotyczy) oraz przekazanie dokumentacji technicznej i certyfikatów zgodności.\n3. Wykonawca oświadcza, że posiada uprawnienia, doświadczenie, zasoby ludzkie i techniczne niezbędne do terminowego i prawidłowego wykonania Dzieła.\n\n§ 2. CENNA I WARUNKI PŁATNOŚCI\n1. Całkowita cena brutto za wykonanie Dzieła wynosi: …………………… zł (słownie: …………………………………………………………………………………………………………), w tym podatek VAT w wysokości …………………… zł (stawka ………… %).\n2. Cena jest stała i niepodlegająca zmniejszeniu lub zwiększeniu, z wyjątkiem zmiany stawki VAT zgodnie z art. 19a ust. 8 ustawy o VAT – w takim przypadku cena brutto ulega odpowiedniemu przeliczeniu.\n3. **Harmonogram płatności (zaliczki i płatności etapowe):**\n   a) Zaliczka przy zawarciu Umowy: ………… % ceny brutto = ……………… zł – do wpłaty w terminie …… dni roboczych od dnia podpisania Umowy;\n   b) Zaliczka po zatwierdzeniu projektów/przygotowaniu materiałów: ………… % ceny brutto = ……………… zł – do wpłaty w terminie …… dni roboczych od podpisania protokołu zatwierdzenia;\n   c) Zaliczka po zakończeniu produkcji (przed wysyłką): ………… % ceny brutto = ……………… zł – do wpłaty w terminie …… dni roboczych od powiadomienia o gotowości;\n   d) Płatność końcowa (do 100% ceny): ……………… zł – do wpłaty w terminie 14 dni roboczych od daty podpisania Protokołu Odbioru Końcowego.\n4. Każda zaliczka jest **zaliczką** w rozumieniu art. 462 § 1 Kodeksu cywilnego – stanowi częściowe spełnienie świadczenia pieniężnego, jest zwrotna w całości w przypadku nienawiązania lub niewykonania Umowy z przyczyn leżących po którejkolwiek ze Stron, nie ma charakteru odszkodowawczego ani zadatku (art. 394 KC). Strony wykluczają zastosowanie instytucji zadatku.\n5. Płatności dokonuje się przelewem na rachunek bankowy Wykonawcy: …………………………………………………………………………………………………………\n6. **Faktura zaliczkowa:** Wykonawca, jako podatnik VAT, zobowiązuje się wystawić fakturę zaliczkową w terminie do 15. dnia miesiąca następującego po miesiącu otrzymania zaliczki (art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług), a nie później niż w dniu otrzymania wpłaty. Faktura zaliczkowa zawiera elementy wymagane przepisami ustawy o VAT.\n7. Faktura końcowa (korygująca) zostanie wystawiona w dniu wykonania Dzieła, z uwzględnieniem zaliczek rozliczonych na fakturach zaliczkowych.\n8. W przypadku opóźnienia z płatnością, Zamawiający ponosi odsetki ustawowe za opóźnienie (art. 481 § 2 KC) od dnia wymagalności do dnia zapłaty.\n\n§ 3. TERMIN I MIEJSCE WYKONANIA DZIEŁA\n1. Termin wykonania Dzieła: do dnia …………………… r.\n2. Termin ten może zostać przedłużony wyłącznie za porozumieniem Stron wyrażonym piśmem pod rygorem nieważności.\n3. Miejsce dostawy i odbioru: …………………………………………………………………………………………………………\n4. Wykonawca informuje Zamawiającego o gotowości Dzieła do odbioru co najmniej 3 dni robocze przed planowaną datą dostawy.\n\n§ 4. ODBIÓR DZIEŁA I PROTOKÓŁ\n1. Odbiór Dzieła następuje na podstawie Protokołu Odbioru Końcowego podpisanego przez upoważnionych przedstawicieli Stron.\n2. Protokoł zawiera: datę i miejsce odbioru, potwierdzenie zgodności z Specyfikacją Techniczną i Umową, ew. zastrzeżenia (wady, niedokończenia), podpisy Stron.\n3. Jeśli Zamawiający odmawia podpisania Protokołu bez uzasadnienia, a Dzieło jest zgodne z Umową, Wykonawca może żądać uznania Dzieła za odebrane z upływem 7 dni od zgłoszenia gotowości (art. 632 KC).\n4. Podpisanie Protokołu bez zastrzeżeń oznacza uznanie Dzieła za wykonane zgodnie z Umową, z zastrzeżeniem wad ukrytych.\n\n§ 5. ODPOWIEDZIALNOŚĆ ZA WADY (RĘKOJMIA)\n1. Wykonawca odpowiada za wady fizyczne i prawne Dzieła na zasadach rękojmi przy umowie o dziele (art. 638 § 1 KC w zw. z art. 556–576 KC).\n2. Odpowiedzialność Wykonawcy jest wyłączona, jeżeli wada powstała z przyczyny tkwiącej w materiale dostarczonym przez Zamawiającego (art. 638 § 2 KC).\n3. Zamawiający ma prawo żądać:\n   a) usunięcia wady lub wykonania nowego Dzieła (naprawa/zamiana);\n   b) obniżenia ceny;\n   c) odstąpienia od Umowy – jeśli wada jest istotna i nie została usunięta w terminie dodatkowym wyznaczonym przez Zamawiającego.\n4. Wady ukryte: Zamawiający może zgłosić wady ukryte w terminie 2 lat od dnia odbioru Dzieła (art. 577 § 1 KC).\n5. Wykonawca gwarantuje, że meble szkolne spełniają wymogi norm PN-EN 1729 (wymiary, ergonomia), PN-EN 12520 (wytrzymałość), posiadają certyfikaty PZH/B-BHP oraz zgodność z przepisami dotyczącymi bezpieczeństwa użytkowania w placówkach oświatowych.\n\n§ 6. KARY UMOWNE ZA OPÓŹNIENIE\n1. Za każdy dzień opóźnienia w wykonaniu Dzieła po terminie określonym w § 3 ust. 1, Wykonawca zapłaci Zamawiającemu karę umowną w wysokości ………… % ceny brutto za każdy rozpoczęty dzień opóźnienia, nie więcej niż łącznie ………… % ceny brutto.\n2. Kara umowna nie wyklucza roszczenia o naprawienie szerszej szkody (art. 484 § 2 KC).\n3. Jeśli opóźnienie wynika z przyczyn niezależnych od Wykonawcy (siła wyższa, opóźnienia Zamawiającego w dostarczaniu materiałów/decyzji), termin wykonania przedłuża się odpowiednio, a kara umowna nie nalicza się za ten okres.\n\n§ 7. ZASTRZEŻENIE WŁASNOŚCI\n1. Właśność do wykonanych mebli szkolnych przechodzi na Zamawiającego dopiero w momencie pełnej zapłaty ceny brutto wraz z odsetkami i kosztami (art. 589 KC).\n2. Do momentu pełnej zapłaty Wykonawca zachowuje prawo własności do mebli i może żądać ich zwrotu w przypadku niespłaty.\n3. Ryzyko przypadkowej zguby lub uszkodzenia Dzieła przechodzi na Zamawiającego w momencie odbioru (podpisania Protokołu Odbioru Końcowego).\n\n§ 8. PRZEPRAWY VAT I PODATKOWE\n1. Strony potwierdzają, że obie są podatnikami VAT. Wykonawca wystawia faktury zaliczkowe i końcową zgodnie z art. 19a ust. 8 i art. 106b ustawy o VAT.\n2. W przypadku zmiany stawki VAT lub przepisów podatkowych po dniu podpisania Umowy, cena brutto ulega odpowiedniemu przeliczeniu, a Strony podpisują aneks aktualizujący kwoty.\n3. Zaliczka nie jest przychodem Wykonawcy w chwili wpłaty – przychód powstaje w chwili wykonania Dzieła (art. 14 ust. 1c ustawy o PIT / art. 12 ust. 3a ustawy o CIT).\n\n§ 9. ODSTĄPIENIE OD UMOWY I ROZWIĄZANIE\n1. Każda ze Stron może odstąpić od Umowy w przypadku naruszenia istotnego zobowiązania przez drugą Stronę, jeśli naruszenie nie zostanie usunięte w terminie 7 dni od wezwania piśmem.\n2. W przypadku odstąpienia od Umowy przez Zamawiającego z winy Wykonawcy: Wykonawca zwraca otrzymane zaliczki w terminie 7 dni roboczych, bez odsetek, a Zamawiający może żądać odszkodowania.\n3. W przypadku odstąpienia od Umowy przez Wykonawcę z winy Zamawiającego (opóźnienie z płatnością powyżej 14 dni): Wykonawca zwraca otrzymane zaliczki pomniejszone o pokryte koszty produkcji i uzasadnione nakłady, a może żądać odszkodowania.\n4. W przypadku odstąpienia z przyczyn nieleżących żadnej ze Stron (siła wyższa): Strony rozliczają się proporcjonalnie do wykonanej części Dzieła, zaliczki zwracane są w nieuzasadnionej wysokości.\n\n§ 10. TAJEMNICA HANDLOWA I DANE OSOBOWE\n1. Strony zobowiązują się zachować poufność informacji uzyskanych w związku z wykonaniem Umowy (ceny, technologie, dane techniczne, dane osobowe) przez okres 3 lat od zakończenia Umowy.\n2. Dane osobowe przetwarzane są zgodnie z RODO w celu realizacji Umowy.\n\n§ 11. ROZSTRZYGANIE SPORÓW\n1. Spory rozwiązuje się drogą negocjacji, a failing that – sądem powszechnym właściwym dla siedziby Zamawiającego.\n2. Prawo polskie.\n\n§ 12. POSTANOWIENIA KOŃCOWE\n1. Umowa sporządzona w 2 egzemplarzach, po jednym dla każdej Strony.\n2. Zmiany i aneksy wymagają formy pisemnej pod rygorem nieważności.\n3. W sprawach nieuregulowanych stosuje się przepisy Kodeksu cywilnego (umowa o dzieło – art. 627–646 KC) oraz ustawy o VAT.\n4. Załączniki:\n   – Załącznik nr 1: Specyfikacja Techniczna mebli szkolnych;\n   – Załącznik nr 2: Harmonogram produkcji i dostaw;\n   – Załącznik nr 3: Wzór Protokołu Odbioru Końcowego.\n\n……………………………………………..                    ……………………………………………..\n(Miejsce i data)                                                    (Miejsce i data)\n\n……………………………………………..                    ……………………………………………..\n(Podpis Zamawiającego)                                            (Podpis Wykonawcy)\n\n---\n\n**POTWIERDZENIE OTRZYMANIA ZALICZKI (dołączane do Umowy lub wydawane osobno przy wpłacie)**\n\nPotwierdzam otrzymanie od Zamawiającego zaliczki na poczet ceny za wykonanie Dzieła wg Umowy o dzieło z dnia …………………… r.:\n\nKwota: ……………… zł (słownie: …………………………………………………………………………………………………………)\nData wpłaty: ……………………\nSposób wpłaty: przelew / gotówka / BLIK\nTytuł: Zaliczka nr … / … wg harmonogramu § 2 ust. 3 Umowy\n\nZaliczka jest zwrotna w całości w przypadku niewykonania Umowy (nie stanowi zadatku art. 394 KC).\n\nFaktura zaliczkowa nr …………………… wystawiona dnia ……………………\n\n……………………………………………..\n(Podpis Wykonawcy / upoważnionego pracownika)\n\nOdbiorę potwierdzenia:\n……………………………………………..\n(Podpis Zamawiającego / upoważnionego pracownika)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA O DZIEŁO NA PRODUKCJĘ MEBLI SZKOLNYCH Z ZALICZKĄ\n\nzawarte w dniu …………………… r. w ……………………\n\nMIĘDZY:\n\n**Zamawiający**\nNazwa/Firma: ……………………………………………………………………………………\nSiedziba: …………………………………………………………………………………………\nNIP: ……………………………………  REGON: ……………………………………………\nPrzedstawiciel: …………………………………………………………………………………\n(dalej: „Zamawiający”)\n\ni\n\n**Wykonawca**\nNazwa/Firma: ……………………………………………………………………………………\nSiedziba: …………………………………………………………………………………………\nNIP: ……………………………………  REGON: ……………………………………………\nPrzedstawiciel: …………………………………………………………………………………\n(dalej: „Wykonawca”)\n\nrazem nazywane „Stronami”.\n\n§ 1. PRZEDMIOT UMOWY\n1. Przedmiotem niniejszej Umowy jest wykonanie przez Wykonawcę dzieła polegającego na produkcji i dostarczeniu mebli szkolnych zgodnie ze Specyfikacją Techniczną stanowiąącą Załącznik nr 1 do niniejszej Umowy (dalej: „Dzieło”).\n2. Dzieło obejmuje: projektowanie (jeśli dotyczy), produkcję, pakowanie, transport do miejsca odbioru, rozładunek, montaż (jeśli dotyczy) oraz przekazanie dokumentacji technicznej i certyfikatów zgodności.\n3. Wykonawca oświadcza, że posiada uprawnienia, doświadczenie, zasoby ludzkie i techniczne niezbędne do terminowego i prawidłowego wykonania Dzieła.\n\n§ 2. CENNA I WARUNKI PŁATNOŚCI\n1. Całkowita cena brutto za wykonanie Dzieła wynosi: …………………… zł (słownie: …………………………………………………………………………………………………………), w tym podatek VAT w wysokości …………………… zł (stawka ………… %).\n2. Cena jest stała i niepodlegająca zmniejszeniu lub zwiększeniu, z wyjątkiem zmiany stawki VAT zgodnie z art. 19a ust. 8 ustawy o VAT – w takim przypadku cena brutto ulega odpowiedniemu przeliczeniu.\n3. **Harmonogram płatności (zaliczki i płatności etapowe):**\n   a) Zaliczka przy zawarciu Umowy: ………… % ceny brutto = ……………… zł – do wpłaty w terminie …… dni roboczych od dnia podpisania Umowy;\n   b) Zaliczka po zatwierdzeniu projektów/przygotowaniu materiałów: ………… % ceny brutto = ……………… zł – do wpłaty w terminie …… dni roboczych od podpisania protokołu zatwierdzenia;\n   c) Zaliczka po zakończeniu produkcji (przed wysyłką): ………… % ceny brutto = ……………… zł – do wpłaty w terminie …… dni roboczych od powiadomienia o gotowości;\n   d) Płatność końcowa (do 100% ceny): ……………… zł – do wpłaty w terminie 14 dni roboczych od daty podpisania Protokołu Odbioru Końcowego.\n4. Każda zaliczka jest **zaliczką** w rozumieniu art. 462 § 1 Kodeksu cywilnego – stanowi częściowe spełnienie świadczenia pieniężnego, jest zwrotna w całości w przypadku nienawiązania lub niewykonania Umowy z przyczyn leżących po którejkolwiek ze Stron, nie ma charakteru odszkodowawczego ani zadatku (art. 394 KC). Strony wykluczają zastosowanie instytucji zadatku.\n5. Płatności dokonuje się przelewem na rachunek bankowy Wykonawcy: …………………………………………………………………………………………………………\n6. **Faktura zaliczkowa:** Wykonawca, jako podatnik VAT, zobowiązuje się wystawić fakturę zaliczkową w terminie do 15. dnia miesiąca następującego po miesiącu otrzymania zaliczki (art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług), a nie później niż w dniu otrzymania wpłaty. Faktura zaliczkowa zawiera elementy wymagane przepisami ustawy o VAT.\n7. Faktura końcowa (korygująca) zostanie wystawiona w dniu wykonania Dzieła, z uwzględnieniem zaliczek rozliczonych na fakturach zaliczkowych.\n8. W przypadku opóźnienia z płatnością, Zamawiający ponosi odsetki ustawowe za opóźnienie (art. 481 § 2 KC) od dnia wymagalności do dnia zapłaty.\n\n§ 3. TERMIN I MIEJSCE WYKONANIA DZIEŁA\n1. Termin wykonania Dzieła: do dnia …………………… r.\n2. Termin ten może zostać przedłużony wyłącznie za porozumieniem Stron wyrażonym piśmem pod rygorem nieważności.\n3. Miejsce dostawy i odbioru: …………………………………………………………………………………………………………\n4. Wykonawca informuje Zamawiającego o gotowości Dzieła do odbioru co najmniej 3 dni robocze przed planowaną datą dostawy.\n\n§ 4. ODBIÓR DZIEŁA I PROTOKÓŁ\n1. Odbiór Dzieła następuje na podstawie Protokołu Odbioru Końcowego podpisanego przez upoważnionych przedstawicieli Stron.\n2. Protokoł zawiera: datę i miejsce odbioru, potwierdzenie zgodności z Specyfikacją Techniczną i Umową, ew. zastrzeżenia (wady, niedokończenia), podpisy Stron.\n3. Jeśli Zamawiający odmawia podpisania Protokołu bez uzasadnienia, a Dzieło jest zgodne z Umową, Wykonawca może żądać uznania Dzieła za odebrane z upływem 7 dni od zgłoszenia gotowości (art. 632 KC).\n4. Podpisanie Protokołu bez zastrzeżeń oznacza uznanie Dzieła za wykonane zgodnie z Umową, z zastrzeżeniem wad ukrytych.\n\n§ 5. ODPOWIEDZIALNOŚĆ ZA WADY (RĘKOJMIA)\n1. Wykonawca odpowiada za wady fizyczne i prawne Dzieła na zasadach rękojmi przy umowie o dziele (art. 638 § 1 KC w zw. z art. 556–576 KC).\n2. Odpowiedzialność Wykonawcy jest wyłączona, jeżeli wada powstała z przyczyny tkwiącej w materiale dostarczonym przez Zamawiającego (art. 638 § 2 KC).\n3. Zamawiający ma prawo żądać:\n   a) usunięcia wady lub wykonania nowego Dzieła (naprawa/zamiana);\n   b) obniżenia ceny;\n   c) odstąpienia od Umowy – jeśli wada jest istotna i nie została usunięta w terminie dodatkowym wyznaczonym przez Zamawiającego.\n4. Wady ukryte: Zamawiający może zgłosić wady ukryte w terminie 2 lat od dnia odbioru Dzieła (art. 577 § 1 KC).\n5. Wykonawca gwarantuje, że meble szkolne spełniają wymogi norm PN-EN 1729 (wymiary, ergonomia), PN-EN 12520 (wytrzymałość), posiadają certyfikaty PZH/B-BHP oraz zgodność z przepisami dotyczącymi bezpieczeństwa użytkowania w placówkach oświatowych.\n\n§ 6. KARY UMOWNE ZA OPÓŹNIENIE\n1. Za każdy dzień opóźnienia w wykonaniu Dzieła po terminie określonym w § 3 ust. 1, Wykonawca zapłaci Zamawiającemu karę umowną w wysokości ………… % ceny brutto za każdy rozpoczęty dzień opóźnienia, nie więcej niż łącznie ………… % ceny brutto.\n2. Kara umowna nie wyklucza roszczenia o naprawienie szerszej szkody (art. 484 § 2 KC).\n3. Jeśli opóźnienie wynika z przyczyn niezależnych od Wykonawcy (siła wyższa, opóźnienia Zamawiającego w dostarczaniu materiałów/decyzji), termin wykonania przedłuża się odpowiednio, a kara umowna nie nalicza się za ten okres.\n\n§ 7. ZASTRZEŻENIE WŁASNOŚCI\n1. Właśność do wykonanych mebli szkolnych przechodzi na Zamawiającego dopiero w momencie pełnej zapłaty ceny brutto wraz z odsetkami i kosztami (art. 589 KC).\n2. Do momentu pełnej zapłaty Wykonawca zachowuje prawo własności do mebli i może żądać ich zwrotu w przypadku niespłaty.\n3. Ryzyko przypadkowej zguby lub uszkodzenia Dzieła przechodzi na Zamawiającego w momencie odbioru (podpisania Protokołu Odbioru Końcowego).\n\n§ 8. PRZEPRAWY VAT I PODATKOWE\n1. Strony potwierdzają, że obie są podatnikami VAT. Wykonawca wystawia faktury zaliczkowe i końcową zgodnie z art. 19a ust. 8 i art. 106b ustawy o VAT.\n2. W przypadku zmiany stawki VAT lub przepisów podatkowych po dniu podpisania Umowy, cena brutto ulega odpowiedniemu przeliczeniu, a Strony podpisują aneks aktualizujący kwoty.\n3. Zaliczka nie jest przychodem Wykonawcy w chwili wpłaty – przychód powstaje w chwili wykonania Dzieła (art. 14 ust. 1c ustawy o PIT / art. 12 ust. 3a ustawy o CIT).\n\n§ 9. ODSTĄPIENIE OD UMOWY I ROZWIĄZANIE\n1. Każda ze Stron może odstąpić od Umowy w przypadku naruszenia istotnego zobowiązania przez drugą Stronę, jeśli naruszenie nie zostanie usunięte w terminie 7 dni od wezwania piśmem.\n2. W przypadku odstąpienia od Umowy przez Zamawiającego z winy Wykonawcy: Wykonawca zwraca otrzymane zaliczki w terminie 7 dni roboczych, bez odsetek, a Zamawiający może żądać odszkodowania.\n3. W przypadku odstąpienia od Umowy przez Wykonawcę z winy Zamawiającego (opóźnienie z płatnością powyżej 14 dni): Wykonawca zwraca otrzymane zaliczki pomniejszone o pokryte koszty produkcji i uzasadnione nakłady, a może żądać odszkodowania.\n4. W przypadku odstąpienia z przyczyn nieleżących żadnej ze Stron (siła wyższa): Strony rozliczają się proporcjonalnie do wykonanej części Dzieła, zaliczki zwracane są w nieuzasadnionej wysokości.\n\n§ 10. TAJEMNICA HANDLOWA I DANE OSOBOWE\n1. Strony zobowiązują się zachować poufność informacji uzyskanych w związku z wykonaniem Umowy (ceny, technologie, dane techniczne, dane osobowe) przez okres 3 lat od zakończenia Umowy.\n2. Dane osobowe przetwarzane są zgodnie z RODO w celu realizacji Umowy.\n\n§ 11. ROZSTRZYGANIE SPORÓW\n1. Spory rozwiązuje się drogą negocjacji, a failing that – sądem powszechnym właściwym dla siedziby Zamawiającego.\n2. Prawo polskie.\n\n§ 12. POSTANOWIENIA KOŃCOWE\n1. Umowa sporządzona w 2 egzemplarzach, po jednym dla każdej Strony.\n2. Zmiany i aneksy wymagają formy pisemnej pod rygorem nieważności.\n3. W sprawach nieuregulowanych stosuje się przepisy Kodeksu cywilnego (umowa o dzieło – art. 627–646 KC) oraz ustawy o VAT.\n4. Załączniki:\n   – Załącznik nr 1: Specyfikacja Techniczna mebli szkolnych;\n   – Załącznik nr 2: Harmonogram produkcji i dostaw;\n   – Załącznik nr 3: Wzór Protokołu Odbioru Końcowego.\n\n……………………………………………..                    ……………………………………………..\n(Miejsce i data)                                                    (Miejsce i data)\n\n……………………………………………..                    ……………………………………………..\n(Podpis Zamawiającego)                                            (Podpis Wykonawcy)\n\n---\n\n**POTWIERDZENIE OTRZYMANIA ZALICZKI (dołączane do Umowy lub wydawane osobno przy wpłacie)**\n\nPotwierdzam otrzymanie od Zamawiającego zaliczki na poczet ceny za wykonanie Dzieła wg Umowy o dzieło z dnia …………………… r.:\n\nKwota: ……………… zł (słownie: …………………………………………………………………………………………………………)\nData wpłaty: ……………………\nSposób wpłaty: przelew / gotówka / BLIK\nTytuł: Zaliczka nr … / … wg harmonogramu § 2 ust. 3 Umowy\n\nZaliczka jest zwrotna w całości w przypadku niewykonania Umowy (nie stanowi zadatku art. 394 KC).\n\nFaktura zaliczkowa nr …………………… wystawiona dnia ……………………\n\n……………………………………………..\n(Podpis Wykonawcy / upoważnionego pracownika)\n\nOdbiorę potwierdzenia:\n……………………………………………..\n(Podpis Zamawiającego / upoważnionego pracownika)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zamówić meble szkalne i potrzebuję umowy, która pozwoli mi płacić w zaliczkach – część przed produkcją, a resztę po dostawie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem dyrektorem szkoły i planujemy zakup nowych mebli dla uczniów – biurek i krzeseł do kilku sal lekcyjnych. Chcemy podpisać umowę z producentem, która przewiduje płatność w kilku etapach: zaliczka przy zamówieniu, kolejna po zatwierdzeniu projektów, trzecia po zakończeniu produkcji, a ostatnia po dostawie i montażu. Zależy nam też na gwarancji jakości, certyfikatach bezpieczeństwa dla dzieci i zachowaniu prawa własności mebli do czasu pełnej zapłaty."
+  }
+ ]
+}

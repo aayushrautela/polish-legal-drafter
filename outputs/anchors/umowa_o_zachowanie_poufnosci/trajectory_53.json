@@ -1,0 +1,311 @@
+{
+ "run": 57,
+ "hint": "Umowa NDA z walutą odszkodowania EUR",
+ "scenario": "Umowa NDA z walutą odszkodowania EUR",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_zachowanie_poufnosci'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_915ed0db3b7b4cbd8d16f30c",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"query\": \"NDA z walutą odszkodowania EUR\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"kind\": \"structural_template\", \"text\": \"# Umowa o zachowaniu poufności jednostronna (NDA)\\nJednostronna umowa o zachowaniu poufności (NDA — Non-Disclosure Agreement) w Polsce to umowa nienazwana zawierana na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (Dz.U. 1993 nr 47 poz. 211 ze zm.), w której wyłącznie jedna strona — odbiorca — zobowiązuje się do zachowania poufności przekazanych jej informacji przez drugą stronę — ujawniającego. Ujawniający nie przyjmuje żadnych zobowiązań co do poufności — przekazuje informacje jednostronnie, a odbiorca zobowiązuje się do ich ochrony. To klasyczna forma NDA stosowana przy asymetrycznej relacji: inwestor due diligence, rozmowa z potencjalnym kontrahentem, doradcą, dostawcą lub pracownikiem przed podpisaniem umowy o pracę.\\n\\nJednostronny charakter NDA odróżnia ją od wzajemnej umowy o zachowaniu poufności (mutual NDA), w której obowiązek poufności ciąży na obu stronach. Wzajemne NDA stosuje się, gdy obie strony wymieniają wzajemnie wrażliwe informacje — np. podczas negocjacji joint venture lub fuzji. Jednostronne NDA jest wystarczające, gdy tylko jedna strona ujawnia informacje poufne, a druga je jedynie przyjmuje.\\n\\nPodstawą prawną ochrony tajemnicy przedsiębiorstwa w Polsce jest art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Stanowi on, że czynem nieuczciwej konkurencji jest: ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa — informacji technicznych, technologicznych, organizacyjnych lub handlowych posiadających wartość ekonomiczną, które nie są powszechnie znane i w stosunku do których uprawniony podjął działania w celu zachowania ich poufności. NDA jest właśnie dokumentem potwierdzającym, że podjęto działania w celu zachowania poufności, co jest jednym z warunków skuteczności ochrony na podstawie art. 11 u.z.n.k. Naruszenie tajemnicy przedsiębiorstwa uprawnia poszkodowanego do żądania zaniechania, usunięcia skutków, odszkodowania i wydania bezpodstawnie uzyskanych korzyści.\\n\\nNDA jest obowiązkowym dokumentem w procesach due diligence (przedinwestycyjnych badań spółek), w negocjacjach umów technologicznych, przy udostępnianiu know-how lub bazy danych klientów potencjalnym partnerom, a także przed przekazaniem innowacyjnego projektu lub rozwiązania technologicznego do oceny. Bez NDA ujawnienie informacji osobie trzeciej może utrudnić późniejszą ochronę patentową wynalazku (wymóg nowości) lub dochodzenie roszczeń za bezprawne wykorzystanie know-how.\\n\\nDobrze skonstruowana jednostronna NDA powinna precyzyjnie definiować zakres informacji poufnych, cele ujawnienia, wyłączenia spod obowiązku poufności, czas trwania obowiązku, kary umowne za naruszenie, obowiązki RODO w przypadku danych osobowych oraz sąd właściwy. Właściwy Sąd Okręgowy (sąd gospodarczy) jest właściwy dla sporów o naruszenie tajemnicy przedsiębiorstwa, a strona może wnioskować o tymczasowe zabezpieczenie przez zakaz dalszego ujawniania.\\n\\nJednostronna umowa NDA w Polsce jest potrzebna w każdej sytuacji, gdy jedna strona ujawnia drugiej poufne informacje handlowe, technologiczne lub finansowe, a chce zachować pełną kontrolę nad ich dalszym wykorzystaniem.\\n\\nDue diligence i negocjacje inwestycyjne. Startupy i spółki poszukujące finansowania podpisują jednostronną NDA z potencjalnymi inwestorami (fundusze VC, aniołowie biznesu) przed udostępnieniem dokumentów finansowych, prognoz, bazy klientów lub danych technologicznych. NDA chroni założycieli przed nieuprawnionym wykorzystaniem informacji w przypadku niepowodzenia negocjacji inwestycyjnych.\\n\\nNegocjacje partnerskie i B2B. Firma chcąca omówić potencjalną współpracę z kontrahentem lub dostawcą, któremu musi przedstawić szczegóły technologii lub modelu biznesowego, podpisuje jednostronną NDA przed przekazaniem wrażliwych informacji. Drugiej stronie — potencjalnemu kontrahentowi — nie grozi ujawnienie informacji, więc nie ma powodu do wzajemności.\\n\\nPrezentacja wynalazku lub projektu technologicznego. Twórca lub wynalazca chcący poddać swój projekt ocenie przez eksperta, inwestora lub producenta musi chronić poufność pomysłu przed złożeniem wniosku patentowego w Urzędzie Patentowym Rzeczypospolitej Polskiej (UPRP) lub Europejskim Urzędzie Patentowym (EPO). Publiczne ujawnienie wynalazku przed złożeniem zgłoszenia patentowego niszczy wymóg nowości (art. 24 ustawy z dnia 30 czerwca 2000 r. Prawo własności przemysłowej).\\n\\nRozmowy z potencjalnymi pracownikami lub doradcami. Przed zatrudnieniem specjalisty z dostępem do wrażliwych informacji (np. head of sales — baza klientów; CTO — kod źródłowy) pracodawca podpisuje jednostronną NDA jako uzupełnienie umowy o pracę lub przed jej zawarciem.\\n\\nAgencje reklamowe i kreatywne. Klient zlecający agencji kampanię reklamową przed przekazaniem briefu z poufnymi informacjami o produkcie, strategii i budżecie podpisuje jednostronną NDA, aby agencja nie mogła udostępnić tych informacji konkurentom.\\n\\nProcesy M&A i sprzedaż spółki. Spółka rozważająca sprzedaż lub fuzję udostępnia szczegóły finansowe i operacyjne potencjalnym nabywcom na podstawie jednostronnej NDA, zanim obie strony podpiszą wzajemną NDA lub umowę przedwstępną.\\n\\nJednostronna umowa NDA w Polsce powinna zawierać następujące elementy, aby skutecznie chronić tajemnicę przedsiębiorstwa i zapewniać możliwość dochodzenia roszczeń w razie naruszenia.\\n\\nOznaczenie stron. Pełne dane ujawniającego i odbiorcy: firma lub imię i nazwisko, adres siedziby lub zamieszkania, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), dane osoby podpisującej. Wyraźne wskazanie, która strona jest ujawniającym, a która odbiorcą.\\n\\nCel ujawnienia informacji. Konkretny cel, w jakim odbiorca otrzymuje informacje poufne — bez ograniczenia celu odbiorca mógłby twierdzić, że nie wiedział, do czego wolno mu używać informacji. Poza wskazanym celem odbiorca nie może korzystać z informacji.\\n\\nDefinicja informacji poufnych. Jak najszersza, lecz jednoznaczna definicja informacji chronionych NDA — musi obejmować: technologię, know-how, kod źródłowy, dane finansowe i prognozowe, bazę klientów i dostawców, strategię, plany produktowe i marketingowe, dane osobowe pracowników, partnerów i klientów. forms-legal.com zaleca klauzulę, że informacje poufne obejmują wszelkie informacje przekazane w trakcie rozmów, prezentacji i dokumentacji, niezależnie od ich formy (pisemna, elektroniczna, ustna, wizualna).\\n\\nWyłączenia spod obowiązku poufności. Standardowe wyłączenia chroniące odbiorcę: informacje powszechnie dostępne w momencie ujawnienia lub które stały się powszechnie dostępne bez winy odbiorcy; informacje znane odbiorcy przed podpisaniem NDA; informacje ujawnione przez osobę trzecią uprawnioną do ich ujawnienia; informacje ujawnione na żądanie sądu, prokuratury lub organu regulacyjnego. Wyłączenia muszą być wąskie, aby nie umożliwiały obejścia NDA.\\n\\nZobowiązania odbiorcy. Konkretne obowiązki: zachowanie poufności; udostępnianie wyłącznie osobom z konieczności wiedzenia (need-to-know), objętym pisemnym obowiązkiem poufności; zakaz kopiowania ponad potrzebę; zakaz wykorzystywania poza wskazanym celem; natychmiastowe powiadomienie o naruszeniu; zwrot lub niszczenie materiałów na żądanie.\\n\\nKara umowna. Kara umowna za każde naruszenie (art. 483 KC) — musi być na tyle wysoka, aby skutecznie odstraszać (standardowo 20 000 – 100 000 zł za naruszenie). Niezbędne postanowienie: zapłata kary nie wyłącza prawa do odszkodowania przekraczającego kwotę kary (art. 484 § 1 KC).\\n\\nCzas trwania. Precyzyjny czas obowiązywania obowiązku poufności (standardowo 2–5 lat od podpisania NDA). Klauzula o możliwości przedłużenia na pisemny wniosek.\\n\\nObowiązki RODO. Jeżeli informacje poufne obejmują dane osobowe, wskazanie podstawy prawnej ich przetwarzania (art. 6 RODO), upoważnienia i obowiązku stosowania środków bezpieczeństwa (art. 32 RODO).\\n\\nRozwiązywanie sporów. Sąd właściwy dla siedziby ujawniającego (Sąd Rejonowy lub Sąd Okręgowy — sąd gospodarczy), klauzula mediacyjna (art. 183[1] KPC), możliwość wnioskowania o zabezpieczenie w postępowaniu sądowym.\\n\\nJednostronna umowa NDA w Polsce jest wypełniana według kolejnych kroków zapewniających maksymalną ochronę informacji poufnych.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy) lub imiona i nazwiska, adresy, NIP, REGON i KRS lub wpisy do CEIDG. Wyraźnie oznacz, która strona jest ujawniającym (Discloser), a która odbiorcą (Recipient). Wskaż osoby uprawnione do podpisania umowy.\\n\\nKrok 2 — określ cel ujawnienia. Wpisz konkretny, ograniczony cel, w jakim odbiorca otrzymuje informacje poufne — np. ocena potencjalnej inwestycji, due diligence spółki, negocjacje umowy partnerskiej. Im węższy cel, tym skuteczniej NDA ogranicza odbiorcę.\\n\\nKrok 3 — zdefiniuj informacje poufne. Wpisz jak najszerszą definicję obejmującą wszystkie kategorie informacji, które zamierzasz ujawnić. Jeżeli planujesz ujawnić kod źródłowy — wskaż to wprost. Jeżeli baza klientów — wskaż. Ogólna definicja jest lepsza niż enumeratywna lista, ponieważ chroni przed argumentem, że dana informacja nie była wymieniona w NDA.\\n\\nKrok 4 — doprecyzuj wyłączenia. Wpisz standardowe wyłączenia: informacje publiczne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu. Zadbaj, by wyłączenia były wąskie — zbyt szerokie umożliwiają obejście NDA.\\n\\nKrok 5 — ustal karę umowną. Wpisz wysokość kary umownej za każde naruszenie — standardowo 50 000 zł za naruszenie w relacjach B2B. Pamiętaj, że kara umowna dotyczy zobowiązania niepieniężnego (obowiązek poufności — art. 483 KC) i że nie wyłącza prawa do odszkodowania wyższego (art. 484 § 1 KC).\\n\\nKrok 6 — ustal czas trwania. Wpisz czas obowiązywania obowiązku poufności — standardowo 2–5 lat. Przy projektach wysokiego ryzyka (technologia, patenty) rozważ 5 lat lub bezterminowy obowiązek poufności w odniesieniu do kluczowych informacji.\\n\\nKrok 7 — uwzględnij RODO. Jeżeli ujawniasz dane osobowe (np. dane klientów, pracowników), wskaż podstawę prawną ich przetwarzania przez odbiorcę (art. 6 RODO) i obowiązek stosowania środków bezpieczeństwa.\\n\\nKrok 8 — podpisz NDA przed ujawnieniem. Kluczowa zasada: podpisz NDA zawsze przed ujawnieniem jakichkolwiek informacji poufnych. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym — umożliwia szybkie podpisanie na odległość.\\n\\nJednostronna umowa NDA w Polsce podlega przepisom Kodeksu cywilnego, ustawy o zwalczaniu nieuczciwej konkurencji i RODO — w zależności od rodzaju chronionych informacji.\\n\\nTajemnica przedsiębiorstwa — art. 11 u.z.n.k. Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (implementująca dyrektywę UE 2016/943 o tajemnicach handlowych) definiuje tajemnicę przedsiębiorstwa jako informacje techniczne, technologiczne, organizacyjne lub handlowe, posiadające wartość ekonomiczną, niepowszechnie znane, wobec których uprawniony podjął działania zachowania poufności. NDA jest właśnie takim działaniem — jego zawarcie stanowi warunek kwalifikacji informacji jako tajemnicy przedsiębiorstwa. Naruszenie tajemnicy przez ujawnienie, pozyskanie lub wykorzystanie przez odbiorcę stanowi czyn nieuczciwej konkurencji, uzasadniający żądanie: zaniechania niedozwolonych działań; usunięcia skutków naruszenia; zapłaty odszkodowania; wydania bezpodstawnie uzyskanych korzyści; złożenia oświadczenia odpowiedniej treści i formy. Sąd Okręgowy (sąd gospodarczy) jest właściwy rzeczowo dla tych spraw.\\n\\nKara umowna — art. 483-484 KC. Kara umowna zastrzeżona za naruszenie obowiązku poufności (zobowiązanie niepieniężne) jest skuteczna i należy się bez wykazywania szkody. Sąd może miarkować rażąco wygórowaną karę (art. 484 § 2 KC). Strony mogą wyłączyć miarkowanie przez wyraźne postanowienie \\\"kara nie podlega zmniejszeniu\\\". Strony mogą zastrzec, że w razie szkody przekraczającej karę poszkodowany może dochodzić odszkodowania wyższego (art. 484 § 1 zdanie 2 KC).\\n\\nRODO i u.o.d.o. Jeżeli informacje poufne obejmują dane osobowe (np. baza klientów, dane pracowników), przetwarzanie tych danych przez odbiorcę wymaga podstawy prawnej (art. 6 RODO) — zazwyczaj prawnie uzasadniony interes administratora (ujawniającego) lub umowa. Odbiorca musi stosować środki bezpieczeństwa (art. 32 RODO). W razie naruszenia danych — powiadomić Prezesa Urzędu Ochrony Danych Osobowych (PUODO) w ciągu 72 godzin (art. 33 RODO).\\n\\nForma umowy NDA. Ustawa o zwalczaniu nieuczciwej konkurencji nie wymaga formy pisemnej dla NDA. Jednak forma pisemna lub elektroniczna z kwalifikowanym podpisem jest zalecana dla celów dowodowych — w sporze sądowym ujawniający musi wykazać istnienie i zakres zobowiązania do zachowania poufności. Kara umowna w każdym przypadku wymaga formy pisemnej (art. 483 § 1 KC w zw. z art. 78 KC).\\n\\nJednostronne umowy NDA w Polsce często zawierają błędy osłabiające ochronę tajemnicy przedsiębiorstwa. Poniżej najważniejsze z nich.\\n\\nBłąd 1 — podpisanie NDA po ujawnieniu informacji. Najczęstszy błąd: inwestor lub kontrahent już otrzymał wrażliwe informacje, a dopiero potem prosi o NDA. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Zalecenie: podpisuj NDA zawsze przed przekazaniem jakichkolwiek dokumentów lub prezentacji.\\n\\nBłąd 2 — zbyt wąska definicja informacji poufnych. Enumeratywna lista kategorii (np. \\\"plany finansowe i technologia\\\") może pomijać inne wrażliwe informacje (np. bazę klientów, know-how organizacyjny). Zalecenie: stosuj szeroką definicję obejmującą wszelkie informacje przekazane w trakcie negocjacji, prezentacji i dokumentacji, w dowolnej formie.\\n\\nBłąd 3 — zbyt szerokie wyłączenia. Wyłączenia sformułowane zbyt ogólnie (np. \\\"informacje dostępne z innych źródeł\\\") mogą obejmować informacje, które odbiorca zdobył niezgodnie z prawem i próbuje uzasadnić ich pominięciem przez wyłączenie. Zalecenie: ograniczaj wyłączenia do standardowych, precyzyjnych kategorii — informacje publicznie dostępne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu.\\n\\nBłąd 4 — brak kary umownej lub zbyt niska kara. Brak kary umownej lub kara 1 000 zł nie odstraszy poważnego kontrahenta. Zalecenie: ustal karę umowną na poziomie realnej szkody — standardowo 20 000 – 100 000 zł za naruszenie w relacjach B2B.\\n\\nBłąd 5 — brak obowiązku zwrotu lub zniszczenia materiałów. Odbiorca może zachować kopie dokumentów po zakończeniu negocjacji. Zalecenie: wskaż wyraźnie obowiązek zwrotu lub trwałego zniszczenia wszystkich materiałów (w tym kopii elektronicznych) na żądanie ujawniającego lub po zakończeniu negocjacji.\\n\\nBłąd 6 — pominięcie RODO. Jeżeli ujawniasz dane osobowe bez regulacji RODO w NDA, narażasz się na sankcję PUODO. Zalecenie: wskaż wprost, że dane osobowe zawarte w materiałach poufnych są przetwarzane przez odbiorcę wyłącznie dla wskazanego celu, na podstawie art. 6 ust. 1 lit. f RODO i z zachowaniem środków bezpieczeństwa art. 32 RODO.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-zachowaniu-poufnosci-jednostronna (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_915ed0db3b7b4cbd8d16f30c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_6378a21d16d145089edc1dbf",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"waluta odszkodowania kara umowna w euro obce waluty umowa NDA\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_b7061eb0c0ac4d63819f7172",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 483 KC\", \"waluta obca\", \"euro\", \"odszkodowanie\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_b741d88f0fae6bc4\", \"source_id\": \"uokik_rejestr_klauzul_5954\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia niniejszych Warunków, a w szczególności postanowień ustępu 8, osoba dopuszczająca się naruszenia będzie zobowiązana do zapłaty kary umownej o stałej wysokości pięciu tysięcy euro (5000 EUR) w celu pokrycia kosztów administracyjnych wynikających z naruszenia. (...) zastrzega sobie możliwość skorzystania z wszelkich pozostałych środków prawnych wedle własnego uznania\"}, {\"chunk_id\": \"uokik_abusive_clause_90\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia przez (...) od niniejszej umowy zgodnie z zapisami ust. 1 lub 6 niniejszego paragrafu, ze zwracanej kwoty zostanie potrącona należna Spółce kara umowna w wysokości równowartości 15% ceny lokalu wyrażonej w USD według kursu średniego USD w NBP obowiązującego w dniu odstąpienia od umowy.\"}, {\"chunk_id\": \"uokik_items:uokik_6da1c4cac1348005\", \"source_id\": \"uokik_rejestr_klauzul_1757\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany uświadamia sobie, że jeżeli będzie to zgodne z obowiązującymi przepisami pożyczka może być udzielona w innej walucie niż złoty, a mianowicie w koronach czeskich, dolarach amerykańskich, euro, słowackich koronach i wówczas będzie zobowiązany do jej zwrotu w otrzymanej walucie\"}, {\"chunk_id\": \"uokik_items:uokik_f762c7a11a0222d2\", \"source_id\": \"uokik_rejestr_klauzul_7767\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy waluta, w której udzielono kredytu przestanie być prawnym środkiem płatniczym, a będzie nim waluta euro, wszelkie zobowiązania kredytobiorcy wobec Banku, wynikające z umowy kredytu, zostaną przeliczone na walutę euro, według stałego kursu wymiany waluty kredytu w stosunku do waluty euro\"}, {\"chunk_id\": \"uokik_items:uokik_e7ff3f0c72e173df\", \"source_id\": \"uokik_rejestr_klauzul_5614\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zleceniodawca po podpisaniu Umowy nie może zrezygnować z Zamówionego dzieła, w przeciwnym razie zobowiązuje się zapłacić karę umowną Zleceniobiorcy w kwocie 50 000 zł (słownie: pięćdziesiąt tysięcy złotych) jako Odszkodowanie Umowy niezrealizownaej\"}]",
+   "tool_call_id": "call_6378a21d16d145089edc1dbf",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_18\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 18. 1. Osoby zajmujące lokal bez tytułu prawnego są obowiązane do dnia opróżnienia lokalu co miesiąc uiszczać odszkodowanie. 2. Odszkodowanie, o którym mowa w ust. 1, odpowiada wysokości czynszu, jaki właściciel mógłby otrzymać z tytułu najmu lokalu. Jeżeli odszkodowanie nie pokrywa poniesionych strat, właściciel może żądać od osoby, o której mowa w ust. 1, odszkodowania uzupełnia ...\"}, {\"chunk_id\": \"uokik_items:uokik_b52c1c7767e2b675\", \"source_id\": \"uokik_rejestr_klauzul_1310\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy (...)wypłaciła odszkodowanie za szkodę polegającą na zniszczeniu lub uszkodzeniu przedmiotu ubezpieczenia, a przed jego naprawieniem nastąpiła ponowna szkoda obejmująca ten sam przedmiot ubezpieczenia, odszkodowanie wypłaca się w wysokości różnicy, jaka występuje między ustalonym na nowo odszkodowaniem, a odszkodowaniem wypłaconym za poprzednią szkodę\"}, {\"chunk_id\": \"uokik_items:uokik_9caabcff3d4bde98\", \"source_id\": \"uokik_rejestr_klauzul_1314\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy (...) wypłaciła odszkodowanie za szkodę polegającą na uszkodzeniu przedmiotu ubezpieczenia, a przed jego naprawieniem nastąpiła ponowna szkoda obejmująca ten sam przedmiot ubezpieczenia, odszkodowanie wypłaca się w wysokości różnicy, jaka występuje między ustalonym na nowo odszkodowaniem, a odszkodowaniem wypłaconym za poprzednią szkodę\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1153\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1153 14 . Tytułami wykonawczymi w Rzeczypospolitej Polskiej są: 1) orzeczenia sądów państw członkowskich Unii Europejskiej oraz pochodzące z tych państw ugody i dokumenty urzędowe, objęte zakresem zastosowania rozporządzenia nr 1215/2012, jeżeli nadają się do wykonania w drodze egzekucji; 2) orzeczenia sądów państw członkowskich Unii Europejskiej oraz pochodzące z tych państw ugody i dokumenty urzędowe, opatrzone w tych państ ...\"}]",
+   "tool_call_id": "call_b7061eb0c0ac4d63819f7172",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_3186774350c340fcba66290a",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 353[1] KC\", \"waluta obca\", \"zobowiązanie pieniężne\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_62f6b0b522594adc9be215ef",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"zobowiązanie pieniężne w walucie obcej art. 358 KC kurs przeliczenia waluty obcej\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_3186774350c340fcba66290a",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_358\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 358. § 1. Jeżeli przedmiotem zobowiązania podlegającego wykonaniu na terytorium Rzeczypospolitej Polskiej jest suma pieniężna wyrażona w walucie obcej, dłużnik może spełnić świadczenie w walucie polskiej, chyba że ustawa, orzeczenie sądowe będące źródłem zobowiązania lub czynność prawna zastrzega spełnienie świadczenia wyłącznie w walucie obcej. § 2. Wartość waluty obcej określa się według kursu średniego ogłaszanego przez Narodowy Bank Polski z ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_798\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 798 1 . § 1. Jeżeli tytuł wykonawczy obejmuje świadczenie pieniężne w walucie obcej, organ egzekucyjny przelicza zasądzoną kwotę na walutę polską według kursu średniego ogłaszanego przez Narodowy Bank Polski na dzień sporządzenia planu podziału, a jeżeli planu nie sporządzono - na dzień wypłaty kwoty wierzycielowi. § 2. Przepisu § 1 nie stosuje się, jeżeli z tytułu wykonawczego wynika, że świadczenie pieniężne podlega spełnie ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_889\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 889 1 . § 1. Jeżeli zajęto rachunek bankowy prowadzony w walucie obcej, bank przekazuje komornikowi należność w walucie polskiej przeliczonej według kursu kupna waluty obcej, w której prowadzony jest rachunek, ogłoszonego przez Narodowy Bank Polski w dniu przekazania należności komornikowi. § 2. Przepisu § 1 nie stosuje się, jeżeli tytuł wykonawczy obejmuje świadczenie pieniężne podlegające spełnieniu wyłącznie w walucie obce ...\"}, {\"chunk_id\": \"uokik_items:uokik_f762c7a11a0222d2\", \"source_id\": \"uokik_rejestr_klauzul_7767\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy waluta, w której udzielono kredytu przestanie być prawnym środkiem płatniczym, a będzie nim waluta euro, wszelkie zobowiązania kredytobiorcy wobec Banku, wynikające z umowy kredytu, zostaną przeliczone na walutę euro, według stałego kursu wymiany waluty kredytu w stosunku do waluty euro\"}, {\"chunk_id\": \"extractor_v9:filtered_0021_statute_54a32846fa9dbfbe\", \"source_id\": \"sejm_eli_du_2024_1061_art_358\", \"source_type\": \"statute\", \"top_category\": \"price_change\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 358 1 . § 1. Jeżeli przedmiotem zobowiązania od chwili jego powstania jest suma pieniężna, spełnienie świadczenia następuje przez zapłatę sumy nominalnej, chyba że przepisy szczególne stanowią inaczej. § 2. Strony mogą zastrzec w umowie, że wysokość świadczenia pieniężnego zostanie ustalona według innego niż pieniądz miernika wartości. § 3. W razie istotnej zmiany siły nabywczej pieniądza po powstaniu zobowiązania, sąd może po rozważeniu interesów stron, zgodnie z zasadami współżycia społecznego, zmienić wysokość lub sposób spełnienia świadczenia pieniężnego, chociażby były ustalone w orz ...\"}]",
+   "tool_call_id": "call_62f6b0b522594adc9be215ef",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the key legal provision - Art. 358 KC which governs monetary obligations in foreign currency. Let me also search for more specific NDA-related provisions with EUR currency.",
+   "tool_calls": [
+    {
+     "id": "call-e13dd829-5153-4cf5-aa56-2fdafef9091f",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_358\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_358\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 358 1 . § 1. Jeżeli przedmiotem zobowiązania od chwili jego powstania jest suma pieniężna, spełnienie świadczenia następuje przez zapłatę sumy nominalnej, chyba że przepisy szczególne stanowią inaczej. § 2. Strony mogą zastrzec w umowie, że wysokość świadczenia pieniężnego zostanie ustalona według innego niż pieniądz miernika wartości. § 3. W razie istotnej zmiany siły nabywczej pieniądza po powstaniu zobowiązania, sąd może po rozważeniu interesów stron, zgodnie z zasadami współżycia społecznego, zmienić wysokość lub sposób spełnienia świadczenia pieniężnego, chociażby były ustalone w orzeczeniu lub umowie. § 4. Z żądaniem zmiany wysokości lub sposobu spełnienia świadczenia pieniężnego nie może wystąpić strona prowadząca przedsiębiorstwo, jeżeli świadczenie pozostaje w związku z prowadzeniem tego przedsiębiorstwa. § 5. Przepisy § 2 i 3 nie uchybiają przepisom regulującym wysokość cen i innych świadczeń pieniężnych.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call-e13dd829-5153-4cf5-aa56-2fdafef9091f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA O ZACHOWANIU POUFNOŚCI JEDNOSTRONNA (NDA)\n\nzawarta w dniu .................................... w ...................................., pomiędzy:\n\n1. [Pełna nazwa podmiotu] z siedzibą w ...................................., wpisaną do [KRS/CEIDG] pod numerem ...................................., NIP: ...................................., REGON: ...................................., reprezentowaną przez: ........................................................................................................................................\n  — zwanej dalej „Ujawniającym\"\n\na\n\n2. [Pełna nazwa podmiotu / imię i nazwisko] z siedzibą / zamieszkaniem w ...................................., [wpisaną do KRS/CEIDG pod numerem ...................................., NIP: ...................................., REGON: ....................................], reprezentowaną przez: ........................................................................................................................................\n  — zwanej dalej „Odbiorcą\"\n\n§ 1. Cel ujawnienia informacji\n\n1. Ujawniający ujawnia Odbiorcy informacje poufne w celu .............................................................................................................................................................................................................................................................................................................................................. (np. ocena potencjalnej inwestycji, due diligence spółki, negocjacje umowy partnerskiej, ocena projektu technologicznego).\n\n2. Odbiorca zobowiązuje się do wykorzystania informacji poufnych wyłącznie w celu określonym w ust. 1 i nie może ich wykorzystywać ani udostępniać w innym celie, w tym w celu własnym lub na rzecz osób trzecich, bez uprzedniej pisemnej zgody Ujawniającego.\n\n§ 2. Definicja informacji poufnych\n\n1. Informacjami poufnością w rozumieniu niniejszej umowy są wszelkie informacje przekazane Odbiorcy przez Ujawniającego lub pozyskane przez Odbiorcę w związku z celem określonym w § 1, niezależnie od formy przekazu (pisemna, elektroniczna, ustna, wizualna, wzrokowa), w tym w szczególności:\n  a) informacje techniczne, technologiczne, wynalazki, patenty, know-how, kod źródłowy, algorytmy, dokumentacja techniczna;\n  b) dane finansowe, prognozy, plany biznesowe, strategie cenowe, budżety;\n  c) bazy klientów, dostawców, partnerów, w tym dane kontaktowe i preferencje;\n  d) dane osobowe pracowników, klientów, partnerów i innych osób fizycznych;\n  e) strategia marketingowa, plany produktowe, badania rynkowe;\n  f) każda inna informacja oznaczona jako „poufna\" lub „confidential\" lub która ze swojej natury powinna być uznana za poufną, mając na uwadze okoliczności jej ujawnienia.\n\n2. Ujawniający zobowiązuje się do oznaczania materiałów przekazywanych w formie pisemnej lub elektronicznej jako „Poufne\" — brak oznaczenia nie wyklucza ochrony informacji na podstawie niniejszej umowy.\n\n§ 3. Wyłączenia spod obowiązku poufności\n\n1. Obowiązek poufności nie obejmuje informacji, które w momencie ujawnienia Odbiorcy:\n  a) były powszechnie dostępne publicznie lub stały się powszechnie dostępne publicznie bez winy Odbiorcy;\n  b) były znane Odbiorcy, co Odbiorca potrafi wykazać za pomocą dokumentacji istniejącej przed podpisaniem niniejszej umowy;\n  c) zostały ujawnione Odbiorcy przez osobę trzecią uprawnioną do ich ujawnienia, bez ograniczeń poufności;\n  d) muszą zostać ujawnione na podstawie przepisów prawa, postanowienia sądu, decyzji organu administracji publicznej lub organu regulacyjnego, przy czym Odbiorca zobowiąuje się do niezwłocznego powiadomienia Ujawniającego o takim obowiązku.\n\n2. Na Odbiorcę ciąży obowiązek wykazania, że dana informacja podlega wyłączeniu określonemu w ust. 1.\n\n§ 4. Zobowiązania Odbiorcy\n\n1. Odbiorca zobowiązuje się do:\n  a) zachowania poufności informacji określonych w § 2 i niepodejmowania działań mogących prowadzić do ich ujawnienia;\n  b) udostępniania informacji poufnych wyłącznie osobom z konieczności wiedzy (need-to-know), które są zobowiązane pisemnie do zachowania poufności na warunkach nie mniej rygorystycznych niż w niniejszej umowie;\n  c) nieprowadzenia kopiowania, reprodukowania ani utrwalania informacji poufnych poza zakresem niezbędnym do realizacji celu określonego w § 1;\n  d) niezwłocznego powiadomienia Ujawniającego o jakimkolwiek naruszeniu poufności, niezależnie od tego, czy nastąpiło ono z winy Odbiorcy, czy osób trzecich, którym informacje zostały udostępnione;\n  e) zwrotu lub trwałego zniszczenia wszystkich materiałów zawierających informacje poufne (w tym kopii elektronicznych) na żądanie Ujawniającego lub niezwłocznie po zakończeniu negocjacji lub realizacji celu określonego w § 1, w terminie nie dłuższym niż 14 dni od żądania lub zakończenia, z złożeniem pisemnego oświadczenia o dokonaniu zwrotu lub zniszczenia;\n  f) współpracy z Ujawniającym w celu ustalenia zakresu naruszenia i podjęcia działań zaradczych.\n\n§ 5. Kara umowna\n\n1. W przypadku naruszenia przez Odbiorcę któregokolwiek z obowiązków określonych w § 4 ust. 1 lit. a–d niniejszej umowy, Odbiorca zapłaci Ujawniającemu karę umowną w wysokości .................... euro (.................... EUR) za każde pojedyncze naruszenie, a w przypadku naruszenia ciągłego — za każdy miesiąc trwania naruszenia.\n\n2. Strony zastrzegają, że kara umowna określona w ust. 1 należy się bez wykazywania wysokości poniesionej szkody i nie wyłącza prawa Ujawniającego do żądania odszkodowania przekraczającego wysokość kary umownej na zasadach ogólnych (art. 484 § 1 Kodeksu cywilnego).\n\n3. Strony wyraźnie zastrzegają, że kara umowna określona w ust. 1 nie podlega zmniejszeniu przez sąd na podstawie art. 484 § 2 Kodeksu cywilnego.\n\n4. Zapłata kary umownej nie zwalnia Odbiorcy z obowiązku zapłaty odszkodowania za szkodę przekraczającą wysokość kary, które Ujawniający może dochodzić w postępowaniu sądowym.\n\n§ 6. Czas trwania umowy\n\n1. Niniejsza umowa wchodzi w życie z dniem jej podpisania przez obie strony i obowiązuje przez okres .................... lat od tego dnia.\n\n2. Obowiązek poufności w odniesieniu do informacji poufnych, które stanowią tajemnicę przedsiębiorstwa w rozumieniu art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji, obowiązuje Odbiorcę bezterminowo, również po wygaśnięciu niniejszej umowy.\n\n3. Ujawniający może przedłużyć czas obowiązywania umowy na pisemny wniosek Odbiorcy, złożony nie później niż 30 dni przed upływem terminu określonego w ust. 1.\n\n§ 7. Ochrona danych osobowych (RODO)\n\n1. W przypadku gdy informacje poufne obejmują dane osobowe w rozumieniu Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO), Odbiorca przetwarza takie dane wyłącznie w celu określonym w § 1 i wyłącznie na podstawie prawnie uzasadnionego interesu Ujawniającego (art. 6 ust. 1 lit. f RODO) lub na podstawie umowy (art. 6 ust. 1 lit. b RODO).\n\n2. Odbiorca zobowiązuje się do stosowania odpowiednich środków technicznych i organizacyjnych zapewniających bezpieczeństwo danych osobowych w rozumieniu art. 32 RODO, w tym w szczególności szyfrowania, kontroli dostępu i rejestracji operacji przetwarzania.\n\n3. W przypadku naruszenia ochrony danych osobowych Odbiorca niezwłocznie powiadomi Ujawniającego i współpracuje w celu spełnienia obowiązków wynikających z art. 33 i 34 RODO.\n\n§ 8. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego oraz ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji.\n\n3. Strony zastrzegają, że zobowiązania pienięże wynikające z niniejszej umowy, w tym kara umowna i odszkodowanie, podlegają wyłącznemu spełnieniu w walucie euro (EUR) na rachunek bankowy wskazany przez Ujawniającego. Strony wyłączają możliwość spełnienia świadczenia w walucie polskiej (PLN) w rozumieniu art. 358 § 1 Kodeksu cywilnego.\n\n4. W przypadku gdy z przyczyn prawnych lub faktycznych Odbiorca będzie zmuszony do zapłaty w walucie polskiej (PLN), przeliczenie nastąpi według kursu średniego euro ogłaszanego przez Narodowy Bank Polski obowiązującego w dniu faktycznej zapłaty.\n\n5. Wszelkie spory wynikające na tle niniejszej umowy strony poddają pod rozstrzygnięcie sądu powszechnego właściwego miejscowo dla siedziby Ujawniającego.\n\n6. Strony zobowiązują się do podjęcia prób polubownego rozwiązania sporu w terminie 30 dni od zgłoszenia roszczenia przez jedną ze stron, przed wystąpieniem do sądu.\n\n7. Niniejszą umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n\n\n.........................................................          .........................................................\n         (podpis Ujawniającego)                        (podpis Odbiorcy)\n\n\nZałączniki:\n— [jeśli dotyczy] wykaz materiałów przekazywanych\n— [jeśli dotyczy] wzór oświadczenia o zachowaniu poufności dla osób trzecich",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA O ZACHOWANIU POUFNOŚCI JEDNOSTRONNA (NDA)\n\nzawarta w dniu .................................... w ...................................., pomiędzy:\n\n1. [Pełna nazwa podmiotu] z siedzibą w ...................................., wpisaną do [KRS/CEIDG] pod numerem ...................................., NIP: ...................................., REGON: ...................................., reprezentowaną przez: ........................................................................................................................................\n  — zwanej dalej „Ujawniającym\"\n\na\n\n2. [Pełna nazwa podmiotu / imię i nazwisko] z siedzibą / zamieszkaniem w ...................................., [wpisaną do KRS/CEIDG pod numerem ...................................., NIP: ...................................., REGON: ....................................], reprezentowaną przez: ........................................................................................................................................\n  — zwanej dalej „Odbiorcą\"\n\n§ 1. Cel ujawnienia informacji\n\n1. Ujawniający ujawnia Odbiorcy informacje poufne w celu .............................................................................................................................................................................................................................................................................................................................................. (np. ocena potencjalnej inwestycji, due diligence spółki, negocjacje umowy partnerskiej, ocena projektu technologicznego).\n\n2. Odbiorca zobowiązuje się do wykorzystania informacji poufnych wyłącznie w celu określonym w ust. 1 i nie może ich wykorzystywać ani udostępniać w innym celie, w tym w celu własnym lub na rzecz osób trzecich, bez uprzedniej pisemnej zgody Ujawniającego.\n\n§ 2. Definicja informacji poufnych\n\n1. Informacjami poufnością w rozumieniu niniejszej umowy są wszelkie informacje przekazane Odbiorcy przez Ujawniającego lub pozyskane przez Odbiorcę w związku z celem określonym w § 1, niezależnie od formy przekazu (pisemna, elektroniczna, ustna, wizualna, wzrokowa), w tym w szczególności:\n  a) informacje techniczne, technologiczne, wynalazki, patenty, know-how, kod źródłowy, algorytmy, dokumentacja techniczna;\n  b) dane finansowe, prognozy, plany biznesowe, strategie cenowe, budżety;\n  c) bazy klientów, dostawców, partnerów, w tym dane kontaktowe i preferencje;\n  d) dane osobowe pracowników, klientów, partnerów i innych osób fizycznych;\n  e) strategia marketingowa, plany produktowe, badania rynkowe;\n  f) każda inna informacja oznaczona jako „poufna\" lub „confidential\" lub która ze swojej natury powinna być uznana za poufną, mając na uwadze okoliczności jej ujawnienia.\n\n2. Ujawniający zobowiązuje się do oznaczania materiałów przekazywanych w formie pisemnej lub elektronicznej jako „Poufne\" — brak oznaczenia nie wyklucza ochrony informacji na podstawie niniejszej umowy.\n\n§ 3. Wyłączenia spod obowiązku poufności\n\n1. Obowiązek poufności nie obejmuje informacji, które w momencie ujawnienia Odbiorcy:\n  a) były powszechnie dostępne publicznie lub stały się powszechnie dostępne publicznie bez winy Odbiorcy;\n  b) były znane Odbiorcy, co Odbiorca potrafi wykazać za pomocą dokumentacji istniejącej przed podpisaniem niniejszej umowy;\n  c) zostały ujawnione Odbiorcy przez osobę trzecią uprawnioną do ich ujawnienia, bez ograniczeń poufności;\n  d) muszą zostać ujawnione na podstawie przepisów prawa, postanowienia sądu, decyzji organu administracji publicznej lub organu regulacyjnego, przy czym Odbiorca zobowiąuje się do niezwłocznego powiadomienia Ujawniającego o takim obowiązku.\n\n2. Na Odbiorcę ciąży obowiązek wykazania, że dana informacja podlega wyłączeniu określonemu w ust. 1.\n\n§ 4. Zobowiązania Odbiorcy\n\n1. Odbiorca zobowiązuje się do:\n  a) zachowania poufności informacji określonych w § 2 i niepodejmowania działań mogących prowadzić do ich ujawnienia;\n  b) udostępniania informacji poufnych wyłącznie osobom z konieczności wiedzy (need-to-know), które są zobowiązane pisemnie do zachowania poufności na warunkach nie mniej rygorystycznych niż w niniejszej umowie;\n  c) nieprowadzenia kopiowania, reprodukowania ani utrwalania informacji poufnych poza zakresem niezbędnym do realizacji celu określonego w § 1;\n  d) niezwłocznego powiadomienia Ujawniającego o jakimkolwiek naruszeniu poufności, niezależnie od tego, czy nastąpiło ono z winy Odbiorcy, czy osób trzecich, którym informacje zostały udostępnione;\n  e) zwrotu lub trwałego zniszczenia wszystkich materiałów zawierających informacje poufne (w tym kopii elektronicznych) na żądanie Ujawniającego lub niezwłocznie po zakończeniu negocjacji lub realizacji celu określonego w § 1, w terminie nie dłuższym niż 14 dni od żądania lub zakończenia, z złożeniem pisemnego oświadczenia o dokonaniu zwrotu lub zniszczenia;\n  f) współpracy z Ujawniającym w celu ustalenia zakresu naruszenia i podjęcia działań zaradczych.\n\n§ 5. Kara umowna\n\n1. W przypadku naruszenia przez Odbiorcę któregokolwiek z obowiązków określonych w § 4 ust. 1 lit. a–d niniejszej umowy, Odbiorca zapłaci Ujawniającemu karę umowną w wysokości .................... euro (.................... EUR) za każde pojedyncze naruszenie, a w przypadku naruszenia ciągłego — za każdy miesiąc trwania naruszenia.\n\n2. Strony zastrzegają, że kara umowna określona w ust. 1 należy się bez wykazywania wysokości poniesionej szkody i nie wyłącza prawa Ujawniającego do żądania odszkodowania przekraczającego wysokość kary umownej na zasadach ogólnych (art. 484 § 1 Kodeksu cywilnego).\n\n3. Strony wyraźnie zastrzegają, że kara umowna określona w ust. 1 nie podlega zmniejszeniu przez sąd na podstawie art. 484 § 2 Kodeksu cywilnego.\n\n4. Zapłata kary umownej nie zwalnia Odbiorcy z obowiązku zapłaty odszkodowania za szkodę przekraczającą wysokość kary, które Ujawniający może dochodzić w postępowaniu sądowym.\n\n§ 6. Czas trwania umowy\n\n1. Niniejsza umowa wchodzi w życie z dniem jej podpisania przez obie strony i obowiązuje przez okres .................... lat od tego dnia.\n\n2. Obowiązek poufności w odniesieniu do informacji poufnych, które stanowią tajemnicę przedsiębiorstwa w rozumieniu art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji, obowiązuje Odbiorcę bezterminowo, również po wygaśnięciu niniejszej umowy.\n\n3. Ujawniający może przedłużyć czas obowiązywania umowy na pisemny wniosek Odbiorcy, złożony nie później niż 30 dni przed upływem terminu określonego w ust. 1.\n\n§ 7. Ochrona danych osobowych (RODO)\n\n1. W przypadku gdy informacje poufne obejmują dane osobowe w rozumieniu Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO), Odbiorca przetwarza takie dane wyłącznie w celu określonym w § 1 i wyłącznie na podstawie prawnie uzasadnionego interesu Ujawniającego (art. 6 ust. 1 lit. f RODO) lub na podstawie umowy (art. 6 ust. 1 lit. b RODO).\n\n2. Odbiorca zobowiązuje się do stosowania odpowiednich środków technicznych i organizacyjnych zapewniających bezpieczeństwo danych osobowych w rozumieniu art. 32 RODO, w tym w szczególności szyfrowania, kontroli dostępu i rejestracji operacji przetwarzania.\n\n3. W przypadku naruszenia ochrony danych osobowych Odbiorca niezwłocznie powiadomi Ujawniającego i współpracuje w celu spełnienia obowiązków wynikających z art. 33 i 34 RODO.\n\n§ 8. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego oraz ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji.\n\n3. Strony zastrzegają, że zobowiązania pienięże wynikające z niniejszej umowy, w tym kara umowna i odszkodowanie, podlegają wyłącznemu spełnieniu w walucie euro (EUR) na rachunek bankowy wskazany przez Ujawniającego. Strony wyłączają możliwość spełnienia świadczenia w walucie polskiej (PLN) w rozumieniu art. 358 § 1 Kodeksu cywilnego.\n\n4. W przypadku gdy z przyczyn prawnych lub faktycznych Odbiorca będzie zmuszony do zapłaty w walucie polskiej (PLN), przeliczenie nastąpi według kursu średniego euro ogłaszanego przez Narodowy Bank Polski obowiązującego w dniu faktycznej zapłaty.\n\n5. Wszelkie spory wynikające na tle niniejszej umowy strony poddają pod rozstrzygnięcie sądu powszechnego właściwego miejscowo dla siedziby Ujawniającego.\n\n6. Strony zobowiązują się do podjęcia prób polubownego rozwiązania sporu w terminie 30 dni od zgłoszenia roszczenia przez jedną ze stron, przed wystąpieniem do sądu.\n\n7. Niniejszą umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n\n\n.........................................................          .........................................................\n         (podpis Ujawniającego)                        (podpis Odbiorcy)\n\n\nZałączniki:\n— [jeśli dotyczy] wykaz materiałów przekazywanych\n— [jeśli dotyczy] wzór oświadczenia o zachowaniu poufności dla osób trzecich",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę pokazać komuś nasze plany biznesowe i dane techniczne przed podpisaniem większej umowy, ale boję się, że ta osoba je komuś powie. Potrzebuję umowy, która zobowiąże ją do zachowania poufności i przewidzi karę w euro, jeśli coś wycieknie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Prowadzę rozmowy z zagranicznym inwestorem o sprzedaży udziałów w mojej firmie i muszę mu udostępić dokumentację — mówimy o kodzie źródłowym, algorytmach, danych finansowych, bazie klientów oraz kontaktach do dostawców. Potrzebuję jednostronnej umowy o poufności, która zobowiąże inwestora do nieudostępniania tych informacji nikomu innemu, przewidzi karę umowną w euro za każde naruszenie, obowiązywać będzie przez kilka lat i uwzględni ochronę danych osobowych, bo w materiałach są też dane moich pracowników."
+  }
+ ]
+}

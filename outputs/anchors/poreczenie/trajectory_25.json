@@ -1,0 +1,327 @@
+{
+ "run": 29,
+ "hint": "Poręczenie za zapłatę za wykonany projekt architektoniczny",
+ "scenario": "Poręczenie za zapłatę za wykonany projekt architektoniczny",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='poreczenie'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a \"poreczenie\" (surety/guarantor agreement) contract, specifically for \"Poręczenie za zapłatę za wykonany projekt architektoniczny\" (Surety for payment for an executed architectural project).\n\nLet me start by reading the base template for poreczenie, then search for relevant provisions related to architectural projects, payment for services, etc.",
+   "tool_calls": [
+    {
+     "id": "call-df64e9b8-b39c-4148-a4b5-5a6a92241981",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"poreczenie\", \"query\": \"poręczenie za zapłatę za wykonany projekt architektoniczny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"poreczenie\", \"kind\": \"structural_template\", \"text\": \"# Umowa poręczenia\\nUmowa poręczenia w Polsce to umowa nazwana uregulowana w art. 876-887 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą poręczyciel zobowiązuje się względem wierzyciela wykonać zobowiązanie na wypadek, gdyby dłużnik zobowiązania nie wykonał. Poręczenie jest formą zabezpieczenia osobistego: wierzyciel uzyskuje dodatkowy podmiot — poręczyciela — który odpowiada za dług swoim całym majątkiem, co odróżnia poręczenie od zabezpieczeń rzeczowych (hipoteki, zastawu), ograniczonych do wartości przedmiotu zabezpieczenia.\\n\\nPodstawowym wymogiem formalnym poręczenia jest pisemna forma oświadczenia poręczyciela. Zgodnie z art. 876 § 2 Kodeksu cywilnego oświadczenie poręczyciela powinno być pod rygorem nieważności złożone na piśmie. Jest to forma konstytutywna — niedochowanie pisemności powoduje bezwzględną nieważność zobowiązania poręczyciela, niezależnie od treści uzgodnień stron. Warto podkreślić, że wymóg pisemności dotyczy wyłącznie oświadczenia poręczyciela, nie całej umowy poręczenia — oświadczenie wierzyciela o przyjęciu poręczenia może być złożone w dowolnej formie, w tym dorozumianej.\\n\\nPoręczenie jest zobowiązaniem akcesoryjnym — jego istnienie i zakres zależą od istnienia i zakresu długu głównego. Oznacza to, że zakres odpowiedzialności poręczyciela jest determinowany każdoczesnym zakresem zobowiązania dłużnika głównego (art. 879 Kodeksu cywilnego). Poręczyciel może zatem ponosić odpowiedzialność za dług powiększony o odsetki za opóźnienie, koszty sądowe i koszty egzekucji, o ile wynikają one z pierwotnego zobowiązania. Jednocześnie akcesoryjna natura poręczenia chroni poręczyciela: jeżeli dług główny wygasa (np. wskutek spłaty, potrącenia, umorzenia), poręczenie wygasa automatycznie.\\n\\nSzczeglną kategorią jest poręczenie za dług przyszły, dopuszczone przez art. 878 Kodeksu cywilnego — poręczenie takie jest skuteczne, jeżeli zostało udzielone do wysokości z góry oznaczonej. Strony muszą zatem ustalić maksymalną kwotę poręczenia w treści umowy. Do czasu powstania długu poręczyciel za dług przyszły może w każdym czasie odwołać poręczenie.\\n\\nKodeks cywilny w art. 881 stanowi, że w braku odmiennego zastrzeżenia poręczyciel odpowiada jak współdłużnik solidarny. Solidarność poręczyciela oznacza, że wierzyciel może według własnego wyboru żądać spełnienia świadczenia od dłużnika i poręczyciela łącznie, od każdego z nich z osobna lub od poręczyciela bez uprzedniego bezskutecznego dochodzenia długu od dłużnika. Strony mogą jednak postanowić o odpowiedzialności subsydiarnej — poręczyciel odpowiada wtedy tylko wówczas, gdy egzekucja z majątku dłużnika głównego okaże się bezskuteczna. Poręczyciel, który spłacił dług, nabywa roszczenie regresowe wobec dłużnika i wstępuje w prawa zaspokojonego wierzyciela przez subrogację ustawową (art. 518 Kodeksu cywilnego), co pozwala mu dochodzić od dłużnika kwoty, którą zapłacił wierzycielowi.\\n\\nUmowa poręczenia w Polsce jest potrzebna zawsze, gdy wierzyciel chce uzyskać dodatkowe zabezpieczenie spłaty wierzytelności przez osobę trzecią (poręczyciela), która odpowiadać będzie za dług swoim majątkiem osobistym w razie niewywiązania się dłużnika głównego.\\n\\nDokument ten jest standardowym wymogiem przy zaciąganiu kredytów bankowych i pożyczek przez osoby fizyczne lub małe przedsiębiorstwa wpisane w CEIDG, których zdolność kredytowa nie jest wystarczająca. Banki, SKOK-i i instytucje pożyczkowe nadzorowane przez Komisję Nadzoru Finansowego pobierają podpisane przez poręczyciela oświadczenia spełniające wymóg formy pisemnej z art. 876 § 2 Kodeksu cywilnego.\\n\\nUmowa poręczenia jest potrzebna przy pożyczkach prywatnych między osobami fizycznymi, gdy pożyczkodawca chce zwiększyć bezpieczeństwo transakcji przez zaangażowanie dodatkowego poręczyciela — często członka rodziny lub wspólnika dłużnika. Pisemna forma jest obowiązkowa niezależnie od kwoty pożyczki i relacji między stronami.\\n\\nDokument jest wymagany przy umowach najmu lokali użytkowych i mieszkań, gdy wynajmujący chce zabezpieczyć zapłatę czynszu i odszkodowania na wypadek zniszczeń przez poręczenie osoby trzeciej (np. rodzica studenta lub innego lokatora). Poręczyciel odpowiada wówczas jak współdłużnik solidarny na zasadzie art. 881 Kodeksu cywilnego, co znacznie ułatwia wynajmującemu dochodzenie roszczeń przed sądem rejonowym.\\n\\nPoręczenie jest stosowane przy kontraktach handlowych, gdy podmiot zamawiający towary lub usługi nie ma wystarczającej wiarygodności finansowej, a dostawca chce zabezpieczenia w postaci poręczenia udziałowca, członka zarządu spółki wpisanej w KRS lub podmiotu powiązanego. Poręczenie wekslowe (awal), regulowane w art. 30-32 Prawa wekslowego, jest szczególną formą zabezpieczenia stosowaną obok poręczenia cywilnego.\\n\\nUmowa jest też potrzebna przy poręczeniu za zobowiązania spółek osobowych i spółek z ograniczoną odpowiedzialnością przez wspólników lub udziałowców, gdy wierzyciel — np. bank lub leasingodawca — nie jest w stanie egzekwować wierzytelności wyłącznie od spółki.\\n\\nPrawidłowa umowa poręczenia w Polsce, oparta na art. 876-887 Kodeksu cywilnego, powinna zawierać szereg kluczowych elementów zapewniających jej ważność i skuteczność.\\n\\nPisemna forma oświadczenia poręczyciela: kluczowy wymóg formalny z art. 876 § 2 Kodeksu cywilnego. Brak pisemnego oświadczenia poręczyciela powoduje nieważność poręczenia. Forma pisemna jest spełniona, gdy poręczyciel złoży własnoręczny podpis pod treścią oświadczenia.\\n\\nOznaczenie stron: pełne dane wierzyciela (beneficjenta poręczenia), poręczyciela i dłużnika głównego — imiona i nazwiska lub firmy, numery PESEL i NIP, adresy zamieszkania lub siedzib. Przy podmiotach wpisanych w Krajowy Rejestr Sądowy (KRS) należy wskazać organ i sposób reprezentacji.\\n\\nOpis poręczanego zobowiązania: dokładny opis zabezpieczanej wierzytelności — rodzaj umowy (np. umowa pożyczki, najem, umowa handlowa), data zawarcia, kwota główna, termin wykonania. Im dokładniejszy opis, tym mniejsze ryzyko sporu co do zakresu poręczenia. Bez precyzyjnego opisu sąd rejonowy może mieć wątpliwości co do tego, jakie zobowiązanie jest objęte poręczeniem.\\n\\nMaksymalna kwota poręczenia: przy poręczeniu za dług przyszły art. 878 Kodeksu cywilnego bezwzględnie wymaga oznaczenia wysokości poręczenia. Przy poręczeniu za dług istniejący wskazanie maksymalnej kwoty jest dobrą praktyką chroniącą poręczyciela przed odpowiedzialnością za odsetki i koszty nieograniczone kwotowo. Kwota powinna być podana cyfrowo i słownie.\\n\\nRodzaj odpowiedzialności poręczyciela: odpowiedzialność solidarna (art. 881 Kodeksu cywilnego — reguła w braku odmiennego postanowienia) lub subsydiarna (poręczyciel odpowiada dopiero po bezskutecznej egzekucji z majątku dłużnika). Solidarność jest korzystna dla wierzyciela, ponieważ może żądać spełnienia świadczenia bezpośrednio od poręczyciela bez wcześniejszego pozwania dłużnika.\\n\\nZasady regresu: klauzula o regresie poręczyciela wobec dłużnika głównego i subrogacji (art. 518 Kodeksu cywilnego) — po zapłacie poręczyciel wstępuje w prawa zaspokojonego wierzyciela i może dochodzić zwrotu od dłużnika na takich samych zasadach. Warto też wskazać obowiązek informowania poręczyciela o opóźnieniach dłużnika.\\n\\nWygaśnięcie poręczenia: klauzula o wygaśnięciu po całkowitym wykonaniu zobowiązania dłużnika i obowiązku potwierdzenia wygaśnięcia przez wierzyciela. Bez tej klauzuli poręczyciel może mieć trudność z uzyskaniem oficjalnego dokumentu zwalniającego go z zobowiązania.\\n\\nPostanowienia końcowe: pisemna forma dla zmian, sąd właściwy dla sporów (sąd rejonowy lub okręgowy w zależności od wartości), liczba egzemplarzy (trzy — dla wierzyciela, poręczyciela i dłużnika), data i miejsce zawarcia. Wzór umowy poręczenia dostępny na forms-legal.com ułatwia prawidłowe sporządzenie dokumentu zgodnego z art. 876 Kodeksu cywilnego.\\n\\nWypełnianie umowy poręczenia w Polsce należy rozpocząć od starannego oznaczenia wszystkich trzech podmiotów: wierzyciela, poręczyciela i dłużnika głównego. Dla każdego podmiotu wpisz: imię i nazwisko lub firmę, numer PESEL albo NIP, adres zamieszkania lub siedziby. Przy spółkach z ograniczoną odpowiedzialnością wpisanych w Krajowy Rejestr Sądowy podaj numer KRS i sposób reprezentacji.\\n\\nW sekcji dotyczącej poręczanego zobowiązania opisz precyzyjnie dług, który ma być zabezpieczony. Wskaż rodzaj umowy (pożyczka, najem, umowa handlowa), datę jej zawarcia, kwotę główną wyrażoną cyfrowo i słownie, termin wykonania i wszelkie inne istotne parametry. Opis powinien być na tyle szczegółowy, aby nie było wątpliwości, które zobowiązanie jest poręczane.\\n\\nWpisz maksymalną kwotę poręczenia. Oblicz ją jako kwotę główną długu plus możliwe odsetki za opóźnienie (art. 481 Kodeksu cywilnego) i rozsądnie oszacowane koszty postępowania przed sądem rejonowym i egzekucji komorniczej. Kwotę podaj cyfrowo i słownie.\\n\\nW polu rodzaju odpowiedzialności zaznacz, czy poręczyciel odpowiada solidarnie (współdłużnik — art. 881 Kodeksu cywilnego) czy subsydiarnie (dopiero po bezskutecznej egzekucji od dłużnika). Odpowiedzialność solidarna jest bardziej korzystna dla wierzyciela. Solidarność jest regułą w braku odmiennego zastrzeżenia.\\n\\nWpisz miejscowość i datę zawarcia umowy. Pamiętaj, że oświadczenie poręczyciela musi być złożone na piśmie pod rygorem nieważności — nie wystarczy forma elektroniczna (kwalifikowany podpis elektroniczny może spełniać wymóg formy pisemnej w rozumieniu art. 78¹ Kodeksu cywilnego). Umowę podpisują wierzyciel i poręczyciel; dłużnik główny podpisuje dla informacji i potwierdzenia znajomości treści. Sporządź trzy egzemplarze — po jednym dla każdej strony.\\n\\nWymogi prawne umowy poręczenia w Polsce wynikają przede wszystkim z art. 876-887 Kodeksu cywilnego.\\n\\nNajważniejszy wymóg to pisemna forma oświadczenia poręczyciela z art. 876 § 2 Kodeksu cywilnego — forma pod rygorem nieważności. Brak własnoręcznego podpisu poręczyciela pod treścią oświadczenia skutkuje absolutną nieważnością poręczenia, bez możliwości konwalidacji przez późniejsze zachowanie stron. Sąd Najwyższy wielokrotnie potwierdzał, że ustna zgoda poręczyciela nie wywołuje skutków prawnych.\\n\\nZakres odpowiedzialności poręczyciela wyznaczany jest każdoczesnym zakresem zobowiązania dłużnika (art. 879 Kodeksu cywilnego). Oznacza to, że poręczyciel odpowiada m.in. za odsetki za opóźnienie z art. 481 Kodeksu cywilnego naliczane po zawarciu umowy poręczenia, nawet jeżeli nie były one znane w chwili składania oświadczenia. Dlatego tak ważne jest ustalenie maksymalnej kwoty poręczenia.\\n\\nPoręczenie za dług przyszły (art. 878 Kodeksu cywilnego) wymaga oznaczenia górnej granicy kwotowej poręczenia. Bez tego warunku poręczenie za dług nieistniejący w chwili składania oświadczenia jest nieważne. Poręczyciel za dług przyszły może odwołać poręczenie do czasu powstania długu.\\n\\nSolidarność poręczyciela z dłużnikiem (art. 881 Kodeksu cywilnego) jest reguła w braku odmiennego postanowienia. Oznacza to, że wierzyciel może żądać spełnienia świadczenia bezpośrednio od poręczyciela, bez wcześniejszego wezwania dłużnika lub bezskutecznej egzekucji z jego majątku.\\n\\nPoręczyciel, który spłacił dług, wstępuje z mocy prawa w prawa zaspokojonego wierzyciela (subrogacja ustawowa — art. 518 Kodeksu cywilnego), co oznacza, że przejmuje wszelkie zabezpieczenia wierzytelności (hipotekę, zastaw, weksel). Poręczyciel ma zatem możliwość dochodzenia zwrotu od dłużnika za pomocą tych samych instrumentów, które przysługiwały wierzycielowi. Roszczenie regresowe poręczyciela przedawnia się na zasadach ogólnych Kodeksu cywilnego — trzy lata dla roszczeń z działalności gospodarczej i sześć lat dla roszczeń ogólnych (art. 118 Kodeksu cywilnego).\\n\\nNajczęstsze błędy przy sporządzaniu umowy poręczenia w Polsce dotyczą formy oświadczenia, zakresu odpowiedzialności i braku precyzji w opisie poręczanego zobowiązania.\\n\\nBrak pisemnej formy oświadczenia poręczyciela. Oświadczenie poręczyciela musi być złożone na piśmie pod rygorem nieważności (art. 876 § 2 Kodeksu cywilnego). Błędem jest przyjmowanie przez wierzyciela ustnych zapewnień o poręczeniu, wiadomości SMS czy e-mail (chyba że opatrzonych kwalifikowanym podpisem elektronicznym). Sąd rejonowy odmówi uwzględnienia powództwa wierzyciela przeciwko rzekomemu poręczycielowi bez pisemnego dokumentu.\\n\\nBrak oznaczenia maksymalnej kwoty przy poręczeniu za dług przyszły. Poręczenie za zobowiązanie, które nie istnieje jeszcze w chwili składania oświadczenia (np. przyszła pożyczka, przyszłe raty najmu), musi wskazywać górną granicę kwotową — art. 878 Kodeksu cywilnego. Pominięcie tego elementu powoduje nieważność poręczenia za dług przyszły.\\n\\nNieprecyzyjny opis poręczanego zobowiązania. Sformułowania ogólne, jak \\\"wszelkie zobowiązania dłużnika wobec wierzyciela\\\", są niekiedy kwestionowane przez sądy jako naruszające zasadę akcesoryjności. Poręczenie powinno być powiązane z konkretnym zobowiązaniem — najlepiej ze wskazaniem daty umowy, kwoty i stron.\\n\\nPominięcie klauzuli regresowej. Choć regres poręczyciela wynika bezpośrednio z art. 518 Kodeksu cywilnego, brak wyraźnej klauzuli w umowie skutkuje często trudnościami praktycznymi — dłużnik kwestionuje zakres subrogacji albo poręczyciel nie jest świadomy swoich praw. Klauzula o regresie i obowiązku informowania poręczyciela o opóźnieniach dłużnika powinna być wyraźna.\\n\\nZałożenie, że poręczenie automatycznie wygasa po spłacie długu bez potwierdzenia. Poręczyciel, który spłacił dług, powinien żądać od wierzyciela pisemnego potwierdzenia wygaśnięcia poręczenia i zwrotu dokumentu poręczenia. Brak takiego potwierdzenia naraża poręczyciela na późniejsze próby dochodzenia roszczeń przez wierzyciela lub jego następców prawnych.\\n\\nŹródło: https://forms-legal.com/pl/financial/debt/umowa-poreczenia (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-df64e9b8-b39c-4148-a4b5-5a6a92241981",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template for poreczenie. Let me search for provisions relevant to architectural projects, payment for services, and specific aspects of surety for professional services/architectural work.",
+   "tool_calls": [
+    {
+     "id": "call-51426f7d-c7f9-441e-aa1e-133347c7b24e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"poręczenie za zapłatę za projekt architektoniczny usługi architekta wynagrodzenie\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_867d84d2761c2826\", \"source_id\": \"uokik_rejestr_klauzul_7424\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Z tytułu wykonania dzieła stanowiącego przedmiot umowy, jego dostarczenia i montażu Zamawiający zapłaci na rzecz Wykonawcy wynagrodzenie w kwocie...zł brutto (słownie:... złotych) płatne w następujący sposób: a) 50% wynagrodzenia płatne w dniu podpisania niniejszej umowy (...zł) b) Pozostała kwota (50%) wynagrodzenia płatne w terminie 3 dni od dnia ustalonego jako dzień wykonania dzieła zgodnie z § 2 ust. 1 lit. a) z tym zastrzeżeniem, że zapłata musi nastąpić najpóźniej na dzień przed terminem ustalonym w § 3 ust.1. Niezwłocznie po dokonanej zapłacie Wykonawca wystawi Zamawiającemu Fakturę, k ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_649\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 649 1 . § 1. Gwarancji zapłaty za roboty budowlane, zwanej dalej „gwarancją zapłaty”, inwestor udziela wykonawcy (generalnemu wykonawcy) w celu zabezpieczenia terminowej zapłaty umówionego wynagrodzenia za wykonanie robót budowlanych. § 1 1 10) Dodany przez art. 2 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o udostępnianiu informacji o środowisku i jego ochronie, udziale społeczeństwa w ochronie środowiska oraz o ocenach oddziaływania na śro ...\"}, {\"chunk_id\": \"uokik_items:uokik_b911a389e7f56a50\", \"source_id\": \"uokik_rejestr_klauzul_5828\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wynagrodzenie płatne będzie na rzecz (...) również w przypadku, gdy Zleceniodawca podpisze ze zbywcą nieruchomości lub praw związanych z nieruchomością protokół uzgodnień warunków transakcji lub deklarację zakupu świadczące o należytym wykonaniu usług, a następnie odstąpi od realizacji ustaleń określonych w tym protokole lub deklaracji. W takim przypadku, o którym mowa w zdaniu poprzedzającym wynagrodzenie płatne będzie w dniu transakcji wskazanym w protokole lub deklaracji, zaś podstawą naliczenia wynagrodzenia będzie uzgodniona w protokole lub deklaracji cena transakycjna nieruchomości. W ta ...\"}, {\"chunk_id\": \"uokik_items:uokik_b0f9f57259249eeb\", \"source_id\": \"uokik_rejestr_klauzul_7064\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zamawiający zapłaci Pośrednikowi za wykonanie niniejszej usługi wynagrodzenie w niżej określonej wysokości powiększone o podatek VAT (23 %) w przypadku sprzedaży /zamiany - 2,5 % (słownie dwa i pół procent) cent sprzedaży (…).\"}]",
+   "tool_call_id": "call-51426f7d-c7f9-441e-aa1e-133347c7b24e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results aren't very specific to architectural projects. Let me search more specifically for architectural contracts, payment for architectural services, and related provisions.",
+   "tool_calls": [
+    {
+     "id": "call-4557191a-568c-46fa-86e0-68bebeecf64c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"projekt architektoniczny\", \"architekt\", \"umowa o dzieło\", \"wynagrodzenie projekt\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_725_art_15a\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 15a. 1. Uprawnienia budowlane do projektowania w odpowiedniej specjalności uprawniają do sporządzania projektu zagospodarowania działki lub terenu, w zakresie tej specjalności. 2. Uprawnienia budowlane w specjalności architektonicznej bez ograniczeń uprawniają do projektowania lub kierowania robotami budowlanymi, w odniesieniu do architektury obiektu. 3. Uprawnienia budowlane w specjalności architektonicznej w ograniczonym zakresie uprawniają do  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_36a\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 36a. 1. Istotne odstąpienie od zatwierdzonego projektu zagospodarowania działki lub terenu oraz projektu architektoniczno-budowlanego lub innych warunków decyzji o pozwoleniu na budowę jest dopuszczalne jedynie po uzyskaniu decyzji o zmianie pozwolenia na budowę wydanej przez organ administracji architektoniczno-budowlanej. 1a. Istotne odstąpienie od projektu zagospodarowania działki lub terenu lub projektu architektoniczno-budowlanego złożonego  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_35\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 35. 1. Przed wydaniem decyzji o pozwoleniu na budowę lub odrębnej decyzji o zatwierdzeniu projektu zagospodarowania działki lub terenu oraz projektu architektoniczno-budowlanego organ administracji architektoniczno-budowlanej sprawdza: 1) zgodność projektu zagospodarowania działki lub terenu oraz projektu architektoniczno-budowlanego z: a) ustaleniami miejscowego planu zagospodarowania przestrzennego i innymi aktami prawa miejscowego albo decyzji ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_51\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 51. 1. Przed upływem 2 miesięcy od dnia wydania postanowienia, o którym mowa w art. 50 ust. 1, organ nadzoru budowlanego w drodze decyzji: 1) nakazuje zaniechanie dalszych robót budowlanych bądź rozbiórkę obiektu budowlanego lub jego części, bądź doprowadzenie obiektu do stanu poprzedniego albo 2) nakłada obowiązek wykonania określonych czynności lub robót budowlanych w celu doprowadzenia wykonywanych robót budowlanych do stanu zgodnego z prawem, ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_84b\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 84b. 1. Kontrolę działalności organów administracji architektoniczno-budowlanej wykonują Główny Inspektor Nadzoru Budowlanego oraz wojewódzki inspektor nadzoru budowlanego, który wykonuje tę kontrolę w stosunku do starosty. 2. (uchylony) 3. W przypadku ustalenia przez organy nadzoru budowlanego, że zachodzą okoliczności uzasadniające wznowienie postępowania albo stwierdzenie nieważności decyzji wydanej przez organ administracji architektoniczno-b ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_38\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 38. 1. Decyzję o pozwoleniu na budowę lub kopię zgłoszenia budowy, o której mowa w art. 29 ust. 1 pkt 1-4, lub kopię zgłoszenia przebudowy, o której mowa w art. 29 ust. 3 pkt 1 lit. a, oraz instalowania, o którym mowa w art. 29 ust. 3 pkt 3 lit. d, wraz z adnotacją o niewniesieniu sprzeciwu organ administracji architektoniczno-budowlanej przesyła niezwłocznie wójtowi, burmistrzowi, prezydentowi miasta albo organowi, który wydał decyzję o warunkac ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_81\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 81. 1. Do podstawowych obowiązków organów administracji architektoniczno-budowlanej i nadzoru budowlanego należy: 1) nadzór i kontrola nad przestrzeganiem przepisów prawa budowlanego , a w szczególności: a) zgodności zagospodarowania terenu z miejscowymi planami zagospodarowania przestrzennego oraz wymaganiami ochrony środowiska, b) warunków bezpieczeństwa ludzi i mienia w rozwiązaniach przyjętych w projektach budowlanych, przy wykonywaniu robót  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_81c\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 81c. 1. Organy administracji architektoniczno-budowlanej i nadzoru budowlanego przy wykonywaniu zadań określonych przepisami prawa budowlanego mogą żądać od uczestników procesu budowlanego, właściciela lub zarządcy obiektu budowlanego, informacji lub udostępnienia dokumentów: 1) związanych z prowadzeniem robót, przekazywaniem obiektu budowlanego do użytkowania, utrzymaniem i użytkowaniem obiektu budowlanego; 2) świadczących, że wyroby stosowane p ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_82\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 82. 1. Do właściwości organów administracji architektoniczno-budowlanej należą sprawy określone w ustawie i niezastrzeżone do właściwości innych organów. 2. Organem administracji architektoniczno-budowlanej pierwszej instancji, z zastrzeżeniem ust. 3 i 4, jest starosta. 3. Wojewoda jest organem administracji architektoniczno-budowlanej wyższego stopnia w stosunku do starosty oraz organem pierwszej instancji w sprawach obiektów i robót budowlanych ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_82b\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 82b. 1. Organy administracji architektoniczno-budowlanej: 1) prowadzą rejestr wniosków o pozwolenie na budowę i decyzji o pozwoleniu na budowę oraz rejestr zgłoszeń budowy, o której mowa w art. 29 ust. 1 pkt 1-3, a także przekazują do organu wyższego stopnia oraz Głównego Inspektora Nadzoru Budowlanego wprowadzone do nich dane; 1a) prowadzą odrębny rejestr wniosków o pozwolenie na budowę, decyzji o pozwoleniu na budowę oraz rejestr zgłoszeń budow ...\"}]",
+   "tool_call_id": "call-4557191a-568c-46fa-86e0-68bebeecf64c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results are mostly about building law (Prawo budowlane) rather than the contractual aspects of architectural services. Let me search for more specific provisions about contracts for architectural services (umowa o dzieło for architectural projects), payment terms, and related Civil Code provisions.",
+   "tool_calls": [
+    {
+     "id": "call-a61a2100-fc29-4d46-bfce-70f0cd32830b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"umowa o dzieło projekt architektoniczny wynagrodzenie art 627 635 646 Kodeks cywilny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_627\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 627. Przez umowę o dzieło przyjmujący zamówienie zobowiązuje się do wykonania oznaczonego dzieła, a zamawiający do zapłaty wynagrodzenia.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_646\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 646. Roszczenia wynikające z umowy o dzieło przedawniają się z upływem lat dwóch od dnia oddania dzieła, a jeżeli dzieło nie zostało oddane - od dnia, w którym zgodnie z treścią umowy miało być oddane. Tytuł XVI Umowa o roboty budowlane\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_628\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 628. § 1. Wysokość wynagrodzenia za wykonanie dzieła można określić przez wskazanie podstaw do jego ustalenia. Jeżeli strony nie określiły wysokości wynagrodzenia ani nie wskazały podstaw do jego ustalenia, poczytuje się w razie wątpliwości, że strony miały na myśli zwykłe wynagrodzenie za dzieło tego rodzaju. Jeżeli także w ten sposób nie da się ustalić wysokości wynagrodzenia, należy się wynagrodzenie odpowiadające uzasadnionemu nakładowi prac ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_635\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 635. Jeżeli przyjmujący zamówienie opóźnia się z rozpoczęciem lub wykończeniem dzieła tak dalece, że nie jest prawdopodobne, żeby zdołał je ukończyć w czasie umówionym, zamawiający może bez wyznaczenia terminu dodatkowego od umowy odstąpić jeszcze przed upływem terminu do wykonania dzieła.\"}]",
+   "tool_call_id": "call-a61a2100-fc29-4d46-bfce-70f0cd32830b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_1d41a8a251d94703a3d1b018",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 627 KC\", \"art. 628 KC\", \"art. 635 KC\", \"art. 646 KC\", \"umowa o dzieło architekt\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_1d41a8a251d94703a3d1b018",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions related to payment for architectural services, acceptance of the project, and related issues.",
+   "tool_calls": [
+    {
+     "id": "call-b44c8309-395f-4a97-acd0-cf7a9a90f096",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"oddanie projektu architektonicznego odbior dzieła wady projektu odpowiedzialność architekta\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_638\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 638. § 1. Do odpowiedzialności za wady dzieła stosuje się odpowiednio przepisy o rękojmi przy sprzedaży. Odpowiedzialność przyjmującego zamówienie jest wyłączona, jeżeli wada dzieła powstała z przyczyny tkwiącej w materiale dostarczonym przez zamawiającego. § 2. Jeżeli zamawiającemu udzielono gwarancji na wykonane dzieło, przepisy o gwarancji przy sprzedaży stosuje się odpowiednio.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_609\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 609. Dostawca ponosi odpowiedzialność z tytułu rękojmi za wady fizyczne dostarczonych rzeczy także w tym wypadku, gdy wytworzenie rzeczy nastąpiło w sposób określony przez odbiorcę lub według dostarczonej przez niego dokumentacji technologicznej, chyba że dostawca, mimo zachowania należytej staranności, nie mógł wykryć wadliwości sposobu produkcji lub dokumentacji technologicznej albo że odbiorca, mimo zwrócenia przez dostawcę uwagi na powyższe  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_652\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 652. Jeżeli wykonawca przejął protokolarnie od inwestora teren budowy, ponosi on aż do chwili oddania obiektu odpowiedzialność na zasadach ogólnych za szkody wynikłe na tym terenie.\"}, {\"chunk_id\": \"uokik_items:uokik_389c23af68e628c2\", \"source_id\": \"uokik_rejestr_klauzul_5132\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zamawiający jest zobowiązany dokonać ogólnego odbioru prac w zakresie co do ilości i widocznych wad niezwłocznie po zamontowaniu stolarki. Drobne usterki Zamawiający ma obowiązek zgłosić najpóźniej następnego dnia roboczego. W przypadku niedochowania przez Zamawiającego powyższych terminów Wykonawca będzie zwolniony z odpowiedzialności za ewentualne braki ilościowe stolarki oraz za jej ewentualne uszkodzenia mechaniczne\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_641\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 641. § 1. Niebezpieczeństwo przypadkowej utraty lub uszkodzenia materiału na wykonanie dzieła obciąża tego, kto materiału dostarczył. § 2. Gdy dzieło uległo zniszczeniu lub uszkodzeniu wskutek wadliwości materiału dostarczonego przez zamawiającego albo wskutek wykonania dzieła według jego wskazówek, przyjmujący zamówienie może żądać za wykonaną pracę umówionego wynagrodzenia lub jego odpowiedniej części, jeżeli uprzedził zamawiającego o niebezpi ...\"}]",
+   "tool_call_id": "call-b44c8309-395f-4a97-acd0-cf7a9a90f096",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA PORĘCZENIA\n\nzawarta w dniu __________ r. w ___________, pomiędzy:\n\n**WIERZYCIELEM (Beneficjentem poręczenia):**\nImię i nazwisko / Nazwa: ______________________________\nAdres zamieszkania / Siedziba: ______________________________\nPESEL / NIP: ______________________________\n\na\n\n**DŁUŻNIKIEM GŁÓWNYM:**\nImię i nazwisko / Nazwa: ______________________________\nAdres zamieszkania / Siedziba: ______________________________\nPESEL / NIP: ______________________________\n\na\n\n**PORĘCZYCIELEM:**\nImię i nazwisko / Nazwa: ______________________________\nAdres zamieszkania / Siedziba: ______________________________\nPESEL / NIP: ______________________________\n\n## § 1. Przedmiot poręczenia\n\n1. Poręczyciel niniejszym zobowiązuje się wobec Wierzyciela, że zapłaci na rzecz Wierzyciela całość wynagrodzenia wraz z odsetkami i kosztami, za które Dłużnik główny jest lub będzie zobowiązany wobec Wierzyciela tytułem wykonania umowy o dzieło polegającej na sporządzeniu projektu architektonicznego (dalej: \"Umowa o dzieło\"), na wypadek gdyby Dłużnik główny nie wykonał w terminie zobowiązania płatniczego.\n\n2. Poręczenie to obejmuje zobowiązanie Dłużnika głównego z tytułu umowy o dzieło zgodnie z art. 627 Kodeksu cywilnego, tj. zobowiązania zapłaty wynagrodzenia za wykonanie oznaczonego dzieła, jakim jest projekt architektoniczny.\n\n3. Umowa o dzieło, stanowiąca podstawę poręczenia, została zawarta w dniu __________ r. pomiędzy Wierzycielem a Dłużnikiem głównym i dotyczy sporządzenia projektu architektonicznego obiektu: ______________________________ (adres / opis działki: ______________________________).\n\n## § 2. Maksymalna kwota poręczenia\n\n1. Strony ustalają maksymalną kwotę poręczenia na kwotę ______________________________ zł (słownie: ______________________________ złotych).\n\n2. Kwota poręczenia obejmuje:\n   a) wynagrodzenie główne za wykonanie projektu architektonicznego,\n   b) odsetki ustawowe za opóźnienie naliczane na podstawie art. 481 Kodeksu cywilnego,\n   c) koszty postępowania sądowego i egzekucji komorniczej.\n\n3. Maksymalna kwota poręczenia została ustalona zgodnie z art. 878 Kodeksu cywilnego jako górna granica odpowiedzialności Poręczyciela za dług przyszły.\n\n## § 3. Zakres odpowiedzialności Poręczyciela\n\n1. Zgodnie z art. 879 Kodeksu cywilnego, zakres odpowiedzialności Poręczyciela jest determinowany każdoczesnym zakresem zobowiązania Dłużnika głównego. Poręczyciel odpowiada za dług powiększony o odsetki za opóźnienie, koszty sądowe i koszty egzekucji, o ile wynikają one z pierwotnego zobowiązania z tytułu umowy o dzieło.\n\n2. Wierzyciel zobowiązuje się do niezwłocznego powiadomienia Poręczyciela o każdym opóźnieniu Dłużnika głównego w zapłacie wynagrodzenia, a także o wszelkich okolicznościach mogących wpłynąć na zakres odpowiedzialności Poręczyciela.\n\n## § 4. Rodzaj odpowiedzialności\n\n1. Strony postanawiają, że Poręczyciel odpowiada solidarnie z Dłużnikiem głównym na zasadzie współdłużnika solidarnego, zgodnie z art. 881 Kodeksu cywilnego.\n\n2. Oznacza to, że Wierzyciel może według własnego wyboru żądać spełnienia świadczenia od Dłużnika głównego i Poręczyciela łącznie, od każdego z nich z osobna lub od Poręczyciela bez uprzedniego bezskutecznego dochodzenia długu od Dłużnika głównego.\n\n3. Wierzyciel nie jest zobowiązany do wykonywania egzekucji z majątkiem Dłużnika głównego przed złożeniem roszczenia do Poręczyciela.\n\n## § 5. Okres obowiązywania poręczenia\n\n1. Poręczenie obowiązuje od dnia podpisania niniejszej Umowy do dnia całkowitego wykonania zobowiązania przez Dłużnika głównego lub zapłaty przez Poręczyciela, nie dłużej jednak niż do dnia __________ r.\n\n2. Poręczenie wygasa automatycznie z chwilą całkowitej zapłaty wynagrodzenia przez Dłużnika głównego lub Poręczyciela, bez względu na to, czy Wierzyciel wydał stosowne potwierdzenie.\n\n3. Wierzyciel zobowiązany jest wydać Poręczycielowi pisemne potwierdzenie wygaśnięcia poręczenia w terminie 7 dni od dnia całkowitej zapłaty wynagrodzenia.\n\n## § 6. Roszczenie regresowe i subrogacja\n\n1. Poręczyciel, który spłacił dług, nabywa roszczenie regresowe wobec Dłużnika głównego i wstępuje w prawa zaspokojonego Wierzyciela przez subrogację ustawową na podstawie art. 518 Kodeksu cywilnego.\n\n2. Wierzyciel zobowiązany jest przekazać Poręczycielowi wszelkie dokumenty niezbędne do dochodzenia roszczeń regresowych, w tym odpis umowy o dzieło, dokumentację projektową, faktury i korespondencję.\n\n3. Roszczenie regresowe Poręczyciela przedawnia się na zasadach ogólnych Kodeksu cywilnego – trzy lata dla roszczeń z działalności gospodarczej i sześć lat dla roszczeń ogólnych (art. 118 Kodeksu cywilnego).\n\n## § 7. Prawa i obowiązki stron\n\n1. Wierzyciel zobowiązuje się do:\n   a) niezwłocznego powiadomienia Poręczyciela o opóźnieniach w płatnościach,\n   b) przekazania Poręczycielowi informacji o stanie zobowiązania Dłużnika głównego,\n   c) wydania potwierdzenia wygaśnięcia poręczenia w terminie wskazanym w § 5 ust. 3.\n\n2. Poręczyciel zobowiązuje się do:\n   b) zapłaty wynagrodzenia w terminie 14 dni od dnia otrzymania pisemnego wezwania od Wierzyciela,\n   c) niezwłocznego powiadomienia Wierzyciela o zapłacie.\n\n3. Dłużnik główny oświadcza, że zapoznał się z treścią niniejszej Umowy i wyraża zgodę na jej zawarcie.\n\n## § 8. Odpowiedzialność za wady projektu\n\n1. Strony zważając na przepisy art. 638 Kodeksu cywilnego stwierdzają, że odpowiedzialność Wierzyciela za wady dzieła (projektu architektonicznego) uregulowana jest odrębnie w Umowie o dzieło i nie stanowi przedmiotu niniejszego poręczenia.\n\n2. Poręczenie obejmuje wyłącznie zobowiązanie płatnicze Dłużnika głównego tytułem wynagrodzenia za wykonany projekt architektoniczny, z zastrzeżeniem postanowień § 2.\n\n## § 9. Przedawnienie roszczeń\n\n1. Strony zważając na przepis art. 646 Kodeksu cywilnego stwierdzają, że roszczenia wynikające z umowy o dzieło przedawniają się z upływem lat dwóch od dnia oddania dzieła, a jeżeli dzieło nie zostało oddane – od dnia, w którym zgodnie z treścią umowy miało być oddane.\n\n2. Bieg przedawnienia roszczeń Wierzyciela wobec Dłużnika głównego wpływa na zakres odpowiedzialności Poręczyciela jako poręczyciela zobowiązania akcesoryjnego.\n\n## § 10. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności, zgodnie z art. 876 § 2 Kodeksu cywilnego.\n\n2. W sprawach nieuregulowanych niniejszą Umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 876-887 Kodeksu cywilnego.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd powszechny właściwy dla siedziby Wierzyciela.\n\n4. Niniejszą Umowę sporządzono w trzech jednobrzmiących egzemplarzach – po jednym dla Wierzyciela, Poręczyciela i Dłużnika głównego.\n\n5. Oświadczenie Poręczyciela złożone zostało na piśmie pod rygorem nieważności, zgodnie z art. 876 § 2 Kodeksu cywilnego.\n\n\n.........................................\n      (Wierzyciel)\n\n\n.........................................\n      (Dłużnik główny)\n\n\n.........................................\n      (Poręczyciel)\n\n\nMiejscowość i data: _____________________",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA PORĘCZENIA\n\nzawarta w dniu __________ r. w ___________, pomiędzy:\n\n**WIERZYCIELEM (Beneficjentem poręczenia):**\nImię i nazwisko / Nazwa: ______________________________\nAdres zamieszkania / Siedziba: ______________________________\nPESEL / NIP: ______________________________\n\na\n\n**DŁUŻNIKIEM GŁÓWNYM:**\nImię i nazwisko / Nazwa: ______________________________\nAdres zamieszkania / Siedziba: ______________________________\nPESEL / NIP: ______________________________\n\na\n\n**PORĘCZYCIELEM:**\nImię i nazwisko / Nazwa: ______________________________\nAdres zamieszkania / Siedziba: ______________________________\nPESEL / NIP: ______________________________\n\n## § 1. Przedmiot poręczenia\n\n1. Poręczyciel niniejszym zobowiązuje się wobec Wierzyciela, że zapłaci na rzecz Wierzyciela całość wynagrodzenia wraz z odsetkami i kosztami, za które Dłużnik główny jest lub będzie zobowiązany wobec Wierzyciela tytułem wykonania umowy o dzieło polegającej na sporządzeniu projektu architektonicznego (dalej: \"Umowa o dzieło\"), na wypadek gdyby Dłużnik główny nie wykonał w terminie zobowiązania płatniczego.\n\n2. Poręczenie to obejmuje zobowiązanie Dłużnika głównego z tytułu umowy o dzieło zgodnie z art. 627 Kodeksu cywilnego, tj. zobowiązania zapłaty wynagrodzenia za wykonanie oznaczonego dzieła, jakim jest projekt architektoniczny.\n\n3. Umowa o dzieło, stanowiąca podstawę poręczenia, została zawarta w dniu __________ r. pomiędzy Wierzycielem a Dłużnikiem głównym i dotyczy sporządzenia projektu architektonicznego obiektu: ______________________________ (adres / opis działki: ______________________________).\n\n## § 2. Maksymalna kwota poręczenia\n\n1. Strony ustalają maksymalną kwotę poręczenia na kwotę ______________________________ zł (słownie: ______________________________ złotych).\n\n2. Kwota poręczenia obejmuje:\n   a) wynagrodzenie główne za wykonanie projektu architektonicznego,\n   b) odsetki ustawowe za opóźnienie naliczane na podstawie art. 481 Kodeksu cywilnego,\n   c) koszty postępowania sądowego i egzekucji komorniczej.\n\n3. Maksymalna kwota poręczenia została ustalona zgodnie z art. 878 Kodeksu cywilnego jako górna granica odpowiedzialności Poręczyciela za dług przyszły.\n\n## § 3. Zakres odpowiedzialności Poręczyciela\n\n1. Zgodnie z art. 879 Kodeksu cywilnego, zakres odpowiedzialności Poręczyciela jest determinowany każdoczesnym zakresem zobowiązania Dłużnika głównego. Poręczyciel odpowiada za dług powiększony o odsetki za opóźnienie, koszty sądowe i koszty egzekucji, o ile wynikają one z pierwotnego zobowiązania z tytułu umowy o dzieło.\n\n2. Wierzyciel zobowiązuje się do niezwłocznego powiadomienia Poręczyciela o każdym opóźnieniu Dłużnika głównego w zapłacie wynagrodzenia, a także o wszelkich okolicznościach mogących wpłynąć na zakres odpowiedzialności Poręczyciela.\n\n## § 4. Rodzaj odpowiedzialności\n\n1. Strony postanawiają, że Poręczyciel odpowiada solidarnie z Dłużnikiem głównym na zasadzie współdłużnika solidarnego, zgodnie z art. 881 Kodeksu cywilnego.\n\n2. Oznacza to, że Wierzyciel może według własnego wyboru żądać spełnienia świadczenia od Dłużnika głównego i Poręczyciela łącznie, od każdego z nich z osobna lub od Poręczyciela bez uprzedniego bezskutecznego dochodzenia długu od Dłużnika głównego.\n\n3. Wierzyciel nie jest zobowiązany do wykonywania egzekucji z majątkiem Dłużnika głównego przed złożeniem roszczenia do Poręczyciela.\n\n## § 5. Okres obowiązywania poręczenia\n\n1. Poręczenie obowiązuje od dnia podpisania niniejszej Umowy do dnia całkowitego wykonania zobowiązania przez Dłużnika głównego lub zapłaty przez Poręczyciela, nie dłużej jednak niż do dnia __________ r.\n\n2. Poręczenie wygasa automatycznie z chwilą całkowitej zapłaty wynagrodzenia przez Dłużnika głównego lub Poręczyciela, bez względu na to, czy Wierzyciel wydał stosowne potwierdzenie.\n\n3. Wierzyciel zobowiązany jest wydać Poręczycielowi pisemne potwierdzenie wygaśnięcia poręczenia w terminie 7 dni od dnia całkowitej zapłaty wynagrodzenia.\n\n## § 6. Roszczenie regresowe i subrogacja\n\n1. Poręczyciel, który spłacił dług, nabywa roszczenie regresowe wobec Dłużnika głównego i wstępuje w prawa zaspokojonego Wierzyciela przez subrogację ustawową na podstawie art. 518 Kodeksu cywilnego.\n\n2. Wierzyciel zobowiązany jest przekazać Poręczycielowi wszelkie dokumenty niezbędne do dochodzenia roszczeń regresowych, w tym odpis umowy o dzieło, dokumentację projektową, faktury i korespondencję.\n\n3. Roszczenie regresowe Poręczyciela przedawnia się na zasadach ogólnych Kodeksu cywilnego – trzy lata dla roszczeń z działalności gospodarczej i sześć lat dla roszczeń ogólnych (art. 118 Kodeksu cywilnego).\n\n## § 7. Prawa i obowiązki stron\n\n1. Wierzyciel zobowiązuje się do:\n   a) niezwłocznego powiadomienia Poręczyciela o opóźnieniach w płatnościach,\n   b) przekazania Poręczycielowi informacji o stanie zobowiązania Dłużnika głównego,\n   c) wydania potwierdzenia wygaśnięcia poręczenia w terminie wskazanym w § 5 ust. 3.\n\n2. Poręczyciel zobowiązuje się do:\n   b) zapłaty wynagrodzenia w terminie 14 dni od dnia otrzymania pisemnego wezwania od Wierzyciela,\n   c) niezwłocznego powiadomienia Wierzyciela o zapłacie.\n\n3. Dłużnik główny oświadcza, że zapoznał się z treścią niniejszej Umowy i wyraża zgodę na jej zawarcie.\n\n## § 8. Odpowiedzialność za wady projektu\n\n1. Strony zważając na przepisy art. 638 Kodeksu cywilnego stwierdzają, że odpowiedzialność Wierzyciela za wady dzieła (projektu architektonicznego) uregulowana jest odrębnie w Umowie o dzieło i nie stanowi przedmiotu niniejszego poręczenia.\n\n2. Poręczenie obejmuje wyłącznie zobowiązanie płatnicze Dłużnika głównego tytułem wynagrodzenia za wykonany projekt architektoniczny, z zastrzeżeniem postanowień § 2.\n\n## § 9. Przedawnienie roszczeń\n\n1. Strony zważając na przepis art. 646 Kodeksu cywilnego stwierdzają, że roszczenia wynikające z umowy o dzieło przedawniają się z upływem lat dwóch od dnia oddania dzieła, a jeżeli dzieło nie zostało oddane – od dnia, w którym zgodnie z treścią umowy miało być oddane.\n\n2. Bieg przedawnienia roszczeń Wierzyciela wobec Dłużnika głównego wpływa na zakres odpowiedzialności Poręczyciela jako poręczyciela zobowiązania akcesoryjnego.\n\n## § 10. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności, zgodnie z art. 876 § 2 Kodeksu cywilnego.\n\n2. W sprawach nieuregulowanych niniejszą Umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 876-887 Kodeksu cywilnego.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd powszechny właściwy dla siedziby Wierzyciela.\n\n4. Niniejszą Umowę sporządzono w trzech jednobrzmiących egzemplarzach – po jednym dla Wierzyciela, Poręczyciela i Dłużnika głównego.\n\n5. Oświadczenie Poręczyciela złożone zostało na piśmie pod rygorem nieważności, zgodnie z art. 876 § 2 Kodeksu cywilnego.\n\n\n.........................................\n      (Wierzyciel)\n\n\n.........................................\n      (Dłużnik główny)\n\n\n.........................................\n      (Poręczyciel)\n\n\nMiejscowość i data: _____________________",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zabezpieczyć się na wypadek, gdyby klient nie zapłacił za mój projekt architektoniczny – jak zrobić poręczenie od trzeciej osoby?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Sporządzam projekt architektoniczny dla inwestora i chcę, aby ktoś (np. firma powiązana lub znajomy) podpisał poręczenie solidarne na kwotę wynagrodzenia, odsetek i ewentualnych kosztów sądowych. Poręczenie ma trwać do momentu pełnej zapłaty, a ja chcę mieć prawo żądać zapłaty od poręczyciela od razu po terminie, bez konieczności najpierw egzekwowania dłużnika. Potrzebuję umowę, która to ureguluje i pozwoli mi szybko odzyskać pieniądze."
+  }
+ ]
+}

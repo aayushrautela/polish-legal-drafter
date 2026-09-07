@@ -1,0 +1,55 @@
+Dzierżawa gruntu rolnego na uprawy (czas oznaczony)
+Dzierżawa gruntu rolnego z czynszem rzeczowym (tony pszenicy)
+Dzierżawa gruntu rolnego z czynszem w ułamkowej części pożytków
+Dzierżawa działki budowlanej pod inwestycję
+Dzierżawa zabudowanej nieruchomości (hala magazynowa)
+Dzierżawa gruntu pod instalację fotowoltaiczną (OZE)
+Dzierżawa gruntu pod magazyn lub plac składowy
+Dzierżawa na czas nieoznaczony (wypowiedzenie rok naprzód)
+Dzierżawa długoterminowa (powyżej 30 lat, akt notarialny)
+Dzierżawa z waloryzacją czynszu o wskaźnik inflacji GUS
+Dzierżawa z kaucją zwrotną
+Dzierżawa z zakazem poddzierżawy
+Dzierżawa z dozwoloną poddzierżawą (pisemna zgoda)
+Dzierżawa z określeniem przeznaczenia gruntu (produkcja rolna)
+Dzierżawa z zakazem zmiany przeznaczenia gruntu
+Dzierżawa gruntu obciążonego hipoteką (oświadczenie o braku obciążeń)
+Dzierżawa z udziałem współwłaścicieli (zgoda wszystkich)
+Dzierżawa z obowiązkiem wykonywania prawidłowej gospodarki
+Dzierżawa z rozliczeniem nakładów po zakończeniu (budowle, instalacje)
+Dzierżawa z pozostawieniem zasiewów (żądanie zwrotu nakładów)
+Dzierżawa z prawem wypowiedzenia przy dwóch miesiącach zwłoki w czynszu
+Dzierżawa z obniżeniem czynszu z powodu zmniejszenia pożytków
+Dzierżawa z wadami gruntu (obniżenie czynszu lub wypowiedzenie)
+Dzierżawa gruntu z dostępem do drogi i uzbrojeniem
+Dzierżawa z protokołem zdawczo-odbiorczym
+Dzierżawa z gwarancją bankową po stronie dzierżawcy
+Dzierżawa z karami umownymi za samowolną poddzierżawę
+Dzierżawa sadu lub nasadzeń wieloletnich
+Dzierżawa stawu lub zbiornika wodnego (rybołówstwo)
+Dzierżawa lasu
+Dzierżawa gruntu rolnego przez rolnika od gminy
+Dzierżawa z możliwością wypowiedzenia z ważnych powodów (zamknięty katalog)
+Dzierżawa z automatycznym przedłużeniem (dorozumiana zgoda)
+Dzierżawa z czasowym ograniczeniem (np. 10 lat)
+Dzierżawa z czynszem płatnym kwartalnie z góry
+Dzierżawa z czynszem płatnym rocznie z dołu
+Dzierżawa gruntu z dopłatami unijnymi (kto pobiera)
+Dzierżawa z obowiązkiem ubezpieczenia budowli
+Dzierżawa z przeniesieniem pożytków ubocznych (biomasa, odpady)
+Dzierżawa rzeczy ruchomej (maszyna rolnicza do używania i pożytków)
+Dzierżawa z wpisem roszczenia do księgi wieczystej (art. 18 ustawy)
+Dzierżawa z zakazem zbycia gruntu przez wydzierżawiającego w trakcie trwania
+Dzierżawa z klauzulą zmiany właściciela gruntu
+Dzierżawa pastwiska lub łąki
+Dzierżawa ogrodu działkowego
+Dzierżawa gruntu pod parking lub plac manewrowy
+Dzierżawa z określeniem klas użytków rolnych
+Dzierżawa z prawem pierwszeństwa przedłużenia
+Dzierżawa z obowiązkiem melioracji lub ogrodzenia
+Dzierżawa z rozwiązaniem za rażące naruszenie (dewastacja gleby)
+Dzierżawa z czynszem mieszanym (pieniądz i płody rolne)
+Dzierżawa z terminem naprawczym przed wypowiedzeniem
+Dzierżawa z podziałem na działki (załącznik graficzny)
+Dzierżawa gruntu pod działalność komercyjną (np. myjnia)
+Dzierżawa z obowiązkiem zwrotu gruntu zgodnie z prawidłową gospodarką

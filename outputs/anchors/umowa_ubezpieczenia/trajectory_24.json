@@ -1,0 +1,325 @@
+{
+ "run": 27,
+ "hint": "Ubezpieczenie na wypadek utraty dochodu",
+ "scenario": "Ubezpieczenie na wypadek utraty dochodu",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_ubezpieczenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an insurance contract (umowa_ubezpieczenia) focused on \"Ubezpieczenie na wypadek utraty dochodu\" (income loss insurance). This is a type of personal insurance that covers loss of income due to various events like illness, accident, unemployment, etc.\n\nLet me start by reading the base template for umowa_ubezpieczenia, then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-d4cea361-d883-4544-af9c-03add03b565a",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_ubezpieczenia\", \"query\": \"ubezpieczenie na wypadek utraty dochodu dochodowe\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Wypowiedzenie umowy ubezpieczenia na życie\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce to jednostronne oświadczenie woli ubezpieczającego skierowane do towarzystwa ubezpieczeń życiowych, na mocy którego dochodzi do rozwiązania umowy ubezpieczenia i zakończenia ochrony ubezpieczeniowej. Instytucja ta uregulowana jest przede wszystkim w art. 812 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) oraz w ustawie z dnia 11 września 2015 r. o działalności ubezpieczeniowej i reasekuracyjnej (Dz.U. 2015 poz. 1844 ze zm.), zwanej dalej u.d.u.r., a także w ogólnych warunkach ubezpieczenia (OWU) danego produktu.\\n\\nRynek ubezpieczeń na życie w Polsce reguluje i nadzoruje Komisja Nadzoru Finansowego (KNF) z siedzibą w Warszawie, która wydaje zezwolenia na prowadzenie działalności ubezpieczeniowej i sprawuje kontrolę nad towarzystwami ubezpieczeń życiowych. Na polskim rynku działają zarówno krajowe towarzystwa ubezpieczeń życiowych (PZU Życie S.A., TUiR Warta S.A., Nationale-Nederlanden TUŻ S.A., Aviva Towarzystwo Ubezpieczeń na Życie S.A.), jak i oddziały zagranicznych zakładów ubezpieczeń.\\n\\nUbezpieczenia na życie dzielą się na kilka kategorii. Ubezpieczenia terminowe (Dział I, Grupa 1 klasyfikacji działów ubezpieczeń) zapewniają ochronę przez określony czas; nie mają komponentu oszczędnościowego i przy rezygnacji nie wypłaca się wartości wykupu. Ubezpieczenia całożyciowe (endowment) łączą ochronę z oszczędzaniem; przy rezygnacji ubezpieczający ma prawo do wartości wykupu polisy. Ubezpieczenia z ubezpieczeniowym funduszem kapitałowym (UFK) łączą ochronę z inwestycją w fundusze inwestycyjne; wartość wykupu odpowiada wartości zgromadzonych jednostek, pomniejszonej ewentualnie o opłatę likwidacyjną. Ubezpieczenia grupowe to polisy zawierane przez pracodawcę lub organizację jako ubezpieczającego na rzecz pracowników lub członków; wypowiedzenie grupowe wymaga zwykle zgody lub udziału ubezpieczającego.\\n\\nArtykuł 812 KC przewiduje dwa tryby wypowiedzenia. Paragraf 4 dotyczy umów zawartych na czas nieokreślony — ubezpieczający może je wypowiedzieć w każdym czasie z zachowaniem terminu wskazanego w umowie lub OWU, nie krótszego niż jeden miesiąc. Paragraf 5 reguluje umowy zawarte na rok lub dłużej — ubezpieczający może je wypowiedzieć w każdym czasie, z co najmniej trzydziestodniowym wyprzedzeniem, jeżeli umowa przewiduje taką możliwość. OWU mogą przyznawać ubezpieczającemu szersze uprawnienia do wypowiedzenia.\\n\\nSzczególne znaczenie ma prawo do wartości wykupu polisy przy ubezpieczeniach z UFK i całożyciowych. Po rozwiązaniu umowy towarzystwo ubezpieczeń jest zobowiązane do wypłaty wartości wykupu w terminie wskazanym w OWU — zazwyczaj 30 dni od dnia doręczenia wniosku. Przy polisach z UFK wartość wykupu zależy od aktualnej wyceny jednostek funduszu i może być niższa od sumy wpłaconych składek.\\n\\nWypowiedzenie umowy ubezpieczenia na życie powinno wskazywać dane ubezpieczającego, dane towarzystwa, numer polisy, datę zawarcia, rodzaj polisy, podstawę prawną, ewentualny wniosek o wartość wykupu oraz datę i podpis. Dokument należy złożyć w formie pisemnej, z zachowaniem dowodu doręczenia.\\n\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce jest potrzebne w różnych sytuacjach życiowych i finansowych. Poniżej opisano typowe przypadki.\\n\\nPoprawa sytuacji finansowej i rezygnacja z drogiej polisy. Ubezpieczeni niekiedy rezygnują z kosztownej polisy ubezpieczenia na życie z UFK, gdy okazuje się, że opłaty za zarządzanie pochłaniają znaczną część wpłacanych składek, a wyniki inwestycyjne są rozczarowujące. Wypowiedzenie jest jedynym sposobem na zakończenie tego stosunku prawnego i odzyskanie zgromadzonych środków (wartości wykupu).\\n\\nZmiana ubezpieczyciela na oferującego lepsze warunki. Ubezpieczający, który znalazł polisę terminową z niższą składką przy tej samej sumie ubezpieczenia lub ubezpieczenie całożyciowe o niższych opłatach, składa wypowiedzenie dotychczasowej polisy. Przy polisach terminowych rezygnacja jest prosta — nie ma wartości wykupu do rozliczenia.\\n\\nZmiana sytuacji rodzinnej — śmierć beneficjenta lub dziecka. Gdy osoba, na korzyść której ubezpieczający zawarł polisę (beneficjent), zmienia się lub znika (np. w wyniku śmierci), ubezpieczający może chcieć zrezygnować z polisy i zawrzeć nową, dostosowaną do aktualnej sytuacji rodzinnej.\\n\\nUtrata możliwości opłacania składek. Przy pogorszeniu się sytuacji materialnej ubezpieczający może nie być w stanie opłacać regularnych składek. Zamiast dopuścić do wygaśnięcia polisy wskutek nieopłacenia składek (art. 814 § 3 KC), co może wiązać się z utratą ochrony i brakiem zwrotu składek, warto złożyć formalne wypowiedzenie i ubiegać się o wartość wykupu (przy polisach oszczędnościowych).\\n\\nRezygnacja z polisy grupowej przy zmianie pracy. Ubezpieczenie grupowe na życie jest zwykle powiązane z zatrudnieniem u danego pracodawcy. Po zmianie pracy pracownik może chcieć sformalizować zakończenie uczestnictwa w grupowej polisie. Wypowiedzenie składa się wówczas do pracodawcy jako ubezpieczającego, a ten informuje towarzystwo ubezpieczeń.\\n\\nOdstąpienie od polisy zawartej na odległość lub poza lokalem. Polisy ubezpieczenia na życie zawarte przez telefon, internet lub podczas wizyty agenta ubezpieczeniowego w domu klienta podlegają prawu odstąpienia: 30 dni przy umowach ubezpieczenia na życie (art. 40 u.d.u.r.) lub 14 dni przy umowach zawartych na odległość (art. 27 u.p.k.). Jest to jeden z najkorzystniejszych trybów rezygnacji.\\n\\nWykrycie klauzul niedozwolonych w OWU. Gdy ubezpieczający odkrywa, że OWU zawierają niedozwolone klauzule (abuzywne w rozumieniu art. 385¹ KC) — np. rażąco wysokie opłaty likwidacyjne — może powołać się na niewiążący charakter tych postanowień i ubiegać się o korzystniejsze warunki wykupu lub złożyć skargę do Rzecznika Finansowego.\\n\\nPrawidłowe wypowiedzenie umowy ubezpieczenia na życie w Polsce musi zawierać kilka kluczowych elementów, aby było skuteczne i umożliwiało ubieganie się o wartość wykupu polisy. Poniżej opisano niezbędne składniki dokumentu.\\n\\nDane ubezpieczającego z PESEL. Pismo musi jednoznacznie identyfikować ubezpieczającego: imię i nazwisko, adres zamieszkania, PESEL. Numer PESEL jest kluczowym identyfikatorem w systemach towarzystw ubezpieczeń życiowych i umożliwia szybką identyfikację polisy.\\n\\nAdresat — pełna firma towarzystwa ubezpieczeń. Pismo adresuje się do konkretnego towarzystwa ubezpieczeń, podając jego pełną firmę i adres właściwego biura obsługi lub centrum rozliczeń polis.\\n\\nNumer polisy i data zawarcia. Wskazanie numeru polisy (widocznego na dokumencie polisy lub w panelu klienta) i daty zawarcia umowy umożliwia towarzystwu szybką identyfikację stosunku prawnego. Numer polisy jest kluczowym identyfikatorem — bez niego wniosek może zostać odrzucony.\\n\\nRodzaj polisy. Wskazanie rodzaju polisy (terminowa, całożyciowa, UFK, grupowa) pozwala towarzystwu zastosować właściwą procedurę rozwiązania umowy. Różne rodzaje polis mają różne procedury likwidacyjne i różne prawa do wartości wykupu.\\n\\nPodstawa prawna. Powołanie właściwej podstawy prawnej — art. 812 § 4 KC (umowy na czas nieokreślony), art. 812 § 5 KC (umowy zawarte na rok i dłużej), art. 27 u.p.k. lub art. 40 u.d.u.r. (odstąpienie od umowy na odległość lub poza lokalem) — precyzuje, z którego uprawnienia korzysta ubezpieczający. Wzory pism ubezpieczeniowych i odwoławczych dostępne są bezpłatnie w serwisie forms-legal.com.\\n\\nWniosek o wypłatę wartości wykupu. Przy polisach oszczędnościowych (całożyciowych, UFK) pismo powinno zawierać wyraźny wniosek o wypłatę wartości wykupu polisy po jej rozwiązaniu. Warto wskazać numer rachunku bankowego lub inną formę wypłaty. Przy polisach terminowych nie przysługuje wartość wykupu.\\n\\nŻądanie potwierdzenia i rozliczenia. Wypowiedzenie powinno zawierać żądanie pisemnego potwierdzenia przyjęcia, wskazania daty rozwiązania umowy i rozliczenia wszelkich nadpłaconych składek w terminie 30 dni.\\n\\nData, miejscowość i podpis. Wypowiedzenie powinno być opatrzone datą sporządzenia (DD.MM.YYYY), miejscowością i własnoręcznym podpisem ubezpieczającego.\\n\\nWypełnienie wypowiedzenia umowy ubezpieczenia na życie wymaga zebrania danych z dokumentu polisy i ustalenia właściwej podstawy prawnej. Poniżej opisano kolejne kroki.\\n\\nKrok 1 — zbierz dane z polisy. Odszukaj dokument polisy ubezpieczenia na życie lub zaloguj się do panelu klienta towarzystwa. Potrzebujesz: numeru polisy, daty zawarcia umowy, rodzaju polisy (terminowa, całożyciowa, UFK, grupowa), nazwy i adresu towarzystwa. Dane te są niezbędne do prawidłowego sporządzenia wypowiedzenia.\\n\\nKrok 2 — wpisz swoje dane. Podaj imię i nazwisko, adres zamieszkania i PESEL dokładnie tak, jak są wskazane w dokumentach polisy. Niezgodność danych może spowodować trudności z identyfikacją polisy.\\n\\nKrok 3 — wpisz dane towarzystwa. Wpisz pełną firmę towarzystwa ubezpieczeń życiowych (np. PZU Życie S.A., Nationale-Nederlanden TUŻ S.A.) i adres biura obsługi korespondencji lub centrum rozliczeń polis. Adresy te widnieją zwykle na dokumencie polisy lub na stronie internetowej towarzystwa.\\n\\nKrok 4 — wpisz numer polisy i datę zawarcia. Podaj numer polisy widoczny na dokumencie polisy i datę zawarcia umowy. Przy kilku polisach w jednym towarzystwie wskaż, którą konkretnie chcesz wypowiedzieć.\\n\\nKrok 5 — wybierz rodzaj polisy. Zaznacz właściwy rodzaj: terminowa, całożyciowa, z UFK lub grupowa. Rodzaj polisy wpływa na procedurę likwidacyjną i prawo do wartości wykupu.\\n\\nKrok 6 — wybierz podstawę prawną. Zaznacz właściwy przepis: art. 812 § 4 KC (umowy na czas nieokreślony), art. 812 § 5 KC (umowy na rok i dłużej), art. 27 u.p.k. (14 dni — umowy na odległość) lub art. 814 § 3 KC (nieopłacenie kolejnej składki). Wybór podstawy prawnej ma znaczenie dla trybu rozwiązania i prawa do wartości wykupu.\\n\\nKrok 7 — zdecyduj o wniosku o wartość wykupu. Jeżeli masz polisę oszczędnościową (całożyciową lub z UFK), zaznacz, że wnioskujesz o wypłatę wartości wykupu. Polisy terminowe nie mają wartości wykupu.\\n\\nKrok 8 — wpisz miejscowość, datę i podpisz. Wpisz miejscowość i datę sporządzenia w formacie DD.MM.YYYY i złóż własnoręczny podpis.\\n\\nKrok 9 — wyślij z dowodem doręczenia. Wyślij pismo listem poleconym za potwierdzeniem odbioru lub złóż osobiście w oddziale towarzystwa za pokwitowaniem. Zachowaj kopię i dowód doręczenia.\\n\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce podlega przepisom Kodeksu cywilnego i ustawy o działalności ubezpieczeniowej. Poniżej opisano kluczowe wymagania prawne.\\n\\nPrawo do wypowiedzenia — art. 812 KC. Artykuł 812 § 4 KC stanowi, że ubezpieczający może wypowiedzieć umowę ubezpieczenia zawartą na czas nieokreślony w każdym czasie z zachowaniem terminu wypowiedzenia wskazanego w umowie, nie krótszego niż jeden miesiąc. Artykuł 812 § 5 KC przewiduje, że w przypadku umów zawartych na rok lub dłużej ubezpieczający może wypowiedzieć umowę w każdym czasie z co najmniej trzydziestodniowym wyprzedzeniem, jeżeli umowa (lub OWU) takie uprawnienie przewiduje. Postanowienia OWU wyłączające lub nadmiernie ograniczające to uprawnienie mogą być abuzywne.\\n\\nPrawo do odstąpienia od umowy ubezpieczenia na życie. Artykuł 40 ust. 1 ustawy o działalności ubezpieczeniowej i reasekuracyjnej przewiduje, że ubezpieczający, który zawarł umowę ubezpieczenia na życie, może od niej odstąpić w terminie 30 dni od dnia zawarcia umowy. Przy umowach zawartych na odległość stosuje się art. 27 ustawy o prawach konsumenta i 14-dniowy termin odstąpienia. Skorzystanie z prawa odstąpienia jest wolne od jakichkolwiek kosztów, a towarzystwo zwraca składkę proporcjonalnie do okresu świadczonej ochrony.\\n\\nWartość wykupu i opłaty likwidacyjne. Ubezpieczenia z UFK i ubezpieczenia całożyciowe posiadają wartość wykupu — sumę, jaką ubezpieczający otrzymuje przy rozwiązaniu umowy przed jej naturalnym zakończeniem. OWU określają sposób obliczania wartości wykupu i ewentualne opłaty likwidacyjne. Komisja Nadzoru Finansowego (KNF) wielokrotnie wskazywała, że rażąco wysokie opłaty likwidacyjne mogą stanowić klauzule niedozwolone w rozumieniu art. 385¹ KC. Rzecznik Finansowy wydał rekomendacje w sprawie opłat likwidacyjnych, na które warto się powołać przy kwestionowaniu nadmiernych opłat.\\n\\nNieopłacenie kolejnej składki — art. 814 § 3 KC. Artykuł 814 § 3 KC stanowi, że jeżeli ubezpieczający nie zapłacił w terminie składki następnej (po pierwszej), a w umowie lub OWU zastrze-żono, że brak zapłaty powoduje wygaśnięcie umowy, umowa wygasa po upływie dodatkowego 7-dniowego terminu. Wygaśnięcie umowy nie jest tym samym co wypowiedzenie i może nie dawać prawa do wartości wykupu — dlatego przy problemach z płatnościami lepiej złożyć formalne wypowiedzenie.\\n\\nNadzór KNF i Rzecznik Finansowy. Nadzór nad towarzystwami ubezpieczeń życiowych sprawuje Komisja Nadzoru Finansowego (KNF). Przy sporach dotyczących wypowiedzenia polisy i wypłaty wartości wykupu ubezpieczający może: złożyć reklamację do towarzystwa; złożyć wniosek o interwencję do Rzecznika Finansowego; skierować sprawę do Sądu Polubownego przy KNF; wnieść powództwo do sądu powszechnego. Rzecznik Finansowy (rf.gov.pl) oferuje bezpłatną pomoc konsumentom usług ubezpieczeniowych i prowadzi postępowania polubowne.\\n\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce jest źródłem typowych błędów, które mogą prowadzić do utraty prawa do wartości wykupu lub konieczności poniesienia dodatkowych opłat. Poniżej opisano najczęstsze uchybienia.\\n\\nBłąd 1 — niepowołanie właściwej podstawy prawnej przy roszczeniu do bezkosztowego odstąpienia. Ubezpieczający, który zawarł polisę przez telefon lub internet, powinien powołać art. 27 u.p.k. (14 dni) lub art. 40 u.d.u.r. (30 dni), aby skorzystać z prawa do pełnego zwrotu składki. Wypowiedzenie bez tej podstawy może być traktowane jako zwykłe rozwiązanie umowy z potrąceniem opłat.\\n\\nBłąd 2 — niezłożenie wniosku o wartość wykupu. Ubezpieczający posiadający polisę z UFK lub całożyciową niekiedy wypowiada umowę, ale nie żąda wypłaty wartości wykupu. Towarzystwo jest wówczas zobowiązane do wypłaty z urzędu, ale brak wyraźnego żądania może opóźnić procedurę. Warto wprost wskazać konto do przelewu.\\n\\nBłąd 3 — zakwestionowanie opłaty likwidacyjnej — brak powołania się na orzecznictwo. Wiele OWU zawiera klauzule naliczania rażąco wysokich opłat likwidacyjnych (np. 80-90% wartości polisy w pierwszych latach). Ubezpieczający często akceptują te opłaty nie wiedząc, że Sąd Najwyższy i Sąd Ochrony Konkurencji i Konsumentów (SOKiK) wielokrotnie uznawały takie klauzule za abuzywne. Warto powołać się na decyzję UOKiK lub orzecznictwo przy sporze o wysokość opłaty.\\n\\nBłąd 4 — ignorowanie terminu odpowiedzi towarzystwa. Towarzystwo ubezpieczeń ma obowiązek rozpatrzeć reklamację w terminie 30 dni od jej złożenia (art. 20 u.d.u.r. w zw. z art. 7 ustawy o rozpatrywaniu reklamacji przez podmioty rynku finansowego). Brak odpowiedzi w tym terminie jest równoznaczny z uznaniem reklamacji. Ubezpieczający, który nie pilnuje terminu, traci tę korzyść procesową.\\n\\nBłąd 5 — pominięcie beneficjenta polisy. Przy ubezpieczeniu na życie ubezpieczony wskazuje beneficjenta, który otrzyma świadczenie na wypadek jego śmierci. Przy wypowiedzeniu polisy nie jest wymagana zgoda beneficjenta, jednak zmiana beneficjenta lub zakończenie polisy pozbawia go prawa do świadczenia na wypadek śmierci. Przed podjęciem decyzji o rezygnacji warto rozważyć, czy beneficjent jest zabezpieczony w inny sposób.\\n\\nBłąd 6 — dopuszczenie do wygaśnięcia polisy zamiast wypowiedzenia. Ubezpieczający niekiedy przestają opłacać składki, licząc, że polisa \\\"sama wygaśnie\\\". Przy polisach terminowych może to nie powodować żadnych konsekwencji finansowych, ale przy polisach UFK wygaśnięcie spowodowane nieopłacaniem składek może wiązać się z innymi zasadami rozliczenia wartości wykupu niż formalne wypowiedzenie.\\n\\nBłąd 7 — brak dowodu doręczenia. Bez potwierdzenia doręczenia wypowiedzenia towarzystwo może twierdzić, że go nie otrzymało, i nadal naliczać składki. Zawsze należy zachować dowód nadania lub doręczenia pisma.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/wypowiedzenie-umowy-ubezpieczenia-na-zycie (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-d4cea361-d883-4544-af9c-03add03b565a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_d45304b528c548d18ac8ebe0",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ubezpieczenie na wypadek utraty dochodu ubezpieczenie dochodowe przepisy KC\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_910fd15a049c4d118c37e25c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ubezpieczenie dochodowe\", \"utrata dochodu\", \"art. 829 KC\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_807\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 807. § 1. Zabezpieczenie w wypadkach w części niniejszej przewidzianych powinno być złożone w gotówce do rąk komornika lub wpłacone na rachunek depozytowy Ministra Finansów albo złożone w książeczkach oszczędnościowych lub w papierach wartościowych. O wydaniu zabezpieczenia sąd rozstrzyga po wysłuchaniu osób zainteresowanych. Na postanowienie sądu przysługuje zażalenie. § 2. Minister Sprawiedliwości w porozumieniu z ministrem ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_18c\", \"source_id\": \"sejm_eli_du_2025_350_art_18c\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 18c. 1. Podstawa wymiaru składek na ubezpieczenia emerytalne i rentowe ubezpieczonego, o którym mowa w art. 8 ust. 6 pkt 1, którego roczny przychód z pozarolniczej działalności gospodarczej uzyskany w poprzednim roku kalendarzowym nie przekroczył kwoty 120 000 złotych, uzależniona jest od dochodu z pozarolniczej działalności gospodarczej w rozumieniu przepisów o podatku dochodowym od osób fizycznych, zwanego dalej „dochodem z pozarolniczej działalności gospodarczej”, uzyskanego w poprzednim roku kalendarzowym. 2. Pod ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_20\", \"source_id\": \"sejm_eli_du_2025_350_art_20\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 20. 1. Podstawę wymiaru składek na ubezpieczenie chorobowe oraz ubezpieczenie wypadkowe stanowi podstawa wymiaru składek na ubezpieczenie emerytalne i ubezpieczenia rentowe, z zastrzeżeniem ust. 2 i ust. 3. 2. Przy ustalaniu podstawy wymiaru składek na ubezpieczenie chorobowe oraz ubezpieczenie wypadkowe nie stosuje się ograniczenia, o którym mowa w art. 19 ust. 1. 3. Podstawa wymiaru składek na ubezpieczenie chorobowe osób, które ubezpieczeniu chorobowemu podlegają dobrowolnie, nie może przekraczać miesięcznie 250 % ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_18\", \"source_id\": \"sejm_eli_du_2025_350_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 18. 1. Podstawę wymiaru składek na ubezpieczenia emerytalne i rentowe ubezpieczonych wymienionych w art. 6 ust. 1 pkt 1–3 stanowi przychód, o którym mowa w art. 4 pkt 9 i 10, z zastrzeżeniem ust. 1a, 2, ust. 4 pkt 5 i ust. 12. 1a. W przypadku ubezpieczonych, o których mowa w art. 8 ust. 2a, w podstawie wymiaru składek na ubezpieczenia emerytalne i rentowe uwzględnia się również przychód z tytułu umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się prz ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_13\", \"source_id\": \"sejm_eli_du_2025_350_art_13\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 13. Obowiązkowo ubezpieczeniom emerytalnemu, rentowym, chorobowemu i wypadkowemu podlegają osoby fizyczne w następujących okresach: 1) pracownicy – od dnia nawiązania stosunku pracy do dnia ustania tego stosunku; 2) osoby wykonujące pracę nakładczą oraz zlece niobiorcy – od dnia oznaczonego w umowie jako dzień rozpoczęcia jej wykonywania do dnia rozwiązania lub wygaśnięcia tej umowy; 2a) (uchylony) 3) członkowie spółdzielni – od dnia rozpoczęcia wykonywania pracy na rzecz spółdzielni do dnia zakończenia jej wyk onywa ...\"}]",
+   "tool_call_id": "call_d45304b528c548d18ac8ebe0",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_910fd15a049c4d118c37e25c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_7668fade6d9f467baa8091a6",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ubezpieczenie na wypadek utraty dochodu umowa ubezpieczenia osobowego art. 829 830 831 KC\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_bc26a932107d480fb9245403",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ubezpieczenie osobowe\", \"utrata dochodu\", \"art. 830 KC\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego d ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0347_statute_95fd11c8e97b54ed\", \"source_id\": \"sejm_eli_du_2024_1061_art_830\", \"source_type\": \"statute\", \"top_category\": \"unilateral_change\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 830. § 1. Przy ubezpieczeniu osobowym ubezpieczający może wypowiedzieć umowę w każdym czasie z zachowaniem terminu określonego w umowie lub ogólnych warunkach ubezpieczenia, a w razie jego braku - ze skutkiem natychmiastowym. § 2. W braku odmiennego zastrzeżenia umowę uważa się za wypowiedzianą przez ubezpieczającego, jeżeli składka lub jej rata nie została zapłacona w terminie określonym w umowie lub ogólnych warunkach ubezpieczenia mimo uprzedniego wezwania do zapłaty w dodatkowym terminie określonym w ogólnych warunkach ubezpieczenia; w wezwaniu powinny być podane do wiadomości ubezpie ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_831\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 831. § 1. Ubezpieczający może wskazać jedną lub więcej osób uprawnionych do otrzymania sumy ubezpieczenia w razie śmierci osoby ubezpieczonej; może również zawrzeć umowę ubezpieczenia na okaziciela. Ubezpieczający może każde z tych zastrzeżeń zmienić lub odwołać w każdym czasie. § 1 1 . W razie zawarcia umowy ubezpieczenia na cudzy rachunek do wykonywania uprawnień, o których mowa w paragrafie poprzedzającym, konieczna jest uprzednia zgoda ubezp ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_830\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 830. § 1. Przy ubezpieczeniu osobowym ubezpieczający może wypowiedzieć umowę w każdym czasie z zachowaniem terminu określonego w umowie lub ogólnych warunkach ubezpieczenia, a w razie jego braku - ze skutkiem natychmiastowym. § 2. W braku odmiennego zastrzeżenia umowę uważa się za wypowiedzianą przez ubezpieczającego, jeżeli składka lub jej rata nie została zapłacona w terminie określonym w umowie lub ogólnych warunkach ubezpieczenia mimo uprzed ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_805\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 805. § 1. Przez umowę ubezpieczenia ubezpieczyciel zobowiązuje się, w zakresie działalności swego przedsiębiorstwa, spełnić określone świadczenie w razie zajścia przewidzianego w umowie wypadku, a ubezpieczający zobowiązuje się zapłacić składkę. § 2. Świadczenie ubezpieczyciela polega w szczególności na zapłacie: 1) przy ubezpieczeniu majątkowym - określonego odszkodowania za szkodę powstałą wskutek przewidzianego w umowie wypadku; 2) przy ubezp ...\"}]",
+   "tool_call_id": "call_7668fade6d9f467baa8091a6",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego d ...\"}]",
+   "tool_call_id": "call_bc26a932107d480fb9245403",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_23e920e6f08842c3abe71b6d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ubezpieczenie dochodowe na wypadek utraty dochodu wypowiedzenie umowy składka\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_1c6f86fab0e04c16908dcc2f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 805 KC\", \"art. 814 KC\", \"art. 822 KC\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_36ff0f6067c96ce3\", \"source_id\": \"uokik_rejestr_klauzul_1240\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie wypowiedzenia umowy składka za niewykorzystany okres ubezpieczenia podlega zwrotowi tylko wtedy, gdy w okresie ubezpieczenia nie wystąpiła szkoda, za którą Ubezpieczyciel wypłacił odszkodowania lub jest zobowiązany do jego wypłacenia\"}, {\"chunk_id\": \"uokik_items:uokik_5a73a422c9fcded4\", \"source_id\": \"uokik_rejestr_klauzul_1237\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie wypowiedzenia lub odstąpienia od umowy składka za niewykorzystany okres ubezpieczenia podlega zwrotowi tylko wtedy, gdy w okresie ubezpieczenia nie wystąpiła szkoda, za którą Ubezpieczyciel wypłacił lub zobowiązany jest do wypłacenia odszkodowania lub świadczenia\"}, {\"chunk_id\": \"uokik_items:uokik_d45f175c8c0f8d44\", \"source_id\": \"uokik_rejestr_klauzul_1239\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie wypowiedzenia umowy składka za niewykorzystany okres ubezpieczenia podlega zwrotowi tylko wtedy, gdy w okresie ubezpieczenia nie wystąpiła szkoda, za którą Ubezpieczyciel wypłacił lub zobowiązany jest do wypłacenia odszkodowania\"}, {\"chunk_id\": \"uokik_items:uokik_4a98c83ef7d8bb75\", \"source_id\": \"uokik_rejestr_klauzul_1305\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia od umowy lub jej wypowiedzenia nastąpi zwrot części składki z potrąceniem kosztów manipulacyjnych wynoszących 10% wysokości zwracanej składki - nie więcej niż 200 złotych\"}, {\"chunk_id\": \"uokik_items:uokik_ac43fa3b30607bf3\", \"source_id\": \"uokik_rejestr_klauzul_1238\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie wypowiedzenia lub odstąpienia od umowy składka za niewykorzystany okres ubezpieczenia podlega zwrotowi tylko wtedy, gdy w okresie ubezpieczenia nie wystąpiła szkoda, za którą Ubezpieczyciel wypłacił lub zobowiązany jest do wypłacenia odszkodowania\"}]",
+   "tool_call_id": "call_23e920e6f08842c3abe71b6d",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_1c6f86fab0e04c16908dcc2f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA UBEZPIECZENIA NA WYPADKU UTRATY DOCHODU\n\nzawarta w dniu ______________ r. między:\n\n**TOWARZYSTWEM UBEZPIECZEŃ [NAZWA PEŁNA FIRMY] S.A.** z siedzibą w ______________, wpisanym do rejestru przedsiębiorców Krajowego Rejestru Sądowego pod numerem KRS ______________, NIP ______________, REGON ______________, zwanym dalej **\"Ubezpieczyciel\"**,\n\na\n\n**UBEZPIECZAJĄCYM**: _________________________________________________________ (imię, nazwisko/nazwa), zamieszkującym pod adresem: _________________________________________________________, PESEL/NIP: _________________________________________________________, zwanym dalej **\"Ubezpieczający\"**,\n\na (jeśli inna osoba)\n\n**OSOBĄ UBEZPIECZONĄ**: _________________________________________________________ (imię, nazwisko), data urodzenia: ______________, PESEL: _________________________________________________________, zwaną dalej **\"Osobą Ubezpieczoną\"**.\n\nUbezpieczyciel i Ubezpieczający łącznie zwani **\"Strony\"**.\n\n§ 1\nPRZEDMIOT UBEZPIECZENIA\n\n1. Przedmiotem umowy jest ubezpieczenie osobowe na wypadek utraty dochodu Osoby Ubezpieczonej wskutek:\n   a) całkowitej niezdolności do pracy spowodowanej chorobą lub wypadkiem,\n   b) częściowej niezdolności do pracy spowodowanej chorobą lub wypadkiem,\n   c) hospitalizacji Osoby Ubezpieczonej,\n   d) innych zdarzeń objętych ochroną zgodnie z Ogólnymi Warunkami Ubezpieczenia (OWU).\n\n2. Ubezpieczenie należy do grupy ubezpieczeń osobowych w rozumieniu art. 829 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.).\n\n3. Szczegółowy zakres ochrony, wyłączenia odpowiedzialności Ubezpieczyciela oraz definicje zdarzeń ubezpieczeniowych określa OWU stanowiąca załącznik nr ____ do niniejszej umowy.\n\n§ 2\nSUMA UBEZPIECZENIA I SKŁADKA\n\n1. Suma ubezpieczenia (maksymalne miesięczne świadczenie) wynosi: ______________ PLN.\n\n2. Składka {rządna/okresowa} wynosi: ______________ PLN, do zapłaty {miesięcznie/kwartalnie/półrocznie/rocznie} do dnia ________ każdego okresu rozliczeniowego.\n\n3. Termin płatności pierwszej składki: ______________. Odpowiedzialność Ubezpieczyciela rozpoczyna się nie wcześniej niż następnego dnia po zapłacie pierwszej składki, zgodnie z art. 829 § 2 KC.\n\n4. W przypadku nieopłacenia składki w terminie, Ubezpieczyciel wezwie Ubezpieczającego do zapłaty w dodatkowym terminie nie krótszym niż 7 dni, z ostrzeżeniem o skutkach prawnej. Po bezskutecznym upływie terminu umowa ulega rozwiązaniu z mocy prawa (art. 830 § 2 KC).\n\n§ 3\nOKRES UBEZPIECZENIA\n\n1. Umowa zawarta jest na czas {określony: do dnia ______________ / nieokreślony}.\n\n2. W przypadku umowy na czas nieokreślony, każda ze Stron może ją wypowiedzieć z zachowaniem terminu wypowiedzenia określonego w OWU, nie krótszego niż 1 miesiąc (art. 812 § 4 KC stosowany odpowiednio).\n\n3. W przypadku umowy na czas określony dłużej niż na rok, Ubezpieczający może ją wypowiedzieć z co najmniej 30-dniowym wyprzedzeniem, jeżeli umowa lub OWU takie uprawnienie przewidują (art. 812 § 5 KC stosowany odpowiednio).\n\n4. Ubezpieczający może wypowiedzieć umowę w każdym czasie z zachowaniem terminu określonego w umowie lub OWU, a w razie jego braku – ze skutkiem natychmiastowym (art. 830 § 1 KC).\n\n§ 4\nŚWIADCZENIA UBEZPIECZYCIELA\n\n1. W razie zajścia zdarzenia ubezpieczeniowego Ubezpieczyciel zobowiązuje się do wypłaty miesięcznego rentowego świadczenia w wysokości do sumy ubezpieczenia, przez okres niezdolności do pracy, nie dłużej jednak niż do ukończenia przez Osobę Ubezpieczoną ____ roku życia / przez okres ____ lat.\n\n2. Świadczenie wypłacane jest miesięcznie do tyłu, do dnia ____ każdego miesiąca kalendarzowego, na rachunek bankowy wskazany przez Ubezpieczającego / Osobę Ubezpieczoną.\n\n3. Karencja (okres oczekiwania na pierwsze świadczenie) wynosi ____ dni od dnia zajścia zdarzenia ubezpieczeniowego.\n\n4. Ubezpieczyciel ma prawo do weryfikacji stanu zdrowia Osoby Ubezpieczonej oraz trwania niezdolności do pracy, w tym do skierowania na badania lekarskie u lekarza wyznaczonego przez Ubezpieczyciela.\n\n§ 5\nBENEFICJENCI\n\n1. Ubezpieczający może wskazać jedną lub więcej osób uprawnionych do otrzymania świadczenia w razie śmierci Osoby Ubezpieczonej (beneficjentów), zgodnie z art. 831 § 1 KC.\n\n2. Wskazanie beneficjenta, jego zmiana lub odwołanie może nastąpić w każdym czasie piśmem skierowanym do Ubezpieczyciela.\n\n3. W razie zawarcia umowy na cudzy rachunek, do wykonywania uprawnień beneficjenta konieczna jest uprzednia zgoda Osoby Ubezpieczonej (art. 831 § 1¹ KC).\n\n4. Jeżeli beneficjent nie został wskazany lub nie przeżyje Osoby Ubezpieczonej, świadczenie przysługuje spadkobiercom Osoby Ubezpieczonej.\n\n§ 6\nOBOWIĄZKI UBEZPIECZAJĄCEGO I OSOBY UBEZPIECZONEJ\n\n1. Ubezpieczający i Osoba Ubezpieczona mają obowiązek:\n   a) przed zawarciem umowy odpowiedzieć piśmem na pytania Ubezpieczyciela dotyczące stanu zdrowia, zawodu, stylu życia i innych okoliczności istotnych dla oceny ryzyka (art. 807 KC);\n   b) powiadomić Ubezpieczyciela o każdej zmianie okoliczności istotnych dla oceny ryzyka, w tym o zmianie zawodu, stan zdrowia, adresu zamieszkania;\n   c) w razie zdarzenia ubezpieczeniowego – niezwłocznie powiadomić Ubezpieczyciela, złożyć wniosek o wypłatę świadczenia oraz dostarczyć niezbędną dokumentację (zaświadczenia lekarskie, decyzje ZUS, potwierdzenia hospitalizacji itp.).\n\n2. Niewypełnienie obowiązku z ust. 1 lit. a) może skutkować uchyleniem Ubezpieczyciela od odpowiedzialności, jeżeli Ubezpieczyciel udowodni, że okoliczność ta miała istotne znaczenie dla zawarcia umowy lub ustalenia składek.\n\n§ 7\nWYPOWIEDZENIE I ROZWIĄZANIE UMOWY\n\n1. Ubezpieczający może wypowiedzieć umowę w każdym czasie, z zachowaniem terminu wypowiedzenia określonego w OWU. Wypowiedzenie powinno zostać złożone piśmem z potwierdzeniem odbioru.\n\n2. Ubezpieczyciel może wypowiedzieć umowę tylko w przypadkach przewidzianych w OWU oraz w ustawie, z zachowaniem terminu nie krótszego niż 1 miesiąc.\n\n3. Umowa wygasa z mocy prawa w przypadku nieopłacenia składki po wezwaniu do zapłaty w dodatkowym terminie (art. 830 § 2 KC).\n\n4. W razie wypowiedzenia umowy, składka za niewykorzystany okres ubezpieczenia podlega zwrotowi proporcjonalnie, z zastrzeżeniem art. 814 § 2 KC oraz przepisów OWU. Klauzule ograniczające zwrot składek wyłącznie do przypadków braku szkody mogą być uważane za niedozwolone (rejestr klauzul abuzywnych UOKiK).\n\n5. Strony mogą odstąpić od umowy w terminie 30 dni od dnia jej zawarcia (art. 40 ustawy o działalności ubezpieczeniowej i reasekuracyjnej) lub 14 dni w przypadku umowy zawartej na odległość (art. 27 ustawy o prawach konsumenta). Odstąpienie jest wolne od kosztów, a Ubezpieczyciel zwraca składkę proporcjonalnie do okresu ochrony.\n\n§ 8\nWARTOŚĆ WYKUPU I REZERWY\n\n1. Niniejsza umowa nie posiada wartości wykupu ani składowej oszczędnościowej. Jest to ubezpieczenie czysto ryzykowe (terminowe).\n\n2. Ubezpieczyciel tworzy rezerwy techniczne na pokrycie zobowiązań z tytułu niniejszej umowy zgodnie z przepisami ustawy o działalności ubezpieczeniowej i reasekuracyjnej.\n\n§ 9\nROZSTRZYGANIE SPORÓW\n\n1. Wszelkie spory wynikające z niniejszej umowy podlegą polskiemu prawu.\n\n2. Przed wniesieniem powództwa do sądu powszechnego, Strony zobowiązują się próbować rozstrzygnąć spór w drodze mediacji lub postępowania polubownego przed Sądem Polubownym przy KNF.\n\n3. Ubezpieczający – konsument może złożyć wniosek o interwencję do Rzecznika Finansowego (rf.gov.pl) oraz skargę do Komisji Nadzoru Finansowego.\n\n4. Sąd właściwy miejscowo to sąd miejsca zamieszkania Ubezpieczającego (jeśli jest konsumentem) lub siedziby Ubezpieczyciela.\n\n§ 10\nPOSTANOWIENIA KOŃCOWE\n\n1. Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej Strony.\n\n2. Załącznikami do umowy są:\n   a) Ogólne Warunki Ubezpieczenia (OWU) – załącznik nr ____;\n   b) Karta ubezpieczenia / polisę – załącznik nr ____;\n   c) Anketa ubezpieczeniowa / ankieta zdrowotna – załącznik nr ____;\n   d) Inne: _________________________________________________________.\n\n3. Zmiany umowy wymagają formy pisemnej pod rygorem nieważności.\n\n4. W sprawach nieuregulowanych w niniejszej umowie mają zastosowanie przepisy Kodeksu cywilnego (księga III, tytuł XXXVI – Ubezpieczenie), ustawy o działalności ubezpieczeniowej i reasekuracyjnej oraz OWU.\n\n5. Ubezpieczający potwierdza, że przed podpisaniem umowy zapoznał się z treścią OWU, ankietą ubezpieczeniową oraz informacją o prawie do odstąpienia od umowy.\n\n_________________________________________                    _________________________________________\n(Miejscowość, data)                                                                              (Miejscowość, data)\n\n_________________________________________                    _________________________________________\n(Podpis Ubezpieczającego)                                                                      (Podpis Osoby Ubezpieczonej – jeśli inna osoba)\n\n_________________________________________\n(Podpis upoważnionego przedstawiciela Ubezpieczyciela)\n\n---\n\nZAŁĄCZNIK: INFORMACJA O PRAWIE DO ODSTĄPIENIA OD UMOWY\n\nZgodnie z art. 40 ust. 1 ustawy z dnia 11 września 2015 r. o działalności ubezpieczeniowej i reasekuracyjnej (Dz.U. 2015 poz. 1844 ze zm.), Ubezpieczający, który zawarł umowę ubezpieczenia na życie (w tym ubezpieczenie na wypadek utraty dochodu), może od niej odstąpić w terminie 30 dni od dnia zawarcia umowy, bez podania przyczyny i bez ponoszenia kosztów. W przypadku umowy zawartej na odległość (np. przez internet, telefon) lub poza lokalem Ubezpieczyciela, przysługuje 14-dniowy termin odstąpienia na podstawie art. 27 ustawy o prawach konsumenta. Odstąpienie powinno zostać złożone piśmem. Ubezpieczyciel zwraca składkę proporcjonalnie do okresu, w jakim świadczył ochronę.\n\n---\n\nZAŁĄCZNIK: KLAUZULA O PRZEPROWADZENIU POSTĘPOWANIA REKLAMACYJNEGO\n\nZgodnie z art. 20 ustawy o działalności ubezpieczeniowej i reasekuracyjnej w zw. z art. 7 ustawy o rozpatrywaniu reklamacji przez podmioty rynku finansowego, Ubezpieczyciel ma obowiązek rozpatrzeć reklamację Ubezpieczającego w terminie 30 dni od jej złożenia. Brak odpowiedzi w tym terminie jest równoznaczny z uznaniem reklamacji. Ubezpieczający ma prawo złożyć wniosek o interwencję do Rzecznika Finansowego lub skierować sprawę do Sądu Polubownego przy KNF.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA UBEZPIECZENIA NA WYPADKU UTRATY DOCHODU\n\nzawarta w dniu ______________ r. między:\n\n**TOWARZYSTWEM UBEZPIECZEŃ [NAZWA PEŁNA FIRMY] S.A.** z siedzibą w ______________, wpisanym do rejestru przedsiębiorców Krajowego Rejestru Sądowego pod numerem KRS ______________, NIP ______________, REGON ______________, zwanym dalej **\"Ubezpieczyciel\"**,\n\na\n\n**UBEZPIECZAJĄCYM**: _________________________________________________________ (imię, nazwisko/nazwa), zamieszkującym pod adresem: _________________________________________________________, PESEL/NIP: _________________________________________________________, zwanym dalej **\"Ubezpieczający\"**,\n\na (jeśli inna osoba)\n\n**OSOBĄ UBEZPIECZONĄ**: _________________________________________________________ (imię, nazwisko), data urodzenia: ______________, PESEL: _________________________________________________________, zwaną dalej **\"Osobą Ubezpieczoną\"**.\n\nUbezpieczyciel i Ubezpieczający łącznie zwani **\"Strony\"**.\n\n§ 1\nPRZEDMIOT UBEZPIECZENIA\n\n1. Przedmiotem umowy jest ubezpieczenie osobowe na wypadek utraty dochodu Osoby Ubezpieczonej wskutek:\n   a) całkowitej niezdolności do pracy spowodowanej chorobą lub wypadkiem,\n   b) częściowej niezdolności do pracy spowodowanej chorobą lub wypadkiem,\n   c) hospitalizacji Osoby Ubezpieczonej,\n   d) innych zdarzeń objętych ochroną zgodnie z Ogólnymi Warunkami Ubezpieczenia (OWU).\n\n2. Ubezpieczenie należy do grupy ubezpieczeń osobowych w rozumieniu art. 829 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.).\n\n3. Szczegółowy zakres ochrony, wyłączenia odpowiedzialności Ubezpieczyciela oraz definicje zdarzeń ubezpieczeniowych określa OWU stanowiąca załącznik nr ____ do niniejszej umowy.\n\n§ 2\nSUMA UBEZPIECZENIA I SKŁADKA\n\n1. Suma ubezpieczenia (maksymalne miesięczne świadczenie) wynosi: ______________ PLN.\n\n2. Składka {rządna/okresowa} wynosi: ______________ PLN, do zapłaty {miesięcznie/kwartalnie/półrocznie/rocznie} do dnia ________ każdego okresu rozliczeniowego.\n\n3. Termin płatności pierwszej składki: ______________. Odpowiedzialność Ubezpieczyciela rozpoczyna się nie wcześniej niż następnego dnia po zapłacie pierwszej składki, zgodnie z art. 829 § 2 KC.\n\n4. W przypadku nieopłacenia składki w terminie, Ubezpieczyciel wezwie Ubezpieczającego do zapłaty w dodatkowym terminie nie krótszym niż 7 dni, z ostrzeżeniem o skutkach prawnej. Po bezskutecznym upływie terminu umowa ulega rozwiązaniu z mocy prawa (art. 830 § 2 KC).\n\n§ 3\nOKRES UBEZPIECZENIA\n\n1. Umowa zawarta jest na czas {określony: do dnia ______________ / nieokreślony}.\n\n2. W przypadku umowy na czas nieokreślony, każda ze Stron może ją wypowiedzieć z zachowaniem terminu wypowiedzenia określonego w OWU, nie krótszego niż 1 miesiąc (art. 812 § 4 KC stosowany odpowiednio).\n\n3. W przypadku umowy na czas określony dłużej niż na rok, Ubezpieczający może ją wypowiedzieć z co najmniej 30-dniowym wyprzedzeniem, jeżeli umowa lub OWU takie uprawnienie przewidują (art. 812 § 5 KC stosowany odpowiednio).\n\n4. Ubezpieczający może wypowiedzieć umowę w każdym czasie z zachowaniem terminu określonego w umowie lub OWU, a w razie jego braku – ze skutkiem natychmiastowym (art. 830 § 1 KC).\n\n§ 4\nŚWIADCZENIA UBEZPIECZYCIELA\n\n1. W razie zajścia zdarzenia ubezpieczeniowego Ubezpieczyciel zobowiązuje się do wypłaty miesięcznego rentowego świadczenia w wysokości do sumy ubezpieczenia, przez okres niezdolności do pracy, nie dłużej jednak niż do ukończenia przez Osobę Ubezpieczoną ____ roku życia / przez okres ____ lat.\n\n2. Świadczenie wypłacane jest miesięcznie do tyłu, do dnia ____ każdego miesiąca kalendarzowego, na rachunek bankowy wskazany przez Ubezpieczającego / Osobę Ubezpieczoną.\n\n3. Karencja (okres oczekiwania na pierwsze świadczenie) wynosi ____ dni od dnia zajścia zdarzenia ubezpieczeniowego.\n\n4. Ubezpieczyciel ma prawo do weryfikacji stanu zdrowia Osoby Ubezpieczonej oraz trwania niezdolności do pracy, w tym do skierowania na badania lekarskie u lekarza wyznaczonego przez Ubezpieczyciela.\n\n§ 5\nBENEFICJENCI\n\n1. Ubezpieczający może wskazać jedną lub więcej osób uprawnionych do otrzymania świadczenia w razie śmierci Osoby Ubezpieczonej (beneficjentów), zgodnie z art. 831 § 1 KC.\n\n2. Wskazanie beneficjenta, jego zmiana lub odwołanie może nastąpić w każdym czasie piśmem skierowanym do Ubezpieczyciela.\n\n3. W razie zawarcia umowy na cudzy rachunek, do wykonywania uprawnień beneficjenta konieczna jest uprzednia zgoda Osoby Ubezpieczonej (art. 831 § 1¹ KC).\n\n4. Jeżeli beneficjent nie został wskazany lub nie przeżyje Osoby Ubezpieczonej, świadczenie przysługuje spadkobiercom Osoby Ubezpieczonej.\n\n§ 6\nOBOWIĄZKI UBEZPIECZAJĄCEGO I OSOBY UBEZPIECZONEJ\n\n1. Ubezpieczający i Osoba Ubezpieczona mają obowiązek:\n   a) przed zawarciem umowy odpowiedzieć piśmem na pytania Ubezpieczyciela dotyczące stanu zdrowia, zawodu, stylu życia i innych okoliczności istotnych dla oceny ryzyka (art. 807 KC);\n   b) powiadomić Ubezpieczyciela o każdej zmianie okoliczności istotnych dla oceny ryzyka, w tym o zmianie zawodu, stan zdrowia, adresu zamieszkania;\n   c) w razie zdarzenia ubezpieczeniowego – niezwłocznie powiadomić Ubezpieczyciela, złożyć wniosek o wypłatę świadczenia oraz dostarczyć niezbędną dokumentację (zaświadczenia lekarskie, decyzje ZUS, potwierdzenia hospitalizacji itp.).\n\n2. Niewypełnienie obowiązku z ust. 1 lit. a) może skutkować uchyleniem Ubezpieczyciela od odpowiedzialności, jeżeli Ubezpieczyciel udowodni, że okoliczność ta miała istotne znaczenie dla zawarcia umowy lub ustalenia składek.\n\n§ 7\nWYPOWIEDZENIE I ROZWIĄZANIE UMOWY\n\n1. Ubezpieczający może wypowiedzieć umowę w każdym czasie, z zachowaniem terminu wypowiedzenia określonego w OWU. Wypowiedzenie powinno zostać złożone piśmem z potwierdzeniem odbioru.\n\n2. Ubezpieczyciel może wypowiedzieć umowę tylko w przypadkach przewidzianych w OWU oraz w ustawie, z zachowaniem terminu nie krótszego niż 1 miesiąc.\n\n3. Umowa wygasa z mocy prawa w przypadku nieopłacenia składki po wezwaniu do zapłaty w dodatkowym terminie (art. 830 § 2 KC).\n\n4. W razie wypowiedzenia umowy, składka za niewykorzystany okres ubezpieczenia podlega zwrotowi proporcjonalnie, z zastrzeżeniem art. 814 § 2 KC oraz przepisów OWU. Klauzule ograniczające zwrot składek wyłącznie do przypadków braku szkody mogą być uważane za niedozwolone (rejestr klauzul abuzywnych UOKiK).\n\n5. Strony mogą odstąpić od umowy w terminie 30 dni od dnia jej zawarcia (art. 40 ustawy o działalności ubezpieczeniowej i reasekuracyjnej) lub 14 dni w przypadku umowy zawartej na odległość (art. 27 ustawy o prawach konsumenta). Odstąpienie jest wolne od kosztów, a Ubezpieczyciel zwraca składkę proporcjonalnie do okresu ochrony.\n\n§ 8\nWARTOŚĆ WYKUPU I REZERWY\n\n1. Niniejsza umowa nie posiada wartości wykupu ani składowej oszczędnościowej. Jest to ubezpieczenie czysto ryzykowe (terminowe).\n\n2. Ubezpieczyciel tworzy rezerwy techniczne na pokrycie zobowiązań z tytułu niniejszej umowy zgodnie z przepisami ustawy o działalności ubezpieczeniowej i reasekuracyjnej.\n\n§ 9\nROZSTRZYGANIE SPORÓW\n\n1. Wszelkie spory wynikające z niniejszej umowy podlegą polskiemu prawu.\n\n2. Przed wniesieniem powództwa do sądu powszechnego, Strony zobowiązują się próbować rozstrzygnąć spór w drodze mediacji lub postępowania polubownego przed Sądem Polubownym przy KNF.\n\n3. Ubezpieczający – konsument może złożyć wniosek o interwencję do Rzecznika Finansowego (rf.gov.pl) oraz skargę do Komisji Nadzoru Finansowego.\n\n4. Sąd właściwy miejscowo to sąd miejsca zamieszkania Ubezpieczającego (jeśli jest konsumentem) lub siedziby Ubezpieczyciela.\n\n§ 10\nPOSTANOWIENIA KOŃCOWE\n\n1. Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej Strony.\n\n2. Załącznikami do umowy są:\n   a) Ogólne Warunki Ubezpieczenia (OWU) – załącznik nr ____;\n   b) Karta ubezpieczenia / polisę – załącznik nr ____;\n   c) Anketa ubezpieczeniowa / ankieta zdrowotna – załącznik nr ____;\n   d) Inne: _________________________________________________________.\n\n3. Zmiany umowy wymagają formy pisemnej pod rygorem nieważności.\n\n4. W sprawach nieuregulowanych w niniejszej umowie mają zastosowanie przepisy Kodeksu cywilnego (księga III, tytuł XXXVI – Ubezpieczenie), ustawy o działalności ubezpieczeniowej i reasekuracyjnej oraz OWU.\n\n5. Ubezpieczający potwierdza, że przed podpisaniem umowy zapoznał się z treścią OWU, ankietą ubezpieczeniową oraz informacją o prawie do odstąpienia od umowy.\n\n_________________________________________                    _________________________________________\n(Miejscowość, data)                                                                              (Miejscowość, data)\n\n_________________________________________                    _________________________________________\n(Podpis Ubezpieczającego)                                                                      (Podpis Osoby Ubezpieczonej – jeśli inna osoba)\n\n_________________________________________\n(Podpis upoważnionego przedstawiciela Ubezpieczyciela)\n\n---\n\nZAŁĄCZNIK: INFORMACJA O PRAWIE DO ODSTĄPIENIA OD UMOWY\n\nZgodnie z art. 40 ust. 1 ustawy z dnia 11 września 2015 r. o działalności ubezpieczeniowej i reasekuracyjnej (Dz.U. 2015 poz. 1844 ze zm.), Ubezpieczający, który zawarł umowę ubezpieczenia na życie (w tym ubezpieczenie na wypadek utraty dochodu), może od niej odstąpić w terminie 30 dni od dnia zawarcia umowy, bez podania przyczyny i bez ponoszenia kosztów. W przypadku umowy zawartej na odległość (np. przez internet, telefon) lub poza lokalem Ubezpieczyciela, przysługuje 14-dniowy termin odstąpienia na podstawie art. 27 ustawy o prawach konsumenta. Odstąpienie powinno zostać złożone piśmem. Ubezpieczyciel zwraca składkę proporcjonalnie do okresu, w jakim świadczył ochronę.\n\n---\n\nZAŁĄCZNIK: KLAUZULA O PRZEPROWADZENIU POSTĘPOWANIA REKLAMACYJNEGO\n\nZgodnie z art. 20 ustawy o działalności ubezpieczeniowej i reasekuracyjnej w zw. z art. 7 ustawy o rozpatrywaniu reklamacji przez podmioty rynku finansowego, Ubezpieczyciel ma obowiązek rozpatrzeć reklamację Ubezpieczającego w terminie 30 dni od jej złożenia. Brak odpowiedzi w tym terminie jest równoznaczny z uznaniem reklamacji. Ubezpieczający ma prawo złożyć wniosek o interwencję do Rzecznika Finansowego lub skierować sprawę do Sądu Polubownego przy KNF.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Martwię się, że jeśli zachoruję lub mam wypadek i nie będę mógł pracować, stracę swoje dochody. Chciałbym wykupić ubezpieczenie, które wypłaca miesięczne świadczenie w takiej sytuacji. Czy oferujecie coś takiego?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Pracuję na własnym rachunku i moje miesięczne zarobki zależą wyłącznie od tego, czy mogę pracować. Chciałbym ubezpieczyć się na wypadek, gdybym przez chorobę lub wypadę stracił możliwość zarabiania – zależy mi na comiesięcznej rentowej wypłacie. Interesuje mnie też, czy ubezpieczenie obejmuje okres hospitalizacji i jak długo trwa karencja przed pierwszą wypłatą. Czy mogę dodatkowo wskazać osobę, która otrzyma świadczenie, gdyby coś mi się stało?"
+  }
+ ]
+}

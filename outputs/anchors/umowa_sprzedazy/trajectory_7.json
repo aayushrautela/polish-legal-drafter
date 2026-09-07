@@ -1,0 +1,307 @@
+{
+ "run": 10,
+ "hint": "Sprzedaż przyczepy samochodowej",
+ "scenario": "Sprzedaż przyczepy samochodowej",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_sprzedazy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a contract template for \"umowa_sprzedazy\" (sale agreement) specifically for \"Sprzedaż przyczepy samochodowej\" (sale of a car trailer). I need to:\n\n1. First read the base template for umowa_sprzedazy\n2. Then search for provisions relevant to car trailer sales\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-07ea2007-e8de-4623-af61-fc16ee46dfec",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"sprzedaż przyczepy samochodowej\", \"doc_type\": \"umowa_sprzedazy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_sprzedazy\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży rzeczy ruchomej\\nUmowa sprzedaży rzeczy ruchomej w Polsce to umowa nazwana, uregulowana w art. 535-555 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą sprzedający zobowiązuje się przenieść na kupującego własność rzeczy i wydać mu rzecz, a kupujący zobowiązuje się rzecz odebrać i zapłacić sprzedającemu cenę. Przez rzecz ruchomą rozumie się każdy materialny przedmiot niebędący nieruchomością ani częścią składową nieruchomości — takie jak sprzęt elektroniczny, meble, narzędzia, maszyny, sprzęt sportowy, ubrania, dzieła sztuki, instrumenty muzyczne czy antyki.\\n\\nWłasność rzeczy ruchomej przechodzi na kupującego z chwilą zawarcia umowy (art. 155 § 1 Kodeksu cywilnego), jeżeli sprzedający jest właścicielem rzeczy, a czynność jest bezwarunkowa i nie dotyczy rzeczy oznaczonych co do gatunku lub rzeczy przyszłych. Przy tych ostatnich przeniesienie własności następuje dopiero z chwilą wydania rzeczy (art. 155 § 2 Kodeksu cywilnego). Obowiązek wydania rzeczy i przeniesienia własności jest po stronie sprzedającego, a obowiązek zapłaty ceny i odbioru — po stronie kupującego.\\n\\nUmowa sprzedaży rzeczy ruchomej jest najczęstszym typem umowy zawieranej w obrocie cywilnym — obejmuje sprzedaż prywatną (osoba-osoba), sprzedaż konsumencką (przedsiębiorca-konsument) i obrót B2B (przedsiębiorca-przedsiębiorca). W każdym z tych przypadków obowiązują nieco inne reguły: przy sprzedaży konsumenckiej zastosowanie ma ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.) przyznająca kupującemu m.in. prawo odstąpienia w terminie 14 dni przy umowach zawieranych na odległość (art. 27 tej ustawy) oraz pełną rękojmię za wady, której ograniczenie jest niedopuszczalne. Nadzór nad przestrzeganiem praw konsumentów sprawuje Urząd Ochrony Konkurencji i Konsumentów (UOKiK) oraz miejscy i powiatowi rzecznicy konsumentów.\\n\\nZgodnie z art. 548 § 1 Kodeksu cywilnego niebezpieczeństwo przypadkowej utraty lub uszkodzenia rzeczy przechodzi na kupującego z chwilą wydania rzeczy. Oznacza to, że jeżeli przedmiot ulegnie zniszczeniu po wydaniu go kupującemu (np. wskutek pożaru lub kradzieży), sprzedający nie ponosi za to odpowiedzialności — ryzyko spoczywa na kupującym. Klauzule modyfikujące ten moment przejścia ryzyka są dopuszczalne w obrocie między przedsiębiorcami, lecz w umowach z konsumentami mogą zostać zakwestionowane jako niedozwolone klauzule umowne (art. 385¹-385³ Kodeksu cywilnego) przez Prezesa UOKiK.\\n\\nRękojmia za wady fizyczne i prawne (art. 556-576 Kodeksu cywilnego) jest instytucją ustawową, chroniącą kupującego przed rzeczami niezgodnymi z umową. Wada fizyczna w rozumieniu art. 556¹ Kodeksu cywilnego to niezgodność rzeczy z umową — w szczególności, gdy rzecz nie ma właściwości, o których istnieniu sprzedający zapewnił kupującego, nie nadaje się do celu wskazanego przez kupującego lub ma właściwości niezgodne z treścią reklamy. Wada prawna (art. 556³ Kodeksu cywilnego) zachodzi, gdy rzecz stanowi własność osoby trzeciej lub jest obciążona prawem osoby trzeciej.\\n\\nPodatek od czynności cywilnoprawnych (PCC) przy sprzedaży rzeczy ruchomych wynosi zasadniczo 2 procent, jednak w praktyce przy transakcjach między osobami fizycznymi, gdy wartość rzeczy nie przekracza 1000 zł, obowiązek podatkowy nie powstaje. Podatek rozlicza kupujący w urzędzie skarbowym (Krajowa Administracja Skarbowa, KAS). Zakup od przedsiębiorcy-podatnika VAT jest zwolniony z PCC, ponieważ transakcja podlega opodatkowaniu podatkiem od towarów i usług.\\n\\nUmowa sprzedaży rzeczy ruchomej w Polsce jest potrzebna zawsze, gdy strony chcą udokumentować przeniesienie własności przedmiotu i wzajemne prawa wynikające z transakcji. Choć przepisy Kodeksu cywilnego nie wymagają pisemnej formy dla ważności umowy sprzedaży rzeczy ruchomej, jej sporządzenie ma kluczowe znaczenie praktyczne w kilku sytuacjach.\\n\\nDokument jest niezbędny przy sprzedaży przedmiotów o wyższej wartości — sprzętu elektronicznego, mebli, maszyn, narzędzi, instrumentów muzycznych, dzieł sztuki, antyków, biżuterii czy kolekcji numizmatycznych. Pisemna umowa pozwala precyzyjnie opisać stan przedmiotu, znane wady i szczegóły techniczne (numer seryjny, model, rok produkcji), co ogranicza ryzyko sporów dotyczących rękojmi za wady przed Sądem Rejonowym.\\n\\nUmowa jest potrzebna przy transakcjach zawieranych na odległość — przez portale ogłoszeniowe (OLX, Allegro, Vinted), media społecznościowe lub drogą mailową. Dowód zawarcia umowy i uzgodnionych warunków jest kluczowy dla rozliczenia ewentualnych roszczeń, zwłaszcza gdy przedmiot jest wysyłany kurierem lub pocztą — ryzyko uszkodzenia lub utraty podczas transportu obciąża odpowiednią stronę zależnie od uzgodnienia.\\n\\nDokument jest konieczny przy sprzedaży urządzeń objętych gwarancją producenta lub serwisową. Nowy nabywca potrzebuje dowodu nabycia, aby skutecznie dochodzić roszczeń gwarancyjnych wobec producenta lub autoryzowanego serwisu — umowa sprzedaży jest takim dowodem.\\n\\nUmowa jest potrzebna, gdy kupujący chce odliczyć wydatek od kosztów działalności gospodarczej. Organy Krajowej Administracji Skarbowej (KAS) wymagają dokumentu potwierdzającego zakup jako podstawy dla wpisu w koszty. Podobnie przy zakupie od osoby prywatnej dla celów firmowych kupujący powinien zachować podpisaną umowę jako dowód księgowy.\\n\\nDokument jest niezbędny przy sprzedaży przedmiotów podlegających rejestracji lub szczególnej kontroli — broni palnej (wymagana zgoda właściwego komendanta policji), substancji kontrolowanych czy wyrobów z metali szlachetnych. Organem właściwym dla rejestracji broni jest Komendant Powiatowy / Miejski Policji, a podmiotem nadzorującym obrót metalami szlachetnymi jest Urząd Probierczy (UPRP).\\n\\nPrawidłowa umowa sprzedaży rzeczy ruchomej w Polsce, oparta na art. 535 i następnych Kodeksu cywilnego, powinna zawierać elementy identyfikujące strony, przedmiot i warunki transakcji, a jej treść musi być wystarczająco szczegółowa, aby zminimalizować ryzyko sporów.\\n\\nOznaczenie stron: pełne imię i nazwisko (lub firma) sprzedającego i kupującego, numery PESEL lub NIP, adresy zamieszkania lub siedzib. Przy przedsiębiorcy niezbędne są numer KRS lub CEIDG, adres siedziby i imię osoby uprawnionej do reprezentacji. Prawidłowe oznaczenie stron jest konieczne, gdyż sąd rejonowy lub sąd okręgowy może odmówić nadania klauzuli wykonalności na tytuł egzekucyjny bez dokładnych danych stron.\\n\\nOpis przedmiotu sprzedaży: marka, model, rok produkcji, numer seryjny lub inne oznaczenie indywidualizujące rzecz, stan techniczny, kolor i kluczowe parametry techniczne. Im dokładniejszy opis, tym mniejsze ryzyko sporu co do tego, co było przedmiotem transakcji. Przy przedmiotach używanych warto opisać znane wady — ich wskazanie skutecznie ogranicza późniejsze roszczenia z tytułu rękojmi za te konkretne wady (art. 558 § 1 Kodeksu cywilnego).\\n\\nCena i sposób płatności: kwota cyfrowo i słownie, waluta PLN, forma płatności (przelew bankowy — zalecany, gotówka, płatność elektroniczna BLIK), termin i sposób potwierdzenia zapłaty (potwierdzenie przelewu, pokwitowanie gotówkowe). Przy transakcjach powyżej 15 000 zł między przedsiębiorcami obowiązuje bezgotówkowy obrót wynikający z ustawy o swobodzie działalności gospodarczej.\\n\\nWydanie przedmiotu: data i miejsce wydania, lista dodatkowych elementów przekazywanych z przedmiotem (akcesoria, instrukcja, opakowanie, certyfikaty, faktura producenta). Data wydania jest kluczowa, gdyż od niej biegnie dwuletni termin rękojmi za wady fizyczne (art. 568 § 1 Kodeksu cywilnego), a na kupującego przechodzi ryzyko przypadkowej utraty (art. 548 § 1 Kodeksu cywilnego).\\n\\nRękojmia za wady: zapis o pełnej rękojmi ustawowej lub — w obrocie prywatnym — o jej ograniczeniu bądź wyłączeniu ze wskazaniem zakresu. Wyłączenie rękojmi nie może dotyczyć wad umyślnie zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego). W obrocie konsumenckim wyłączenie jest w ogóle niedopuszczalne.\\n\\nPostanowienia końcowe i podpisy: zastrzeżenie formy pisemnej dla zmian, właściwość sądu (Sąd Rejonowy lub Sąd Okręgowy, w zależności od wartości przedmiotu sporu — próg 100 000 zł z art. 17 Kodeksu postępowania cywilnego), liczba egzemplarzy, daty i podpisy. Serwis forms-legal.com udostępnia wzór umowy sprzedaży rzeczy ruchomej jako praktyczny punkt wyjścia dla każdej transakcji prywatnej lub B2B.\\n\\nWypełnianie umowy sprzedaży rzeczy ruchomej w Polsce należy zacząć od wpisania pełnych danych obu stron. W polu sprzedającego wpisz imię i nazwisko (lub firmę) dokładnie tak, jak w dokumencie tożsamości lub rejestrze (KRS / CEIDG). Podaj numer PESEL lub NIP, adres zamieszkania lub siedziby. Analogicznie wypełnij dane kupującego — jego PESEL będzie potrzebny, jeżeli kupujący ma złożyć deklarację PCC do urzędu skarbowego (KAS).\\n\\nW sekcji opisu przedmiotu opisz rzecz jak najbardziej szczegółowo. Podaj markę, model, numer seryjny, rok produkcji, kolor i stan techniczny. Jeżeli przedmiot ma znane usterki lub wady, wymień je wyraźnie — unikniesz w ten sposób późniejszych roszczeń z rękojmi za te konkretne wady. Stan techniczny opisz rzetelnie: \\\"nowy\\\", \\\"używany w dobrym stanie\\\", \\\"używany z drobnymi śladami eksploatacji\\\" itp.\\n\\nW sekcji warunków transakcji wpisz cenę cyfrowo i słownie. Wybierz sposób zapłaty — przelew bankowy daje obu stronom dowód transakcji w postaci potwierdzenia bankowego. Podaj datę zawarcia umowy — od niej liczyć się będą terminy prawne (rękojmia, podatek PCC). Wskaż miejscowość zawarcia.\\n\\nPrzy podpisywaniu umowy zadbaj, by obie strony były obecne lub by wymieniły podpisane egzemplarze (np. skan lub oryginał kurierem). Każda ze stron powinna zachować jeden egzemplarz. Jeżeli zakup wiąże się z obowiązkiem podatkowym (wartość transakcji powyżej progu zwolnienia z PCC), kupujący powinien złożyć deklarację PCC-3 w urzędzie skarbowym w ciągu 14 dni od daty zawarcia umowy.\\n\\nPo podpisaniu umowy dokonaj wydania przedmiotu i zaznacz ten fakt — może to być adnotacja na umowie lub odrębne pokwitowanie odbioru. Jeżeli przedmiot jest wysyłany, zachowaj dowód nadania przesyłki i umów, na której stronie spoczywa ryzyko uszkodzenia podczas transportu.\\n\\nWymogi prawne umowy sprzedaży rzeczy ruchomej w Polsce wynikają przede wszystkim z Kodeksu cywilnego. Zgodnie z art. 535 do zawarcia umowy wystarczy zgodne oświadczenie woli stron — nie jest wymagana forma pisemna pod rygorem nieważności. Jednak forma pisemna jest zalecana ze względów dowodowych.\\n\\nRękojmia za wady fizyczne i prawne (art. 556-576 Kodeksu cywilnego) chroni kupującego niezależnie od rodzaju umowy. Wada fizyczna to niezgodność rzeczy z umową (art. 556¹). Termin rękojmi za wady fizyczne wynosi dwa lata od daty wydania rzeczy (art. 568 § 1 Kodeksu cywilnego). Kupujący, który stwierdził wadę, powinien zawiadomić sprzedającego w rozsądnym czasie — choć w stosunkach konsumenckich brak zawiadomienia nie pozbawia kupującego uprawnień. Uprawnienia kupującego obejmują żądanie obniżenia ceny, odstąpienie od umowy (przy wadzie istotnej), wymianę rzeczy na wolną od wad lub usunięcie wady (art. 560-561 Kodeksu cywilnego).\\n\\nW obrocie konsumenckim (sprzedający-przedsiębiorca, kupujący-konsument) zastosowanie ma ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.). Przedsiębiorca ma obowiązki informacyjne przed zawarciem umowy (art. 8 i 12 tej ustawy), a przy umowach zawieranych na odległość lub poza lokalem konsument ma prawo odstąpienia w terminie 14 dni bez podania przyczyny (art. 27). Brak informacji o prawie odstąpienia wydłuża termin do 12 miesięcy (art. 29). Niedozwolone klauzule umowne (art. 385¹ Kodeksu cywilnego) są nieskuteczne z mocy prawa — Prezes UOKiK wydaje decyzje stwierdzające ich abuzywność.\\n\\nPodatek od czynności cywilnoprawnych (PCC) — ustawa z dnia 9 września 2000 r. — wynosi 2 procent wartości rynkowej rzeczy; kupujący ma obowiązek złożyć deklarację PCC-3 do urzędu skarbowego (KAS) w terminie 14 dni od daty zawarcia umowy i opłacić podatek. Zakup od przedsiębiorcy-podatnika VAT jest zwolniony z PCC.\\n\\nNajczęstsze błędy przy umowie sprzedaży rzeczy ruchomej w Polsce zaczynają się od niewystarczającego opisu przedmiotu. Brak numeru seryjnego, modelu lub stanu technicznego uniemożliwia jednoznaczną identyfikację przedmiotu w razie sporu. Kupujący twierdzący, że otrzymał inny przedmiot niż umówiony, znacznie łatwiej wygra spór przed Sądem Rejonowym, gdy opis w umowie był ogólny.\\n\\nKolejnym błędem jest zatajanie znanych wad przez sprzedającego. Nawet gdy umowa wyłącza rękojmię, wyłączenie nie obejmuje wad umyślnie zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego). Zatajenie istotnej wady naraża sprzedającego na odpowiedzialność odszkodowawczą, a w skrajnych przypadkach — na zarzut oszustwa z art. 286 Kodeksu karnego.\\n\\nBrak pisemnego potwierdzenia wydania przedmiotu to kolejne uchybienie — bez dowodu wydania sprzedający może mieć trudność z wykazaniem, że dostarczył przedmiot w umówionym terminie i stanie. Pokwitowanie odbioru lub adnotacja na umowie z datą i podpisem kupującego rozwiązuje ten problem.\\n\\nNieprawidłowe ustalenie ceny może skutkować problemami podatkowymi. Zaniżona cena w umowie, mająca ograniczyć podatek PCC, może zostać zakwestionowana przez urząd skarbowy KAS, który wyceni przedmiot według wartości rynkowej i naliczy zaległość z odsetkami.\\n\\nOstatnią typową pomyłką jest sprzedaż rzeczy obciążonej prawem osoby trzeciej — zastawem rejestrowym, prawem własności zastrzeżonej lub zajęciem komorniczym. Sprzedaż takiej rzeczy bez zgody uprawnionego podmiotu może okazać się bezskuteczna lub skutkować odebraniem przedmiotu kupującemu przez komornika sądowego i odpowiedzialnością sprzedającego z tytułu rękojmi za wady prawne.\\n\\nŹródło: https://forms-legal.com/pl/personal/bills-of-sale/umowa-sprzedazy-rzeczy-ruchomej (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-07ea2007-e8de-4623-af61-fc16ee46dfec",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template for a general sale of movable property. Now I need to search for provisions specifically relevant to car trailer sales (przyczepa samochodowa). This would involve:\n1. Vehicle registration requirements\n2. Technical inspection requirements\n3. Specific documentation for trailers\n4. Any special regulations for trailer sales\n\nLet me search for relevant provisions",
+   "tool_calls": [
+    {
+     "id": "call-194b6e35-c2ea-4fb8-94fa-98affff20d60",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"sprzedaż przyczepy samochodowej rejestracja wymagania prawne umowa\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_10e31474697e4f86\", \"source_id\": \"uokik_rejestr_klauzul_5903\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Opłaty i kary umowne: Brak gaśnicy, trójkąta ostrzegawczego, apteczki lub, kamizelki odblaskowej - 50 zł/szt., Brak koła zapasowego - 300 zł, Brak lewarka - 100 zł, Brak klucza do kół - 100 zł, Brak lub uszkodzenie telefonu komórkowego - 300 zł, Brak lub uszkodzenie nawigacji samochodowej - 1500 zł, Brak lub uszkodzenie bagażnika dachowego - 700 zł, Brak lub uszkodzenie fotelika dziecięcego - 600 zł, Brak lub uszkodzenie pasów do mocowania ładunku - 60 zł/szt., Brak lub uszkodzenie radiodtwarzacza - 900 zł, Brak lub zniszczenie panela do radioodtwarzacza - 300 zł, Zgubienie lub zniszczenie dow ...\"}, {\"chunk_id\": \"uokik_items:uokik_f8cf9fa6a08d8f6a\", \"source_id\": \"uokik_rejestr_klauzul_6329\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strona kupująca oświadcza, że: (…) ustanawia Spółkę (...) a w zakresie postępowania administracyjnego osobę uprawnioną do reprezentacji tej Spółki (…) do (…) wyrażenia zgody (zwanej dalej również zgodą na prowadzenie dwowolnej działalności) na prowadzenie w znajdujących się w Budynku lokalach o przeznaczeniu innym niż mieszkanie, oznaczonych numerami od (...)do (...) dowolnej, zgodnej z przepisami prawa w tym względzie obowiązującymi, działalności gospodarczej ( w tym na sprzedaż wyrobów alkoholowych w ramach tej działalności) oraz uzyskiwanie dla tej działalności niezbędnych koncesji, zgód i  ...\"}, {\"chunk_id\": \"uokik_items:uokik_1216fb30ae3ae057\", \"source_id\": \"uokik_rejestr_klauzul_7769\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący zobowiązuje się kupić pojazd wskazany w Umowie za pełną cenę tam określoną, która może wzrosnąć w przypadkach, gdy do dnia wydania pojazdu nastąpi zmiana: - stawek celnych lub podatkowych lub zostaną wprowadzone dodatkowe opłaty\"}, {\"chunk_id\": \"uokik_items:uokik_0c21d45e062891a9\", \"source_id\": \"uokik_rejestr_klauzul_6560\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący zobowiązuje się kupić pojazd wskazany w Umowie za pełną cenę tam określoną, która może wzrosnąć w przypadkach, gdy do dnia wydania pojazdu nastąpi zmiana: - stawek celnych lub podatkowych lub zostaną wprowadzone nowe opłaty\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_866\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 866 1 . Zajęte ruchomości, których sprzedaż wymaga zezwolenia, komornik sprzeda za pośrednictwem przedsiębiorstwa posiadającego takie zezwolenie albo sprzeda je temu przedsiębiorstwu. Do wyceny ruchomości przepis art. 865 stosuje się odpowiednio.\"}]",
+   "tool_call_id": "call-194b6e35-c2ea-4fb8-94fa-98affff20d60",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results don't directly address car trailer sales. Let me search more specifically for trailer-related provisions, registration requirements, and technical inspection requirements.",
+   "tool_calls": [
+    {
+     "id": "call-fc3654f2-999e-4bd9-8384-da1a9acb0fe7",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"przyczepa\", \"rejestracja pojazdu\", \"karta pojazdu\", \"przegląd techniczny\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_c12a9a5840fa0aff\", \"source_id\": \"uokik_rejestr_klauzul_2011\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"6. Niezależnie od obowiazków określonych w §§ 19-22 w ubezpieczeniu autocasco do obowiązków ubezpieczającego należy: 5) przedłożenie oryginalnych dokumentów (w przypadku kradzieży) potwierdzających pochodzenie pojazdu i umożliwiających jego identyfikację (np. brief, dokument odprawy celnej, umowa kupna-sprzedaży, faktura zakupu, karta pojazdu) oraz kompletu oryginalnych kluczy służących do otwarcia pojazdu w liczbie podanej we wniosku ubezpieczeniowym wraz z kompletem urządzeń uruchamiających systemy zabezpieczające przed kradzieżą (piloty, immobilizery, karty magnetyczne itp), chyba, że pojaz ...\"}]",
+   "tool_call_id": "call-fc3654f2-999e-4bd9-8384-da1a9acb0fe7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search more specifically for legal provisions related to trailer sales, registration, and technical requirements.",
+   "tool_calls": [
+    {
+     "id": "call-6f2f4369-d345-4d7e-9937-9efbdbdd8d79",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"przyczepa samochodowa sprzedaż umowa rejestracja komunikacja dowód rejestracji karta pojazdu\", \"top_k\": 8}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_f12115c336e0c5c8\", \"source_id\": \"uokik_rejestr_klauzul_3979\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...)nie odpowiada za szkody: (…) polegające na kradzieży pojazdu w przypadku, gdy poszkodowany nie przedłoży (...)- nie później niż do następnego dnia roboczego po zgłoszeniu szkody - łącznie: a) w przypadku pojazdu podlegającego rejestracji: dowodu rejestracyjnego tego pojazdu i karty pojazdu - jeżeli została wydana, b) kluczyków służących do otwarcia pojazdu lub jego uruchomienia w liczbie i rodzaju podanym we wniosku o zawarcie umowy ubezpieczenia, c) kluczyków/sterowników do urządzeń przeciwkradzieżowych w liczbie i rodzaju podanym we wniosku o zawarcie umowy ubezpieczenia, d) dokumentów  ...\"}, {\"chunk_id\": \"uokik_items:uokik_db93bfa0e9b27983\", \"source_id\": \"uokik_rejestr_klauzul_5988\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku szkody polegającej na kradzieży pojazdu, (...) wypłaci odszkodowanie, jeżeli ubezpieczający (…) przekaże (...) dowód rejestracyjny pojazdu i kartę pojazdu, o ile była wydana na ubezpieczony pojazd albo dowód dopuszczenia pojazdu do ruchu, chyba że zostały utracone na skutek rozboju lub wymuszenia rozbójniczego\"}, {\"chunk_id\": \"uokik_items:uokik_10e31474697e4f86\", \"source_id\": \"uokik_rejestr_klauzul_5903\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Opłaty i kary umowne: Brak gaśnicy, trójkąta ostrzegawczego, apteczki lub, kamizelki odblaskowej - 50 zł/szt., Brak koła zapasowego - 300 zł, Brak lewarka - 100 zł, Brak klucza do kół - 100 zł, Brak lub uszkodzenie telefonu komórkowego - 300 zł, Brak lub uszkodzenie nawigacji samochodowej - 1500 zł, Brak lub uszkodzenie bagażnika dachowego - 700 zł, Brak lub uszkodzenie fotelika dziecięcego - 600 zł, Brak lub uszkodzenie pasów do mocowania ładunku - 60 zł/szt., Brak lub uszkodzenie radiodtwarzacza - 900 zł, Brak lub zniszczenie panela do radioodtwarzacza - 300 zł, Zgubienie lub zniszczenie dow ...\"}, {\"chunk_id\": \"uokik_items:uokik_0c21d45e062891a9\", \"source_id\": \"uokik_rejestr_klauzul_6560\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący zobowiązuje się kupić pojazd wskazany w Umowie za pełną cenę tam określoną, która może wzrosnąć w przypadkach, gdy do dnia wydania pojazdu nastąpi zmiana: - stawek celnych lub podatkowych lub zostaną wprowadzone nowe opłaty\"}, {\"chunk_id\": \"uokik_items:uokik_1216fb30ae3ae057\", \"source_id\": \"uokik_rejestr_klauzul_7769\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący zobowiązuje się kupić pojazd wskazany w Umowie za pełną cenę tam określoną, która może wzrosnąć w przypadkach, gdy do dnia wydania pojazdu nastąpi zmiana: - stawek celnych lub podatkowych lub zostaną wprowadzone dodatkowe opłaty\"}, {\"chunk_id\": \"uokik_items:uokik_089c1c77f8df5dd1\", \"source_id\": \"uokik_rejestr_klauzul_4061\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zawarcie umowy sprzedaży następuje w momencie pisemnego potwierdzenia odbioru towaru przez Klienta na liście przewozowym przesyłki\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_805\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 805 1 . § 1. Jeżeli w toku egzekucji zostanie ujawnione, że na zajętym przedmiocie, wierzytelności lub prawie ustanowiony został zastaw rejestrowy, komornik zawiadomi niezwłocznie o zajęciu zastawnika zastawu rejestrowego. § 2. Prowadząc egzekucję o świadczenie przekraczające dwadzieścia tysięcy złotych, komornik obowiązany jest uzyskać z centralnej informacji o zastawach rejestrowych dane o tym, czy dłużnik jest zastawcą zas ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}]",
+   "tool_call_id": "call-6f2f4369-d345-4d7e-9937-9efbdbdd8d79",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results are mostly about abusive clauses and insurance, not specifically about trailer sales. Let me search for specific legal provisions related to vehicle/trailer registration and the Prawo o ruchu drogowym (Road Traffic Act) which would govern trailer registration requirements",
+   "tool_calls": [
+    {
+     "id": "call-38bd4351-7b5f-4bda-98c8-6d47a6ef261e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"prawo o ruchu drogowym\", \"przyczepa\", \"dowód rejestracyjny\", \"karta pojazdu\", \"przegląd techniczny\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_db93bfa0e9b27983\", \"source_id\": \"uokik_rejestr_klauzul_5988\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku szkody polegającej na kradzieży pojazdu, (...) wypłaci odszkodowanie, jeżeli ubezpieczający (…) przekaże (...) dowód rejestracyjny pojazdu i kartę pojazdu, o ile była wydana na ubezpieczony pojazd albo dowód dopuszczenia pojazdu do ruchu, chyba że zostały utracone na skutek rozboju lub wymuszenia rozbójniczego\"}, {\"chunk_id\": \"uokik_items:uokik_c12a9a5840fa0aff\", \"source_id\": \"uokik_rejestr_klauzul_2011\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"6. Niezależnie od obowiazków określonych w §§ 19-22 w ubezpieczeniu autocasco do obowiązków ubezpieczającego należy: 5) przedłożenie oryginalnych dokumentów (w przypadku kradzieży) potwierdzających pochodzenie pojazdu i umożliwiających jego identyfikację (np. brief, dokument odprawy celnej, umowa kupna-sprzedaży, faktura zakupu, karta pojazdu) oraz kompletu oryginalnych kluczy służących do otwarcia pojazdu w liczbie podanej we wniosku ubezpieczeniowym wraz z kompletem urządzeń uruchamiających systemy zabezpieczające przed kradzieżą (piloty, immobilizery, karty magnetyczne itp), chyba, że pojaz ...\"}]",
+   "tool_call_id": "call-38bd4351-7b5f-4bda-98c8-6d47a6ef261e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę sprzedać swoją przyczepę samochodową i potrzebuję umowy kupna-sprzedaży. Co powinna zawierać taka umowa?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam przyczepę samochodową marki Humbaur, model HTB 2000, rocznik 2018, numer VIN W0912345. Chcę ją sprzedać za 18 500 zł sąsiadowi. Potrzebuję umowy, która uwzględni stan techniczny, potwierdzi brak wad ukrytych i ustali termin odbioru przyczepy. Czy możecie przygotować taki dokument?"
+  }
+ ]
+}

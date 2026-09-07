@@ -1,0 +1,307 @@
+{
+ "run": 28,
+ "hint": "Zaliczka przy zamówieniu wyrobu jubilerskiego na zamówienie",
+ "scenario": "Zaliczka przy zamówieniu wyrobu jubilerskiego na zamówienie",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a contract template for \"kaucja_zaliczka\" (deposit/advance payment) specifically for a custom jewelry order (wyrob jubilerski na zamówienie). I need to:\n\n1. First read the base template for kaucja_zaliczka\n2. Search for relevant provisions related to custom jewelry orders, consumer protection, deposits/advance payments in the context of custom-made goods\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-dd691cde-60b1-4d1e-a6b8-00ea16052a7a",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"zaliczka przy zamówieniu wyrobu jubilerskiego na zamówienie\", \"doc_type\": \"kaucja_zaliczka\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Potwierdzenie przyjęcia zaliczki\\nPotwierdzenie przyjęcia zaliczki w Polsce to dokument wystawiany przez sprzedawcę lub usługodawcę (odbiorcę zaliczki) na rzecz kupującego lub zamawiającego (wpłacającego), potwierdzający przyjęcie kwoty pieniężnej na poczet przyszłego świadczenia — dostarczenia towaru lub wykonania usługi. Podstawą prawną pokwitowania jest art. 462 § 1 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.): dłużnik spełniający świadczenie może żądać pokwitowania.\\n\\nW polskim prawie cywilnym istnieje ważne rozróżnienie między zaliczką a zadatkiem (art. 394 KC), które ma fundamentalne znaczenie dla skutków prawnych przy niewykonaniu umowy. Zaliczka jest częściowym spełnieniem świadczenia pieniężnego z góry — wpłatą wchodzącą w skład ceny. Przy niewykonaniu umowy przez którąkolwiek ze stron zaliczka jest co do zasady zwrotna w całości, niezależnie od przyczyn. Nie ma charakteru odszkodowawczego. Zadatek natomiast jest instytucją uregulowaną w art. 394 KC: jeżeli umowy nie wykona strona, która dała zadatek, druga może od umowy odstąpić i zadatek zachować; jeżeli umowy nie wykona strona, która zadatek przyjęła, druga strona może od umowy odstąpić i żądać sumy dwukrotnie wyższej. Zadatek pełni zatem funkcję zabezpieczającą i ma charakter odszkodowawczy.\\n\\nKwestia podatkowa jest istotna przy potwierdzeniach zaliczek. Na podstawie art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (ustawa o VAT), jeżeli przed dokonaniem dostawy towaru lub wykonaniem usługi otrzymano całość lub część zapłaty, obowiązek podatkowy VAT powstaje z chwilą jej otrzymania w tej części. Oznacza to, że odbiorca zaliczki — jeżeli jest podatnikiem VAT — ma obowiązek wystawić fakturę zaliczkową w terminie 15. dnia miesiąca po miesiącu otrzymania zaliczki (lub wcześniej) i rozliczyć VAT od otrzymanej zaliczki. Stawka VAT na zaliczkę jest taka sama, jaka będzie stosowana do świadczenia głównego (23%, 8%, 5% lub 0%). Potwierdzenie przyjęcia zaliczki nie zastępuje faktury VAT, jeżeli odbiorca jest podatnikiem VAT.\\n\\nW obrocie z konsumentami, gdy odbiorcą jest przedsiębiorca, zaliczka na poczet umowy zawartej poza lokalem przedsiębiorstwa lub na odległość podlega przepisom ustawy z dnia 30 maja 2014 r. o prawach konsumenta — konsument może odstąpić od takiej umowy w terminie 14 dni (art. 27 u.p.k.) i żądać zwrotu zaliczki w pełnej wysokości.\\n\\nPotwierdzenie przyjęcia zaliczki w Polsce jest potrzebne zawsze, gdy zamawiający (kupujący) wpłaca część ceny z góry przed wykonaniem świadczenia, a strony chcą mieć pisemny dowód tej czynności.\\n\\nDokument jest niezbędny przy zamówieniach remontu lub budowy. Firmy budowlane i remontowe w Polsce powszechnie przyjmują zaliczki przed przystąpieniem do prac, a właściciele nieruchomości potrzebują potwierdzenia wpłaty, by chronić się przed ewentualnym sporem o kwotę i tytuł wpłaconych środków. Potwierdzenie zaliczki stanowi dowód dla sądu rejonowego lub sądu okręgowego, że środki zostały przekazane na poczet konkretnego zamówienia.\\n\\nDokument jest potrzebny przy zakupie towarów na zamówienie — mebli, urządzeń, samochodów, sprzętu — gdzie zaliczka rezerwuje dostępność lub uruchamia produkcję. Sprzedawca potwierdza przyjęcie zaliczki, wskazując jej kwotę, cel i termin realizacji.\\n\\nPotwierdzenie zaliczki jest kluczowe przy usługach hotelarskich, cateringowych i organizacji eventów, gdzie duże zaliczki wpłacane z wyprzedzeniem kilku miesięcy przed wydarzeniem muszą być udokumentowane zarówno dla klienta (dowód zapłaty), jak i dla usługodawcy (ewidencja finansowa i podatkowa).\\n\\nDokument jest potrzebny przy umowach z rzemieślnikami, artystami i freelancerami, którzy wymagają zaliczki przed przystąpieniem do pracy. Potwierdzenie zaliczki jasno określa, czy wpłata jest zaliczką (zwrotną przy niewykonaniu) czy zadatkiem (z surowszymi konsekwencjami), co eliminuje późniejsze spory.\\n\\nWreszcie, potwierdzenie jest przydatne do celów podatkowych i rachunkowych — zarówno dla nabywcy (dowód kosztu), jak i dla usługodawcy (podstawa do wystawienia faktury zaliczkowej i rozliczenia VAT). Przedsiębiorcy prowadzący działalność gospodarczą są zobowiązani do ewidencji przychodów na podstawie art. 14 ust. 1c ustawy o podatku dochodowym od osób fizycznych (PIT) lub art. 12 ust. 3a ustawy o CIT.\\n\\nPrawidłowe potwierdzenie przyjęcia zaliczki w Polsce musi zawierać elementy pozwalające jednoznacznie ustalić strony, przedmiot wpłaty i jej skutki prawne.\\n\\nDane odbiorcy (wystawiającego potwierdzenie): imię i nazwisko lub firma, NIP albo PESEL, adres. Jeżeli odbiorca jest przedsiębiorcą-podatnikiem VAT, numer NIP jest obligatoryjny dla faktury zaliczkowej, która powinna towarzyszyć potwierdzeniu.\\n\\nDane wpłacającego: imię i nazwisko lub firma, PESEL albo NIP, adres. Przy transakcjach B2C (przedsiębiorca-konsument) identyfikacja konsumenta jest ważna ze względu na jego uprawnienia z ustawy o prawach konsumenta.\\n\\nKwota zaliczki: cyfrowo i słownie, z oznaczeniem waluty (zł, PLN).\\n\\nRodzaj wpłaty: wyraźne wskazanie, czy jest to zaliczka (zwrotna, bez odszkodowawczego charakteru) czy zadatek (art. 394 KC — z konsekwencjami przepadku lub zwrotu w podwójnej wysokości). To rozróżnienie jest kluczowe dla skutków prawnych przy niewykonaniu umowy.\\n\\nOpis zamówienia: precyzyjny opis towaru, usługi lub prac, na poczet których zaliczka jest wpłacana — umożliwia identyfikację świadczenia głównego i zapobiega sporom interpretacyjnym.\\n\\nCałkowita cena umowy: łączna kwota zamówienia, od której odliczona zostanie zaliczka przy realizacji.\\n\\nTermin realizacji: planowany termin wykonania usługi lub dostawy towaru — umożliwia ocenę, czy realizacja nastąpiła w terminie.\\n\\nKwestia VAT: informacja o obowiązku wystawienia faktury zaliczkowej i rozliczenia VAT przez odbiorcę-podatnika VAT. Serwis forms-legal.com udostępnia wzór potwierdzenia zaliczki jako punkt wyjścia — przy zaliczkach powyżej 10 000 zł lub przy transakcjach konsumenckich zawieranych poza lokalem przedsiębiorstwa zalecana jest konsultacja z doradcą prawnym lub podatkowym.\\n\\nWypełnianie potwierdzenia przyjęcia zaliczki w Polsce zacznij od oznaczenia odbiorcy zaliczki — sprzedawcy lub usługodawcy. Wpisz pełną firmę lub imię i nazwisko, NIP (lub PESEL dla osoby fizycznej nieprowadzącej działalności) i adres prowadzenia działalności.\\n\\nNastępnie oznacz wpłacającego zaliczkę: imię i nazwisko (lub firma), PESEL lub NIP i adres zamieszkania lub siedziby.\\n\\nW sekcji szczegółów wpłaty wpisz kwotę cyfrowo i słownie. Wskaż dokładną datę otrzymania środków. Zaznacz sposób wpłaty (przelew, gotówka, BLIK).\\n\\nKluczowy element: zaznacz, czy wpłata jest zaliczką czy zadatkiem. Przy zaliczce środki są zwrotne bez żadnych konsekwencji przy niewykonaniu umowy przez obie strony. Przy zadatku stosuje się art. 394 KC — przy winie wpłacającego odbiorca zachowuje zadatek; przy winie odbiorcy wpłacający może żądać zwrotu w podwójnej wysokości. Wybierz świadomie — zadatek jest korzystniejszy dla odbiorcy, zaliczka dla wpłacającego.\\n\\nDokładnie opisz zamówienie: wpisz precyzyjny opis usługi lub towaru, adres realizacji (jeżeli dotyczy), datę zamówienia. Podaj całkowitą cenę umowy i termin realizacji.\\n\\nJeżeli jesteś przedsiębiorcą-podatnikiem VAT, pamiętaj o obowiązku wystawienia faktury zaliczkowej. Potwierdzenie nie zastępuje faktury VAT — faktura jest osobnym dokumentem, który wystawiasz nabywcy.\\n\\nPodpisz potwierdzenie — wystarczy podpis odbiorcy (wystawiającego pokwitowanie). Warto jednak poprosić wpłacającego o podpis potwierdzający odbiór dokumentu. Sporządź dwa egzemplarze — jeden dla wpłacającego, drugi zachowaj w dokumentacji.\\n\\nWymogi prawne potwierdzenia przyjęcia zaliczki w Polsce wynikają z kilku aktów prawnych regulujących zarówno stosunek cywilnoprawny między stronami, jak i obowiązki podatkowe.\\n\\nKodeks cywilny: art. 462 § 1 — prawo dłużnika do pokwitowania; art. 394 KC — instytucja zadatku: przepadek przy winie dającego, dwukrotny zwrot przy winie przyjmującego, zaliczenie na poczet ceny przy wykonaniu umowy, zwrot przy zgodnym rozwiązaniu i przy okolicznościach, za które żadna ze stron nie odpowiada. Art. 385¹-385³ KC — zakaz niedozwolonych postanowień konsumenckich: klauzula przepadku zaliczki (nie zadatku) przy drobnych uchybieniach może być uznana za abuzywną przez Prezesa UOKiK.\\n\\nUstawa o VAT art. 19a ust. 8: obowiązek podatkowy VAT powstaje z chwilą otrzymania całości lub części zapłaty (zaliczki) — w tej części. Podatnik VAT musi wystawić fakturę zaliczkową. Faktura zaliczkowa wystawiana jest nie później niż 15. dnia miesiąca po miesiącu otrzymania zaliczki, ale może być wystawiona wcześniej. Stawka VAT na fakturze zaliczkowej odpowiada stawce właściwej dla świadczenia głównego.\\n\\nUstawa o prawach konsumenta art. 27: konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może odstąpić w terminie 14 dni bez podania przyczyny. Przy odstąpieniu przedsiębiorca zobowiązany jest zwrócić wszystkie wpłaty, w tym zaliczkę, w terminie 14 dni. Klauzule wyłączające zwrot zaliczki przy skorzystaniu z prawa odstąpienia są niedozwolone.\\n\\nPodatek dochodowy: zaliczka nie jest przychodem w chwili wpłaty — przychód powstaje w chwili wykonania świadczenia (art. 14 ust. 1c ustawy o PIT lub art. 12 ust. 3a ustawy o CIT). Zaliczka jest zobowiązaniem (długiem) odbiorcy do wykonania świadczenia lub zwrotu środków.\\n\\nNajczęstsze błędy przy potwierdzeniach zaliczek w Polsce mają poważne konsekwencje finansowe i prawne.\\n\\nNieokreślenie, czy wpłata to zaliczka czy zadatek. To najpoważniejszy błąd — przy braku wyraźnego wskazania polskie sądy domyślnie traktują wpłatę jako zaliczkę (zwrotną), a nie zadatek. Jeżeli odbiorca chce skorzystać z prawa do zachowania zadatku przy winie wpłacającego (art. 394 KC), musi w dokumencie wyraźnie wskazać, że wpłata stanowi zadatek.\\n\\nBrak precyzyjnego opisu zamówienia. Ogólne sformułowanie \\\"zaliczka na usługę\\\" bez wskazania zakresu, adresu i terminu prowadzi do sporów o to, czy zaliczka obejmuje całość czy część uzgodnionego świadczenia. Przy sporze przed sądem rejonowym odbiorca musi wykazać, że zaliczka dotyczyła konkretnego zlecenia.\\n\\nZapomnienie o fakturze zaliczkowej. Przedsiębiorcy-podatnicy VAT często przyjmują zaliczkę gotówką lub przelewem i wystawiają tylko nieformalne potwierdzenie, zapominając o obowiązku wystawienia faktury zaliczkowej (art. 19a ust. 8 ustawy o VAT). Brak faktury zaliczkowej może skutkować ustaleniem zaległości podatkowej VAT przez urząd skarbowy podczas kontroli.\\n\\nNieprawidłowe postanowienia o przepadku zaliczki przy konsumencie. Klauzule o przepadku zaliczki (nie zadatku) przy każdym odstąpieniu konsumenta od umowy są niedozwolone (klauzule abuzywne, art. 385¹ KC). Prezes UOKiK może wszcząć postępowanie i nałożyć karę na przedsiębiorcę stosującego niedozwolone postanowienia.\\n\\nBrak przechowywania dokumentacji. Potwierdzeń zaliczek nie należy traktować jako dokumentów jednorazowego użytku — stanowią one dowód zobowiązania do realizacji zamówienia i mogą być wymagane podczas kontroli podatkowej KAS, w postępowaniach sądowych oraz przy rozliczeniu final invoice (faktury końcowej).\\n\\nŹródło: https://forms-legal.com/pl/financial/debt/potwierdzenie-przyjecia-zaliczki (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-dd691cde-60b1-4d1e-a6b8-00ea16052a7a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Now I have the base template. Let me search for provisions relevant to custom jewelry orders, consumer protection for custom-made goods, and specific provisions about deposits/advance payments in the context of custom manufacturing.",
+   "tool_calls": [
+    {
+     "id": "call-133241e7-2678-4dd4-bad5-854d7ca637db",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"wyrob jubilerski na zamówienie zaliczka konsument prawo odstąpienia 14 dni\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_ad90311a84b165e2\", \"source_id\": \"uokik_rejestr_klauzul_2164\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) ma prawo odstąpić od niniejszej Umowy w terminie do 31 grudnia 2013 roku w przypadku, gdy: 10.1.1 jakakolwiek Płatność Zaliczkowa wskazana w Artykule 3.2, za wyjątkiem Płatności Zaliczkowej I, będzie opóżniona o czas dłuższy niż 14 (czternaście) dni; 10.1.2 pomimo pisemnego wezwania Kupujący dwukrotnie nie przystąpi do zawarcia Przyrzeczonej Umowy Sprzedaży w datach wskazanych przez (...) zgodnie z postanowieniami niniejszej Umowy; 10.1.3. Kupujący bezzasadnie odmawiał będzie podpisania Protokołu Odbioru. Odstąpienie przez (...) od Umowy na podstawie niniejszego Artykułu 10.1.1 musi być  ...\"}, {\"chunk_id\": \"uokik_items:uokik_638c28da42c9b676\", \"source_id\": \"uokik_rejestr_klauzul_4109\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Niepodjęcie przesyłki przez Klienta w terminie wcześniej przez Sklep uzgodnionym jest równoznaczne z odstąpieniem przez Klienta od umowy, z przyczyn za jakie odpowiedzialność ponosi Klient. W takim przypadku, wpłacona tytułem zaliczki kwota ulega przepadkowi. W przypadku, gdy wpłata zostanie dokonana w kwocie wyższej niż 40% produktu (zaliczka), to różnica zostanie zwrócona Klientowi w terminie 14 dni od daty niepodjęcia przez Klienta przesyłki\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 29. 1. Jeżeli konsument nie został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy, prawo to wygasa po upływie 12 miesięcy od dnia upływu terminu, o którym mowa w art. 27 ust. 1 albo 2. 2. Jeżeli konsument został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy przed wygaśnięciem tego prawa zgodnie z ust. 1, termin do odstąpienia od umowy upływa po 14 dniach, a w przypadku, o którym mowa w art. 27 ust. 2 -  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 27. 1. Konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może w terminie 14 dni odstąpić od niej bez podawania przyczyny i bez ponoszenia kosztów, z wyjątkiem kosztów określonych w art. 33, art. 34 ust. 2 i art. 35. 2. Jeżeli konsument zawarł umowę poza lokalem przedsiębiorstwa podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki, termin do odstąpienia o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}]",
+   "tool_call_id": "call-133241e7-2678-4dd4-bad5-854d7ca637db",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions about custom-made goods (wyroby na zamówienie) and the exception to the right of withdrawal for custom-made goods.",
+   "tool_calls": [
+    {
+     "id": "call-639638b7-fcd4-4652-b80a-c02cea9c0284",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"wyrob na zamówienie indywidualne cechy konsument prawo odstąpienia wyjątek art 38 ustawa o prawach konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_3a\", \"source_id\": \"sejm_eli_du_2024_1796_art_3a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 3a. 1. Przepisów ustawy nie stosuje się do umów dotyczących usług zdrowotnych, które są świadczone przez pracowników służby zdrowia pacjentom w celu oceny, utrzymania lub poprawy ich stanu zdrowia, łącznie z przepisywaniem, wydawaniem i udostępnianiem produktów leczniczych oraz wyrobów medycznych, bez względu na to, czy są one oferowane za pośrednictwem placówek opieki zdrowotnej. 2. Do umów dotyczących usług zdrowotnych, o których mowa w  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}]",
+   "tool_call_id": "call-639638b7-fcd4-4652-b80a-c02cea9c0284",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me read the full text of Art. 38 to see the exception for custom-made goods.",
+   "tool_calls": [
+    {
+     "id": "call-528def7c-9d27-41d6-84f9-ebb10d495107",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1796_art_38\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od umowy, i przyjął to do wiadomości; 2) w której cena lub wynagrodzenie zależy od wahań na rynku finansowym, nad którymi przedsiębiorca nie sprawuje kontroli, i które mogą wystąpić przed upływem terminu do odstąpienia od umowy; 3) w której przedmiotem świadczenia jest towar nieprefabrykowany, wyprodukowany według specyfikacji konsumenta lub służący zaspokojeniu jego zindywidualizowanych potrzeb; 4) w której przedmiotem świadczenia jest towar ulegający szybkiemu zepsuciu lub mający krótki termin przydatności do użycia; 5) w której przedmiotem świadczenia jest towar dostarczany w zapieczętowanym opakowaniu, którego po otwarciu opakowania nie można zwrócić ze względu na ochronę zdrowia lub ze względów higienicznych, jeżeli opakowanie zostało otwarte po dostarczeniu; 6) w której przedmiotem świadczenia są towary, które po dostarczeniu, ze względu na swój charakter, zostają nierozłącznie połączone z innymi towarami; 7) w której przedmiotem świadczenia są napoje alkoholowe, których cena została uzgodniona przy zawarciu umowy sprzedaży, a których dostarczenie może nastąpić dopiero po upływie 30 dni i których wartość zależy od wahań na rynku, nad którymi przedsiębiorca nie ma kontroli; 8) w której konsument wyraźnie żądał, aby przedsiębiorca do niego przyjechał w celu dokonania pilnej naprawy lub konserwacji; jeżeli przedsiębiorca świadczy dodatkowo inne usługi niż te, których wykonania konsument żądał, lub dostarcza towary inne niż części zamienne niezbędne do wykonania naprawy lub konserwacji, prawo odstąpienia od umowy przysługuje konsumentowi w odniesieniu do dodatkowych usług lub towarów; 9) w której przedmiotem świadczenia są nagrania dźwiękowe lub wizualne albo programy komputerowe dostarczane w zapieczętowanym opakowaniu, jeżeli opakowanie zostało otwarte po dostarczeniu; 10) o dostarczanie dzienników, periodyków lub czasopism, z wyjątkiem umowy o prenumeratę; 11) zawartej w drodze aukcji publicznej; 12) o świadczenie usług w zakresie zakwaterowania, innych niż do celów mieszkalnych, przewozu towarów, najmu samochodów, gastronomii, usług związanych z wypoczynkiem, wydarzeniami rozrywkowymi, sportowymi lub kulturalnymi, jeżeli w umowie oznaczono dzień lub okres świadczenia usługi; 13) o dostarczanie treści cyfrowych niedostarczanych na nośniku materialnym, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca rozpoczął świadczenie za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od umowy, i przyjął to do wiadomości, a przedsiębiorca przekazał konsumentowi potwierdzenie, o którym mowa w art. 15 ust. 1 i 2 albo art. 21 ust. 1; 14) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, w przypadku których konsument wyraźnie zażądał od przedsiębiorcy, aby przyjechał do niego w celu dokonania naprawy, a usługa została już w pełni wykonana za wyraźną i uprzednią zgodą konsumenta. 2. Przepisów ust. 1 pkt 1-3 i 5 nie stosuje się do umów zawieranych podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki.\"}]",
+   "tool_call_id": "call-528def7c-9d27-41d6-84f9-ebb10d495107",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the key provision - Art. 38 ust. 1 pkt 3 of the Consumer Rights Act (ustawa o prawach konsumenta) which excludes the right of withdrawal for custom-made goods (towar nieprefabrykowany, wyprodukowany według specyfikacji konsumenta lub służący zaspokojeniu jego zindywidualizowanych potrzeb). This is crucial for jewelry made to order.\n\nLet me also search for provisions about deposits (zaliczka) vs earnest money (zadatek) in the context of custom jewelry, and any specific provisions about jewelry orders.",
+   "tool_calls": [
+    {
+     "id": "call-35c3ff5a-5286-4606-bf8a-44bb59f05c16",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"jubilerski wyrob na zamówienie zaliczka zadatek art 394 KC konsument\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie j ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_394\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 394 1 a . § 1. Zażalenie do innego składu sądu pierwszej instancji przysługuje na postanowienia tego sądu, których przedmiotem jest: 1) odmowa zwolnienia od kosztów sądowych lub cofnięcie takiego zwolnienia oraz odmowa ustanowienia adwokata lub radcy prawnego lub ich odwołanie; 2) oddalenie opozycji przeciwko wstąpieniu interwenienta ubocznego oraz niedopuszczenie interwenienta do udziału w sprawie wskutek uwzględnienia opozy ...\"}, {\"chunk_id\": \"uokik_items:uokik_889e2a33ebf8d0a8\", \"source_id\": \"uokik_rejestr_klauzul_5410\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku gdy strony uzgodnią, że wpłacona zaliczka ma charakter zadatku, odstąpienie od umowy przez Sprzedawcę zgodnie z pkt. 6 pozwala na zachowanie otrzymanego zadatku w pełnej wysokości, a odstąpienie od umowy przez klienta w myśl pkt. 7 rodzi zobowiązanie sprzedawcy do zwrotu zadatku w podwójnej wysokości. Nie dotyczy to przypadku odstąpienia od umowy przez Klienta w razie niemożliwości świadczenia (pkt. 3 ust. C). W takim przypadku, strony uzgadniają zwrot zadatku w wysokości kwoty wpłaconej\"}, {\"chunk_id\": \"uokik_items:uokik_874fbb8ce80cbc9b\", \"source_id\": \"uokik_rejestr_klauzul_4261\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W wypadku rezygnacji z zamówienia przez Kupującego wpłacona zaliczka ulega przepadkowi na rzecz Sprzedawcy\"}, {\"chunk_id\": \"uokik_items:uokik_54f1a42c201da659\", \"source_id\": \"uokik_rejestr_klauzul_5921\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W szczególności, w wypadku gdy KUPUJĄCY jest konsumentem w rozumieniu art. 22 Kodeksu cywilnego, zaliczka jest zwracana w odpowiedniej części w wypadku gdy oświadczenie, o którym mowa w zdaniu poprzednim, SPRZEDAJĄCY otrzymał np. przed zleceniem transportu samochodu do SPRZEDAJĄCEGO lub przed przygotowaniem samochodu do wydania w tym wykonaniem przeglądu przedsprzedażnego lub też przed zamówieniem akcesoriów do samochodu zgodnie ze zleceniem KUPUJĄCEGO\"}]",
+   "tool_call_id": "call-35c3ff5a-5286-4606-bf8a-44bb59f05c16",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Potwierdzenie przyjęcia zaliczki na zamówienie wyrobu jubilerskiego na zamówienie\n\n**Miejsce i data wystawienia:** ..........................................., dnia ...........................................\n\n## 1. Dane Odbiorcy Zaliczki (Wykonawcy / Sprzedawcy)\nNazwa / Imię i nazwisko: ....................................................................................................................\nAdres siedziby / zamieszkania: ................................................................................................................\nNIP: ..............................................................................................................................................\nPESEL (jeśli osoba fizyczna nieprowadząca działalności): ........................................................................\nNumer rejestru (KRS / CEIDG): ..............................................................................................................\n\n## 2. Dane Wpłacającego (Zamawiającego / Klienta)\nNazwa / Imię i nazwisko: ....................................................................................................................\nAdres siedziby / zamieszkania: ................................................................................................................\nNIP / PESEL: ....................................................................................................................................\n\n## 3. Szczegóły wpłaty\nKwota zaliczki (cyfrowo): ........................................... PLN\nKwota zaliczki (słownie): ........................................................................................................... PLN\nData otrzymania środków: ...........................................\nSposób wpłaty: □ przelew bankowy □ gotówka □ BLIK □ inny: ...........................................\nNumer konta / referencja płatności: ......................................................................................................\n\n## 4. Rodzaj wpłaty – kluczowe rozróżnienie\n□ **Zaliczka** (częściowe spełnienie świadczenia pieniężnego; przy niewykonaniu umowy zwrotna w całości, bez względu na przyczyny, bez charakteru odszkodowawczego – art. 462 § 1 KC).\n□ **Zadatek** (zgodnie z art. 394 § 1 KC: jeżeli umowy nie wykona strona, która dała zadatek, druga może od umowy odstąpić i zadatek zachować; jeżeli umowy nie wykona strona, która zadatek przyjęła, druga strona może od umowy odstąpić i żądać sumy dwukrotnie wyższej; przy wykonaniu umowy zadatek ulega zaliczeniu na poczet ceny).\n\n> **Wskazówka:** W przypadku braku wyraźnego zaznaczenia polskie sądy domyślnie traktują wpłatę jako zaliczkę. Wybór zadatku wymaga jawnego zaznaczenia powyżej.\n\n## 5. Opis zamówienia – wyrob jubilerski na zamówienie indywidualne\nPrzedmiot zamówienia: Wyrob jubilerski wykonany na indywidualne zamówienie Zamawiającego, niebędący towarem prefabrykowanym, wyprodukowany zgodnie ze specyfikacją i indywidualnymi potrzebami Zamawiającego (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta).\n\nSzczegółowa specyfikacja wyrobu (projekt, materiały, kamienie, wymiary, kolorystyka, gravury, inne parametry indywidualne):\n............................................................................................................................................\n............................................................................................................................................\n............................................................................................................................................\n\nData złożenia zamówienia: ...........................................\nPlanowany termin realizacji / odbioru wyrobu: ...........................................\nMiejsce realizacji / odbioru: ..............................................................................................................\n\n## 6. Całkowita cena umowy\nCałkowita cena za wyrob jubilerski (brutto): ........................................... PLN\nZaliczka stanowi część ceny i zostanie naliczona na końcowe rozliczenie.\nPozostała do zapłaty kwota po realizacji: ........................................... PLN\n\n## 7. Prawo odstąpienia konsumenta – wyjątek dla wyrobów na zamówienie\nStrony potwierdzają, że niniejsze zamówienie dotyczy **wyrobu nieprefabrykowanego, wyprodukowanego według specyfikacji konsumenta lub służącego zaspokojeniu jego zindywidualizowanych potrzeb** (art. 38 ust. 1 pkt 3 ustawy z dnia 30 maja 2014 r. o prawach konsumenta – jednolity tekst: Dz.U. 2024 poz. 1796).\n\n**W związku z powyższym, konsument (Zamawiający) nie przysługuje prawo odstąpienia od umowy w terminie 14 dni bez podania przyczyny**, o którym mowa w art. 27 ust. 1 tej ustawy. Zaliczka wpłacona na poczet takiego wyrobu nie podlega zwrotowi z tytułu odstąpienia konsumenta od umowy zawartej na odległość lub poza lokalem przedsiębiorstwa, z zastrzeżeniem przepisów o zwrocie zaliczki w przypadku niewykonania umowy przez Wykonawcę lub rozwiązania umowy z przyczyn leżących po stronie Wykonawcy.\n\n> **Uwaga:** Wyjątek ten dotyczy wyłącznie umów zawieranych na odległość lub poza lokalem przedsiębiorcy. Jeżeli umowa została zawarta w lokalu przedsiębiorcy, konsument nie posiada prawa odstąpienia z art. 27 ustawy o prawach konsumenta, a zwrot zaliczki regulują przepisy Kodeksu cywilnego.\n\n## 8. Skutki niewykonania umowy\n### 8.1. W przypadku zaliczki:\n– Jeżeli umowę nie wykona **Zamawiający** (bez względu na przyczynę) – zaliczka jest zwracana w całości.\n– Jeżeli umowę nie wykona **Wykonawca** (bez względu na przyczynę) – zaliczka jest zwracana w całości.\n– Jeżeli umowa zostanie rozwiązana z porozumienia stron lub z przyczyn, za które żadna ze stron nie odpowiada – zaliczka jest zwracana w całości.\n\n### 8.2. W przypadku zadatku (jeśli zaznaczono w pkt 4):\n– Jeżeli umowę nie wykona **Zamawiający** – Wykonawca może od umowy odstąpić i zachować otrzymany zadatek.\n– Jeżeli umowę nie wykona **Wykonawca** – Zamawiający może od umowy odstąpić i żądać zwrotu zadatku w podwójnej wysokości.\n– Przy wykonaniu umowy zadatek ulega zaliczeniu na poczet ceny.\n\n## 9. Obowiązki podatkowe (VAT)\nJeżeli Odbiorca zaliczki jest podatnikiem VAT:\n– Zgodnie z art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (Dz.U. 2024 poz. 361 ze zm.), obowiązek podatkowy VAT powstaje z chwilą otrzymania zaliczki w części odpowiadającej otrzymanej kwocie.\n– Odbiorca ma obowiązek wystawić **fakturę zaliczkową** nie później niż 15. dnia miesiąca następującego po miesiącu otrzymania zaliczki (może być wystawiona wcześniej).\n– Stawka VAT na fakturze zaliczkowej odpowiada stawce właściwej dla końcowego świadczenia (wyrobu jubilerskiego).\n– Niniejsze potwierdzenie przyjęcia zaliczki **nie zastępuje faktury VAT**.\n\n## 10. Obowiązki informacyjne przedsiębiorcy (art. 12 i 27 ustawy o prawach konsumenta)\nWykonawca oświadcza, że przed zawarciem umowy poinformował Zamawiającego – w sposób jasny i zrozumiały – o:\n1) głównych cechach świadczenia (specyfikacja wyrobu jubilerskiego);\n2) tożsamości przedsiębiorcy (dane z pkt 1);\n3) całkowitej cenie lub zasadach jej ustalania;\n4) braku prawa odstąpienia od umowy z powodu indywidualnego charakteru wyrobu (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta);\n5) terminie realizacji;\n6) sposobie i terminie zapłaty pozostałej części ceny;\n7) prawach i środkach ochrony konsumenta przysługujących Zamawiającemu.\n\n## 11. Postanowienia końcowe\n1. Niniejsze potwierdzenie sporządzono w dwóch jednobrzmiących egzemplarzach – po jednym dla każdej ze stron.\n2. Wszelkie zmiany i uzupełnienia niniejszego potwierdzenia wymagają formy pisemnej pod rygorem nieważności.\n3. W sprawach nieuregulowanych niniejszym potwierdzeniem mają zastosowanie przepisy Kodeksu cywilnego, ustawy o prawach konsumenta, ustawy o VAT oraz pozostałe odpowiednie przepisy prawa polskiego.\n4. Strony oświadczają, że zapoznały się z treścią potwierdzenia, zrozumiały je i nie mają zastrzeżeń.\n\n..............................................................\n**(Podpis Odbiorcy Zaliczki – Wykonawcy / Sprzedawcy)**\n\n..............................................................\n**(Podpis Wpłacającego – Zamawiającego – potwierdzenie odbiór dokumentu)**\n\n---\n\n### Załącznik: Wzór oświadczenia o informowaniu konsumenta o braku prawa odstąpienia (do wykorzystania przy zawarciu umowy na odległość / poza lokalem)\n\n\"Oświadczam, że zostałem/am poinformowany/a przez Wykonawcę przed zawarciem umowy, że ze względu na to, że przedmiotem umowy jest wyrob jubilerski nieprefabrykowany, wyprodukowany według mojej specyfikacji / służący zaspokojeniu moich zindywidualizowanych potrzeb (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta), **nie przysługuje mi prawo odstąpienia od umowy w terminie 14 dni bez podania przyczyny**. Przyjąłem/am tę informację do wiadomości.\"\n\n..............................................................\n**(Podpis Zamawiającego)**\n\nData: ...........................................",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Potwierdzenie przyjęcia zaliczki na zamówienie wyrobu jubilerskiego na zamówienie\n\n**Miejsce i data wystawienia:** ..........................................., dnia ...........................................\n\n## 1. Dane Odbiorcy Zaliczki (Wykonawcy / Sprzedawcy)\nNazwa / Imię i nazwisko: ....................................................................................................................\nAdres siedziby / zamieszkania: ................................................................................................................\nNIP: ..............................................................................................................................................\nPESEL (jeśli osoba fizyczna nieprowadząca działalności): ........................................................................\nNumer rejestru (KRS / CEIDG): ..............................................................................................................\n\n## 2. Dane Wpłacającego (Zamawiającego / Klienta)\nNazwa / Imię i nazwisko: ....................................................................................................................\nAdres siedziby / zamieszkania: ................................................................................................................\nNIP / PESEL: ....................................................................................................................................\n\n## 3. Szczegóły wpłaty\nKwota zaliczki (cyfrowo): ........................................... PLN\nKwota zaliczki (słownie): ........................................................................................................... PLN\nData otrzymania środków: ...........................................\nSposób wpłaty: □ przelew bankowy □ gotówka □ BLIK □ inny: ...........................................\nNumer konta / referencja płatności: ......................................................................................................\n\n## 4. Rodzaj wpłaty – kluczowe rozróżnienie\n□ **Zaliczka** (częściowe spełnienie świadczenia pieniężnego; przy niewykonaniu umowy zwrotna w całości, bez względu na przyczyny, bez charakteru odszkodowawczego – art. 462 § 1 KC).\n□ **Zadatek** (zgodnie z art. 394 § 1 KC: jeżeli umowy nie wykona strona, która dała zadatek, druga może od umowy odstąpić i zadatek zachować; jeżeli umowy nie wykona strona, która zadatek przyjęła, druga strona może od umowy odstąpić i żądać sumy dwukrotnie wyższej; przy wykonaniu umowy zadatek ulega zaliczeniu na poczet ceny).\n\n> **Wskazówka:** W przypadku braku wyraźnego zaznaczenia polskie sądy domyślnie traktują wpłatę jako zaliczkę. Wybór zadatku wymaga jawnego zaznaczenia powyżej.\n\n## 5. Opis zamówienia – wyrob jubilerski na zamówienie indywidualne\nPrzedmiot zamówienia: Wyrob jubilerski wykonany na indywidualne zamówienie Zamawiającego, niebędący towarem prefabrykowanym, wyprodukowany zgodnie ze specyfikacją i indywidualnymi potrzebami Zamawiającego (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta).\n\nSzczegółowa specyfikacja wyrobu (projekt, materiały, kamienie, wymiary, kolorystyka, gravury, inne parametry indywidualne):\n............................................................................................................................................\n............................................................................................................................................\n............................................................................................................................................\n\nData złożenia zamówienia: ...........................................\nPlanowany termin realizacji / odbioru wyrobu: ...........................................\nMiejsce realizacji / odbioru: ..............................................................................................................\n\n## 6. Całkowita cena umowy\nCałkowita cena za wyrob jubilerski (brutto): ........................................... PLN\nZaliczka stanowi część ceny i zostanie naliczona na końcowe rozliczenie.\nPozostała do zapłaty kwota po realizacji: ........................................... PLN\n\n## 7. Prawo odstąpienia konsumenta – wyjątek dla wyrobów na zamówienie\nStrony potwierdzają, że niniejsze zamówienie dotyczy **wyrobu nieprefabrykowanego, wyprodukowanego według specyfikacji konsumenta lub służącego zaspokojeniu jego zindywidualizowanych potrzeb** (art. 38 ust. 1 pkt 3 ustawy z dnia 30 maja 2014 r. o prawach konsumenta – jednolity tekst: Dz.U. 2024 poz. 1796).\n\n**W związku z powyższym, konsument (Zamawiający) nie przysługuje prawo odstąpienia od umowy w terminie 14 dni bez podania przyczyny**, o którym mowa w art. 27 ust. 1 tej ustawy. Zaliczka wpłacona na poczet takiego wyrobu nie podlega zwrotowi z tytułu odstąpienia konsumenta od umowy zawartej na odległość lub poza lokalem przedsiębiorstwa, z zastrzeżeniem przepisów o zwrocie zaliczki w przypadku niewykonania umowy przez Wykonawcę lub rozwiązania umowy z przyczyn leżących po stronie Wykonawcy.\n\n> **Uwaga:** Wyjątek ten dotyczy wyłącznie umów zawieranych na odległość lub poza lokalem przedsiębiorcy. Jeżeli umowa została zawarta w lokalu przedsiębiorcy, konsument nie posiada prawa odstąpienia z art. 27 ustawy o prawach konsumenta, a zwrot zaliczki regulują przepisy Kodeksu cywilnego.\n\n## 8. Skutki niewykonania umowy\n### 8.1. W przypadku zaliczki:\n– Jeżeli umowę nie wykona **Zamawiający** (bez względu na przyczynę) – zaliczka jest zwracana w całości.\n– Jeżeli umowę nie wykona **Wykonawca** (bez względu na przyczynę) – zaliczka jest zwracana w całości.\n– Jeżeli umowa zostanie rozwiązana z porozumienia stron lub z przyczyn, za które żadna ze stron nie odpowiada – zaliczka jest zwracana w całości.\n\n### 8.2. W przypadku zadatku (jeśli zaznaczono w pkt 4):\n– Jeżeli umowę nie wykona **Zamawiający** – Wykonawca może od umowy odstąpić i zachować otrzymany zadatek.\n– Jeżeli umowę nie wykona **Wykonawca** – Zamawiający może od umowy odstąpić i żądać zwrotu zadatku w podwójnej wysokości.\n– Przy wykonaniu umowy zadatek ulega zaliczeniu na poczet ceny.\n\n## 9. Obowiązki podatkowe (VAT)\nJeżeli Odbiorca zaliczki jest podatnikiem VAT:\n– Zgodnie z art. 19a ust. 8 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług (Dz.U. 2024 poz. 361 ze zm.), obowiązek podatkowy VAT powstaje z chwilą otrzymania zaliczki w części odpowiadającej otrzymanej kwocie.\n– Odbiorca ma obowiązek wystawić **fakturę zaliczkową** nie później niż 15. dnia miesiąca następującego po miesiącu otrzymania zaliczki (może być wystawiona wcześniej).\n– Stawka VAT na fakturze zaliczkowej odpowiada stawce właściwej dla końcowego świadczenia (wyrobu jubilerskiego).\n– Niniejsze potwierdzenie przyjęcia zaliczki **nie zastępuje faktury VAT**.\n\n## 10. Obowiązki informacyjne przedsiębiorcy (art. 12 i 27 ustawy o prawach konsumenta)\nWykonawca oświadcza, że przed zawarciem umowy poinformował Zamawiającego – w sposób jasny i zrozumiały – o:\n1) głównych cechach świadczenia (specyfikacja wyrobu jubilerskiego);\n2) tożsamości przedsiębiorcy (dane z pkt 1);\n3) całkowitej cenie lub zasadach jej ustalania;\n4) braku prawa odstąpienia od umowy z powodu indywidualnego charakteru wyrobu (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta);\n5) terminie realizacji;\n6) sposobie i terminie zapłaty pozostałej części ceny;\n7) prawach i środkach ochrony konsumenta przysługujących Zamawiającemu.\n\n## 11. Postanowienia końcowe\n1. Niniejsze potwierdzenie sporządzono w dwóch jednobrzmiących egzemplarzach – po jednym dla każdej ze stron.\n2. Wszelkie zmiany i uzupełnienia niniejszego potwierdzenia wymagają formy pisemnej pod rygorem nieważności.\n3. W sprawach nieuregulowanych niniejszym potwierdzeniem mają zastosowanie przepisy Kodeksu cywilnego, ustawy o prawach konsumenta, ustawy o VAT oraz pozostałe odpowiednie przepisy prawa polskiego.\n4. Strony oświadczają, że zapoznały się z treścią potwierdzenia, zrozumiały je i nie mają zastrzeżeń.\n\n..............................................................\n**(Podpis Odbiorcy Zaliczki – Wykonawcy / Sprzedawcy)**\n\n..............................................................\n**(Podpis Wpłacającego – Zamawiającego – potwierdzenie odbiór dokumentu)**\n\n---\n\n### Załącznik: Wzór oświadczenia o informowaniu konsumenta o braku prawa odstąpienia (do wykorzystania przy zawarciu umowy na odległość / poza lokalem)\n\n\"Oświadczam, że zostałem/am poinformowany/a przez Wykonawcę przed zawarciem umowy, że ze względu na to, że przedmiotem umowy jest wyrob jubilerski nieprefabrykowany, wyprodukowany według mojej specyfikacji / służący zaspokojeniu moich zindywidualizowanych potrzeb (art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta), **nie przysługuje mi prawo odstąpienia od umowy w terminie 14 dni bez podania przyczyny**. Przyjąłem/am tę informację do wiadomości.\"\n\n..............................................................\n**(Podpis Zamawiającego)**\n\nData: ...........................................",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Wpłaciłam jubilerowi zaliczkę na pierścionek na zamówienie, ale nie dostałam żadnego dokumentu. Jakie potrzebuję potwierdzenie, żeby mieć dowód, ile i na co zapłaciłam?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Zamówiłem u jubilera złoty pierścionek z diamentem według własnego projektu i wpłaciłem zaliczkę 2500 zł. Chcę mieć na piśmie potwierdzenie tej wpłaty, które zawiera dokładny opis wyrobu, termin realizacji i informację o tym, co się stanie z pieniędzmi, jeśli jubiler nie wykona zamówienia. Ważne jest też, żeby było napisane, że przy biżuterii na zamówienie nie przysługuje mi prawo zwrotu w 14 dni."
+  }
+ ]
+}

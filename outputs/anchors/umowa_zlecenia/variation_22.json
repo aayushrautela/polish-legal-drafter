@@ -1,0 +1,17 @@
+{
+ "run": 22,
+ "hint": "Wynagrodzenie prowizyjne z gwarancją minimum",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę umowę, w której dostaję prowizję od sprzedaży, ale mam pewność, że nie zarobię mniej niż ustalona kwota minimalna miesięcznie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Pracuję jako handlowiec i chcę umowę, gdzie moje wynagrodzenie zależy od prowizji od sprzedaży, ale chcę mieć gwarantowane minimum 4000 zł brutto miesięcznie, nawet jak nie sprzedam nic. Chciałbym też, żeby prowizja była naliczana od marży, a nie obrotu, i wypłacana co miesiąc razem z minimum. Ważne, żeby w okresie urlopu chorobowego też przysługiwało mi minimum."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_zlecenia\", \"query\": \"wynagrodzenie prowizyjne z gwarancją minimum\"})\\nRESULT: [{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa zlecenia\\nUmowa zlecenia w Polsce to umowa cywilnoprawna, w której przyjmujący zlecenie (zleceniobiorca) zobowiązuje się do dokonania określonej czynności na rzecz dającego zlecenie (zleceniodawcy), a ten zobowiązuje się zazwyczaj do zapłaty wynagrodzenia. Podstawą prawną jest art. 734 i nast. Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przy czym do umów o świadczenie usług, które nie są uregulowane innymi przepisami, stosuje się odpowiednio przepisy o zleceniu zgodnie z art. 750 Kodeksu cywilnego.\\n\\nNajważniejszą cechą prawną zlecenia jest to, że jest to umowa starannego działania, a nie umowa rezultatu. Zleceniobiorca odpowiada za sumienne i staranne wykonanie powierzonych czynności z należytą starannością określoną w art. 355 Kodeksu cywilnego, a nie za osiągnięcie konkretnego efektu. Odróżnia to zlecenie od umowy o dzieło (art. 627 Kodeksu cywilnego), w której liczy się zindywidualizowany rezultat. To rozróżnienie ma kluczowe skutki podatkowe i ubezpieczeniowe — umowa zlecenia co do zasady podlega oskładkowaniu w Zakładzie Ubezpieczeń Społecznych (ZUS), podczas gdy umowa o dzieło zasadniczo składkom nie podlega.\\n\\nZlecenie z założenia jest odpłatne — art. 735 Kodeksu cywilnego ustanawia domniemanie odpłatności, zgodnie z którym jeżeli ani z umowy, ani z okoliczności nie wynika, że przyjmujący zlecenie zobowiązał się wykonać je bez wynagrodzenia, należy się wynagrodzenie odpowiadające wykonanej pracy. Do umów zlecenia stosuje się również przepisy o minimalnej stawce godzinowej wynikającej z ustawy o minimalnym wynagrodzeniu za pracę, co chroni z"
+}

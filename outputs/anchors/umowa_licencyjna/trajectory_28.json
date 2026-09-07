@@ -1,0 +1,291 @@
+{
+ "run": 33,
+ "hint": "Umowa licencyjna z zachowaniem poufności know-how (trade secret)",
+ "scenario": "Umowa licencyjna z zachowaniem poufności know-how (trade secret)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_licencyjna'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a licensing agreement (umowa_licencyjna) that includes confidentiality provisions for know-how/trade secrets. I need to:\n\n1. First read the base template for umowa_licencyjna\n2. Search for relevant provisions about know-how, trade secrets, confidentiality in licensing agreements\n3. Gather material to create a realistic variation\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-5f5d6d5c-c209-4d7e-93f1-bff7eda06f9d",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"z zachowaniem poufności know-how trade secret\", \"doc_type\": \"umowa_licencyjna\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_licencyjna\", \"kind\": \"structural_template\", \"text\": \"# Umowa franczyzy\\nUmowa franczyzy w Polsce to umowa nienazwana, zawierana na podstawie art. 353¹ Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na mocy której franczyzodawca udziela franczyzobiorcy prawa do prowadzenia działalności pod własną marką, przy użyciu know-how, standardów operacyjnych i znaków towarowych sieci, w zamian za opłatę wstępną i cykliczne opłaty licencyjne (royalties). Polskie prawo nie ma odrębnej ustawy o franczyzie — stosuje się przepisy ogólne Kodeksu cywilnego, uzupełnione ustawą z dnia 30 czerwca 2000 r. Prawo własności przemysłowej (p.w.p.) w zakresie ochrony znaków towarowych i ustawą z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (u.z.n.k.) w zakresie ochrony know-how i tajemnicy przedsiębiorstwa.\\n\\nFranczyza jest popularnym modelem biznesowym w Polsce — szacuje się, że w kraju działa ponad 1 300 systemów franczyzowych i kilkadziesiąt tysięcy punktów franczyzowych. Branże najchętniej korzystające z franczyzy to handel detaliczny i spożywczy, gastronomia (fast food, kawiarnie), moda i odzież, usługi kosmetyczne, fitness, pośrednictwo nieruchomości i edukacja. Franczyzodawca inwestuje w budowę marki, opracowanie standardów i systemu wsparcia, natomiast franczyzobiorca inwestuje w uruchomienie i prowadzenie punktu franczyzowego we własnym zakresie.\\n\\nUmowa franczyzy zawiera kluczowe elementy: opis systemu franczyzowego (marka, know-how, standardy), terytorium chronione, obowiązki franczyzodawcy (szkolenia, wsparcie, dostawy, marketing), obowiązki franczyzobiorcy (standardy, opłaty, kontrola), strukturę opłat (opłata wstępna + royalty + fundusz marketingowy), zakaz konkurencji na czas umowy i po jej zakończeniu, poufność know-how, zasady używania znaków towarowych chronionych przez UPRP (Urząd Patentowy Rzeczypospolitej Polskiej), czas trwania i zasady rozwiązania umowy.\\n\\nFranczyzobiorca w Polsce jest niezależnym przedsiębiorcą — prowadzi działalność we własnym imieniu i na własny rachunek, rejestrując się w CEIDG lub KRS. Umowa franczyzy nie tworzy stosunku pracy ani spółki. Franczyzobiorca płaci podatek dochodowy (PIT lub CIT) i VAT samodzielnie. Opłaty franczyzowe (royalty, fundusz marketingowy) stanowią dla franczyzobiorcy koszt uzyskania przychodów (art. 22 ustawy PIT lub art. 15 ustawy CIT) i podlegają VAT 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, jako usługi niematerialne (know-how, licencja na znak towarowy).\\n\\nOdrębnym, bardzo ważnym aspektem umów franczyzowych w Polsce jest ochrona know-how. Podręcznik operacyjny, standardy obsługi, receptury, procedury jakościowe i systemy informatyczne stanowią tajemnicę przedsiębiorstwa franczyzodawcy chronioną art. 11 u.z.n.k. Franczyzobiorca jest zobowiązany do jej zachowania w poufności przez czas trwania umowy i przez określony czas po jej rozwiązaniu. Naruszenie tej klauzuli rodzi odpowiedzialność cywilnoprawną na podstawie art. 18 u.z.n.k.\\n\\nUmowa franczyzy w Polsce jest zawierana w każdej sytuacji, gdy przedsiębiorca decyduje się na prowadzenie działalności pod cudzą marką i przy użyciu cudzego systemu operacyjnego.\\n\\nUruchomienie punktu franczyzowego. Osoba fizyczna lub spółka, która przystępuje do sieci franczyzowej, podpisuje umowę franczyzy przed otwarciem punktu. Umowa reguluje wszystkie prawa i obowiązki na cały czas współpracy — bez niej punkt nie może legalnie używać marki i know-how sieci.\\n\\nBudowa sieci franczyzowej przez franczyzodawcę. Przedsiębiorca, który wypracował sprawdzony model biznesowy i decyduje się go replikować przez franczyzę, musi opracować wzorzec umowy franczyzowej. Umowa chroni know-how franczyzodawcy, zapewnia jednolitość standardów sieci i reguluje przepływ opłat.\\n\\nRozszerzenie sieci na nowe terytorium. Przy otwarciu nowych punktów w kolejnych miastach lub regionach franczyzodawca zawiera nowe umowy franczyzowe lub aneksy do istniejących, aktualizując terytorium chronione i warunki finansowe.\\n\\nMasterfranchising. Gdy franczyzodawca udziela prawa do budowy całej sieci w innym kraju lub regionie podmiotowi trzeciemu (master franchisee), niezbędna jest umowa masterfranchise regulująca warunki subfranchisingu, wsparcie i opłaty.\\n\\nPrzedłużenie lub renegocjacja umowy. Po wygaśnięciu pierwotnej umowy strony zawierają nową umowę lub aneks, aktualizując warunki finansowe, standardy i terytorium zgodnie z aktualną strategią sieci.\\n\\nZbycie punktu franczyzowego. Przy sprzedaży punktu franczyzowego przez franczyzobiorcę wymagana jest zgoda franczyzodawcy (art. 353¹ KC) i zawarcie nowej umowy z nabywcą lub aneksu cesyjnego.\\n\\nUmowa franczyzy w Polsce powinna zawierać następujące kluczowe elementy, zapewniające ochronę obu stron i jednolitość systemu:\\n\\nOznaczenie stron. Pełne dane franczyzodawcy i franczyzobiorcy: firma, adres, NIP, REGON, KRS lub CEIDG, organ reprezentacji. Zweryfikuj reprezentację w KRS. Przy zawieraniu umowy z osobą fizyczną nieprowadzącą działalności wpisz PESEL i dokument tożsamości.\\n\\nOpis systemu. Opis sieci franczyzowej, marki, standardów operacyjnych, know-how i systemów informatycznych udostępnianych franczyzobiorcy. Referencja do podręcznika operacyjnego jako podstawowego dokumentu Systemu.\\n\\nTerytorium. Obszar geograficzny wyłącznego działania punktu franczyzowego. Klauzula wyłączności terytorialnej — zobowiązanie franczyzodawcy do niepowoływania innych punktów własnych ani franczyzowych na tym terytorium przez czas trwania umowy.\\n\\nCzas trwania. Okres obowiązywania umowy (standardowo 3-10 lat), z opcją przedłużenia. Zasady wypowiedzenia — przy umowach na czas oznaczony tylko z ważnych powodów.\\n\\nObowiązki franczyzodawcy. Szkolenie wstępne i bieżące, dostęp do know-how i podręcznika, wsparcie marketingowe, dostawa towarów lub usług, utrzymanie znaków towarowych w mocy.\\n\\nObowiązki franczyzobiorcy. Prowadzenie punktu zgodnie ze standardami, terminowe uiszczanie opłat, prowadzenie ewidencji obrotu, umożliwienie kontroli, zachowanie poufności.\\n\\nStruktura opłat. Opłata wstępna (entry fee) — jednorazowa, bezzwrotna, przed otwarciem. Opłata bieżąca (royalty) — % od obrotu lub stała miesięczna. Fundusz marketingowy — % od obrotu na działania reklamowe sieci. VAT 23% doliczany do każdej opłaty. W razie opóźnienia — odsetki ustawowe za opóźnienie (art. 481 KC).\\n\\nZnaki towarowe. Klauzula licencyjna na używanie znaków towarowych i oznaczeń Systemu chronionych przez UPRP lub EUIPO, wyłącznie w ramach i na czas trwania umowy. forms-legal.com rekomenduje referencję do instrukcji identyfikacji wizualnej jako załącznika.\\n\\nPoufność know-how. Klauzula poufności podręcznika i know-how na czas umowy i przez wskazany czas po jej rozwiązaniu (np. 3 lata), na podstawie art. 11 u.z.n.k.\\n\\nZakaz konkurencji. Zakaz prowadzenia konkurencyjnej działalności w czasie trwania umowy i przez wskazany czas po jej rozwiązaniu (np. 12 miesięcy) na obszarze terytorium, pod rygorem kary umownej (art. 483 KC).\\n\\nRozwiązanie. Warunki wypowiedzenia umowy z ważnych powodów, skutki rozwiązania (zaprzestanie używania znaków, zwrot materiałów), prawo odstąpienia przy kluzuli lex commissoria (art. 492 KC).\\n\\nUmowa franczyzy w Polsce wypełniana jest według poniższych kroków, które zapewniają kompletność dokumentu i ochronę obu stron:\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane franczyzodawcy i franczyzobiorcy: firma, adres, NIP, REGON, numer KRS lub CEIDG. Zweryfikuj reprezentację w KRS. Przy franczyzobiorcy będącym osobą fizyczną wpisz PESEL i dokument tożsamości.\\n\\nKrok 2 — opisz system i terytorium. Wpisz nazwę sieci, krótki opis działalności i terytorium chronione (wyłączny obszar geograficzny). Wskaż adres punktu franczyzowego. Jeżeli terytorium jest niewyłączne, wyraźnie to zaznacz.\\n\\nKrok 3 — ustal czas trwania. Wpisz okres obowiązywania umowy (np. 5 lat od dnia otwarcia). Wskaż zasady przedłużenia (automatyczne lub za pisemną zgodą stron) i warunki wypowiedzenia przed terminem (tylko z ważnych powodów).\\n\\nKrok 4 — wylicz obowiązki. Wpisz obowiązki franczyzodawcy (szkolenia, wsparcie, dostawy) i franczyzobiorcy (standardy, opłaty, ewidencja, kontrola). Referencja do podręcznika operacyjnego jako załącznika do umowy.\\n\\nKrok 5 — ustal opłaty. Wpisz opłatę wstępną (netto + VAT 23%), royalty (% od obrotu lub kwota miesięczna + VAT) i fundusz marketingowy (% od obrotu + VAT). Wskaż termin płatności każdej opłaty i konsekwencje opóźnienia (odsetki ustawowe za opóźnienie, art. 481 KC).\\n\\nKrok 6 — ureguluj znaki i poufność. Wpisz klauzulę licencji na używanie znaków towarowych Systemu i klauzulę poufności know-how z terminem obowiązywania po rozwiązaniu umowy.\\n\\nKrok 7 — zastrzeż zakaz konkurencji. Wpisz zakaz konkurencji na czas umowy i na wskazany czas po rozwiązaniu (np. 12 miesięcy) na obszarze terytorium, z karą umowną za naruszenie (art. 483 KC).\\n\\nKrok 8 — podpisz. Wpisz miejscowość i datę zawarcia. Podpisują osoby uprawnione. Dopuszczalna forma elektroniczna z kwalifikowanym podpisem elektronicznym (art. 78¹ KC).\\n\\nUmowa franczyzy w Polsce podlega przepisom Kodeksu cywilnego, ustawy Prawo własności przemysłowej i ustawy o zwalczaniu nieuczciwej konkurencji.\\n\\nBrak odrębnej ustawy o franczyzie. Polska nie posiada odrębnej ustawy regulującej franczyzę — stosuje się przepisy ogólne o zobowiązaniach (art. 353-534 KC), umów nienazwanych (art. 353¹ KC), kar umownych (art. 483-484 KC), odstąpienia (art. 491-492 KC) i agencji (art. 758-764 KC stosowane odpowiednio).\\n\\nPreobowiązek informacyjny. Europejski Kodeks Etyki Franchisingu zaleca ujawnienie Franczyzobiorcy pełnych informacji o sieci (wyniki finansowe, historia, liczba punktów) przed zawarciem umowy. Brak rzetelnych informacji może być podstawą uchylenia się od skutków umowy jako zawartej pod wpływem błędu (art. 84 KC) lub podstępu (art. 86 KC).\\n\\nOchrona know-how. Know-how stanowi tajemnicę przedsiębiorstwa chronioną art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Naruszenie tajemnicy rodzi odpowiedzialność odszkodowawczą i karę umowną. Ustawa o zwalczaniu nieuczciwej konkurencji implementuje dyrektywę (UE) 2016/943 o ochronie know-how.\\n\\nZnaki towarowe i UPRP. Znaki towarowe sieci korzystają z ochrony udzielonej przez UPRP na podstawie art. 153 p.w.p. Franczyzobiorca używa ich na podstawie licencji wynikającej z umowy franczyzowej. Nieuprawnione używanie znaków po rozwiązaniu umowy stanowi naruszenie prawa ochronnego (art. 296 p.w.p.).\\n\\nZakaz konkurencji. Klauzula zakazu konkurencji na czas trwania umowy i po jej rozwiązaniu jest oparta na art. 353¹ KC. Zbyt długi zakaz po rozwiązaniu (powyżej 2-3 lat) lub zbyt szeroki terytorialnie może być uznany za naruszający swobodę działalności gospodarczej i art. 5 KC (zasady współżycia społecznego).\\n\\nVAT i koszty podatkowe. Opłata wstępna i royalty podlegają VAT 23%. Franczyzobiorca zalicza opłaty do kosztów uzyskania przychodów (art. 15 CIT, art. 22 PIT). Sprzedaż w punkcie podlega odrębnym obowiązkom VAT franczyzobiorcy jako samodzielnego podatnika.\\n\\nUmowa franczyzy w Polsce bywa wadliwa z powodu typowych błędów, które prowadzą do sporów lub zablokowania działalności.\\n\\nBłąd 1 — brak opisu terytorium wyłącznego. Umowa nie określa precyzyjnie obszaru wyłącznego, co pozwala franczyzodawcy otworzyć nowy punkt w pobliżu, niszcząc bazę klientów franczyzobiorcy. Zalecenie: określ terytorium mapą lub szczegółowym opisem jako załącznik i wpisz wyraźną klauzulę wyłączności.\\n\\nBłąd 2 — brak warunków wypowiedzenia. Umowa na czas oznaczony bez określenia warunków wcześniejszego wypowiedzenia nie chroni żadnej ze stron. Zalecenie: wpisz katalog ważnych powodów uzasadniających wypowiedzenie przed terminem (brak płatności, naruszenie standardów, likwidacja działalności).\\n\\nBłąd 3 — niejasne obliczanie royalty. Brak definicji \\\"obrotu\\\" jako podstawy opłaty prowadzi do sporów (obrót brutto, netto, z VAT, bez rabatów?). Zalecenie: precyzyjnie zdefiniuj podstawę obliczenia royalty.\\n\\nBłąd 4 — brak regulacji funduszu marketingowego. Franczyzobiorca płaci do funduszu, ale umowa nie gwarantuje minimalnego wydatkowania środków ani raportowania. Zalecenie: wpisz zobowiązanie franczyzodawcy do wydawania środków z funduszu wyłącznie na marketing sieci i corocznego raportowania.\\n\\nBłąd 5 — zbyt szeroki zakaz konkurencji po rozwiązaniu. Wieloletni zakaz na całym terytorium kraju może być uznany za sprzeczny z zasadami współżycia społecznego (art. 5 KC). Zalecenie: ogranicz zakaz do 12-24 miesięcy i do terytorium wyłącznego.\\n\\nBłąd 6 — brak klauzuli o sukcesji umowy. Franczyzobiorca chce sprzedać punkt, a umowa milczy o zasadach cesji. Zalecenie: wpisz procedurę zatwierdzania nowego franczyzobiorcy przez franczyzodawcę przy sprzedaży punktu.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-franczyzy (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-5f5d6d5c-c209-4d7e-93f1-bff7eda06f9d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_33330a2ca7a04098a8137c96",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_licencyjna\"}"
+     }
+    },
+    {
+     "id": "call_51c7d96268f1473e9150f764",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa licencyjna know-how tajemnica przedsiębiorstwa poufność art. 11 u.z.n.k.\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_licencyjna\", \"kind\": \"structural_template\", \"text\": \"# Umowa licencyjna\\nUmowa licencyjna w Polsce to umowa, na podstawie której uprawniony z autorskich praw majątkowych (licencjodawca) upoważnia inny podmiot (licencjobiorcę) do korzystania z utworu na wymienionych w umowie polach eksploatacji, zachowując jednocześnie te prawa dla siebie. Podstawą prawną jest ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 1994 nr 24 poz. 83 ze zm.). W odróżnieniu od umowy o przeniesienie autorskich praw majątkowych, gdzie prawa przechodzą trwałe na nabywcę, licencja przyznaje jedynie uprawnienie do korzystania z utworu w określonym zakresie, czasie i na określonym terytorium, a sam tytuł prawny pozostaje przy twórcy lub innym uprawnionym.\\n\\nPrzedmiotem licencji jest utwór w rozumieniu art. 1 ustawy o prawie autorskim, czyli każdy przejaw działalności twórczej o indywidualnym charakterze, ustalony w jakiejkolwiek postaci. Utworem mogą być programy komputerowe, grafiki, logotypy, fotografie, teksty, utwory muzyczne, projekty architektoniczne czy bazy danych. Aby korzystanie było legalne, umowa musi precyzyjnie oznaczać utwór oraz wskazywać, czy licencjodawca dysponuje pełnią autorskich praw majątkowych pozwalających na udzielenie licencji w danym zakresie.\\n\\nUstawa rozróżnia dwa podstawowe rodzaje licencji. Licencja niewyłączna (art. 67 ust. 2 ustawy o prawie autorskim) pozwala licencjodawcy udzielać dalszych licencji innym podmiotom i nie wymaga formy szczególnej. Licencja wyłączna zapewnia licencjobiorcy wyłączność korzystania z utworu w określonym zakresie i — zgodnie z art. 67 ust. 5 ustawy o prawie autorskim — wymaga formy pisemnej pod rygorem nieważności. Tylko licencjobiorca wyłączny może, o ile umowa nie stanowi inaczej, dochodzić roszczeń z tytułu naruszenia praw autorskich w zakresie objętym licencją wyłączną.\\n\\nKluczowym elementem każdej umowy licencyjnej są pola eksploatacji. Zgodnie z art. 41 ust. 2 oraz art. 50 ustawy o prawie autorskim umowa obejmuje wyłącznie pola eksploatacji wyraźnie w niej wymienione. Pola eksploatacji obejmują między innymi utrwalanie i zwielokrotnianie utworu określoną techniką, wprowadzanie do obrotu, najem i użyczenie egzemplarzy, publiczne wykonanie, wyświetlenie, odtworzenie, nadawanie oraz publiczne udostępnianie w taki sposób, aby każdy mógł mieć dostęp do utworu w wybranym przez siebie miejscu i czasie (rozpowszechnianie online). Pominięcie istotnego pola eksploatacji oznacza, że licencjobiorca nie nabywa prawa do korzystania na tym polu.\\n\\nLicencja może być odpłatna lub nieodpłatna; w razie wątpliwości domniemywa się odpłatność (art. 43 ustawy o prawie autorskim). Wynagrodzenie (opłata licencyjna) może mieć formę jednorazową, okresową (tantiemy) lub uzależnioną od skali korzystania. Jeżeli licencjodawca jest czynnym podatnikiem, do wynagrodzenia netto dolicza się podatek od towarów i usług według stawki 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, a usługa dokumentowana jest fakturą.\\n\\nUmowa licencyjna ma duże znaczenie gospodarcze w branżach kreatywnych, wydawniczej, informatycznej i medialnej. Pozwala twórcy czerpać dochód z utworu bez wyzbywania się praw, a licencjobiorcy — legalnie korzystać z cudzej twórczości. Dobrze sporządzona umowa precyzyjnie określa utwór, rodzaj licencji, pola eksploatacji, terytorium, czas trwania, wynagrodzenie oraz zasady sublicencji i wypowiedzenia, dzięki czemu chroni obie strony przed sporami o zakres dozwolonego korzystania.\\n\\nUmowa licencyjna w Polsce jest potrzebna zawsze wtedy, gdy jeden podmiot chce korzystać z cudzego utworu chronionego prawem autorskim bez nabywania pełni autorskich praw majątkowych, na zasadach określonych w ustawie o prawie autorskim i prawach pokrewnych.\\n\\nKorzystanie z oprogramowania i kodu. Producenci i dostawcy oprogramowania udzielają licencji na korzystanie z programów komputerowych chronionych szczególnym reżimem art. 74 ustawy o prawie autorskim. Umowa licencyjna określa zakres korzystania, liczbę stanowisk, czas i terytorium oraz zasady aktualizacji i wsparcia.\\n\\nWykorzystanie grafiki, logo i identyfikacji wizualnej. Przedsiębiorcy korzystający z logotypów, ilustracji czy systemów identyfikacji wizualnej stworzonych przez grafików zawierają umowę licencyjną, gdy twórca nie przenosi praw, lecz udziela prawa do korzystania na polach takich jak druk, internet czy materiały reklamowe.\\n\\nLicencja na fotografie i materiały audiowizualne. Fotografowie, agencje fotograficzne i twórcy materiałów wideo udzielają licencji na publikację zdjęć i nagrań w mediach, na stronach internetowych i w kampaniach. Umowa precyzuje pola eksploatacji, czas i terytorium oraz to, czy licencja jest wyłączna.\\n\\nDziałalność wydawnicza i muzyczna. Wydawcy oraz nadawcy uzyskują licencje na korzystanie z tekstów, utworów muzycznych i innych dzieł. Umowa licencyjna porządkuje zakres rozpowszechniania, wynagrodzenie w formie tantiem oraz czas obowiązywania licencji.\\n\\nUdostępnianie treści w internecie i platformach. Twórcy treści cyfrowych udzielają platformom i przedsiębiorstwom licencji na publiczne udostępnianie utworów online. Umowa wskazuje pole eksploatacji polegające na udostępnianiu w taki sposób, aby każdy mógł mieć dostęp do utworu w wybranym miejscu i czasie.\\n\\nLicencjonowanie baz danych i materiałów szkoleniowych. Podmioty tworzące bazy danych, kursy, e-booki i materiały edukacyjne udzielają licencji na ich wykorzystanie. Umowa licencyjna określa dozwolony sposób korzystania oraz zakaz dalszego rozpowszechniania bez zgody.\\n\\nWspółpraca twórcza bez przenoszenia praw. Gdy twórca chce zachować prawa do utworu, a jednocześnie umożliwić odpłatne korzystanie z niego, umowa licencyjna jest właściwym narzędziem — w odróżnieniu od umowy o przeniesienie praw, która trwałe pozbawia twórcę autorskich praw majątkowych.\\n\\nUmowa licencyjna w Polsce powinna zawierać następujące elementy oparte na ustawie z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, aby jednoznacznie określić zakres dozwolonego korzystania z utworu i zabezpieczyć obie strony.\\n\\nOznaczenie stron. Pełne dane licencjodawcy i licencjobiorcy: imię i nazwisko lub firma, adres, NIP, REGON, numer KRS dla spółek albo PESEL i wpis do CEIDG dla osoby fizycznej. Prawidłowe oznaczenie pozwala ustalić podmiot uprawniony do udzielenia licencji oraz reprezentację zgodnie z Krajowym Rejestrem Sądowym (KRS).\\n\\nOświadczenie o prawach. Oświadczenie licencjodawcy, że przysługują mu autorskie prawa majątkowe do utworu (art. 17 ustawy o prawie autorskim) i że jest uprawniony do udzielenia licencji w objętym umową zakresie oraz że utwór jest wolny od wad prawnych. forms-legal.com zaleca dodanie zapewnienia, że korzystanie z utworu nie naruszy praw osób trzecich.\\n\\nOznaczenie utworu. Dokładny opis utworu w rozumieniu art. 1 ustawy o prawie autorskim — tytuł, postać, format, ewentualne załączniki. Precyzyjne oznaczenie eliminuje wątpliwości co do tego, do czego odnosi się licencja.\\n\\nRodzaj licencji. Wskazanie, czy licencja jest wyłączna czy niewyłączna. Licencja wyłączna zapewnia licencjobiorcy wyłączność korzystania i wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5). Licencja niewyłączna pozwala licencjodawcy udzielać dalszych licencji innym podmiotom.\\n\\nPola eksploatacji. Wyraźne wyliczenie pól eksploatacji, na których licencjobiorca może korzystać z utworu (art. 50 ustawy o prawie autorskim). Zgodnie z art. 41 ust. 2 licencja obejmuje wyłącznie pola w niej wymienione, dlatego pominięcie pola pozbawia licencjobiorcy prawa korzystania na nim.\\n\\nTerytorium i czas trwania. Określenie zasięgu terytorialnego oraz okresu licencji. W braku oznaczenia czasu licencja wygasa po pięciu latach (art. 66 ustawy o prawie autorskim). Licencja na czas nieoznaczony może być wypowiedziana zgodnie z art. 68 ustawy.\\n\\nWynagrodzenie. Wysokość i sposób zapłaty opłaty licencyjnej — jednorazowo, okresowo lub w formie tantiem. Domniemanie odpłatności wynika z art. 43 ustawy o prawie autorskim. Do wynagrodzenia netto dolicza się podatek VAT 23%, gdy licencjodawca jest czynnym podatnikiem zgodnie z ustawą o podatku od towarów i usług.\\n\\nSublicencja. Postanowienie o tym, czy licencjobiorca może udzielać dalszych licencji. Zgodnie z art. 67 ust. 3 ustawy o prawie autorskim sublicencja wymaga zgody licencjodawcy, jeżeli umowa nie stanowi inaczej.\\n\\nPrawa osobiste i wypowiedzenie. Zastrzeżenie, że autorskie prawa osobiste twórcy pozostają niezbywalne (art. 16 ustawy o prawie autorskim), oraz zasady wypowiedzenia umowy, w tym terminy z art. 68 i przypadki rozwiązania ze skutkiem natychmiastowym przy istotnym naruszeniu warunków licencji. Warto dodać klauzulę o sądzie właściwym dla rozstrzygania sporów, w sprawach gospodarczych — sądzie gospodarczym.\\n\\nUmowa licencyjna w Polsce wypełniana jest według kolejnych kroków zapewniających zgodność z ustawą o prawie autorskim i prawach pokrewnych oraz ochronę obu stron.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane licencjodawcy i licencjobiorcy: imię i nazwisko lub firmę, adres, NIP, REGON, numer KRS lub PESEL i wpis do CEIDG. Zweryfikuj reprezentację spółek w Krajowym Rejestrze Sądowym (KRS), aby umowa była zawarta przez osoby uprawnione.\\n\\nKrok 2 — opisz utwór. Oznacz dokładnie utwór będący przedmiotem licencji — tytuł, postać, format, ewentualne załączniki. Precyzja opisu ułatwia ustalenie zakresu uprawnień i ogranicza ryzyko sporu o przedmiot licencji.\\n\\nKrok 3 — wybierz rodzaj licencji. Wskaż, czy licencja jest wyłączna czy niewyłączna. Pamiętaj, że licencja wyłączna wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5 ustawy o prawie autorskim), a tylko licencjobiorca wyłączny może dochodzić roszczeń z tytułu naruszenia w objętym zakresie.\\n\\nKrok 4 — wymień pola eksploatacji. Wpisz pola eksploatacji, na których licencjobiorca może korzystać z utworu (art. 50). Pamiętaj, że licencja obejmuje wyłącznie pola wyraźnie wymienione (art. 41 ust. 2), dlatego wylicz wszystkie potrzebne sposoby korzystania, na przykład zwielokrotnianie, wprowadzanie do obrotu i udostępnianie online.\\n\\nKrok 5 — określ terytorium i czas. Wpisz zasięg terytorialny oraz okres licencji. Brak oznaczenia czasu oznacza wygaśnięcie licencji po pięciu latach (art. 66). Dla licencji na czas nieoznaczony uwzględnij zasady wypowiedzenia z art. 68 ustawy o prawie autorskim.\\n\\nKrok 6 — ustal wynagrodzenie. Wpisz wysokość i sposób zapłaty opłaty licencyjnej — jednorazowo, okresowo lub w formie tantiem. Wskaż, że do wynagrodzenia netto doliczany jest VAT 23%, gdy licencjodawca jest czynnym podatnikiem, a podstawą rozliczenia jest faktura.\\n\\nKrok 7 — ureguluj sublicencję i wypowiedzenie. Wskaż, czy licencjobiorca może udzielać dalszych licencji (art. 67 ust. 3) oraz zasady i terminy wypowiedzenia umowy, w tym możliwość rozwiązania ze skutkiem natychmiastowym przy istotnym naruszeniu warunków licencji.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę zawarcia oraz podpisz dokument w dwóch jednobrzmiących egzemplarzach. Dla spółek podpis składa osoba uprawniona do reprezentacji według wpisu w KRS. Dla licencji wyłącznej forma pisemna jest obowiązkowa; dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego.\\n\\nUmowa licencyjna w Polsce podlega przepisom ustawy o prawie autorskim i prawach pokrewnych, uzupełnionym przepisami Kodeksu cywilnego oraz prawa podatkowego.\\n\\nForma umowy. Licencja niewyłączna nie wymaga formy szczególnej i może być udzielona także ustnie lub w sposób dorozumiany (art. 67 ust. 2 ustawy o prawie autorskim), jednak forma pisemna ma istotne znaczenie dowodowe. Licencja wyłączna wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5). Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną (art. 78[1] Kodeksu cywilnego).\\n\\nPola eksploatacji. Zgodnie z art. 41 ust. 2 oraz art. 50 ustawy o prawie autorskim umowa obejmuje wyłącznie pola eksploatacji w niej wymienione. Umowa nie może obejmować pól eksploatacji nieznanych w chwili jej zawarcia (art. 41 ust. 4). Brak wskazania pola oznacza, że licencjobiorca nie nabywa prawa do korzystania na tym polu.\\n\\nCzas trwania i wypowiedzenie. W braku oznaczenia czasu licencja wygasa po upływie pięciu lat (art. 66 ust. 1 ustawy o prawie autorskim). Licencji udzielonej na czas nieoznaczony można wypowiedzieć z zachowaniem terminów umownych, a w razie ich braku na rok naprzód, na koniec roku kalendarzowego (art. 68 ust. 1). Licencja udzielona na okres dłuższy niż pięć lat uważana jest po upływie tego okresu za udzieloną na czas nieoznaczony (art. 68 ust. 2).\\n\\nPrawa osobiste twórcy. Autorskie prawa osobiste, w szczególności prawo do autorstwa utworu i nienaruszalności jego treści i formy, są niezbywalne (art. 16 ustawy o prawie autorskim). Licencja nie może ich przenieść; możliwe jest jedynie zobowiązanie się do niewykonywania niektórych z tych praw w określonym zakresie.\\n\\nProgramy komputerowe. Do licencji na programy komputerowe stosuje się szczególne przepisy art. 74-77 ustawy o prawie autorskim. Korzystanie z programu zgodnie z jego przeznaczeniem może wynikać bezpośrednio z umowy licencyjnej, a niektóre czynności są dozwolone z mocy ustawy bez odrębnej zgody.\\n\\nWynagrodzenie i podatki. Domniemywa się, że udzielenie licencji jest odpłatne, jeżeli z umowy nie wynika inaczej (art. 43 ust. 1 ustawy o prawie autorskim). Jeżeli licencjodawca jest czynnym podatnikiem, do wynagrodzenia netto dolicza podatek od towarów i usług według stawki 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, dokumentując usługę fakturą.\\n\\nSublicencja. Zgodnie z art. 67 ust. 3 ustawy o prawie autorskim licencjobiorca może udzielić dalszej licencji (sublicencji) tylko za zgodą licencjodawcy, jeżeli umowa nie stanowi inaczej. Udzielenie sublicencji bez zgody stanowi naruszenie umowy.\\n\\nOdpowiedzialność i opóźnienia. W razie opóźnienia w zapłacie opłaty licencyjnej licencjodawcy przysługują odsetki ustawowe za opóźnienie (art. 481 Kodeksu cywilnego), a w transakcjach między przedsiębiorcami — odsetki i rekompensata na podstawie ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych. Naruszenie warunków licencji może rodzić odpowiedzialność odszkodowawczą oraz, przy zobowiązaniach niepieniężnych, karę umowną (art. 483 Kodeksu cywilnego).\\n\\nUmowa licencyjna w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć przy starannym jej sporządzeniu.\\n\\nBłąd 1 — brak wyliczenia pól eksploatacji. Ogólne sformułowanie, że licencjobiorca może korzystać z utworu w pełnym zakresie, jest nieskuteczne, ponieważ licencja obejmuje wyłącznie pola wyraźnie wymienione (art. 41 ust. 2 ustawy o prawie autorskim). Zalecenie: wymień wszystkie konkretne pola eksploatacji, na przykład zwielokrotnianie, wprowadzanie do obrotu i udostępnianie online.\\n\\nBłąd 2 — licencja wyłączna bez formy pisemnej. Udzielenie licencji wyłącznej ustnie lub mailowo jest nieważne, ponieważ wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5). Zalecenie: zawrzyj licencję wyłączną na piśmie lub w formie elektronicznej z kwalifikowanym podpisem elektronicznym.\\n\\nBłąd 3 — pominięcie czasu trwania i terytorium. Brak oznaczenia czasu skutkuje wygaśnięciem licencji po pięciu latach (art. 66), co może zaskoczyć licencjobiorcę. Zalecenie: wyraźnie wskaż okres licencji i jej zasięg terytorialny oraz zasady przedłużenia.\\n\\nBłąd 4 — udzielenie sublicencji bez zgody. Licencjobiorca, który udziela dalszej licencji bez zgody licencjodawcy, narusza umowę (art. 67 ust. 3 ustawy o prawie autorskim). Zalecenie: jednoznacznie ureguluj, czy i na jakich warunkach dopuszczalna jest sublicencja.\\n\\nBłąd 5 — mylenie licencji z przeniesieniem praw. Strony często traktują licencję jak trwałe nabycie praw, co prowadzi do sporów po wygaśnięciu umowy. Zalecenie: jeżeli celem jest trwałe nabycie praw, zawrzyj umowę o przeniesienie autorskich praw majątkowych (art. 53 ustawy o prawie autorskim), a nie licencję.\\n\\nBłąd 6 — brak oświadczenia o prawach licencjodawcy. Pominięcie zapewnienia, że licencjodawca dysponuje prawami i że utwór jest wolny od wad prawnych, naraża licencjobiorcy na roszczenia osób trzecich. Zalecenie: zamieść oświadczenie o przysługiwaniu autorskich praw majątkowych oraz o braku obciążeń.\\n\\nBłąd 7 — kara umowna za opóźnienie w zapłacie. Zastrzeżenie kary umownej za opóźnienie w zapłacie opłaty licencyjnej jest nieskuteczne, ponieważ kary umownej nie zastrzega się za zobowiązanie pieniężne (art. 483 Kodeksu cywilnego). Zalecenie: kary umowne zastrzegaj za naruszenie zobowiązań niepieniężnych, a na opóźnienie w zapłacie stosuj odsetki za opóźnienie.\\n\\nBłąd 8 — niejasne wynagrodzenie i VAT. Brak wskazania, czy kwota jest netto czy brutto, oraz pominięcie stawki VAT 23% rodzi spory rozliczeniowe. Zalecenie: określ wysokość opłaty licencyjnej, wskaż kwotę netto i doliczenie VAT 23% oraz podstawę rozliczenia w postaci faktury.\\n\\nŹródło: https://forms-legal.com/pl/business/intellectual-property/umowa-licencyjna (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_33330a2ca7a04098a8137c96",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo d ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 18. 1. W razie dokonania czynu nieuczciwej konkurencji, przedsiębiorca, którego interes został zagrożony lub naruszony, może żądać: 1) zaniechania niedozwolonych działań; 2) usunięcia skutków niedozwolonych działań; 3) złożenia jednokrotnego lub wielokrotnego oświadczenia odpowiedniej treści i w odpowiedniej formie; 4) naprawienia wyrządzonej szkody, na zasadach ogólnych; 5) wydania bezpodstawnie uzyskanych korzyści, na zasadach ogólnych; 6) zasądzenia odpowiedniej sumy pieniężne ...\"}, {\"chunk_id\": \"uokik_items:uokik_8150eaa87c5398d8\", \"source_id\": \"uokik_rejestr_klauzul_6050\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia zobowiązania do zachowania poufności, o którym mowa w ust.1 powyżej Klient zobowiązuje się zapłacić na rzecz (…) karę umowną w wysokości 100% środków wypłaconych na rzecz Klienta (słownie:…)\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 23. 1. Kto, wbrew ciążącemu na nim obowiązkowi w stosunku do przedsiębiorcy, ujawnia innej osobie lub wykorzystuje we własnej działalności gospodarczej informację stanowiącą tajemnicę przedsiębiorstwa, jeżeli wyrządza to poważną szkodę przedsiębiorcy, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. 2. Tej samej karze podlega, kto, uzyskawszy bezprawnie informację stanowiącą tajemnicę przedsiębiorstwa, ujawnia ją innej osobie lub wykorzystuje we w ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 119 . § 1. Na postanowienie w przedmiocie udzielenia informacji służy zażalenie do sądu drugiej instancji. § 2. Zażalenie obowiązanego w zakresie, w jakim powołuje się na prawo odmowy udzielenia informacji lub ochronę tajemnicy przedsiębiorstwa, sąd rozpoznaje na posiedzeniu niejawnym. Od uznania sądu zależy, czy na posiedzeniu wysłucha uprawnionego lub obowiązanego. § 3. Jeżeli obowiązany powołuje się na ochronę tajemnic ...\"}]",
+   "tool_call_id": "call_51c7d96268f1473e9150f764",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_a7ac03c53b03487597fd5f05",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2022_1233_art_11\", \"sejm_eli_du_2022_1233_art_18\", \"sejm_eli_du_2022_1233_art_23\"]}"
+     }
+    },
+    {
+     "id": "call_2461ff5757d546a3b663f570",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"know-how\", \"tajemnica przedsiębiorstwa\", \"klauzula poufności\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo dostępne dla takich osób, o ile uprawniony do korzystania z informacji lub rozporządzania nimi podjął, przy zachowaniu należytej staranności, działania w celu utrzymania ich w poufności. 3. Pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji, w szczególności gdy następuje bez zgody uprawnionego do korzystania z informacji lub rozporządzania nimi i wynika z nieuprawnionego dostępu, przywłaszczenia, kopiowania dokumentów, przedmiotów, materiałów, substancji, plików elektronicznych obejmujących te informacje lub umożliwiających wnioskowanie o ich treści. 4. Wykorzystanie lub ujawnienie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji, w szczególności gdy następuje bez zgody uprawnionego do korzystania z informacji lub rozporządzania nimi i narusza obowiązek ograniczenia ich wykorzystywania lub ujawniania wynikający z ustawy, czynności prawnej lub z innego aktu albo gdy zostało dokonane przez osobę, która pozyskała te informacje, dokonując czynu nieuczciwej konkurencji. 5. Ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji także wówczas, gdy w chwili ich ujawnienia, wykorzystania lub pozyskania osoba wiedziała lub przy zachowaniu należytej staranności mogła wiedzieć, że informacje zostały pozyskane bezpośrednio lub pośrednio od tego, kto wykorzystał lub ujawnił je w okolicznościach określonych w ust. 4. 6. Wykorzystywanie informacji stanowiących tajemnicę przedsiębiorstwa polegające na produkowaniu, oferowaniu, wprowadzaniu do obrotu, a także przywozie, wywozie i przechowywaniu w tych celach towarów stanowi czyn nieuczciwej konkurencji, jeżeli osoba dokonująca wskazanej czynności wiedziała lub przy zachowaniu należytej staranności mogła wiedzieć o tym, że właściwości towarów, w tym estetyczne lub funkcjonalne, proces ich wytwarzania lub zbywania zostały w znacznym stopniu ukształtowane w następstwie czynu określonego w ust. 1, dokonanego w okolicznościach określonych w ust. 4. 7. Pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa nie stanowi czynu nieuczciwej konkurencji, jeżeli nastąpiło w wyniku niezależnego odkrycia lub wytworzenia albo obserwacji, badania, rozłożenia na części, testowania przedmiotu dostępnego publicznie lub posiadanego zgodnie z prawem przez osobę, która pozyskała informacje i której uprawnienie do pozyskania informacji nie było ograniczone w chwili ich pozyskania. 8. Ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa nie stanowi czynu nieuczciwej konkurencji, gdy nastąpiło w celu ochrony uzasadnionego interesu chronionego prawem, w ramach korzystania ze swobody wypowiedzi lub w celu ujawnienia nieprawidłowości, uchybienia, działania z naruszeniem prawa dla ochrony interesu publicznego, lub gdy ujawnienie informacji stanowiących tajemnicę przedsiębiorstwa wobec przedstawicieli pracowników w związku z pełnieniem przez nich funkcji na podstawie przepisów prawa było niezbędne dla prawidłowego wykonywania tych funkcji.\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 18. 1. W razie dokonania czynu nieuczciwej konkurencji, przedsiębiorca, którego interes został zagrożony lub naruszony, może żądać: 1) zaniechania niedozwolonych działań; 2) usunięcia skutków niedozwolonych działań; 3) złożenia jednokrotnego lub wielokrotnego oświadczenia odpowiedniej treści i w odpowiedniej formie; 4) naprawienia wyrządzonej szkody, na zasadach ogólnych; 5) wydania bezpodstawnie uzyskanych korzyści, na zasadach ogólnych; 6) zasądzenia odpowiedniej sumy pieniężnej na określony cel społeczny związany ze wspieraniem kultury polskiej lub ochroną dziedzictwa narodowego - jeżeli czyn nieuczciwej konkurencji był zawiniony. 1a. Przepis ust. 1 pkt 4 nie ma zastosowania do czynów nieuczciwej konkurencji stanowiących naruszenie prawa konkurencji w rozumieniu ustawy z dnia 21 kwietnia 2017 r. o roszczeniach o naprawienie szkody wyrządzonej przez naruszenie prawa konkurencji ( Dz. U. poz. 1132 ) , do których stosuje się przepisy wymienionej ustawy. 2. Sąd, na wniosek uprawnionego, może orzec również o wyrobach, ich opakowaniach, materiałach reklamowych i innych przedmiotach bezpośrednio związanych z popełnieniem czynu nieuczciwej konkurencji. W szczególności sąd może orzec ich zniszczenie lub zaliczenie na poczet odszkodowania. 3. W razie dokonania czynu nieuczciwej konkurencji polegającego na naruszeniu tajemnicy przedsiębiorstwa sąd, na wniosek uprawnionego, może zobowiązać pozwanego do podania do publicznej wiadomości informacji o wyroku albo treści wyroku, w oznaczony sposób i w oznaczonym zakresie, jeżeli jest to uzasadnione ze względu na okoliczności dokonania czynu nieuczciwej konkurencji, w szczególności sposób dokonania czynu, wartość informacji, których dotyczył czyn, skutek czynu oraz prawdopodobieństwo dokonania czynu nieuczciwej konkurencji w przyszłości, a w przypadku, jeżeli pozwanym jest osoba fizyczna - jeżeli dodatkowo nie sprzeciwia się temu uzasadniony interes pozwanego, w szczególności wzgląd na ochronę jego dóbr osobistych. Sposób i zakres podania do publicznej wiadomości informacji o wyroku albo treści wyroku nie może prowadzić do ujawnienia tajemnicy przedsiębiorstwa. 4. W razie dokonania czynu nieuczciwej konkurencji polegającego na naruszeniu tajemnicy przedsiębiorstwa sąd, zamiast uwzględnienia żądania określonego w ust. 1 pkt 1 lub 2 lub ust. 2, może, na wniosek pozwanego, zobowiązać go do zapłaty na rzecz powoda stosownego wynagrodzenia, w wysokości nie wyższej niż wynagrodzenie, które w chwili jego dochodzenia byłoby należne tytułem udzielenia przez uprawnionego zgody na korzystanie z informacji, przez czas nie dłuższy niż do ustania stanu tajemnicy, jeżeli: 1) pozwany w chwili wykorzystywania lub ujawniania informacji stanowiących tajemnicę przedsiębiorstwa nie wiedział ani przy zachowaniu należytej staranności nie mógł wiedzieć, że informacje te pozyskano od osoby, która je wykorzystała lub ujawniła w okolicznościach określonych w art. 11 ust. 4; 2) uwzględnienie żądania, o którym mowa w ust. 1 pkt 1, spowodowałoby dla pozwanego niewspółmierne szkody; 3) zobowiązanie do zapłaty wynagrodzenia nie narusza uzasadnionego interesu powoda. 5. W razie dokonania czynu nieuczciwej konkurencji polegającego na naruszeniu tajemnicy przedsiębiorstwa uprawniony może żądać, zamiast odszkodowania określonego w ust. 1 pkt 4, naprawienia szkody przez zapłatę sumy pieniężnej w wysokości odpowiadającej wynagrodzeniu, które w chwili jego dochodzenia byłoby należne tytułem udzielenia przez uprawnionego zgody na korzystanie z informacji stanowiących tajemnicę przedsiębiorstwa.\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 23. 1. Kto, wbrew ciążącemu na nim obowiązkowi w stosunku do przedsiębiorcy, ujawnia innej osobie lub wykorzystuje we własnej działalności gospodarczej informację stanowiącą tajemnicę przedsiębiorstwa, jeżeli wyrządza to poważną szkodę przedsiębiorcy, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. 2. Tej samej karze podlega, kto, uzyskawszy bezprawnie informację stanowiącą tajemnicę przedsiębiorstwa, ujawnia ją innej osobie lub wykorzystuje we własnej działalności gospodarczej. 3. Karze określonej w ust. 1 podlega, kto ujawnia lub wykorzystuje informację stanowiącą tajemnicę przedsiębiorstwa, z którą zapoznał się, biorąc udział w rozprawie lub w innych czynnościach postępowania sądowego dotyczącego roszczeń z tytułu czynu nieuczciwej konkurencji polegającego na naruszeniu tajemnicy przedsiębiorstwa albo przez dostęp do akt takiego postępowania, jeżeli w postępowaniu tym została wyłączona jawność rozprawy.\"}]",
+   "tool_call_id": "call_a7ac03c53b03487597fd5f05",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 33 . § 1. W postępowaniu przed sądem ochrony konkurencji i konsumentów chroni się tajemnicę przedsiębiorstwa oraz inne tajemnice podlegające ochronie na podstawie odrębnych przepisów. § 2. Sąd ochrony konkurencji i konsumentów może, w drodze postanowienia, ujawnić stronie postępowania sądowego informacje chronione w postępowaniu przed Prezesem Urzędu jako tajemnica przedsiębiorstwa drugiej strony tylko wtedy, gdy: 1) zmie ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0059_statute_b11238a6a94979cd\", \"source_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 479 33 . § 1. W postępowaniu przed sądem ochrony konkurencji i konsumentów chroni się tajemnicę przedsiębiorstwa oraz inne tajemnice podlegające ochronie na podstawie odrębnych przepisów. § 2. Sąd ochrony konkurencji i konsumentów może, w drodze postanowienia, ujawnić stronie postępowania sądowego informacje chronione w postępowaniu przed Prezesem Urzędu jako tajemnica przedsiębiorstwa drugiej strony tylko wtedy, gdy: 1) zmieniły się istotnie okoliczności będące podstawą wydania przez Prezesa Urzędu postanowienia ograniczającego prawo wglądu do materiału dowodowego załączonego przez stron ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_22b\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 22b. 1. Amortyzacji podlegają, z zastrzeżeniem art. 22c, nabyte od innego podmiotu, nadające się do gospodarczego wykorzystania w dniu przyjęcia do używania: 1) (uchylony) 2) spółdzielcze prawo do lokalu użytkowego, 3) (uchylony) 4) autorskie lub pokrewne prawa majątkowe, 5) licencje, 6) prawa określone w ustawie z dnia 30 czerwca 2000 r. - Prawo własności przemysłowej , 7) wartość stanowiąca równowartość uzyskanych informac ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_29\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 29. 1. Podatek dochodowy od uzyskanych na terytorium Rzeczypospolitej Polskiej przez osoby, o których mowa w art. 3 ust. 2a, przychodów: 1) z działalności określonej w art. 13 pkt 2 i 6-9 oraz z odsetek innych niż wymienione w art. 30a ust. 1, z praw autorskich lub z praw pokrewnych, z praw do projektów wynalazczych, znaków towarowych i wzorów zdobniczych, w tym również ze sprzedaży tych praw, z należności za udostępnienie t ...\"}]",
+   "tool_call_id": "call_2461ff5757d546a3b663f570",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Mam unikalną technologię produkcji, którą chcę udostępnić innej firmie, ale boję się, że ją ujawni. Potrzebuję umowy licencyjnej, która zabezpiży moje know-how przed zdradzeniem."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Opracowałem autorską metodę obróbki materiałów, która daje przewagę rynkową. Chcę udzielić licencji partnerowi z zagranicy, ale tylko na określony obsarz i czas. Koniecznie potrzebuję zapisów, które zobowiążą go do zachowania poufności całego know-how, nawet po zakończeniu współpracy, i przewidzą wysokie kary za wyciek. Jednocześnie chcę zachować prawo do samodzielnego korzystania z tej technologii."
+  }
+ ]
+}

@@ -1,0 +1,298 @@
+{
+ "run": 12,
+ "hint": "Reklamacja żądająca obniżenia ceny",
+ "scenario": "Reklamacja żądająca obniżenia ceny",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consumer complaint (reklamacja_konsumenta) template, specifically for a scenario where the consumer is demanding a price reduction (obniżenie ceny). I need to:\n\n1. First read the base template for reklamacja_konsumenta\n2. Then search for provisions relevant to price reduction in consumer complaints\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-66f7f04b-28aa-4d6b-a12d-448546b8997a",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"reklamacja_konsumenta\", \"query\": \"reklamacja żądająca obniżenia ceny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Żądanie obniżenia ceny z tytułu rękojmi\\nŻądanie obniżenia ceny z tytułu rękojmi w Polsce to formalne oświadczenie woli kupującego, skierowane do sprzedawcy, w którym kupujący wykonuje jedno z uprawnień przysługujących mu z tytułu rękojmi za wady — żądanie proporcjonalnego obniżenia ceny zapłaconej za towar dotknięty wadą fizyczną lub prawną. Podstawę prawną stanowi art. 560 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) w ramach szerszej instytucji rękojmi za wady uregulowanej w art. 556-576 Kodeksu cywilnego.\\n\\nZgodnie z art. 560 § 1 Kodeksu cywilnego jeżeli rzecz sprzedana ma wadę, kupujący może złożyć oświadczenie o obniżeniu ceny albo o odstąpieniu od umowy, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności wymieni rzecz wadliwą na wolną od wad albo wadę usunie. Od umowy nie można odstąpić, jeżeli wada jest nieistotna. Art. 560 § 3 Kodeksu cywilnego precyzuje sposób obliczania obniżonej ceny: obniżona cena powinna pozostawać w takiej proporcji do ceny wynikającej z umowy, w jakiej wartość rzeczy z wadą pozostaje do wartości rzeczy bez wady.\\n\\nŻądanie obniżenia ceny jest alternatywą dla odstąpienia od umowy — mniej radykalnym, ale równie skutecznym środkiem dochodzenia praw. Kupujący, który nie chce rezygnować z towaru (np. sprzęt jest używany, naprawiono by tylko kosmetyczne uszkodzenie, albo kupujący potrzebuje produktu), może wybrać obniżenie ceny. Różnica między zapłaconą ceną a obniżoną — czyli kwota obniżenia — powinna zostać zwrócona kupującemu przez sprzedawcę. Przy wadzie nieistotnej, gdy nie można odstąpić od umowy, żądanie obniżenia ceny jest często jedynym skutecznym uprawnieniem obok naprawy i wymiany.\\n\\nInstytucja rękojmi jest odpowiedzialnością ustawową sprzedawcy — przysługuje z mocy prawa i nie wymaga żadnych dodatkowych umów ani opłat. Sprzedawca odpowiada z tytułu rękojmi, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną w rozumieniu art. 556 Kodeksu cywilnego. Wadą fizyczną jest niezgodność rzeczy z umową w rozumieniu art. 556¹ KC — brak właściwości, niezgodność z zapewnieniami sprzedawcy, niezdatność do wskazanego celu lub wydanie w stanie niezupełnym. Wadą prawną jest sytuacja, gdy rzecz jest cudzą własnością lub obciążona cudzym prawem.\\n\\nTermin rękojmi wynosi dwa lata od wydania rzeczy kupującemu (art. 568 KC). W obrocie konsumenckim pierwsze 12 miesięcy objęte jest domniemaniem z art. 556² KC: wada stwierdzona w tym czasie uważana jest za istniejącą w chwili przejścia niebezpieczeństwa, co odwraca ciężar dowodu na sprzedawcę. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) nadzoruje przestrzeganie praw konsumentów, a Sąd Rejonowy właściwy dla miejsca zamieszkania kupującego jest sądem pierwszej instancji w sprawach o roszczenia z tytułu rękojmi.\\n\\nŻądanie obniżenia ceny z tytułu rękojmi w Polsce jest potrzebne wówczas, gdy zakupiony towar ma wadę fizyczną lub prawną, a kupujący chce zachować towar i odzyskać część zapłaconej ceny proporcjonalną do wady, zamiast domagać się naprawy, wymiany lub odstąpienia od umowy.\\n\\nNajczęstsze sytuacje wymagające złożenia żądania obniżenia ceny: towar ma wadę, która nie uzasadnia odstąpienia od umowy ze względu na jej nieistotność (np. zarysowanie na obudowie produktu), ale wpływa na wartość i przydatność towaru; naprawienie wady przez sprzedawcę jest niemożliwe lub wymagałoby nadmiernych niedogodności dla kupującego; kupujący już skorzystał z prawa do naprawy lub wymiany, a sprzedawca nie wywiązał się z tego obowiązku; kupujący potrzebuje towaru i nie może się obejść bez niego przez czas naprawy; koszt naprawy jest znany (np. z niezależnej wyceny serwisowej) i stanowi dobrą podstawę do obliczenia kwoty obniżenia.\\n\\nDokument jest szczególnie użyteczny przy zakupach dóbr trwałych — mebli, sprzętu AGD, elektroniki, pojazdów — gdy towar ma usterkę, która obniża jego wartość rynkową lub utrudnia użytkowanie, ale kupujący nie chce rezygnować z towaru. Żądanie obniżenia ceny jest też właściwym instrumentem w sytuacji, gdy wada ujawniła się po pewnym czasie użytkowania i nie uniemożliwia całkowicie korzystania z towaru, lecz obniża jego wartość.\\n\\nJest też właściwe, gdy sprzedawca zaproponował naprawę, ale naprawa była nieskuteczna lub okazała się niemożliwa do wykonania w rozsądnym czasie. W takiej sytuacji kupujący może zmienić żądanie z naprawy na obniżenie ceny lub odstąpienie od umowy. Rzecznik Konsumentów i Sąd Rejonowy są właściwymi organami w razie odmowy sprzedawcy.\\n\\nPrawidłowe oświadczenie o żądaniu obniżenia ceny z tytułu rękojmi w Polsce powinno zawierać elementy pozwalające sprzedawcy na jednoznaczną identyfikację stron, umowy i podstawy roszczenia.\\n\\nOznaczenie kupującego: imię, nazwisko, adres, adres e-mail i numer rachunku bankowego do zwrotu kwoty obniżenia. Podanie rachunku bankowego umożliwia sprzedawcy bezpośredni przelew, co jest najwygodniejszą formą rozliczenia. Sprzedawca ma czternaście dni na wypłatę, zanim kupujący może skierować sprawę do sądu.\\n\\nOznaczenie sprzedawcy: pełna nazwa i adres sprzedawcy — podmiotu, który sprzedał towar. Żądanie z tytułu rękojmi zawsze kieruje się do sprzedawcy, a nie do producenta. W przypadku zakupu przez internet dane sprzedawcy widnieją w regulaminie i na fakturze.\\n\\nIdentyfikacja towaru: dokładne oznaczenie towaru, numer paragonu lub faktury, data zakupu lub wydania towaru oraz cena zapłacona. Data wydania jest kluczowa, ponieważ od niej biegnie dwuletni termin rękojmi z art. 568 Kodeksu cywilnego.\\n\\nOpis wady: szczegółowy opis, na czym polega wada fizyczna lub niezgodność z umową w rozumieniu art. 556¹ Kodeksu cywilnego. Im bardziej precyzyjny opis, tym łatwiej wykazać proporcję między wartością towaru z wadą a wartością towaru bez wady.\\n\\nKwota obniżenia i jej uzasadnienie: konkretna kwota, o jaką kupujący żąda obniżenia ceny, wraz z uzasadnieniem jej wysokości. Najlepszą podstawą jest kosztorys naprawy wystawiony przez niezależny serwis lub rzeczoznawcę, który bezpośrednio obrazuje obniżenie wartości towaru z powodu wady. Art. 560 § 3 Kodeksu cywilnego stanowi, że obniżona cena powinna pozostawać w takiej proporcji do ceny z umowy, w jakiej wartość rzeczy z wadą pozostaje do wartości rzeczy bez wady. Formularz dostępny na forms-legal.com ułatwia sporządzenie kompletnego oświadczenia. Należy wyraźnie wezwać sprzedawcę do zapłaty w terminie i zachować dowód złożenia oświadczenia.\\n\\nWypełnianie oświadczenia o żądaniu obniżenia ceny z tytułu rękojmi w Polsce zacznij od wpisania swoich danych jako kupującego — imienia, nazwiska, adresu i adresu e-mail. Wpisz też numer rachunku bankowego, na który sprzedawca powinien przelać kwotę obniżenia.\\n\\nW sekcji sprzedawcy wpisz pełną nazwę i adres podmiotu, od którego kupiłeś towar. Pamiętaj — żądanie kierujesz do sprzedawcy, nie do producenta. Jeżeli kupiłeś towar online, dane sprzedawcy znajdziesz na fakturze lub w regulaminie sklepu.\\n\\nW sekcji towaru opisz dokładnie zakupiony produkt, wpisz numer paragonu lub faktury oraz datę zakupu. W polu ceny wpisz kwotę, którą faktycznie zapłaciłeś.\\n\\nW opisie wady opisz precyzyjnie, na czym polega niezgodność towaru z umową — co jest nie tak z produktem, kiedy wada się ujawniła i jak wpływa na możliwość korzystania z towaru. Dobry opis wady to klucz do przekonującego żądania.\\n\\nWpisz kwotę obniżenia ceny, której żądasz, i uzasadnij ją — na przykład kosztorysem naprawy lub własnym oszacowaniem spadku wartości. Art. 560 § 3 Kodeksu cywilnego nakazuje, by obniżona cena pozostawała w proporcji: wartość towaru z wadą do wartości towaru bez wady. Uzupełnij miejscowość i datę, złóż podpis. Wyślij pismo listem poleconym lub złóż w sklepie za potwierdzeniem — zachowaj dowód. Sprzedawca powinien odpowiedzieć i zapłacić w ciągu czternastu dni.\\n\\nWymogi prawne żądania obniżenia ceny z tytułu rękojmi w Polsce wynikają z art. 556-568 Kodeksu cywilnego. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną (art. 556 KC). Wadą fizyczną jest niezgodność rzeczy z umową — brak właściwości, niezgodność z zapewnieniami sprzedawcy lub niezdatność do wskazanego celu (art. 556¹ KC).\\n\\nArt. 560 § 1 Kodeksu cywilnego przyznaje kupującemu prawo do złożenia oświadczenia o obniżeniu ceny. Sprzedawca może zablokować to uprawnienie, jeżeli niezwłocznie i bez nadmiernych niedogodności wymieni rzecz wadliwą na wolną od wad albo wadę usunie. Od umowy nie można odstąpić, jeżeli wada jest nieistotna, jednak żądanie obniżenia ceny dopuszczalne jest niezależnie od istotności wady.\\n\\nArt. 560 § 3 Kodeksu cywilnego określa mechanizm obliczania obniżonej ceny: proporcja wartości rzeczy z wadą do wartości rzeczy bez wady powinna odpowiadać proporcji obniżonej ceny do ceny umownej. W obrocie konsumenckim domniemanie z art. 556² Kodeksu cywilnego (wada stwierdzona przed upływem roku od wydania uważana jest za istniejącą w chwili przejścia niebezpieczeństwa) odwraca ciężar dowodu na sprzedawcę. Termin odpowiedzialności z tytułu rękojmi wynosi dwa lata od wydania rzeczy (art. 568 KC).\\n\\nBrak odpowiedzi sprzedawcy na żądanie konsumenta w terminie czternastu dni jest — w zakresie obniżenia ceny — uważany za uznanie żądania na podstawie regulacji konsumenckich. W razie odmowy lub braku reakcji kupujący może dochodzić roszczeń przed Sądem Rejonowym właściwym dla swojego miejsca zamieszkania (art. 27-46 Kodeksu postępowania cywilnego). Pomocą służą też miejski lub powiatowy rzecznik konsumentów i Urząd Ochrony Konkurencji i Konsumentów (UOKiK). Ewentualne odsetki za opóźnienie w spełnieniu świadczenia pieniężnego nalicza się na podstawie art. 481 Kodeksu cywilnego.\\n\\nNajczęstszy błąd przy żądaniu obniżenia ceny z tytułu rękojmi w Polsce polega na nieuzasadnieniu proponowanej kwoty. Samo stwierdzenie \\\"żądam obniżenia ceny o 1000 zł\\\" bez wyjaśnienia, skąd bierze się ta kwota, daje sprzedawcy łatwy argument do odmowy. Prawidłowe żądanie powinno wykazywać, że żądana kwota odpowiada różnicy wartości towaru z wadą i bez wady — na przykład poprzez powołanie się na kosztorys naprawy od niezależnego serwisu.\\n\\nKolejnym błędem jest żądanie obniżenia ceny po upływie terminu rękojmi. Odpowiedzialność sprzedawcy wygasa po dwóch latach od wydania towaru (art. 568 KC). Wysłanie żądania po terminie nie wywołuje żadnych skutków prawnych — warto zawsze sprawdzić datę wydania towaru przed wysłaniem pisma.\\n\\nCzęstym uchybieniem jest brak dowodu złożenia oświadczenia. Bez potwierdzenia nadania listem poleconym lub potwierdzenia przyjęcia pisma przez sprzedawcę kupujący nie może wykazać, kiedy oświadczenie zostało złożone, co ma kluczowe znaczenie dla ustalenia terminu zapłaty i ewentualnych odsetek za opóźnienie.\\n\\nBłędem jest żądanie zbyt wysokiego obniżenia ceny bez podstawy. Art. 560 § 3 Kodeksu cywilnego nakazuje, by obniżona cena pozostawała w proporcji do wartości towaru z wadą i bez wady. Żądanie obniżenia ceny o 100% (tj. żądanie pełnego zwrotu) jest w istocie odstąpieniem od umowy, a nie obniżeniem ceny — te dwa uprawnienia różnią się skutkami prawnymi i warunkami ich wykonania.\\n\\nInnym uchybieniem jest nieuwzględnienie, że sprzedawca ma prawo zablokować żądanie obniżenia ceny, jeżeli niezwłocznie zaproponuje naprawę lub wymianę towaru. Kupujący nie może wówczas domagać się obniżenia ceny, jeżeli sprzedawca wyraźnie i realnie oferuje usunięcie wady bez nadmiernych niedogodności dla kupującego. Warto zatem w żądaniu wskazać, że kupujący jest otwarty na naprawę lub wymianę tylko pod warunkiem jej szybkiej realizacji — np. w terminie 14 dni.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/zadanie-obnizenia-ceny (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-66f7f04b-28aa-4d6b-a12d-448546b8997a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_84d075108f484f52acc33dd2",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"art. 560 Kodeksu cywilnego obniżenie ceny rękojmia proporcja wartości rzeczy z wadą do wartości rzeczy bez wady\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_78651d870b45429488039695",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 560 KC\", \"obniżenie ceny\", \"rękojmia\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_560\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 560. § 1. Jeżeli rzecz sprzedana ma wadę, kupujący może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności dla kupującego wymieni rzecz wadliwą na wolną od wad albo wadę usunie. Ograniczenie to nie ma zastosowania, jeżeli rzecz była już wymieniona lub naprawiana przez sprzedawcę albo sprzedawca nie uczynił zadość obowiązkowi wymiany rzeczy na wolną od wad lub usunięcia ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 2 . § 1. Kupujący, który wykonuje uprawnienia z tytułu rękojmi, jest obowiązany na koszt sprzedawcy dostarczyć rzecz wadliwą do miejsca oznaczonego w umowie sprzedaży, a gdy takiego miejsca nie określono w umowie - do miejsca, w którym rzecz została wydana kupującemu. § 2. Jeżeli ze względu na rodzaj rzeczy lub sposób jej zamontowania dostarczenie rzeczy przez kupującego byłoby nadmiernie utrudnione, kupujący obowiązany jest udostępnić rzecz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}]",
+   "tool_call_id": "call_84d075108f484f52acc33dd2",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_f00bfeb810029ff5\", \"source_id\": \"uokik_rejestr_klauzul_1659\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Biuro gwarantuje Uczestnikom, których reklamacje uznane zostaną za uzasadnione jedną z trzech możliwości do wyboru przez Klienta: 1) prawo bonifikaty przy zakupie kolejnych imprez organizowanych przez Biuro, 2) obniżenie ceny imprezy proporcjonalnie do wyrządzonej Uczestnikowi szkody, 3) świadczenie alternatywne.\"}, {\"chunk_id\": \"uokik_items:uokik_b702eb4e351e98d7\", \"source_id\": \"uokik_rejestr_klauzul_5821\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Obniżenie ceny sprzedaży przez Zamawiającego w wyniku negocjacji bez obecności Pośrednika nie wpływa na wysokość wynagrodzenia, prowizja będzie naliczana od ceny ofertowej\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43n\", \"source_id\": \"sejm_eli_du_2024_1796_art_43n\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43n. 1. Jeżeli treść cyfrowa lub usługa cyfrowa są niezgodne z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) doprowadzenie do zgodności treści cyfrowej lub usługi cyfrowej z umową jest niemożliwe albo wymaga nadmiernych kosztów stosownie do art. 43m ust. 2 i 3; 2) przedsiębiorca nie doprowadził treści cyfrowej lub usługi cyfrowej do zgodności z umową zgodnie z art. 43m ust. 4; 3) brak zgodnoś ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_48\", \"source_id\": \"sejm_eli_du_2025_24_art_48\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 48. 1. Jeżeli wynagrodzenie twórcy jest określone procentowo od ceny sprzedaży egzemplarzy utworu, a cena ta ulega podwyższeniu, twórcy należy się umówiony procent od egzemplarzy sprzedanych po podwyższonej cenie. 2. Jednostronne obniżenie ceny sprzedaży egzemplarzy przed upływem roku od przystąpienia do rozpowszechniania utworu nie wpływa na wysokość wynagrodzenia. Strony mogą przedłużyć ten termin. 25) W brzmieniu ustalonym przez art. 1 pkt 15 ustawy, o której mowa w odnośniku 2. 26) W brzmieniu ustalonym przez art.  ...\"}]",
+   "tool_call_id": "call_78651d870b45429488039695",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_3f880b9b19c04c5da22d9edf",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_560\", \"sejm_eli_du_2024_1796_art_43e\", \"sejm_eli_du_2024_1061_art_568\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_560\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 560. § 1. Jeżeli rzecz sprzedana ma wadę, kupujący może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności dla kupującego wymieni rzecz wadliwą na wolną od wad albo wadę usunie. Ograniczenie to nie ma zastosowania, jeżeli rzecz była już wymieniona lub naprawiana przez sprzedawcę albo sprzedawca nie uczynił zadość obowiązkowi wymiany rzeczy na wolną od wad lub usunięcia wady. § 2. (uchylony) § 3. Obniżona cena powinna pozostawać w takiej proporcji do ceny wynikającej z umowy, w jakiej wartość rzeczy z wadą pozostaje do wartości rzeczy bez wady. § 4. Kupujący nie może odstąpić od umowy, jeżeli wada jest nieistotna.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) brak zgodności towaru z umową jest na tyle istotny, że uzasadnia obniżenie ceny albo odstąpienie od umowy bez uprzedniego skorzystania ze środków ochrony określonych w art. 43d; 5) z oświadczenia przedsiębiorcy lub okoliczności wyraźnie wynika, że nie doprowadzi on towaru do zgodności z umową w rozsądnym czasie lub bez nadmiernych niedogodności dla konsumenta. 2. Obniżona cena musi pozostawać w takiej proporcji do ceny wynikającej z umowy, w jakiej wartość towaru niezgodnego z umową pozostaje do wartości towaru zgodnego z umową. 3. Przedsiębiorca zwraca konsumentowi kwoty należne wskutek skorzystania z prawa obniżenia ceny niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania oświadczenia konsumenta o obniżeniu ceny. 4. Konsument nie może odstąpić od umowy, jeżeli brak zgodności towaru z umową jest nieistotny. Domniemywa się, że brak zgodności towaru z umową jest istotny. 5. Jeżeli brak zgodności z umową dotyczy jedynie niektórych towarów dostarczonych na podstawie umowy konsument może odstąpić od umowy jedynie w odniesieniu do tych towarów, a także w odniesieniu do innych towarów nabytych przez konsumenta wraz z towarami niezgodnymi z umową, jeżeli nie można rozsądnie oczekiwać, aby konsument zgodził się zatrzymać wyłącznie towary zgodne z umową. 6. W razie odstąpienia od umowy konsument niezwłocznie zwraca towar przedsiębiorcy na jego koszt. Przedsiębiorca zwraca konsumentowi cenę niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania towaru lub dowodu jego odesłania. 7. Przedsiębiorca dokonuje zwrotu ceny przy użyciu takiego samego sposobu zapłaty, jakiego użył konsument, chyba że konsument wyraźnie zgodził się na inny sposób zwrotu, który nie wiąże się dla niego z żadnymi kosztami.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568 1 . Jeżeli określony przez sprzedawcę lub producenta termin przydatności rzeczy do użycia kończy się po upływie dwóch lat od dnia wydania rzeczy kupującemu, sprzedawca odpowiada z tytułu rękojmi za wady fizyczne tej rzeczy stwierdzone przed upływem tego terminu. Przepis art. 568 § 6 stosuje się.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call_3f880b9b19c04c5da22d9edf",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I now have the key statutory provisions. Let me also search for more specific provisions about the 14-day deadline for price reduction (art. 561^5 KC) and the presumption under art. 556^2 KC.",
+   "tool_calls": [
+    {
+     "id": "call-e1ef1b85-3ba6-40cd-8524-8e8a8a509279",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_561\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call-e1ef1b85-3ba6-40cd-8524-8e8a8a509279",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# ŻĄDANIE OBNIŻENIA CENY Z TYTUŁU RĘKOJMI ORAZ PRAW KONSUMENTA\n\n**Miejscowość, data:** ..............................................\n\n## 1. DANE KUPUJĄCEGO (KONSUMENTA)\nImię i nazwisko: ..................................................................................\nAdres zamieszkania: ..................................................................................\nAdres e-mail: ..................................................................................\nNumer telefonu: ..................................................................................\nNumer rachunku bankowego do zwrotu kwoty obniżenia: ..................................................................................\n\n## 2. DANE SPRZEDAWCY\nNazwa/imię i nazwisko: ..................................................................................\nAdres siedziby/miejsca prowadzenia działalności: ..................................................................................\nNIP: ..................................................................................\n\n## 3. IDENTYFIKACJA TOWARU I UMOWY\nNazwa towaru: ..................................................................................\nMarka/model/rodzaj: ..................................................................................\nNumer seryjny (jeśli dotyczy): ..................................................................................\nNumer paragonu/faktury: ..................................................................................\nData zakupu/wydania towaru: ..................................................................................\nCena zapłacona za towar: .................................................................................. PLN\nSposób zakupu: ☐ stacjonarnie ☐ online (platforma: ..................................................................................)\n\n## 4. OPIS WADY\nSzczegółowy opis wady fizycznej/prawnej (niedogodności, objawy, moment ujawnienia się wady, wpływ na użytkowanie):\n\n..................................................................................\n..................................................................................\n..................................................................................\n..................................................................................\n\nWada dotyczy: ☐ całości towaru ☐ części towaru (której: ..................................................................................)\n\n## 5. PODSTAWA PRAWNA\nNiniejsze żądanie opieram na następujących przepisach:\n\n1. **Art. 556 Kodeksu cywilnego (KC)** – sprzedawca odpowiada wobec kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\n2. **Art. 556¹ KC** – wada fizyczna to niezgodność rzeczy z umową: brak właściwości, niezgodność z zapewnieniami sprzedawcy, niezdatność do celu lub wydanie w stanie niezupełnym.\n3. **Art. 556² KC** – w obrocie konsumenckim wada stwierdzona przed upływem 12 miesięcy od wydania rzeczy uważa się za istniejącą w chwili przejścia niebezpieczeństwa (domniemanie na korzyść konsumenta).\n4. **Art. 560 § 1 KC** – jeżeli rzecz sprzedana ma wadę, kupujący może złożyć oświadczenie o obniżeniu ceny, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności wymieni rzecz na wolną od wad albo wadę usunie. Ograniczenie to nie ma zastosowania, jeżeli rzecz była już wymieniana/naprawiana lub sprzedawca nie wykonał obowiązku.\n5. **Art. 560 § 3 KC** – obniżona cena powinna pozostawać w takiej proporcji do ceny umownej, w jakiej wartość rzeczy z wadą pozostaje do wartości rzeczy bez wady.\n6. **Art. 560 § 4 KC** – od umowy nie można odstąpić, jeżeli wada jest nieistotna, jednak żądanie obniżenia ceny przysługuje niezależnie od istotności wady.\n7. **Art. 561⁵ KC** – jeżeli kupujący-konsument złoży oświadczenie o obniżeniu ceny, określając kwotę, a sprzedawca nie ustosunkuje się do żądania w terminie 14 dni, uważa się, że żądanie to uznał za uzasadnione.\n8. **Art. 568 KC** – odpowiedzialność z tytułu rękojmi trwa 2 lata od dnia wydania rzeczy kupującemu.\n9. **Art. 43e ustawy o prawach konsumenta** – konsument może żądać obniżenia ceny, gdy przedsiębiorca nie doprowadził towaru do zgodności z umową; obniżona cena musi zachować proporcję wartości (ust. 2), a zwrot nastąpi nie później niż w 14 dni od otrzymania oświadczenia (ust. 3).\n\n## 6. KWOTA ŻĄDANEJ OBNIŻENIA CENY I JEJ UZASADNIENIE\nŻądam obniżenia ceny o kwotę: **.................................................................................. PLN**\n\nObniżona cena wynosiłaby zatem: **.................................................................................. PLN**\n\n**Uzasadnienie wysokości kwoty (zgodnie z art. 560 § 3 KC i art. 43e ust. 2 ustawy o prawach konsumenta):**\n\n☐ Kosztorys naprawy wystawiony przez niezależny serwis/rzeźbiarza (załącznik nr ............)\n☐ Własne oszacowanie spadku wartości towaru z powodu wady (opis: ..................................................................................)\n☐ Inna podstawa: ..................................................................................\n\nProporcja: Wartość towaru z wadą do wartości towaru bez wady = Kwota obniżonej ceny do ceny umownej.\n\n## 7. WEZWANIE DO ZAPŁATY\nNa podstawie powyższych przepisów **wezwam do zwrotu kwoty obniżenia ceny w wysokości .................................................................................. PLN na wskazany rachunek bankowy w terminie 14 dni kalendarzowych od dnia otrzymania niniejszego pisma** (art. 561⁵ KC, art. 43e ust. 3 ustawy o prawach konsumenta).\n\nW przypadku braku odpowiedzi w terminie 14 dni, zgodnie z art. 561⁵ KC, uważa się, że żądanie to zostało uznane za uzasadnione.\n\n## 8. ZASTRZEŻENIA I NASTĘPSTWA BRAKU REAKCJI\n1. Zastrzegam prawo do dochodzenia roszczenia drodą sądową przed Sądem Rejonowym właściwym dla mojego miejsca zamieszkania (art. 27–46 KPC).\n2. W przypadku opóźnienia zapłaty naliczę odsetki ustawowe za opóźnienie na podstawie art. 481 KC.\n3. Zastrzegam prawo do zgłoszenia sprawy do Miejskiego/Powiatowego Rzecznika Konsumentów oraz Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\n4. Niniejsze pismo nie wyczerpuje moich uprawnień z tytułu rękojmi (naprawa, wymiana, odstąpienie od umowy) ani gwarancji, jeśli została udzielona.\n\n## 9. ZAŁĄCZNIKI\n☐ Kopia paragonu/faktury\n☐ Zdjęcia wady\n☐ Kosztorys naprawy / opinia ekspercka\n☐ Korespondencja ze sprzedawcą (jeśli była)\n☐ Inne: ..................................................................................\n\n## 10. PODPIS\n\n..................................................................................\n(podpis kupującego)\n\n---\n\n**INSTRUKCJA DOSTARCZENIA:**\n1. Pismo wysylij listem poleconym z potwierdzeniem odbioru lub złóż osobiście w siedzibie sprzedawcy pod podpisem w dwóch egzemplarzach (jeden dla sprzedawcy, jeden dla Ciebie z potwierdzeniem odbioru).\n2. Zachowaj dowód nadania/odbioru – jest kluczowy dla ustalenia terminu 14-dniowego i ewentualnych odsetek.\n3. Termin rękojmi: 2 lata od daty wydania towaru (art. 568 KC). Sprawdź, czy nie upłynął.\n4. Jeśli wada ujawniła się w ciągu 12 miesięcy od wydania – korzystasz z domniemania art. 556² KC (ciężar dowodu na sprzedawcy).\n\n---\n\n*Formularz oparty na przepisach Kodeksu cywilnego (art. 556–568) oraz ustawie o prawach konsumenta (art. 43e). Źródło wzoru: forms-legal.com (CC-BY-4.0).*",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# ŻĄDANIE OBNIŻENIA CENY Z TYTUŁU RĘKOJMI ORAZ PRAW KONSUMENTA\n\n**Miejscowość, data:** ..............................................\n\n## 1. DANE KUPUJĄCEGO (KONSUMENTA)\nImię i nazwisko: ..................................................................................\nAdres zamieszkania: ..................................................................................\nAdres e-mail: ..................................................................................\nNumer telefonu: ..................................................................................\nNumer rachunku bankowego do zwrotu kwoty obniżenia: ..................................................................................\n\n## 2. DANE SPRZEDAWCY\nNazwa/imię i nazwisko: ..................................................................................\nAdres siedziby/miejsca prowadzenia działalności: ..................................................................................\nNIP: ..................................................................................\n\n## 3. IDENTYFIKACJA TOWARU I UMOWY\nNazwa towaru: ..................................................................................\nMarka/model/rodzaj: ..................................................................................\nNumer seryjny (jeśli dotyczy): ..................................................................................\nNumer paragonu/faktury: ..................................................................................\nData zakupu/wydania towaru: ..................................................................................\nCena zapłacona za towar: .................................................................................. PLN\nSposób zakupu: ☐ stacjonarnie ☐ online (platforma: ..................................................................................)\n\n## 4. OPIS WADY\nSzczegółowy opis wady fizycznej/prawnej (niedogodności, objawy, moment ujawnienia się wady, wpływ na użytkowanie):\n\n..................................................................................\n..................................................................................\n..................................................................................\n..................................................................................\n\nWada dotyczy: ☐ całości towaru ☐ części towaru (której: ..................................................................................)\n\n## 5. PODSTAWA PRAWNA\nNiniejsze żądanie opieram na następujących przepisach:\n\n1. **Art. 556 Kodeksu cywilnego (KC)** – sprzedawca odpowiada wobec kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\n2. **Art. 556¹ KC** – wada fizyczna to niezgodność rzeczy z umową: brak właściwości, niezgodność z zapewnieniami sprzedawcy, niezdatność do celu lub wydanie w stanie niezupełnym.\n3. **Art. 556² KC** – w obrocie konsumenckim wada stwierdzona przed upływem 12 miesięcy od wydania rzeczy uważa się za istniejącą w chwili przejścia niebezpieczeństwa (domniemanie na korzyść konsumenta).\n4. **Art. 560 § 1 KC** – jeżeli rzecz sprzedana ma wadę, kupujący może złożyć oświadczenie o obniżeniu ceny, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności wymieni rzecz na wolną od wad albo wadę usunie. Ograniczenie to nie ma zastosowania, jeżeli rzecz była już wymieniana/naprawiana lub sprzedawca nie wykonał obowiązku.\n5. **Art. 560 § 3 KC** – obniżona cena powinna pozostawać w takiej proporcji do ceny umownej, w jakiej wartość rzeczy z wadą pozostaje do wartości rzeczy bez wady.\n6. **Art. 560 § 4 KC** – od umowy nie można odstąpić, jeżeli wada jest nieistotna, jednak żądanie obniżenia ceny przysługuje niezależnie od istotności wady.\n7. **Art. 561⁵ KC** – jeżeli kupujący-konsument złoży oświadczenie o obniżeniu ceny, określając kwotę, a sprzedawca nie ustosunkuje się do żądania w terminie 14 dni, uważa się, że żądanie to uznał za uzasadnione.\n8. **Art. 568 KC** – odpowiedzialność z tytułu rękojmi trwa 2 lata od dnia wydania rzeczy kupującemu.\n9. **Art. 43e ustawy o prawach konsumenta** – konsument może żądać obniżenia ceny, gdy przedsiębiorca nie doprowadził towaru do zgodności z umową; obniżona cena musi zachować proporcję wartości (ust. 2), a zwrot nastąpi nie później niż w 14 dni od otrzymania oświadczenia (ust. 3).\n\n## 6. KWOTA ŻĄDANEJ OBNIŻENIA CENY I JEJ UZASADNIENIE\nŻądam obniżenia ceny o kwotę: **.................................................................................. PLN**\n\nObniżona cena wynosiłaby zatem: **.................................................................................. PLN**\n\n**Uzasadnienie wysokości kwoty (zgodnie z art. 560 § 3 KC i art. 43e ust. 2 ustawy o prawach konsumenta):**\n\n☐ Kosztorys naprawy wystawiony przez niezależny serwis/rzeźbiarza (załącznik nr ............)\n☐ Własne oszacowanie spadku wartości towaru z powodu wady (opis: ..................................................................................)\n☐ Inna podstawa: ..................................................................................\n\nProporcja: Wartość towaru z wadą do wartości towaru bez wady = Kwota obniżonej ceny do ceny umownej.\n\n## 7. WEZWANIE DO ZAPŁATY\nNa podstawie powyższych przepisów **wezwam do zwrotu kwoty obniżenia ceny w wysokości .................................................................................. PLN na wskazany rachunek bankowy w terminie 14 dni kalendarzowych od dnia otrzymania niniejszego pisma** (art. 561⁵ KC, art. 43e ust. 3 ustawy o prawach konsumenta).\n\nW przypadku braku odpowiedzi w terminie 14 dni, zgodnie z art. 561⁵ KC, uważa się, że żądanie to zostało uznane za uzasadnione.\n\n## 8. ZASTRZEŻENIA I NASTĘPSTWA BRAKU REAKCJI\n1. Zastrzegam prawo do dochodzenia roszczenia drodą sądową przed Sądem Rejonowym właściwym dla mojego miejsca zamieszkania (art. 27–46 KPC).\n2. W przypadku opóźnienia zapłaty naliczę odsetki ustawowe za opóźnienie na podstawie art. 481 KC.\n3. Zastrzegam prawo do zgłoszenia sprawy do Miejskiego/Powiatowego Rzecznika Konsumentów oraz Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\n4. Niniejsze pismo nie wyczerpuje moich uprawnień z tytułu rękojmi (naprawa, wymiana, odstąpienie od umowy) ani gwarancji, jeśli została udzielona.\n\n## 9. ZAŁĄCZNIKI\n☐ Kopia paragonu/faktury\n☐ Zdjęcia wady\n☐ Kosztorys naprawy / opinia ekspercka\n☐ Korespondencja ze sprzedawcą (jeśli była)\n☐ Inne: ..................................................................................\n\n## 10. PODPIS\n\n..................................................................................\n(podpis kupującego)\n\n---\n\n**INSTRUKCJA DOSTARCZENIA:**\n1. Pismo wysylij listem poleconym z potwierdzeniem odbioru lub złóż osobiście w siedzibie sprzedawcy pod podpisem w dwóch egzemplarzach (jeden dla sprzedawcy, jeden dla Ciebie z potwierdzeniem odbioru).\n2. Zachowaj dowód nadania/odbioru – jest kluczowy dla ustalenia terminu 14-dniowego i ewentualnych odsetek.\n3. Termin rękojmi: 2 lata od daty wydania towaru (art. 568 KC). Sprawdź, czy nie upłynął.\n4. Jeśli wada ujawniła się w ciągu 12 miesięcy od wydania – korzystasz z domniemania art. 556² KC (ciężar dowodu na sprzedawcy).\n\n---\n\n*Formularz oparty na przepisach Kodeksu cywilnego (art. 556–568) oraz ustawie o prawach konsumenta (art. 43e). Źródło wzoru: forms-legal.com (CC-BY-4.0).*",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem towar, który ma wadę i chcę żądać obniżenia ceny. Jak mogę to zrobić formalnie?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Kupiłem laptopa dwa miesiące temu w sklepie stacjonarnym i od początku ma problemy z przegrzewaniem się i głośnym chłodzeniem. Serwis potwierdził wadę konstrukcyjną, ale sprzedawca nie chce wymienić sprzętu ani zwrócić pieniędzy. Chcę wysłać oficjalne pismo z żądaniem obniżenia ceny o konkretną kwotę i terminem do zapłaty. Potrzebuję wzoru takiego pisma, w którym wpiszę swoje dane, dane sklepu, opis wady i kwotę, o jaką chcę obniżyć cenę."
+  }
+ ]
+}

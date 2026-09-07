@@ -1,0 +1,326 @@
+{
+ "run": 27,
+ "hint": "Pożyczka podlegająca PCC (zgłoszenie PCC-3 przez pożyczkobiorcę)",
+ "scenario": "Pożyczka podlegająca PCC (zgłoszenie PCC-3 przez pożyczkobiorcę)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_pozyczki'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a loan agreement (umowa_pozyczki) that is subject to PCC (podatek od czynności cywilnoprawnych) with the borrower filing PCC-3. Let me start by reading the base template and then search for relevant provisions about PCC, tax exemptions, and related matters.",
+   "tool_calls": [
+    {
+     "id": "call-f5991485-f0fa-4765-bd2f-91d38dff96d2",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"pożyczka podlegająca PCC zgłoszenie PCC-3 przez pożyczkobiorcę\", \"doc_type\": \"umowa_pozyczki\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa pożyczki rodzinnej\\nUmowa pożyczki rodzinnej w Polsce to umowa pożyczki pieniężnej zawierana między osobami połączonymi więzami rodzinnymi lub pokrewieństwa, uregulowana w art. 720-724 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przy czym strony korzystają ze szczególnych preferencji podatkowych wynikających z ustawy z dnia 9 września 2000 r. o podatku od czynności cywilnoprawnych (Dz.U. 2023 poz. 170 ze zm.). Przez umowę pożyczki dający pożyczkę zobowiązuje się przenieść na własność biorącego określoną ilość pieniędzy, a biorący zobowiązuje się zwrócić tę samą ilość pieniędzy (art. 720 § 1 KC). Cechą wyróżniającą pożyczkę rodzinną jest podmiotowy charakter transakcji — przynajmniej jedna ze stron należy do bliskiej rodziny drugiej.\\n\\nZgodnie z art. 720 § 2 Kodeksu cywilnego umowa pożyczki, której wartość przekracza tysiąc złotych, wymaga zachowania formy dokumentowej dla celów dowodowych (ad probationem). Jest to forma zastrzeżona jedynie do celów dowodowych — niezachowanie jej nie powoduje nieważności, lecz w razie sporu sądowego istotnie utrudnia wykazanie treści zobowiązania. Forma dokumentowa jest spełniona m.in. przez pisemną umowę podpisaną przez obie strony, ale też przez wiadomość e-mail czy SMS, jeżeli możliwa jest identyfikacja nadawcy i zapoznanie się z treścią.\\n\\nPożyczka rodzinna różni się od pożyczki bankowej i kredytu konsumenckiego. Pożyczka bankowa jest objęta regulacją ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe i może być udzielana wyłącznie przez bank lub instytucję kredytową. Kredyt konsumencki objęty ustawą z dnia 12 maja 2011 r. o kredycie konsumenckim dotyczy wyłącznie pożyczek udzielanych przez przedsiębiorców konsumentom i wymaga podania rzeczywistej rocznej stopy oprocentowania (RRSO) oraz umieszczenia formularza informacyjnego. Pożyczka rodzinna między osobami fizycznymi nieprowadzącymi działalności pożyczkowej nie podlega nadzorowi Komisji Nadzoru Finansowego (KNF) ani przepisom o RRSO, choć regulują ją ograniczenia odsetek maksymalnych z Kodeksu cywilnego.\\n\\nKluczową cechą pożyczki rodzinnej jest możliwość skorzystania ze zwolnienia z podatku od czynności cywilnoprawnych (PCC). Zgodnie z art. 9 pkt 10 lit. b ustawy o podatku od czynności cywilnoprawnych pożyczka udzielona przez osobę należącą do I grupy podatkowej (małżonek, zstępni, wstępni, pasierb, rodzeństwo, ojczym, macocha) jest zwolniona od podatku PCC wynoszącego co do zasady 0,5 procent kwoty pożyczki — pod warunkiem że: (1) fakt otrzymania pożyczki został udokumentowany dowodem przekazania na rachunek bankowy, rachunek prowadzony przez spółdzielczą kasę oszczędnościowo-kredytową lub przekazem pocztowym; (2) pożyczka zostanie zgłoszona do właściwego naczelnika urzędu skarbowego (Krajowa Administracja Skarbowa, KAS) na formularzu PCC-3 w terminie 14 dni od daty jej zawarcia. Spełnienie obu warunków jest konieczne — brak przelewu lub brak zgłoszenia w terminie wyłącza zwolnienie.\\n\\nOdsetki przy pożyczkach rodzinnych są kwestią wyboru stron. Odsetki kapitałowe należą się jedynie, gdy strony tak postanowiły (art. 359 § 1 KC) — pożyczka nieoprocentowana jest w pełni dopuszczalna i powszechna w obrocie rodzinnym. Odsetki nie mogą przekraczać odsetek maksymalnych, tj. dwukrotności odsetek ustawowych (art. 359 § 2¹ KC). Odsetki za opóźnienie reguluje art. 481 KC — wierzyciel może ich żądać za sam fakt opóźnienia, bez wykazywania szkody, w wysokości ustawowych odsetek za opóźnienie (stopa referencyjna NBP + 5,5 pkt proc.) lub według stawki umownej, nie wyższej niż odsetki maksymalne za opóźnienie (art. 481 § 2¹ KC).\\n\\nUznanie długu przez pożyczkobiorcę (art. 123 § 1 pkt 2 KC) przerywa bieg przedawnienia, co jest szczególnie istotne przy pożyczkach rodzinnych, gdzie spłata może się przeciągać przez lata. Roszczenie o zwrot pożyczki nie związanej z działalnością gospodarczą przedawnia się z upływem sześciu lat (art. 118 KC), przy czym termin liczy się od dnia wymagalności — przy pożyczkach bezterminowych od dnia, gdy dający pożyczkę mógł najwcześniej zażądać zwrotu.\\n\\nUmowa pożyczki rodzinnej w Polsce jest potrzebna za każdym razem, gdy jedna osoba z kręgu rodzinnego lub bliskich przekazuje drugiej środki pieniężne z obowiązkiem ich zwrotu i chce udokumentować warunki tej czynności dla celów podatkowych, prawnych i relacyjnych.\\n\\nDokument jest niezbędny do skorzystania ze zwolnienia z podatku od czynności cywilnoprawnych. Zgodnie z art. 9 pkt 10 lit. b ustawy z dnia 9 września 2000 r. o podatku od czynności cywilnoprawnych pożyczka w I grupie podatkowej korzysta ze zwolnienia z PCC (0,5 procent), jeżeli: strona przyjmująca pożyczkę udokumentuje jej otrzymanie dowodem przekazania na rachunek bankowy (przelew) lub przekazem pocztowym; pożyczka zostanie zgłoszona do urzędu skarbowego KAS na formularzu PCC-3 w terminie 14 dni od zawarcia umowy. Pisemna umowa jest kluczowym dowodem dla urzędu skarbowego i stanowi podstawę do złożenia PCC-3.\\n\\nDokument jest konieczny do odróżnienia pożyczki od darowizny. W razie braku dokumentów organ podatkowy — prowadząc postępowanie o nieujawnione źródła dochodu lub weryfikując przepływy na rachunku bankowym — może zakwalifikować przekazanie środków jako darowiznę i opodatkować ją podatkiem od spadków i darowizn. Pisemna umowa pożyczki z oznaczonym terminem zwrotu i dowodem faktycznej spłaty (historia rachunku bankowego) jest najskuteczniejszym sposobem obrony charakteru transakcji.\\n\\nDokument jest potrzebny przy pożyczkach na duże cele: zakup nieruchomości, remont, zakup samochodu lub wsparcie działalności gospodarczej. W postępowaniu kredytowym bank lub pożyczkodawca instytucjonalny może wymagać od przyszłego dłużnika ujawnienia zobowiązań wobec osób prywatnych. Pisemna umowa pożyczki rodzinnej może być wymagana przy ubieganiu się o hipotekę lub konsolidację długu, by bank mógł ocenić rzeczywiste zadłużenie.\\n\\nDokument jest niezbędny, gdy relacja rodzinna się komplikuje. Pożyczki bez dokumentów stają się przyczyną poważnych sporów rodzinnych, szczególnie po śmierci pożyczkodawcy, gdy spadkobiercy kwestionują istnienie lub warunki pożyczki. Pisemna umowa chroni interesy zarówno wierzyciela, jak i dłużnika — precyzując kwotę, termin, oprocentowanie i sposób zwrotu, usuwa pole do interpretacji.\\n\\nDokument jest konieczny, gdy pożyczka jest spłacana w ratach lub zabezpieczona. Przy długoterminowych pożyczkach na kilkanaście tysięcy złotych brak dokumentu rodzi ryzyko, że dłużnik zakwestionuje wysokość spłaty lub podniesie zarzut przedawnienia. Pisemna umowa z harmonogramem rat i klauzulą rygoru natychmiastowej wymagalności chroni wierzyciela i ułatwia dochodzenie roszczenia przed sądem rejonowym lub w elektronicznym postępowaniu upominawczym (e-sąd, Sąd Rejonowy Lublin-Zachód w Lublinie).\\n\\nPrawidłowa umowa pożyczki rodzinnej w Polsce powinna zawierać elementy wymagane przez Kodeks cywilny (art. 720 i nast.) oraz zapewniające spełnienie warunków podatkowych zwolnienia z PCC.\\n\\nOznaczenie stron: pełne imię i nazwisko, numer PESEL i adres zamieszkania pożyczkodawcy i pożyczkobiorcy. PESEL jest wymagany przy wypełnianiu formularza PCC-3 lub przy ewentualnym postępowaniu sądowym przed Sądem Rejonowym. Stopień pokrewieństwa między stronami ma kluczowe znaczenie podatkowe — I grupa (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha) korzysta ze zwolnienia z PCC.\\n\\nKwota pożyczki cyfrowo i słownie: np. \\\"50 000 zł (pięćdziesiąt tysięcy złotych)\\\". Forma słowna zapobiega sporom co do wysokości zobowiązania i jest standardem przy dokumentach kierowanych do urzędów.\\n\\nSposób wypłaty: przelew bankowy na rachunek pożyczkobiorcy (zalecany i wymagany dla zwolnienia z PCC) lub gotówka za pokwitowaniem. Przy przelewie należy wskazać numer rachunku pożyczkobiorcy. Tytuł przelewu powinien zawierać wyraźne wskazanie \\\"pożyczka — umowa z dnia [data]\\\" — pożyczkodawca powinien zachować potwierdzenie transakcji.\\n\\nTermin i sposób zwrotu: data lub harmonogram spłat, sposób zwrotu (przelew zwrotny lub gotówka), numer rachunku pożyczkodawcy. Przy spłacie ratalnej warto zastrzec klauzulę rygoru natychmiastowej wymagalności całości przy zaległości w spłacie dowolnej raty.\\n\\nOprocentowanie: wskazanie, czy pożyczka jest odpłatna (oprocentowana) czy nieodpłatna. Przy pożyczce oprocentowanej — stopa roczna z zastrzeżeniem, że nie przekracza odsetek maksymalnych (art. 359 § 2¹ KC). Odsetki ustawowe za opóźnienie (art. 481 KC) należą się z mocy prawa bez osobnego zastrzeżenia, o ile nie umówiono się inaczej.\\n\\nObowiązki podatkowe PCC: wzmianka o obowiązku zgłoszenia do urzędu skarbowego KAS na formularzu PCC-3 w terminie 14 dni i warunkach zwolnienia z PCC. Serwis forms-legal.com udostępnia wzór umowy pożyczki rodzinnej — przy kwotach powyżej 200 000 zł lub pożyczkach z zabezpieczeniem hipotecznym warto skonsultować dokument z radcą prawnym lub adwokatem.\\n\\nPodpisy stron i data zawarcia: umowę sporządza się w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron. Własnoręczne podpisy lub kwalifikowany podpis elektroniczny spełniają wymóg formy dokumentowej z art. 720 § 2 KC. Data zawarcia jest punktem startowym dla terminu zgłoszenia PCC-3 (14 dni).\\n\\nWypełnianie umowy pożyczki rodzinnej w Polsce zaczyna się od wpisania pełnych danych pożyczkodawcy: imię i nazwisko, PESEL, adres zamieszkania i numer rachunku bankowego, na który ma nastąpić zwrot. Analogicznie wpisz dane pożyczkobiorcy. Następnie wskaż stopień pokrewieństwa — to kluczowe dla późniejszego rozliczenia podatkowego PCC.\\n\\nW sekcji kwoty wpisz sumę cyfrowo i słownie (np. \\\"50 000 zł, słownie: pięćdziesiąt tysięcy złotych\\\"). Wskaż cel pożyczki — choć nie jest wymagany prawnie, wzmacnia wiarygodność dokumentu wobec urzędu skarbowego KAS. Wybierz sposób wypłaty — zalecany przelew bankowy na rachunek pożyczkobiorcy, gdyż jest bezwzględnie wymagany dla zwolnienia z PCC w I grupie podatkowej.\\n\\nOznacz datę wypłaty i termin zwrotu. Przy spłacie ratalnej opisz harmonogram w dedykowanym polu — np. \\\"10 rat miesięcznych po 5 000 zł, płatnych do 10. dnia każdego miesiąca, pierwsza rata 10.07.2026\\\". Przy braku oznaczonego terminu pożyczkobiorca musi oddać pożyczkę w ciągu 6 tygodni od wypowiedzenia przez pożyczkodawcę (art. 723 KC).\\n\\nW sekcji oprocentowania zdecyduj, czy pożyczka jest oprocentowana. Pożyczki rodzinne są często nieoprocentowane — wpisz \\\"nieoprocentowana\\\" lub zaznacz odpowiednią opcję. Przy oprocentowaniu podaj stopę roczną, kontrolując limit odsetek maksymalnych.\\n\\nPodpisz umowę w dwóch egzemplarzach w dniu wskazanym jako data zawarcia. Pożyczkobiorca powinien w ciągu 14 dni złożyć formularz PCC-3 w urzędzie skarbowym właściwym dla jego miejsca zamieszkania (KAS) — jeżeli spełnia warunki zwolnienia, zaznaczyć odpowiednią podstawę zwolnienia. Zachowaj potwierdzenie przelewu razem z umową — stanowi komplet dokumentów dla urzędu skarbowego.\\n\\nWymogi prawne umowy pożyczki rodzinnej w Polsce wynikają z Kodeksu cywilnego i przepisów podatkowych.\\n\\nForma: art. 720 § 2 Kodeksu cywilnego wymaga formy dokumentowej dla pożyczek o wartości powyżej tysiąca złotych — jest to forma zastrzeżona ad probationem (dla celów dowodowych), niezachowanie jej nie powoduje nieważności. Przy kwotach poniżej tysiąca złotych umowa może być zawarta ustnie.\\n\\nOdsetki maksymalne: art. 359 § 2¹ KC ogranicza odsetki kapitałowe do dwukrotności odsetek ustawowych (stopa referencyjna NBP + 3,5 pkt proc. × 2). Art. 481 § 2¹ KC ogranicza odsetki za opóźnienie do dwukrotności odsetek ustawowych za opóźnienie (stopa referencyjna NBP + 5,5 pkt proc. × 2). Postanowienia umowne przekraczające te limity są w nadwyżce bezskuteczne.\\n\\nPodatek od czynności cywilnoprawnych (PCC): pożyczki co do zasady podlegają podatkowi PCC w wysokości 0,5 procent kwoty pożyczki. Pożyczki w I grupie podatkowej korzystają ze zwolnienia (art. 9 pkt 10 lit. b ustawy z dnia 9 września 2000 r. o PCC), jeżeli: pieniądze zostały przekazane przelewem bankowym lub przekazem pocztowym; pożyczka została zgłoszona na formularzu PCC-3 w terminie 14 dni od zawarcia do urzędu skarbowego KAS właściwego dla pożyczkobiorcy.\\n\\nPrzedawnienie: roszczenia ogólne majątkowe przedawniają się z upływem sześciu lat (art. 118 KC). Uznanie długu (art. 123 § 1 pkt 2 KC) przerywa bieg przedawnienia — pisemne potwierdzenie zadłużenia przez pożyczkobiorcę jest skutecznym narzędziem zabezpieczającym wierzytelność. Sąd rejonowy bada przedawnienie roszczenia przeciwko konsumentowi z urzędu (art. 117 § 2¹ KC).\\n\\nNajczęstsze błędy przy umowie pożyczki rodzinnej w Polsce to przede wszystkim brak jakiegokolwiek dokumentu — wiele pożyczek rodzinnych zawieranych jest ustnie, co przy kwocie powyżej tysiąca złotych narusza wymóg formy dokumentowej z art. 720 § 2 KC i grozi niemożnością udowodnienia warunków przed Sądem Rejonowym.\\n\\nWypłata gotówką bez dokumentowania wpłaty na rachunek bankowy wyklucza możliwość skorzystania ze zwolnienia z podatku PCC przez pożyczkobiorcę z I grupy podatkowej. Art. 9 pkt 10 lit. b ustawy o PCC wymaga przelewu bankowego lub przekazu pocztowego — gotówka nie spełnia tego warunku.\\n\\nNiezłożenie formularza PCC-3 w terminie 14 dni od zawarcia pożyczki. Wiele rodzin nie wie, że nawet przy pożyczce niepodlegającej PCC (ze względu na zwolnienie) należy złożyć deklarację, aby zwolnienie było skuteczne. Urząd skarbowy KAS może naliczać odsetki od zaległości podatkowej.\\n\\nBrak oznaczenia terminu zwrotu pożyczki. Przy pożyczce bezterminowej roszczenie staje się wymagalne dopiero po wypowiedzeniu przez pożyczkodawcę, co może komplikować dochodzenie zwrotu w razie konfliktów rodzinnych. Oznaczenie terminu i sposobu spłaty eliminuje nieporozumienia.\\n\\nMylenie pożyczki z darowizną: rodzice, którzy chcą przekazać środki \\\"zwrotnie\\\", ale faktycznie nigdy nie zamierzają żądać zwrotu, ryzykują, że organ podatkowy zakwalifikuje transakcję jako darowiznę. Jeżeli pożyczka jest rzeczywiście planowana jako pożyczka, należy zadbać o faktyczną spłatę — dokumentowaną przelewami bankowymi — aby móc wykazać jej charakter przed urzędem skarbowym KAS lub Sądem Okręgowym.\\n\\nŹródło: https://forms-legal.com/pl/financial/loans/umowa-pozyczki-rodzinnej (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-f5991485-f0fa-4765-bd2f-91d38dff96d2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The base template provides comprehensive information about family loans and PCC exemptions. Now I need to search for more specific provisions about PCC-3 filing, the tax implications, and any additional legal requirements for loans subject to PCC where the borrower files PCC-3. Let me search for more specific legal provisions.",
+   "tool_calls": [
+    {
+     "id": "call-890d4fb2-a022-49e2-86c9-c4d65838625b",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 10, \"keywords\": [\"PCC-3\", \"podatek od czynności cywilnoprawnych\", \"art. 9 ustawa PCC\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-890d4fb2-a022-49e2-86c9-c4d65838625b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The keyword search didn't return results. Let me try semantic search for PCC-related provisions.",
+   "tool_calls": [
+    {
+     "id": "call-5ceef2ba-ee5c-4135-8294-1c352df23d25",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"formularz PCC-3 zgłoszenie pożyczki urząd skarbowy 14 dni zwolnienie z podatku\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_39\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 39. 1. Płatnicy, o których mowa w art. 32, art. 33 i art. 35, są obowiązani przesłać podatnikowi i urzędowi skarbowemu, przy pomocy którego naczelnik urzędu skarbowego właściwy według miejsca zamieszkania podatnika wykonuje swoje zadania, a w przypadku podatnika, o którym mowa w art. 3 ust. 2a, urzędowi skarbowemu, przy pomocy którego naczelnik urzędu skarbowego właściwy w sprawach opodatkowania osób zagranicznych wykonuje s ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52a. 1. Zwalnia się od podatku dochodowego: 1) dochody z tytułu odsetek i dyskonta od papierów wartościowych wyemitowanych przez Skarb Państwa oraz obligacji wyemitowanych przez jednostki samorządu terytorialnego - nabytych przez podatnika przed dniem 1 grudnia 2001 r.; 2) dochody (przychody), o których mowa w art. 30a ust. 1 pkt 3, jeżeli są wypłacane albo stawiane do dyspozycji podatnika od środków pieniężnych zgromadzonyc ...\"}, {\"chunk_id\": \"sejm_eli_du_2019_1000_art_7\", \"source_id\": \"sejm_eli_du_2019_1000_art_7\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 7. Zwalnia się od opłaty skarbowej: 1) pod warunkiem wzajemności, państwa obce, ich przedstawicielstwa dyplomatyczne, urzędy konsularne i siły zbrojne, międzynarodowe organizacje i instytucje oraz ich oddziały i przedstawicielstwa, korzystające na podstawie ustaw, umów lub powszechnie uznanych zwyczajów międzynarodowych z przywilejów i immunitetów, a także członków ich personelu i inne osoby zrównane z nimi, jeżeli nie są one obywatelami polskimi i nie mają miejsca stałego pobytu na terytoriu ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52. Zwalnia się od podatku dochodowego: 1) w okresie od dnia 1 stycznia 2001 r. do dnia 31 grudnia 2003 r. dochody: a) z odpłatnego zbycia nabytych przed dniem 1 stycznia 2003 r. obligacji Skarbu Państwa wyemitowanych po dniu 1 stycznia 1989 r. oraz obligacji wyemitowanych przez jednostki samorządu terytorialnego po dniu 1 stycznia 1997 r., b) z odpłatnego zbycia papierów wartościowych, które są dopuszczone do publicznego ob ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_45b\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 45b. 1. Minister właściwy do spraw finansów publicznych udostępni w Biuletynie Informacji Publicznej na stronie podmiotowej obsługującego go urzędu ustalone wzory: 1) deklaracji, o których mowa w art. 30da ust. 14, art. 30h ust. 4, art. 38 ust. 1a, art. 42 ust. 1a, art. 42e ust. 5 oraz art. 43 ust. 1; 2) informacji, o których mowa w art. 21 ust. 46, art. 26ha ust. 10, art. 30dg ust. 1, art. 35 ust. 6, art. 39 ust. 1 i 3, art ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23s\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23s. 1. W przypadku transakcji kontrolowanej dotyczącej pożyczki organ podatkowy odstępuje od określenia dochodu (straty) podatnika w zakresie wysokości oprocentowania tej pożyczki, jeżeli łącznie są spełnione następujące warunki: 1) oprocentowanie pożyczki w ujęciu rocznym na dzień zawarcia umowy jest ustalane w oparciu o rodzaj bazowej stopy procentowej i marżę, określone w obwieszczeniu ministra właściwego do spraw finans ...\"}, {\"chunk_id\": \"uokik_items:uokik_debac13b6e658aff\", \"source_id\": \"uokik_rejestr_klauzul_1215\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Nie zgłoszenie zastrzeżeń co do prawidłowości wystawienia faktury w terminie 14 dni od daty jej doręczenia jest jednoznaczne z jej akceptacją.\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52i\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52i. 1. Zwalnia się od podatku dochodowego przychód z tytułu umorzenia zadłużenia związanego z zaciągniętym kredytem mieszkaniowym dokonanego przez bank na podstawie ustawy z dnia 30 listopada 1995 r. o pomocy państwa w spłacie niektórych kredytów mieszkaniowych, udzielaniu premii gwarancyjnych oraz refundacji bankom wypłaconych premii gwarancyjnych ( Dz. U. z 2023 r. poz. 1446 ) . 2. Zwolnienie, o którym mowa w ust. 1, nie  ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0302_statute_f225cf478617ea6c\", \"source_id\": \"sejm_eli_du_2024_226_art_22p\", \"source_type\": \"statute\", \"top_category\": \"complaint_or_notice\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"117ba § 3 pkt 2 Ordynacji podatkowej, do naczelnika urzędu skarbowego właściwego dla podatnika, który dokonał zapłaty należności, w terminie 7 dni od dnia zlecenia przelewu lub 2) została dokonana przelewem na rachunek banku lub rachunek spółdzielczej kasy oszczędnościowo-kredytowej: a) służący do dokonywania rozliczeń z tytułu nabywanych przez ten bank lub tę kasę wierzytelności pieniężnych lub b) wykorzystywany przez ten bank lub tę kasę do pobrania należności od nabywcy towarów lub usługobiorcy za dostawę towarów lub świadczenie usług, potwierdzone fakturą, i przekazania jej w całości albo  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_45c\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 45c. 1. Naczelnik urzędu skarbowego właściwy miejscowo dla złożenia zeznania podatkowego, na wniosek, o którym mowa w ust. 3 i 3a, przekazuje na rzecz jednej organizacji pożytku publicznego działającej na podstawie ustawy o działalności pożytku publicznego, wybranej przez podatnika z wykazu, o którym mowa w ustawie o działalności pożytku publicznego, zwanej dalej „organizacją pożytku publicznego”, kwotę w wysokości nieprzekr ...\"}]",
+   "tool_call_id": "call-5ceef2ba-ee5c-4135-8294-1c352df23d25",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results are mostly about income tax (PIT), not PCC (podatek od czynności cywilnoprawnych). Let me search specifically for the PCC act provisions.",
+   "tool_calls": [
+    {
+     "id": "call-dd08fd6f-86fd-48ba-b9c8-acda8d30f844",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"ustawa o podatku od czynności cywilnoprawnych art. 9 zwolnienie pożyczka grupa podatkowa\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_30a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30a. 1. Od uzyskanych dochodów (przychodów) pobiera się 19% zryczałtowany podatek dochodowy, z zastrzeżeniem art. 52a: 1) z odsetek od pożyczek, z wyjątkiem gdy udzielanie pożyczek jest przedmiotem działalności gospodarczej; 2 82) W brzmieniu ustalonym przez art. 4 pkt 10 lit. a tiret pierwsze ustawy, o której mowa w odnośniku 1; weszło w życie z dniem 1 stycznia 2024 r. ) z odsetek i dyskonta od papierów wartościowych, z wy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23s\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23s. 1. W przypadku transakcji kontrolowanej dotyczącej pożyczki organ podatkowy odstępuje od określenia dochodu (straty) podatnika w zakresie wysokości oprocentowania tej pożyczki, jeżeli łącznie są spełnione następujące warunki: 1) oprocentowanie pożyczki w ujęciu rocznym na dzień zawarcia umowy jest ustalane w oparciu o rodzaj bazowej stopy procentowej i marżę, określone w obwieszczeniu ministra właściwego do spraw finans ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52l\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52l. Limit zwolnienia przedmiotowego, o którym mowa w art. 21 ust. 1: 1) pkt 9a - w okresie od 2020 r. do końca roku podatkowego, w którym odwołano stan epidemii ogłoszony z powodu COVID-19, wynosi 3000 zł; 2) pkt 26 lit. b - w okresie od 2020 r. do końca roku podatkowego, w którym odwołano stan epidemii ogłoszony z powodu COVID-19, wynosi 10 000 zł; 3) pkt 67 - w okresie od 2020 r. do końca roku podatkowego następującego po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_44f\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 44f. 1. Organ podatkowy zwraca, na wniosek, podatek pobrany zgodnie z art. 41 ust. 12. Wysokość podatku do zwrotu określa się na podstawie zwolnień lub stawek wynikających z przepisów szczególnych lub umów o unikaniu podwójnego opodatkowania, których stroną jest Rzeczpospolita Polska. 2. Wniosek o zwrot podatku może złożyć: 1) podatnik, w tym podatnik, o którym mowa w art. 3 ust. 2a, który w związku z uzyskaniem należności,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_54\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 54. 1. Z dniem 1 stycznia 1992 r. tracą moc: 1) ustawa z dnia 4 lutego 1949 r. o podatku od wynagrodzeń ( Dz. U. poz. 41 , z 1956 r. poz. 201 , z 1959 r. poz. 69 oraz z 1963 r. poz. 309 ) ; 2) ustawa z dnia 26 lutego 1982 r. o opodatkowaniu jednostek gospodarki uspołecznionej ( Dz. U. z 1987 r. poz. 77 , z 1989 r. poz. 12 , 192 i 443 , z 1990 r. poz. 126 oraz z 1991 r. poz. 30 ) - w części dotyczącej podatku od płac; 3) usta ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52a. 1. Zwalnia się od podatku dochodowego: 1) dochody z tytułu odsetek i dyskonta od papierów wartościowych wyemitowanych przez Skarb Państwa oraz obligacji wyemitowanych przez jednostki samorządu terytorialnego - nabytych przez podatnika przed dniem 1 grudnia 2001 r.; 2) dochody (przychody), o których mowa w art. 30a ust. 1 pkt 3, jeżeli są wypłacane albo stawiane do dyspozycji podatnika od środków pieniężnych zgromadzonyc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52i\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52i. 1. Zwalnia się od podatku dochodowego przychód z tytułu umorzenia zadłużenia związanego z zaciągniętym kredytem mieszkaniowym dokonanego przez bank na podstawie ustawy z dnia 30 listopada 1995 r. o pomocy państwa w spłacie niektórych kredytów mieszkaniowych, udzielaniu premii gwarancyjnych oraz refundacji bankom wypłaconych premii gwarancyjnych ( Dz. U. z 2023 r. poz. 1446 ) . 2. Zwolnienie, o którym mowa w ust. 1, nie  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_30\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30. 1. Od dochodów (przychodów) pobiera się zryczałtowany podatek dochodowy: 1) (uchylony) 1a) (uchylony) 1b) (uchylony) 1c) (uchylony) 2) z tytułu wygranych w konkursach, grach i zakładach wzajemnych lub nagród związanych ze sprzedażą premiową, uzyskanych w państwie członkowskim Unii Europejskiej lub innym państwie należącym do Europejskiego Obszaru Gospodarczego - w wysokości 10% wygranej lub nagrody; 3) (uchylony) 4) z ty ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_30dd\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30dd. 1. Zwalnia się od podatku od dochodów z niezrealizowanych zysków: 1) składniki majątku przekazane na cele określone w art. 4 ustawy o działalności pożytku publicznego organizacjom równoważnym do organizacji, o których mowa w art. 3 ust. 2 i 3 tej ustawy, określonym w przepisach regulujących działalność pożytku publicznego, obowiązujących w innym niż Rzeczpospolita Polska państwie członkowskim Unii Europejskiej lub inny ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52ub\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52ub. Zwalnia się od podatku dochodowego kwotę jednorazowego świadczenia pieniężnego, o którym mowa w ustawie z dnia 17 grudnia 2021 r. o jednorazowym świadczeniu pieniężnym dla działaczy opozycji antykomunistycznej oraz osób represjonowanych z powodów politycznych ( Dz. U. poz. 2430 ) .\"}]",
+   "tool_call_id": "call-dd08fd6f-86fd-48ba-b9c8-acda8d30f844",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_9499f1aa25034d64be197c73",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 10, \"keywords\": [\"ustawa PCC\", \"podatek od czynności cywilnoprawnych\", \"art. 9 pkt 10\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_37_art_266\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 266. § 1. Poręczenie majątkowe w postaci pieniędzy, papierów wartościowych, zastawu lub hipoteki może złożyć oskarżony albo inna osoba. § 1a. Przedmiot poręczenia majątkowego nie może pochodzić z przysporzenia na rzecz oskarżonego albo innej osoby składającej poręczenie dokonanego na ten cel. Sąd albo prokurator może uzależnić przyjęcie przedmiotu poręczenia majątkowego od wykazania przez osobę składającą poręczenie źródła pochodzeni ...\"}]",
+   "tool_call_id": "call_9499f1aa25034d64be197c73",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_b84957da5ac245cd9266a43f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"ustawa o podatku od czynności cywilnoprawnych zwolnienie pożyczka art. 9 pkt 10 lit. b grupa podatkowa I\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_30a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30a. 1. Od uzyskanych dochodów (przychodów) pobiera się 19% zryczałtowany podatek dochodowy, z zastrzeżeniem art. 52a: 1) z odsetek od pożyczek, z wyjątkiem gdy udzielanie pożyczek jest przedmiotem działalności gospodarczej; 2 82) W brzmieniu ustalonym przez art. 4 pkt 10 lit. a tiret pierwsze ustawy, o której mowa w odnośniku 1; weszło w życie z dniem 1 stycznia 2024 r. ) z odsetek i dyskonta od papierów wartościowych, z wy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23s\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23s. 1. W przypadku transakcji kontrolowanej dotyczącej pożyczki organ podatkowy odstępuje od określenia dochodu (straty) podatnika w zakresie wysokości oprocentowania tej pożyczki, jeżeli łącznie są spełnione następujące warunki: 1) oprocentowanie pożyczki w ujęciu rocznym na dzień zawarcia umowy jest ustalane w oparciu o rodzaj bazowej stopy procentowej i marżę, określone w obwieszczeniu ministra właściwego do spraw finans ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_9a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 9a. 1. Dochody osiągnięte przez podatników ze źródła, o którym mowa w art. 10 ust. 1 pkt 3, są opodatkowane na zasadach określonych w art. 27, z zastrzeżeniem ust. 2 i 3, chyba że podatnicy złożą właściwemu naczelnikowi urzędu skarbowego sporządzone na piśmie oświadczenie o zastosowaniu opodatkowania w formie ryczałtu od przychodów ewidencjonowanych określonego w ustawie o zryczałtowanym podatku dochodowym. 2. Podatnicy mogą ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_30\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30. 1. Od dochodów (przychodów) pobiera się zryczałtowany podatek dochodowy: 1) (uchylony) 1a) (uchylony) 1b) (uchylony) 1c) (uchylony) 2) z tytułu wygranych w konkursach, grach i zakładach wzajemnych lub nagród związanych ze sprzedażą premiową, uzyskanych w państwie członkowskim Unii Europejskiej lub innym państwie należącym do Europejskiego Obszaru Gospodarczego - w wysokości 10% wygranej lub nagrody; 3) (uchylony) 4) z ty ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_44f\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 44f. 1. Organ podatkowy zwraca, na wniosek, podatek pobrany zgodnie z art. 41 ust. 12. Wysokość podatku do zwrotu określa się na podstawie zwolnień lub stawek wynikających z przepisów szczególnych lub umów o unikaniu podwójnego opodatkowania, których stroną jest Rzeczpospolita Polska. 2. Wniosek o zwrot podatku może złożyć: 1) podatnik, w tym podatnik, o którym mowa w art. 3 ust. 2a, który w związku z uzyskaniem należności,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52a. 1. Zwalnia się od podatku dochodowego: 1) dochody z tytułu odsetek i dyskonta od papierów wartościowych wyemitowanych przez Skarb Państwa oraz obligacji wyemitowanych przez jednostki samorządu terytorialnego - nabytych przez podatnika przed dniem 1 grudnia 2001 r.; 2) dochody (przychody), o których mowa w art. 30a ust. 1 pkt 3, jeżeli są wypłacane albo stawiane do dyspozycji podatnika od środków pieniężnych zgromadzonyc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_30e\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30e. 1. Od dochodu z odpłatnego zbycia nieruchomości i praw określonych w art. 10 ust. 1 pkt 8 lit. a-c podatek dochodowy wynosi 19% podstawy obliczenia podatku. 2. Podstawą obliczenia podatku, o której mowa w ust. 1, jest dochód stanowiący różnicę pomiędzy przychodem z odpłatnego zbycia nieruchomości lub praw określonym zgodnie z art. 19, a kosztami ustalonymi zgodnie z art. 22 ust. 6c i 6d, powiększoną o sumę odpisów amort ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_27\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 27. 1. Podatek dochodowy, z zastrzeżeniem art. 29-30f, pobiera się od podstawy jego obliczenia według następującej skali podatkowej: Podstawa obliczenia podatku w złotych Podatek wynosi ponad do 120 000 12% minus kwota zmniejszająca podatek 3600 zł 120 000 10 800 zł + 32% nadwyżki ponad 120 000 zł 1a. (uchylony) 1b. (uchylony) 1c. Wysokość kwoty zmniejszającej podatek określonej w pierwszym przedziale skali podatkowej, o któ ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52i\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52i. 1. Zwalnia się od podatku dochodowego przychód z tytułu umorzenia zadłużenia związanego z zaciągniętym kredytem mieszkaniowym dokonanego przez bank na podstawie ustawy z dnia 30 listopada 1995 r. o pomocy państwa w spłacie niektórych kredytów mieszkaniowych, udzielaniu premii gwarancyjnych oraz refundacji bankom wypłaconych premii gwarancyjnych ( Dz. U. z 2023 r. poz. 1446 ) . 2. Zwolnienie, o którym mowa w ust. 1, nie  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_39\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 39. 1. Płatnicy, o których mowa w art. 32, art. 33 i art. 35, są obowiązani przesłać podatnikowi i urzędowi skarbowemu, przy pomocy którego naczelnik urzędu skarbowego właściwy według miejsca zamieszkania podatnika wykonuje swoje zadania, a w przypadku podatnika, o którym mowa w art. 3 ust. 2a, urzędowi skarbowemu, przy pomocy którego naczelnik urzędu skarbowego właściwy w sprawach opodatkowania osób zagranicznych wykonuje s ...\"}]",
+   "tool_call_id": "call_b84957da5ac245cd9266a43f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Potrzebuję pożyczki od znajomego, ale słyszałem, że trzeba coś zgłosić do urzędu skarbowego. Czy to ja muszę to załatwiać i ile to kosztuje?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę wziąć pożyczkę 50 tysięcy złotych od swojego wujka na remont mieszkania. Ktoś mi powiedział, że pożyczka między osobami prywatnymi jest opodatkowana i trzeba złożyć jakiś formularz PCC-3. Czy to ja jako pożyczkobiorca muszę to zgłosić i zapłacić podatek? Ile to dokładnie kosztuje i w jakim terminie to trzeba zrobić?"
+  }
+ ]
+}

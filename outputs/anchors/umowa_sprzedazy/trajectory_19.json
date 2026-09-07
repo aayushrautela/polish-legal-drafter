@@ -1,0 +1,307 @@
+{
+ "run": 24,
+ "hint": "Sprzedaż pralki lub lodówki (AGD używane)",
+ "scenario": "Sprzedaż pralki lub lodówki (AGD używane)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_sprzedazy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a sales contract (umowa_sprzedazy) for selling a washing machine or refrigerator (used household appliances - AGD używane). I need to:\n\n1. First read the base template for umowa_sprzedazy\n2. Then search for relevant provisions for used household appliances sales\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-23c91d52-6412-4378-949a-ca7b89e6b7d4",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_sprzedazy\", \"query\": \"sprzedaż pralki lodówki AGD używane między osobami prywatnymi\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_sprzedazy\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży sprzętu AGD\\nUmowa sprzedaży sprzętu AGD w Polsce to umowa cywilnoprawna regulowana art. 535-555 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) oraz przepisami o rękojmi za wady z art. 556-576 KC. Sprzęt AGD — pralki, lodówki, zmywarki, kuchenki, odkurzacze, piekarniki, ekspresy do kawy — to rzeczy ruchome w rozumieniu art. 45 KC, a ich sprzedaż podlega ogólnym zasadom przeniesienia własności. Własność przechodzi na kupującego z chwilą zawarcia umowy (art. 155 § 1 KC).\\n\\nPisemna umowa sprzedaży sprzętu AGD dokumentuje transakcję i umożliwia dochodzenie roszczeń z tytułu rękojmi za wady przed Sądem Rejonowym. Numer seryjny (S/N) z tabliczki znamionowej urządzenia identyfikuje konkretny egzemplarz sprzętu — jest to kluczowy element umowy, analogiczny do numeru VIN przy samochodzie. Numer seryjny jest wymagany przy zgłaszaniu szkody do zakładu ubezpieczeń w ramach ubezpieczenia mieszkania lub domu z rozszerzeniem na sprzęt elektroniczny i AGD, a także przy reklamacji do serwisu producenta.\\n\\nSprzęt AGD jest szczególną kategorią rzeczy ruchomych ze względu na jego cechy: ograniczoną żywotność techniczną (od kilku do kilkudziesięciu lat), zużywające się komponenty (uszczelki, łożyska, grzałki, pompy) oraz fakt, że uszkodzenia ujawniają się często dopiero po pierwszym uruchomieniu. Z tego powodu opis stanu technicznego i znanych wad w umowie jest kluczowy dla rozgraniczenia odpowiedzialności sprzedającego i kupującego.\\n\\nW obrocie prywatnym między osobami fizycznymi strony mogą wyłączyć lub ograniczyć rękojmię za wady (art. 558 § 1 KC), jednak wyłączenie nie obejmuje wad celowo zatajonych przez sprzedającego. W obrocie konsumenckim — gdy sprzedającym jest sklep z elektroniką lub salon AGD (przedsiębiorca) — kupujący będący konsumentem w rozumieniu art. 22¹ KC korzysta z pełnej ochrony prawnej: rękojmia 2-letnia bez możliwości wyłączenia oraz prawo odstąpienia w 14 dniach przy zakupie online lub poza lokalem (art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta, Dz.U. 2014 poz. 827 ze zm.).\\n\\nUrząd Ochrony Konkurencji i Konsumentów (UOKiK) monitoruje praktyki sprzedawców AGD. Prezes UOKiK wydaje decyzje w sprawach klauzul abuzywnych stosowanych przez sieci handlowe i serwisy. Wiedza o prawach konsumenta — w tym o możliwości zwrócenia się do miejskiego lub powiatowego rzecznika konsumentów — pozwala kupującemu skutecznie dochodzić roszczeń bez kosztownego postępowania sądowego.\\n\\nArt. 169 Kodeksu cywilnego reguluje nabycie sprzetu AGD od osoby nieuprawnionej. Kupujacy dzialajacy w dobrej wierze nabywa wlasnosc ruchomosci, jednak przy rzeczach skradzionych ochrona jest ograniczona przez 3 lata (art. 169 § 2 KC). Numer seryjny AGD jest kluczowym dowodem przy zgloszeniu kraziezy do zakladu ubezpieczen, ktory odmowi wyplaty odszkodowania bez udokumentowania nabycia sprzetu. Konsumencka ochrona przy reklamacji sprzetu AGD opiera się takze na art. 385 KC dotyczacym klauzul abuzywnych. Prezes Urzedu Ochrony Konkurencji i Konsumentow (UOKiK) wielokrotnie wydawal decyzje wobec sieci AGD stosujacych klauzule ograniczajace prawa konsumentow. Kupujacy swiadomy swoich praw może odwolac się do UOKiK, miejskiego lub powiatowego rzecznika konsumentow lub do Stalego Polubownego Sadu Konsumenckiego dzialajacego przy Inspekcji Handlowej.\\n\\nUmowa sprzedaży sprzętu AGD w Polsce jest potrzebna przy każdej odpłatnej transakcji dotyczącej urządzeń gospodarstwa domowego, zarówno między osobami prywatnymi, jak i w obrocie komisowym.\\n\\nDokument jest niezbędny przy zakupie sprzętu używanego z ogłoszeń na platformach takich jak OLX, Allegro Lokalnie czy Marketplace Facebook. Transakcje prywatne nie są objęte gwarancją producenta ani ochroną platformy handlowej w zakresie rękojmi, dlatego pisemna umowa z opisem stanu i numerem seryjnym jest jedynym dowodem w razie sporu przed Sądem Rejonowym.\\n\\nUmowa jest potrzebna przy zakupie drogiego sprzętu AGD — ekspresów do kawy klasy premium, zmywarek do zabudowy, lodówek Side-by-Side, pralek z suszarką — gdzie wartość transakcji przekracza kilka tysięcy złotych. Przy takich kwotach spór o stan techniczny uzasadnia wszczęcie postępowania cywilnego, a umowa z numerem seryjnym i opisem wad jest kluczowym dowodem.\\n\\nDokument jest konieczny przy przeprowadzkach, gdy sprzęt AGD wchodzi w skład wyposażenia sprzedawanego mieszkania lub domu. W takim przypadku umowa sprzedaży nieruchomości sporządzana przez notariusza nie zawsze wyszczególnia poszczególne urządzenia z numerami seryjnymi — odrębna umowa sprzedaży sprzętu AGD uzupełnia dokumentację i jest wymagana przez zakłady ubezpieczeń przy cesji polis majątkowych na nowego właściciela.\\n\\nUmowa przyda się przy sprzedaży sprzętu AGD wchodzącego w skład majątku wspólnego małżonków w trakcie podziału majątku po rozwodzie lub separacji. Ugoda o podziale majątku (art. 566 KC stosowany przez analogię, art. 567 KPC) może wymagać sporządzenia szczegółowego wykazu ruchomości z dowodami nabycia, do czego umowa sprzedaży AGD stanowi podstawę.\\n\\nUmowa jest potrzebna przy zakupie klimatyzatora przenosnego lub stacjonarnego. Po zamontowaniu klimatyzator staje się czescia skladowa nieruchomosci (art. 47 KC). Kwestia przeniesienia wlasnosci klimatyzatora przy sprzedazy mieszkania wymaga precyzyjnego uregulowania, aby uniknąć sporów. Dokument jest potrzebny przy zakupie sprzetu AGD w komisie lub second-handzie. Komisanci dzialajacy na podstawie art. 765-773 KC zawieraja umowę w imieniu własnym na rachunek komitenta. Przy zakupie w komisie AGD nabywca kupuje od komisanta, nie od pierwotnego właściciela — to komisanta obciaza odpowiedzialność z tytulu rekojmi za wady.\\n\\nPrawidłowo sporządzona umowa sprzedaży sprzętu AGD w Polsce musi zawierać elementy identyfikujące strony, urządzenie i warunki transakcji, zgodnie z wymogami art. 535 i następnych Kodeksu cywilnego.\\n\\nOznaczenie stron: imię i nazwisko sprzedającego i kupującego, numery PESEL, adresy zamieszkania. W przypadku zakupu od sprzedawcy profesjonalnego: NIP, REGON, numer KRS lub CEIDG, adres siedziby, osoba reprezentująca. Kompletne dane umożliwiają skierowanie pozwu o zapłatę lub reklamacji do właściwego sądu lub organu.\\n\\nDane urządzenia: pełna nazwa sprzętu (rodzaj + marka + model, np. \\\"zmywarka Bosch SMV46KX01E\\\"), numer seryjny (S/N) z tabliczki znamionowej — to unikalna dana identyfikująca egzemplarz, rok produkcji lub zakupu (z tabliczki lub paragonu), kolor i wygląd zewnętrzny. Numer seryjny jest wymagany przy zgłoszeniach do serwisu producenta, przy ubezpieczeniu sprzętu i przy reklamacji do zakładu ubezpieczeń.\\n\\nStan techniczny i znane wady: opis w języku technicznym (np. \\\"zarysowanie obudowy na lewym boku, 3 cm, niewidoczne przy normalnym użytkowaniu\\\"), potwierdzenie sprawności wszystkich funkcji lub wskazanie niesprawnych elementów. Kupujący powinien sprzęt osobiście sprawdzić przed podpisaniem umowy — w miarę możliwości włączyć i przetestować podstawowe funkcje.\\n\\nCena i płatność: kwota cyfrowo i słownie, waluta PLN, sposób zapłaty. Przelew bankowy lub BLIK są zalecane ze względu na dokumentowanie transakcji. Przy gotówce niezbędne pokwitowanie. W przypadku sprzedaży sprzętu o wartości powyżej 1000 zł forma pisemna umowy jest zalecana z przyczyn dowodowych (art. 74 KC).\\n\\nWydanie i akcesoria: lista przynależności wydawanych wraz ze sprzętem (przewód zasilający, wąż doprowadzający wodę, szufladki, sita, instrukcja obsługi w języku polskim, karta gwarancyjna — jeżeli gwarancja producenta jeszcze obowiązuje). Przy sprzęcie wymagającym podłączenia warto zaznaczyć, kto ponosi koszty transportu i ewentualnego podłączenia.\\n\\nRękojmia: wyłączenie w obrocie prywatnym jest dopuszczalne przy opisaniu stanu urządzenia, jednak wady celowo zatajone objęte odpowiedzialnością mimo wyłączenia (art. 558 § 1 KC). Termin rękojmi 2 lata (art. 568 KC). Przy zakupie od dealera lub sklepu — pełna ochrona konsumencka. Serwis forms-legal.com udostępnia gotowy wzór umowy sprzedaży sprzętu AGD w Polsce.\\n\\nWymagania energetyczne i certyfikaty: klasa energetyczna sprzetu AGD (skala A do G) wplywa na koszty eksploatacji. Certyfikat CE jest obowiazkowy dla sprzetu elektrycznego sprzedawanego w UE. Produkty bez certyfikatu CE nie powinny byc dopuszczone do obrotu — ich zakup jest ryzykowny z punktu widzenia bezpieczenstwa elektrycznego i może powodowac problemy z ubezpieczeniem. Odpowiedzialność za transport: duze sprzety AGD wymagaja profesjonalnego transportu i podlaczenia przez uprawnionego instalatora, szczegolnie w przypadku podlaczenia do instalacji gazowej. Umowa powinna wskazywac, kto organizuje i oplaca transport oraz kto odpowiada za podlaczenie.\\n\\nWypełnianie umowy sprzedaży sprzętu AGD w Polsce należy zacząć od zlokalizowania tabliczki znamionowej urządzenia. Tabliczka zawiera numer seryjny (S/N), model, rok produkcji i parametry techniczne. Przy pralkach tabliczka zwykle znajduje się wewnątrz drzwiczek ładowania lub na tylnej ściance; przy lodówkach — wewnątrz komory chłodzenia lub na tylnej ściance; przy kuchenkach — z boku lub na tylnej ściance.\\n\\nW sekcji sprzedającego wpisz imię i nazwisko jak w dowodzie osobistym, numer PESEL, adres zamieszkania. Proś sprzedającego o okazanie dowodu tożsamości w celu weryfikacji. Analogicznie uzupełnij dane kupującego.\\n\\nW sekcji danych sprzętu wpisz pełną nazwę urządzenia: rodzaj (pralka, lodówka, zmywarka), markę i model. Numer seryjny przepisz dokładnie z tabliczki — pomyłka uniemożliwia identyfikację urządzenia. Podaj rok produkcji lub zakupu (z paragonu lub faktury, jeżeli sprzedający je posiada). Opisz stan techniczny rzetelnie — wymień znane usterki. Kupujący powinien sprzęt włączyć i przetestować przed podpisaniem umowy.\\n\\nCenę podaj cyfrowo i słownie. Uzgodnij formę płatności. Przy przelewie zachowaj potwierdzenie. Wydrukuj umowę w dwóch egzemplarzach — po jednym dla każdej strony — i podpiszcie ją w obecności obu stron. Jeżeli sprzedający posiada oryginalny paragon lub fakturę zakupu, warto go dołączyć jako załącznik do umowy (kopia), gdyż może zawierać informacje potrzebne do dochodzenia resztkowej gwarancji producenta.\\n\\nPrzy sprzecie z ekranem dotykowym lub panelem sterowania wpisz wersje oprogramowania wewnetrznego (firmware) jesli dostepna. Smart pralki, lodowki i zmywarki wymagaja kont producenta lub aplikacji do pelnego korzystania z funkcji. Nalezy sprawdzic, czy konto poprzedniego właściciela zostalo usuniete i czy sprzet mozna aktywowac na swoje konto. Przy sprzecie wyposazonym w gaz umowa powinna zawierać zapis o stanie elementow gazowych i ewentualnej koniecznosci przegladu przez gazownika przed uruchomieniem.\\n\\nWymogi prawne umowy sprzedaży sprzętu AGD w Polsce wynikają z przepisów Kodeksu cywilnego i ustawy o prawach konsumenta.\\n\\nKodeks cywilny — art. 535-555: sprzedaż to umowa wzajemna. Art. 155 § 1 KC: własność przechodzi z chwilą zawarcia umowy. Art. 548 KC: ryzyko przypadkowej utraty lub uszkodzenia przechodzi z chwilą wydania rzeczy. Art. 556-576 KC: rękojmia za wady fizyczne i prawne. Art. 556¹ KC: wada fizyczna to niezgodność rzeczy z umową. Art. 568 § 1 KC: termin rękojmi — 2 lata od wydania. Art. 558 § 1 KC: dopuszczalność wyłączenia rękojmi w obrocie prywatnym z zastrzeżeniem wad umyślnie zatajonych.\\n\\nUstawa o prawach konsumenta (z 30 maja 2014 r., Dz.U. 2014 poz. 827 ze zm.): art. 27 — prawo odstąpienia przy umowach zawieranych na odległość lub poza lokalem; art. 31-35 — skutki odstąpienia (zwrot świadczeń w 14 dniach); art. 38 — wyłączenia prawa odstąpienia (m.in. rzecz z nagraniem audio/video po rozpakowanym opakowaniu). Przy zakupie sprzętu AGD w sklepie stacjonarnym prawo odstąpienia z u.p.k. nie przysługuje; sklep może je jednak dobrowolnie przyznać w regulaminie zwrotów.\\n\\nUOKiK (Urząd Ochrony Konkurencji i Konsumentów): nadzoruje praktyki sprzedawców AGD, w tym warunki gwarancji i postępowania reklamacyjnego. Prezes UOKiK może uznać za abuzywne klauzule ograniczające prawa konsumenta (art. 385¹ KC). Kupujący może zgłosić podejrzenie stosowania niedozwolonych praktyk do Prezesa UOKiK lub do miejskiego lub powiatowego rzecznika konsumentów.\\n\\nDostawa i transport: odpowiedzialność za uszkodzenia podczas transportu spoczywa na stronie organizującej przewóz. Warto w umowie określić, kto organizuje transport i kto ponosi ryzyko uszkodzenia w transporcie — zwłaszcza przy ciężkim sprzęcie AGD (pralka, lodówka), gdzie transport wymaga profesjonalnego sprzętu.\\n\\nPrzy sprzedazy sprzetu zakupionego na kredyt lub leasing konieczne jest potwierdzenie, ze sprzet nie jest obciazony zastawem lub przewlaszczeniem na zabezpieczenie na rzecz banku lub instytucji leasingowej. Kupujacy powinien zazadac pisemnego oswiadczenia sprzedajacego o braku obciazen. Sprzedaz rzeczy obciazonej zastawem bez zgody wierzyciela może skutkować wada prawna (art. 556 KC) i odpowiedzialnoscia sprzedajacego.\\n\\nNajczęstsze błędy przy umowie sprzedaży sprzętu AGD w Polsce zaczynają się od braku numeru seryjnego. Bez numeru seryjnego niemożliwa jest jednoznaczna identyfikacja sprzętu przy reklamacji, ubezpieczeniu lub sporze sądowym. Zawsze odpisz numer seryjny bezpośrednio z tabliczki znamionowej urządzenia.\\n\\nNiedostateczny opis stanu technicznego: ogólnikowe sformułowania jak \\\"stan dobry\\\" bez wymienienia znanych wad prowadzą do sporów po transakcji. Sprzedający, który nie poinformował kupującego o znanych wadach, nie może się powołać na wyłączenie rękojmi w przypadku tych wad (art. 558 § 1 KC). Rzetelny opis wad w umowie chroni obie strony.\\n\\nBrak przetestowania sprzętu przed zakupem: kupujący, który podpisał umowę bez włączenia sprzętu i sprawdzenia podstawowych funkcji, traci możliwość udowodnienia, że wada istniała przed transakcją. Przy sporze z tytułu rękojmi domniemanie istnienia wady przed wydaniem obowiązuje przez rok od wydania (art. 556² KC), ale tylko wtedy, gdy kupujący może wykazać, że wada ujawniła się w tym okresie.\\n\\nPomijanie akcesoriów: nieodnotowanie przynależności (wąż doprowadzający wodę do pralki, kosz zmywarki, szuflada do kawy w ekspresie) powoduje trudności w późniejszym dochodzeniu ich wydania. Szczegółowa lista przynależności w umowie eliminuje tego typu spory.\\n\\nBrak potwierdzenia płatności: transakcje gotówkowe bez pokwitowania skutkują sporem co do faktu i kwoty zapłaty. Zalecany jest przelew lub BLIK z potwierdzeniem w aplikacji mobilnej.\\n\\nPomijanie kwestii transportu duzego sprzetu AGD: kupujacy zakłada, ze sprzedajacy pomoze przy zaladunku, a sprzedajacy zakłada, ze kupujacy przyjdzie z pomocnikiem. Meble i ciezki sprzet AGD wymagaja profesjonalnych firm transportowych. Umowa sprzedazy powinna wprost okreslic termin i zasady odbioru oraz kto ponosi koszty, aby uniknąć opoznie i sporów na etapie wydania. Brak uzgodnienia tych kwestii jest najczestszym zrodlem konfliktow w transakcjach dotyczacych sprzetu AGD.\\n\\nŹródło: https://forms-legal.com/pl/personal/bills-of-sale/umowa-sprzedazy-sprzetu-agd (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-23c91d52-6412-4378-949a-ca7b89e6b7d4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I have the base template for AGD sales. Now I need to search for additional relevant provisions, particularly around:\n1. Used household appliances between private individuals\n2. Consumer protection aspects\n3. Specific provisions for washing machines and refrigerators\n4. Transport/delivery issues for large appliances\n5. Serial numbers and identification\n6. Warranty/guaranty issues\n\nLet me search for more specific provisions.",
+   "tool_calls": [
+    {
+     "id": "call-328be351-3132-4449-97cd-ef38200b60c5",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż pralki lodówki AGD używane między osobami prywatnymi rękojmia wyłączenie numer seryjny transport\", \"top_k\": 8}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_7e320878cd51265c\", \"source_id\": \"uokik_rejestr_klauzul_3354\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca ponosi odpowiedzialność z tytułu rękojmi za wady ukryte lokalu (budynku) i z tytułu gwarancji na urządzenia przez okres 1 roku chyba, że udzielona przez dostawcę materiałów lub urządzeń gwarancja przewiduje dłuższy okres. Terminy rękojmi w zakresie lokalu rozpoczynają bieg od daty podpisania protokołu wydania lokalu, w zakresie części wspólnych budynku od dnia przekazania części wspólnych zarządcy budynku. W pozostałym zakresie, co do rękojmi zastosowania znajdują przepisy Kodeksu cywilnego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_558\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 558. § 1. Strony mogą odpowiedzialność z tytułu rękojmi rozszerzyć, ograniczyć lub wyłączyć. Jeżeli kupującym jest konsument, ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych. § 2. Wyłączenie lub ograniczenie odpowiedzialności z tytułu rękojmi jest bezskuteczne, jeżeli sprzedawca zataił podstępnie wadę przed kupującym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_575\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 575. Jeżeli z powodu wady prawnej rzeczy sprzedanej kupujący jest zmuszony wydać rzecz osobie trzeciej, umowne wyłączenie odpowiedzialności z tytułu rękojmi nie zwalnia sprzedawcy od obowiązku zwrotu otrzymanej ceny, chyba że kupujący wiedział, iż prawa sprzedawcy były sporne, albo że nabył rzecz na własne niebezpieczeństwo.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}, {\"chunk_id\": \"uokik_items:uokik_b1396b6a14fab73c\", \"source_id\": \"uokik_rejestr_klauzul_968\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca zastrzega sobie prawo przekazywania praw i obowiązków wynikających z zawartej umowy na rzecz osób trzecich\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_563\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 563. § 1. Przy sprzedaży między przedsiębiorcami kupujący traci uprawnienia z tytułu rękojmi, jeżeli nie zbadał rzeczy w czasie i w sposób przyjęty przy rzeczach tego rodzaju i nie zawiadomił niezwłocznie sprzedawcy o wadzie, a w przypadku gdy wada wyszła na jaw dopiero później - jeżeli nie zawiadomił sprzedawcy niezwłocznie po jej stwierdzeniu. § 2. Do zachowania powyższego terminu wystarczy wysłanie przed jego upływem zawiadomienia o wadzie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_575\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 575 1 . Jeżeli kupujący uniknął utraty w całości lub w części nabytej rzeczy, albo skutków jej obciążenia na korzyść osoby trzeciej przez zapłatę sumy pieniężnej lub spełnienie innego świadczenia, sprzedawca może zwolnić się od odpowiedzialności z tytułu rękojmi, zwracając kupującemu zapłaconą sumę lub wartość spełnionego świadczenia wraz z odsetkami i kosztami.\"}]",
+   "tool_call_id": "call-328be351-3132-4449-97cd-ef38200b60c5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have some relevant statutory provisions. Let me search for more specific information about:\n1. Transport/delivery of large appliances\n2. Consumer rights for used goods\n3. Serial number requirements\n4. Specific UOKiK decisions about AGD sales",
+   "tool_calls": [
+    {
+     "id": "call-a85e2696-bbf5-455c-839c-923a12f40939",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"AGD\", \"pralka\", \"lodówka\", \"numer seryjny\", \"transport\", \"wydanie\"], \"top_k\": 8}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2019_1000_art_2\", \"source_id\": \"sejm_eli_du_2019_1000_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 2. 1. Nie podlega opłacie skarbowej: 1) dokonanie czynności urzędowej, wydanie zaświadczenia i zezwolenia (pozwolenia, koncesji) albo złożenie dokumentu stwierdzającego udzielenie pełnomocnictwa lub prokury albo jego odpisu, wypisu lub kopii w sprawach: a) alimentacyjnych, opieki, kurateli i przysposobienia, b) ubezpieczenia społecznego, ubezpieczenia zdrowotnego, rent strukturalnych, ulg określonych w przepisach szczególnych dla żołnierzy niezawodowych i osób odbywających służbę zastępczą or ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_603a\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 603a. § 1. Jeżeli umowa międzynarodowa, której Rzeczpospolita Polska jest stroną, tak stanowi, wniosek państwa obcego o zastosowanie tymczasowego aresztowania osoby ściganej zastępuje wniosek o wydanie. § 2. W wypadku, o którym mowa w § 1, prokurator podczas przesłuchania informuje osobę ściganą o możliwości wyrażenia przez nią zgody na wydanie lub zgody na wydanie połączonej ze zrzeczeniem się korzystania z ograniczeń określonych w  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_605\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 605. § 1. Jeżeli wniosek o wydanie dotyczy przestępstwa, którego sprawca podlega wydaniu, sąd okręgowy z urzędu lub na wniosek prokuratora może wydać postanowienie o tymczasowym aresztowaniu osoby ściganej; przepis art. 263 stosuje się odpowiednio. § 2. Przed złożeniem wniosku o wydanie sąd może wydać postanowienie o tymczasowym aresztowaniu ściganego na czas nie dłuższy niż 40 dni, jeżeli organ państwa obcego zwraca się o to, zapewn ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_348\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 348. Przeniesienie posiadania następuje przez wydanie rzeczy. Wydanie dokumentów, które umożliwiają rozporządzanie rzeczą, jak również wydanie środków, które dają faktyczną władzę nad rzeczą, jest jednoznaczne z wydaniem samej rzeczy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_417\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 417 1 . § 1. Jeżeli szkoda została wyrządzona przez wydanie aktu normatywnego, jej naprawienia można żądać po stwierdzeniu we właściwym postępowaniu niezgodności tego aktu z Konstytucją , ratyfikowaną umową międzynarodową lub ustawą. § 2. Jeżeli szkoda została wyrządzona przez wydanie prawomocnego orzeczenia lub ostatecznej decyzji, jej naprawienia można żądać po stwierdzeniu we właściwym postępowaniu ich niezgodności z prawem, chyba że przepisy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_604\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 604. § 1. Wydanie jest niedopuszczalne, jeżeli: 1) osoba, której wniosek dotyczy, jest obywatelem polskim albo korzysta w Rzeczypospolitej Polskiej z prawa azylu; 2) czyn nie zawiera znamion czynu zabronionego albo gdy ustawa uznaje, że czyn nie stanowi przestępstwa albo że sprawca nie popełnia przestępstwa lub nie podlega karze; 3) nastąpiło przedawnienie; 4) postępowanie karne co do tego samego czynu tej samej osoby zostało prawomo ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_47g\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 47g. 1. O wydanie dziennika budowy występuje inwestor. 2. Organem właściwym do wydania dziennika budowy jest: 1) organ administracji architektoniczno-budowlanej; 2) organ nadzoru budowlanego - w przypadku robót budowlanych objętych decyzją o: a) legalizacji budowy, o której mowa w art. 49 ust. 4, b) pozwoleniu na wznowienie robót budowlanych, o której mowa w art. 51 ust. 4. 3. Wystąpienie o wydanie dziennika budowy prowadzonego w postaci elektron ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_79a\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 79a. 1. Portal e-Budownictwo zapewnia możliwość wygenerowania: 1) wniosku o pozwolenie na budowę; 2) zgłoszenia budowy lub wykonywania innych robót budowlanych; 3) wniosku o pozwolenie na rozbiórkę; 4) zgłoszenia rozbiórki; 5) oświadczenia o posiadanym prawie do dysponowania nieruchomością na cele budowlane; 6) wniosku o wydanie odrębnej decyzji o zatwierdzeniu projektu zagospodarowania działki lub terenu lub projektu architektoniczno-budowlanego ...\"}]",
+   "tool_call_id": "call-a85e2696-bbf5-455c-839c-923a12f40939",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The keyword search didn't return very relevant results for AGD. Let me try a more targeted semantic search for specific provisions about used AGD sales, transport, and consumer protection.",
+   "tool_calls": [
+    {
+     "id": "call-b571e6d3-d2be-45d3-b12c-3083480cf26a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 8, \"query\": \"sprzedaż używanego sprzętu AGD prywatna umowa rękojmia wyłączenie art 558 KC transport duże urządzenia pralka lodówka\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_558\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 558. § 1. Strony mogą odpowiedzialność z tytułu rękojmi rozszerzyć, ograniczyć lub wyłączyć. Jeżeli kupującym jest konsument, ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych. § 2. Wyłączenie lub ograniczenie odpowiedzialności z tytułu rękojmi jest bezskuteczne, jeżeli sprzedawca zataił podstępnie wadę przed kupującym.\"}, {\"chunk_id\": \"uokik_items:uokik_f80a35dcaea971b4\", \"source_id\": \"uokik_rejestr_klauzul_1856\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Z uwagi na art. 558 kc strony wyłączają odpowiedzialność z tytułu rękojmi za wady fizyczne towaru.&quot;\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_584\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 584. § 1. Odpowiedzialność sprzedawcy z tytułu rękojmi za wady rzeczy sprzedanej na raty może być przez umowę wyłączona lub ograniczona tylko w wypadkach przewidzianych przez przepisy szczególne. § 2. Umowa nie może utrudnić kupującemu wykonania uprawnień z tytułu rękojmi.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_575\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 575. Jeżeli z powodu wady prawnej rzeczy sprzedanej kupujący jest zmuszony wydać rzecz osobie trzeciej, umowne wyłączenie odpowiedzialności z tytułu rękojmi nie zwalnia sprzedawcy od obowiązku zwrotu otrzymanej ceny, chyba że kupujący wiedział, iż prawa sprzedawcy były sporne, albo że nabył rzecz na własne niebezpieczeństwo.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_829\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 829. Nie podlegają egzekucji: 1) przedmioty urządzenia domowego niezbędne dla dłużnika i jego domowników, w szczególności lodówka, pralka, odkurzacz, piekarnik lub kuchenka mikrofalowa, płyta grzewcza służąca podgrzewaniu i przygotowywaniu posiłków, łóżka, stół i krzesła w liczbie niezbędnej dla dłużnika i jego domowników oraz po jednym źródle oświetlenia na izbę, chyba że są to przedmioty, których wartość znacznie przekracza ...\"}, {\"chunk_id\": \"uokik_items:uokik_7e320878cd51265c\", \"source_id\": \"uokik_rejestr_klauzul_3354\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca ponosi odpowiedzialność z tytułu rękojmi za wady ukryte lokalu (budynku) i z tytułu gwarancji na urządzenia przez okres 1 roku chyba, że udzielona przez dostawcę materiałów lub urządzeń gwarancja przewiduje dłuższy okres. Terminy rękojmi w zakresie lokalu rozpoczynają bieg od daty podpisania protokołu wydania lokalu, w zakresie części wspólnych budynku od dnia przekazania części wspólnych zarządcy budynku. W pozostałym zakresie, co do rękojmi zastosowania znajdują przepisy Kodeksu cywilnego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_557\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 557. § 1. Sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili zawarcia umowy. § 2. Gdy przedmiotem sprzedaży są rzeczy oznaczone tylko co do gatunku albo rzeczy mające powstać w przyszłości, sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili wydania rzeczy. § 3. Sprzedawca nie jest odpowiedzialny względem kupującego będącego konsument ...\"}]",
+   "tool_call_id": "call-b571e6d3-d2be-45d3-b12c-3083480cf26a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have relevant statutory provisions. Let me also search for specific UOKiK decisions about AGD sales and consumer protection, as well as provisions about transport/delivery of large appliances.",
+   "tool_calls": [
+    {
+     "id": "call-73d1dd55-263a-4410-9657-0ec07fec361a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 6, \"query\": \"UOKiK klauzule abuzywne AGD sprzęt gospodarstwa domowego gwarancja rękojmia konsument sklep\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_538eddc5c69cf47d\", \"source_id\": \"uokik_rejestr_klauzul_6927\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nieuzasadnionej reklamacji lub uszkodzenia sprzętu z winy użytkownika, sklep ma prawo obciążyć Klienta kosztami manipulacyjnymi (koszty ekspertyz, transportu)\"}, {\"chunk_id\": \"uokik_items:uokik_7e320878cd51265c\", \"source_id\": \"uokik_rejestr_klauzul_3354\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca ponosi odpowiedzialność z tytułu rękojmi za wady ukryte lokalu (budynku) i z tytułu gwarancji na urządzenia przez okres 1 roku chyba, że udzielona przez dostawcę materiałów lub urządzeń gwarancja przewiduje dłuższy okres. Terminy rękojmi w zakresie lokalu rozpoczynają bieg od daty podpisania protokołu wydania lokalu, w zakresie części wspólnych budynku od dnia przekazania części wspólnych zarządcy budynku. W pozostałym zakresie, co do rękojmi zastosowania znajdują przepisy Kodeksu cywilnego\"}, {\"chunk_id\": \"uokik_items:uokik_9ca4218d9e0677f0\", \"source_id\": \"uokik_rejestr_klauzul_911\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca udziela gwarancji na sprzedany wyrób na okres 12 miesięcy od daty wydania. W zakresie odpowiedzialności z tytułu reklamacji i rękojmi obowiązują przepisy art. 556-568, 577-581 Kodeksu Cywilnego\"}, {\"chunk_id\": \"uokik_items:uokik_3d3677d2aa5465b3\", \"source_id\": \"uokik_rejestr_klauzul_3440\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie spory wynikłe w związku z realizowaniem umów kupna-sprzedaży między sklepem (...) a konsumentami będą rozstrzygane w pierwszej kolejności na drodze negocjacji, z intencją polubownego zakończenia sporu. Jeśli jednak nie byłoby to możliwe, lub też byłoby nie satysfakcjonujące dla którejkolwiek ze stron wszelkie spory będą rozstrzygane przez sąd powszechny w Warszawie, właściwy dla siedziby sprzedawcy\"}, {\"chunk_id\": \"uokik_items:uokik_2accc89eedbb6267\", \"source_id\": \"uokik_rejestr_klauzul_6515\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie spory wynikłe w związku z realizowaniem umów kupna-sprzedaży między sklepem a konsumentami będą rozstrzygane w pierwszej kolejności na drodze negocjacji, z intencją polubownego zakończenia sporu. Jeśli jednak nie byłoby to możliwe, lub też byłoby niesatysfakcjonujące dla którejkolwiek ze stron wszelkie spory będą rozstrzygane przez sąd właściwy dla siedziby pozwanego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_558\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 558. § 1. Strony mogą odpowiedzialność z tytułu rękojmi rozszerzyć, ograniczyć lub wyłączyć. Jeżeli kupującym jest konsument, ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych. § 2. Wyłączenie lub ograniczenie odpowiedzialności z tytułu rękojmi jest bezskuteczne, jeżeli sprzedawca zataił podstępnie wadę przed kupującym.\"}]",
+   "tool_call_id": "call-73d1dd55-263a-4410-9657-0ec07fec361a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Sprzedaję używaną pralkę i potrzebuję prostej umowy, żeby wszystko było jasne. Macie coś takiego?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę sprzedać sąsiadowi starą lodówkę, ma 7 lat, działa, ale ma rysy. Płaci gotówką od ręki. Czy w umowie trzeba opisywać stan techniczny i że kupujący go sprawdził? Jakie dane muszą być, żeby potem nie było pretencji?"
+  }
+ ]
+}

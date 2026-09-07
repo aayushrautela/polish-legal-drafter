@@ -1,0 +1,291 @@
+{
+ "run": 42,
+ "hint": "Umowa ramowa z zabezpieczeniem w postaci gwarancji bankowej",
+ "scenario": "Umowa ramowa z zabezpieczeniem w postaci gwarancji bankowej",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_ramowa'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a framework agreement (umowa_ramowa) that includes a bank guarantee (gwarancja bankowa) as security. Let me start by reading the base template and then search for relevant provisions about bank guarantees in Polish law.",
+   "tool_calls": [
+    {
+     "id": "call-f54ca1d9-18e7-4961-bc96-25b704ad1ef1",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_ramowa\", \"query\": \"z zabezpieczeniem w postaci gwarancji bankowej\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_ramowa\", \"kind\": \"structural_template\", \"text\": \"# Umowa o gwarancję bankową\\nUmowa o gwarancję bankową w Polsce to kontrakt, na podstawie którego bank (gwarant) zobowiązuje się do wypłaty określonej sumy pieniężnej na rzecz wskazanego beneficjenta, jeżeli zleceniodawca gwarancji nie wykona zobowiązania podstawowego — kontraktu, przetargu, umowy dzierżawy lub obowiązku podatkowego. Podstawę prawną gwarancji bankowej stanowi art. 80 ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe (Dz.U. 1997 nr 140 poz. 939 ze zm.), który upoważnia banki do udzielania i potwierdzania gwarancji bankowych.\\n\\nGwarancja bankowa jest jednostronnym, abstrakcyjnym zobowiązaniem banku wobec beneficjenta — niezależnym od stosunku podstawowego między zleceniodawcą a beneficjentem. Oznacza to, że bank wypłaci sumę gwarancyjną na żądanie beneficjenta nawet wtedy, gdy zleceniodawca kwestionuje zasadność roszczenia. Abstrakcyjny charakter gwarancji wynika z Jednolitych Reguł dla Gwarancji na Żądanie (URDG 758) opracowanych przez Międzynarodową Izbę Handlową (ICC) w Paryżu, powszechnie stosowanych w obrocie krajowym i międzynarodowym.\\n\\nKomisja Nadzoru Finansowego (KNF) nadzoruje banki wystawiające gwarancje i publikuje dane o wartości gwarancji udzielonych przez sektor bankowy w Polsce w ramach sprawozdawczości ostrożnościowej. Banki z licencją KNF mogą udzielać gwarancji na mocy art. 5 ust. 1 pkt 4 Prawa bankowego, który zalicza udzielanie gwarancji bankowych do podstawowych czynności bankowych.\\n\\nW praktyce polskiego rynku finansowego gwarancje bankowe dzielą się na kilka podstawowych typów. Gwarancja przetargowa (tender guarantee, bid bond) zabezpiecza ofertę w postępowaniu przetargowym i zastępuje wadium pieniężne — zamawiający może z niej skorzystać, gdy oferent wycofa się z przetargu lub odmówi podpisania umowy po wygraniu. Gwarancja należytego wykonania kontraktu (performance bond) zapewnia zamawiającemu rekompensatę, gdy wykonawca nie wywiąże się z umowy. Gwarancja zapłaty za roboty budowlane (payment guarantee) chroni podwykonawców i dostawców, a obowiązek jej ustanowienia wynika z art. 6490 Kodeksu cywilnego.\\n\\nUmowa zlecenia gwarancji (zlecenie udzielenia gwarancji) jest odrębnym kontraktem między bankiem a zleceniodawcą, w którym zleceniodawca zobowiązuje się do zapłaty prowizji, ustanowienia zabezpieczeń i spłaty roszczeń regresowych banku po ewentualnej wypłacie. Bank, który zapłacił sumę gwarancyjną beneficjentowi, nabywa roszczenie regresowe wobec zleceniodawcy na podstawie art. 376 KC (dla solidarności) lub bezpośrednio z treści umowy zlecenia gwarancji.\\n\\nW zamówieniach publicznych obowiązek złożenia wadium i zabezpieczenia należytego wykonania umowy reguluje ustawa z dnia 11 września 2019 r. Prawo zamówień publicznych (Dz.U. 2019 poz. 2019 ze zm.), której art. 97 i art. 450 dopuszczają gwarancję bankową jako jedną z form wniesienia wadium i zabezpieczenia. Organ zamawiający — Generalna Dyrekcja Dróg Krajowych i Autostrad, Sąd Rejonowy lub jednostka samorządu terytorialnego — wskazuje w specyfikacji warunków zamówienia (SWZ) akceptowane formy i wymagany termin ważności gwarancji.\\n\\nUmowa o gwarancję bankową w Polsce jest niezbędna w licznych sytuacjach obrotu gospodarczego i zamówień publicznych.\\n\\nZamówienia publiczne — wadium przetargowe. Ustawa Prawo zamówień publicznych wymaga od wykonawców wniesienia wadium przy przetargach powyżej progów unijnych. Gwarancja bankowa jest najwygodniejszą formą wadium — nie wymaga zamrożenia gotówki, a bank wystawia ją szybko po ustanowieniu zabezpieczenia przez wykonawcę.\\n\\nZabezpieczenie należytego wykonania kontraktu. Zamawiający w zamówieniach publicznych i prywatnych wymagają zabezpieczenia, że wykonawca wywiąże się z umowy. Gwarancja bankowa o wartości 5–10% wartości kontraktu spełnia ten wymóg bez angażowania własnych środków wykonawcy.\\n\\nGwarancja zapłaty za roboty budowlane. Generalny wykonawca zobowiązany jest na żądanie podwykonawcy ustanowić gwarancję zapłaty na podstawie art. 6490 KC. Brak gwarancji w wyznaczonym terminie uprawnia podwykonawcę do wstrzymania robót.\\n\\nTransakcje eksportowe i importowe. Przy handlu zagranicznym bank wystawia akredytywy dokumentowe lub gwarancje płatności zabezpieczające rozliczenie dostawy towarów między polskim eksporterem a zagranicznym importerem — instrument kluczowy przy braku zaufania między stronami lub wejściu na nowe rynki.\\n\\nGwarancja celna i akcyzowa. Importerzy zobowiązani do złożenia zabezpieczenia celnego lub akcyzowego u Dyrektora Izby Administracji Skarbowej mogą zamiast depozytu gotówkowego złożyć gwarancję bankową, co uwalnia środki obrotowe przedsiębiorstwa.\\n\\nNajem i dzierżawa nieruchomości komercyjnych. Właściciele nieruchomości biurowych i handlowych coraz częściej wymagają gwarancji bankowej jako kaucji — stanowi ona trwalsze i pewniejsze zabezpieczenie niż depozyty pieniężne podlegające egzekucji komorniczej.\\n\\nGwarancja zwrotu zaliczki. Gdy zamawiający wpłaca wykonawcy zaliczkę przed wykonaniem prac, gwarancja zwrotu zaliczki chroni zamawiającego na wypadek nierozliczenia zaliczki przez wykonawcę.\\n\\nUmowa o gwarancję bankową w Polsce powinna zawierać elementy umożliwiające skuteczne wystawienie gwarancji oraz precyzyjne uregulowanie roszczeń regresowych banku.\\n\\nOznaczenie stron. Pełna firma banku gwaranta z numerem zezwolenia Komisji Nadzoru Finansowego (KNF), adresem siedziby zarządu i numerem KRS. Pełna firma zleceniodawcy z NIP, REGON i numerem KRS lub CEIDG. Dane beneficjenta — nazwa, adres, NIP — na których rzecz bank wystawi odrębny dokument gwarancji bankowej.\\n\\nRodzaj i treść gwarancji. Wskazanie rodzaju gwarancji: przetargowa (bid guarantee), należytego wykonania (performance guarantee), zapłaty (payment guarantee), celna/akcyzowa, zwrotu zaliczki, lub inna. Treść dokumentu gwarancji — zazwyczaj stanowiącego załącznik do umowy zlecenia — powinna być zaakceptowana przez beneficjenta przed wystawieniem.\\n\\nSuma gwarancyjna. Kwota cyfrowo i słownie w PLN, do której bank jest zobowiązany na rzecz beneficjenta. W przypadku gwarancji zmniejszających się z każdym wykonanym etapem — harmonogram redukcji sumy gwarancyjnej.\\n\\nTermin ważności. Dokładna data ważności lub wskazanie zdarzenia powodującego wygaśnięcie gwarancji. Beneficjent musi zgłosić roszczenie przed terminem ważności. Przy gwarancjach przetargowych termin powinien obejmować co najmniej okres związania ofertą z SWZ.\\n\\nWarunki uruchomienia (demand conditions). Gwarancja na pierwsze żądanie (URDG 758) wymagana jest w zamówieniach publicznych — beneficjent żąda wypłaty pismem bez obowiązku udowodnienia naruszenia. Gwarancja dokumentowa wymaga przedłożenia określonych dokumentów potwierdzających naruszenie zobowiązania podstawowego.\\n\\nProwizja i opłaty banku. Wysokość prowizji (procent od sumy gwarancyjnej za rok ważności), termin płatności, opłata za zmianę treści gwarancji lub przedłużenie jej ważności. forms-legal.com zaleca dokładną kalkulację kosztu gwarancji w porównaniu z kosztem alternatywnych form zabezpieczenia.\\n\\nZabezpieczenie roszczenia regresowego. Weksel własny in blanco z deklaracją wekslową (art. 10 Prawa wekslowego), hipoteka na nieruchomości (wpis w księdze wieczystej prowadzonej przez sąd rejonowy), zastaw rejestrowy (wpis w rejestrze zastawów prowadzonym przez Sąd Rejonowy), blokada rachunku bankowego. Bank nabywa roszczenie regresowe z chwilą wypłaty sumy gwarancyjnej — zabezpieczenie musi obejmować kwotę gwarancji powiększoną o prowizję i odsetki.\\n\\nObowiązek informowania banku. Zleceniodawca zobowiązany jest niezwłocznie informować bank o wszelkich zdarzeniach mogących prowadzić do uruchomienia gwarancji — zmianie zakresu zobowiązania podstawowego, problemach z jego wykonaniem, wszczęciu postępowania restrukturyzacyjnego lub upadłościowego wobec zleceniodawcy.\\n\\nZwrot oryginału gwarancji. Wygaśnięcie gwarancji z upływem terminu ważności lub wcześniejsze — po przekazaniu przez beneficjenta oryginału dokumentu gwarancji do banku. Bez zwrotu oryginału bank powinien zachować środki ostrożności do czasu upływu ustawowego terminu przedawnienia.\\n\\nUmowa o gwarancję bankową w Polsce wymaga starannego wypełnienia każdego pola, ponieważ dokument gwarancji jest nieodwołalnym zobowiązaniem banku.\\n\\nKrok 1 — zidentyfikuj bank gwarant. Wpisz pełną firmę banku, numer zezwolenia KNF i adres siedziby zarządu. Możesz zweryfikować, czy bank figuruje w wykazie instytucji nadzorowanych na stronie knf.gov.pl. Banki spoza Unii Europejskiej mogą wystawiać gwarancje tylko pod warunkiem posiadania stosownego zezwolenia na działalność w Polsce.\\n\\nKrok 2 — określ zleceniodawcę i beneficjenta. Dla zleceniodawcy wpisz dane z KRS lub CEIDG — firmę, NIP, REGON, adres. Beneficjentem jest strona, na której rzecz gwarancja zostaje wystawiona — zamawiający w przetargu, partner handlowy, organ celny lub skarbowy. Sprawdź dokładne dane beneficjenta podane w kontrakcie lub specyfikacji zamówienia.\\n\\nKrok 3 — wskaż rodzaj i sumę gwarancji. Wybierz rodzaj gwarancji zgodny z wymogiem kontraktu lub ustawy. Suma gwarancyjna powinna być wpisana cyfrowo i słownie w PLN. Przy gwarancjach na roboty budowlane minimalna kwota może wynikać z przepisów lub SWZ — sprawdź wymagania dokumentacji przetargowej.\\n\\nKrok 4 — ustal termin ważności. Termin ważności musi obejmować przynajmniej cały okres zobowiązania podstawowego powiększony o margines bezpieczeństwa (zazwyczaj 30–60 dni). Dla gwarancji przetargowych termin jest wskazany w SWZ. Zbyt krótki termin prowadzi do utraty ochrony przed wygaśnięciem gwarancji bez realizacji kontraktu.\\n\\nKrok 5 — wybierz warunki uruchomienia. Gwarancja na pierwsze żądanie jest wymagana w zamówieniach publicznych i większości transakcji handlowych. Gwarancja dokumentowa — stosowana w bardziej złożonych transakcjach — wymaga wskazania dokumentów: protokołu stwierdzającego niewykonanie, wyroku sądu lub arbitrażu, certyfikatu inżyniera budowy.\\n\\nKrok 6 — ustal zabezpieczenie regresu. Wybierz i opisz dokładnie przedmiot zabezpieczenia — weksel z deklaracją, opis nieruchomości z numerem KW, aktywa objęte zastawem. Bank ustali wartość zabezpieczenia na podstawie własnej wyceny. Zabezpieczenie musi być ustanowione przed wystawieniem gwarancji.\\n\\nKrok 7 — podpisz umowę i odbierz dokument gwarancji. Umowa zlecenia jest podpisywana w siedzibie banku lub w formie elektronicznej z kwalifikowanym podpisem elektronicznym. Po podpisaniu bank wystawia odrębny dokument gwarancji bankowej (numer nadany przez bank), który zleceniodawca przekazuje beneficjentowi. Zachowaj kopię dokumentu gwarancji — będzie potrzebna przy ewentualnym sporze dotyczącym jej uruchomienia przed sądem rejonowym lub arbitrażem.\\n\\nUmowa o gwarancję bankową w Polsce regulowana jest przepisami Prawa bankowego i Kodeksu cywilnego.\\n\\nPrawo bankowe — art. 80–83. Ustawa z dnia 29 sierpnia 1997 r. Prawo bankowe (Dz.U. 1997 nr 140 poz. 939 ze zm.) w art. 80 ust. 1 stanowi, że banki mogą udzielać gwarancji bankowych i poręczeń. Art. 81 definiuje gwarancję bankową jako jednostronne zobowiązanie banku, że po spełnieniu przez beneficjenta warunków określonych w gwarancji bank wykona świadczenie pieniężne na jego rzecz. Art. 83 reguluje wymagania dotyczące formy gwarancji — powinna być sporządzona na piśmie pod rygorem nieważności. Nadzór nad bankami wystawiającymi gwarancje sprawuje Komisja Nadzoru Finansowego (KNF).\\n\\nKodeks cywilny — art. 391, 392 oraz ogólne przepisy o zobowiązaniach. Gwarancja bankowa jest zobowiązaniem abstrakcyjnym, oderwanym od stosunku podstawowego. W kwestiach nieunormowanych przez przepisy Prawa bankowego stosuje się przepisy KC, w szczególności art. 391 KC o świadczeniu przez osobę trzecią i art. 392 KC o przejęciu długu.\\n\\nPrawo zamówień publicznych — art. 97, 450. Ustawa z dnia 11 września 2019 r. Prawo zamówień publicznych (Dz.U. 2019 poz. 2019 ze zm.) reguluje dopuszczalne formy wadium (art. 97) i zabezpieczenia należytego wykonania umowy (art. 450), wskazując gwarancje bankowe jako jedną z form. Zamawiający publiczny musi poinformować wykonawcę o formie zwrotu wadium lub zatrzymania go w razie uchybień.\\n\\nKodeks cywilny — art. 6490 (gwarancja zapłaty za roboty budowlane). Generalny wykonawca obowiązany jest na żądanie podwykonawcy ustanowić gwarancję zapłaty (art. 6490 KC) — gwarancja bankowa lub ubezpieczeniowa na kwotę nieopłaconego wynagrodzenia. Brak ustanowienia gwarancji w terminie 45 dni uprawnia podwykonawcę do odstąpienia od umowy z winy inwestora.\\n\\nJednolite Reguły ICC dla Gwarancji na Żądanie (URDG 758). Opublikowane przez Międzynarodową Izbę Handlową w Paryżu URDG 758 stanowią zestaw reguł interpretacyjnych powszechnie stosowanych przez polskie banki. Nie są źródłem prawa powszechnie obowiązującego, lecz banki inkorporują je do treści gwarancji klauzulą \\\"niniejsza gwarancja podlega URDG 758 z 2010 r.\\\" — co ma znaczenie przy sporach dotyczących interpretacji warunków uruchomienia.\\n\\nPrzetwarzanie danych RODO. Dane osobowe osób fizycznych (wspólników, poręczycieli, reprezentantów) przetwarzane przez bank w ramach umowy o gwarancję podlegają rozporządzeniu (UE) 2016/679 (RODO) i ustawie z dnia 10 maja 2018 r. o ochronie danych osobowych. Nadzór sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO). Podstawą przetwarzania jest wykonanie umowy (art. 6 ust. 1 lit. b RODO) lub prawnie uzasadniony interes banku (art. 6 ust. 1 lit. f RODO).\\n\\nUmowa o gwarancję bankową w Polsce bywa wadliwa z powodu błędów proceduralnych i merytorycznych, których należy unikać.\\n\\nBłąd 1 — niezgodna treść dokumentu gwarancji z wymogami beneficjenta. Zamawiający publiczny w SWZ wskazuje dokładne wymagania dotyczące treści gwarancji (m.in. bezwarunkową klauzulę na pierwsze żądanie, brak zarzutów). Złożenie gwarancji z treścią niezgodną z wymogami skutkuje odrzuceniem oferty. Zalecenie: dostarcz bankowi wzór wymagany przez zamawiającego, a nie standardowy wzór bankowy.\\n\\nBłąd 2 — zbyt krótki termin ważności. Gwarancja przetargowa musi obejmować okres związania ofertą wskazany w SWZ plus margines na doręczenia. Gwarancja należytego wykonania — cały okres realizacji kontraktu plus okres rękojmi i gwarancji jakości. Wygaśnięcie przed zakończeniem projektu pozbawia beneficjenta ochrony. Zalecenie: dodaj co najmniej 30 dni marginesu do minimalnego wymaganego terminu.\\n\\nBłąd 3 — nieustanowienie zabezpieczenia regresu przed wystawieniem. Bank odmówi wystawienia gwarancji bez uprzedniego ustanowienia zabezpieczenia roszczeń regresowych. Zwlekanie z ustanowieniem hipoteki lub zastawu opóźnia cały projekt. Zalecenie: inicjuj procedurę ustanawiania zabezpieczeń co najmniej 3–4 tygodnie przed planowanym terminem złożenia gwarancji w przetargu.\\n\\nBłąd 4 — brak klauzuli identyfikującej kontrakt podstawowy. Niejasne lub brakujące odwołanie do umowy podstawowej może utrudnić bankowi ustalenie, czy żądanie beneficjenta jest uprawnione. Zalecenie: wpisz numer, datę i przedmiot umowy podstawowej w treści gwarancji i w umowie zlecenia.\\n\\nBłąd 5 — ignorowanie roszczeń regresowych po wypłacie. Po wypłacie przez bank sumy gwarancyjnej zleceniodawca zobowiązany jest do natychmiastowego zwrotu pełnej kwoty wraz z odsetkami. Brak środków na spłatę regresu może skutkować egzekucją komorniczą z zabezpieczeń. Zalecenie: monitoruj bieżące wykonanie zobowiązania podstawowego i reaguj na problemy przed wszczęciem postępowania przez beneficjenta.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-o-gwarancje-bankowa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-f54ca1d9-18e7-4961-bc96-25b704ad1ef1",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_12a196d37bae4876927803ed",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa ramowa zabezpieczenie gwarancja bankowa współpraca B2B\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_f466f5eff4554a7598e24584",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"gwarancja bankowa\", \"zabezpieczenie\", \"umowa ramowa\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_cc39c4c4d6d1e44d\", \"source_id\": \"uokik_rejestr_klauzul_6193\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy w okresie obowiązywania niniejszej Umowy nastąpiło zmniejszenie wartości ustanowionych prawnych zabezpieczeń kredytu Bank może żądać dodatkowego prawnego zabezpieczenia kredytu oraz przedłożenia dokumentów niezbędnych do dokonania oceny ryzyka kredytowego.Kredytobiorca zobowiązany jest - na żądanie Banku - do przedstawienia dodatkowego prawnego zabezpieczenia kredytu, akceptowanego przez Bank, w terminie przez Bank wskazanym\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_8\", \"source_id\": \"sejm_eli_du_2025_350_art_8\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 8. 1. Za pracownika uważa się osobę pozostającą w stosunku pracy, z zastrzeżeniem ust. 2 i 2a. 2. Jeżeli pracownik spełnia kryteria określone dla osób współpracujących, o których mowa w ust. 11 – dla celów ubezpieczeń społecznych jest traktowany jako osoba współpracująca. 2a. Za pracownika, w rozumieniu ustawy, uważa się także osobę wykonującą pracę na podstawie umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umo ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0307_statute_ffa4d066408ffadc\", \"source_id\": \"sejm_eli_du_2024_1061_art_577\", \"source_type\": \"statute\", \"top_category\": \"consumer_rights\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Oświadczenie gwarancyjne zawiera: 1) wyraźne stwierdzenie, że w przypadku braku zgodności rzeczy sprzedanej z umową kupującemu z mocy prawa przysługują środki ochrony prawnej ze strony i na koszt sprzedawcy oraz że gwarancja nie ma wpływu na te środki ochrony prawnej; 2) nazwę i adres gwaranta; 3) opis procedury, której uprawniony ma przestrzegać, aby móc skorzystać z gwarancji; 4) wskazanie rzeczy, których dotyczy gwarancja; 5) warunki gwarancji. § 3. Uchybienie wymaganiom określonym w § 1 i 2 nie wpływa na ważność oświadczenia gwarancyjnego i nie pozbawia wynikających z niego uprawnień.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_577\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 577 1 . § 1. Gwarant formułuje oświadczenie gwarancyjne w sposób jasny i zrozumiały, a gdy rodzaj informacji na to pozwala - w powszechnie zrozumiałej formie graficznej. Jeżeli rzecz jest wprowadzana do obrotu w Rzeczypospolitej Polskiej, oświadczenie gwarancyjne sporządza się w języku polskim. Wymagania używania języka polskiego nie stosuje się do nazw własnych, znaków towarowych, nazw handlowych, oznaczeń pochodzenia towarów oraz zwyczajowo st ...\"}, {\"chunk_id\": \"uokik_items:uokik_f82ce015aca740d7\", \"source_id\": \"uokik_rejestr_klauzul_7059\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszystkie zabezpieczenia muszą być wiarygodne, sprawdzalne i wystarczające dla pokrycia całości ewentualnych należności powiększonych o odsetki i koszty ewentualnego postępowania sądowego.(…)\"}]",
+   "tool_call_id": "call_12a196d37bae4876927803ed",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_746\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 746. § 1. Jeżeli uprawniony nie wniósł pisma wszczynającego postępowanie w wyznaczonym terminie albo cofnął pozew lub wniosek, jak również gdy pozew lub wniosek zwrócono albo odrzucono albo powództwo bądź wniosek oddalono lub postępowanie umorzono, a także w przypadkach wskazanych w art. 744 § 2, obowiązanemu przysługuje przeciwko uprawnionemu roszczenie o naprawienie szkody wyrządzonej wykonaniem zabezpieczenia. Roszczenie w ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_775\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 775. § 1. W przypadku zbiegu egzekucji administracyjnej i zabezpieczenia sądowego, jak również zbiegu zabezpieczenia administracyjnego i egzekucji sądowej do tej samej rzeczy albo prawa majątkowego sprawę o zabezpieczenie przejmuje organ, który prowadził dotąd egzekucję do tej rzeczy albo prawa majątkowego. Jeżeli jednak egzekucja lub zabezpieczenie dotyczą tytułów wykonawczych lub świadczeń wymienionych odpowiednio w art. 77 ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_294\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 294. § 1 110) W tym brzmieniu obowiązuje do wejścia w życie zmiany, o której mowa w odnośniku 111. . Zabezpieczenie upada, gdy nie zostaną prawomocnie orzeczone: grzywna, przepadek, nawiązka, świadczenie pieniężne lub nie zostanie nałożony obowiązek naprawienia szkody lub zadośćuczynienia za doznaną krzywdę, a powództwo o te roszczenia nie zostanie wytoczone przed upływem 3 miesięcy od daty uprawomocnienia się orzeczenia. § 1 111) W  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_70\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 70 4 . § 1. W warunkach aukcji albo przetargu można zastrzec, że przystępujący do aukcji albo przetargu powinien, pod rygorem niedopuszczenia do nich, wpłacić organizatorowi określoną sumę albo ustanowić odpowiednie zabezpieczenie jej zapłaty (wadium). § 2. Jeżeli uczestnik aukcji albo przetargu, mimo wyboru jego oferty, uchyla się od zawarcia umowy, której ważność zależy od spełnienia szczególnych wymagań przewidzianych w ustawie, organizator a ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_364\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 364. § 1. Ilekroć ustawa przewiduje obowiązek zabezpieczenia, zabezpieczenie powinno nastąpić przez złożenie pieniędzy do depozytu sądowego. § 2. Jednakże z ważnych powodów zabezpieczenie może nastąpić w inny sposób.\"}]",
+   "tool_call_id": "call_f466f5eff4554a7598e24584",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_4b3bdcd93c8f4563986bdbc9",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa ramowa zlecenie gwarancji bankowej zabezpieczenie roszczeń regresowych art. 80 prawo bankowe\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_006d93a9354641faa540a53e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 80\", \"prawo bankowe\", \"gwarancja\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_580\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 580. § 1. Kto wykonuje uprawnienia wynikające z gwarancji, powinien dostarczyć rzecz na koszt gwaranta do miejsca wskazanego w gwarancji lub do miejsca, w którym rzecz została wydana przy udzieleniu gwarancji, chyba że z okoliczności wynika, iż wada powinna być usunięta w miejscu, w którym rzecz znajdowała się w chwili ujawnienia wady. § 2. Gwarant jest obowiązany wykonać swoje obowiązki w terminie określonym w treści oświadczenia gwarancyjnego, ...\"}, {\"chunk_id\": \"uokik_items:uokik_cc39c4c4d6d1e44d\", \"source_id\": \"uokik_rejestr_klauzul_6193\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy w okresie obowiązywania niniejszej Umowy nastąpiło zmniejszenie wartości ustanowionych prawnych zabezpieczeń kredytu Bank może żądać dodatkowego prawnego zabezpieczenia kredytu oraz przedłożenia dokumentów niezbędnych do dokonania oceny ryzyka kredytowego.Kredytobiorca zobowiązany jest - na żądanie Banku - do przedstawienia dodatkowego prawnego zabezpieczenia kredytu, akceptowanego przez Bank, w terminie przez Bank wskazanym\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_80\", \"source_id\": \"sejm_eli_du_2025_350_art_80\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 80. W celu ustalenia prawa do świadczeń oraz ich wysokości ubezpieczeni zobowiązani są do: 1) przedstawiania stanów faktycznych mających wpływ na prawo lub wysokość świadczeń; 2) informowania o wszelkich zmianach mających wpływ na świadczenie; 3) przedkładania na żądanie środków dowodowych; 4) osobistego stawiennictwa, jeżeli okoliczności sprawy tego wymagają; 5) poddania się badaniom lekarskim, a także leczeniu lub rehabilitacji, jeżeli oczekuje się, ż e leczenie lub rehabilitacja przywróci zdolność do pracy lub spo ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0117_statute_8eed721343ae82bb\", \"source_id\": \"sejm_eli_du_2024_1568_art_753\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"753 stosuje się odpowiednio do zabezpieczenia roszczeń o: 1) rentę, sumę potrzebną na koszty leczenia, z tytułu odpowiedzialności za uszkodzenie ciała lub utratę życia żywiciela albo rozstrój zdrowia oraz o zmianę uprawnień objętych treścią dożywocia na dożywotnią rentę; 2) wynagrodzenie za pracę; 3) należności z tytułu rękojmi lub gwarancji jakości albo kary umownej, jak również należności z tytułu niezgodności towaru konsumpcyjnego z umową sprzedaży konsumenckiej, przeciwko przedsiębiorcy do wysokości dwudziestu tysięcy złotych; 4) należności z tytułu najmu lub dzierżawy, a także należności  ...\"}, {\"chunk_id\": \"uokik_items:uokik_b763b1a815fee03c\", \"source_id\": \"uokik_rejestr_klauzul_3977\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wysyłanie zawiadomienia o żądaniu zapłaty (roszczenia) w ramach gwarancji - 50,0 zł.\"}]",
+   "tool_call_id": "call_4b3bdcd93c8f4563986bdbc9",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_abusive_clause_247\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W ciągu 3 (trzech) miesięcy, licząc od terminu zakończenia planu ratalnego Gwarancja dokona ostatecznej likwidacji Funduszu. Fundusze, jakie ewentualnie pozostaną po likwidacji Funduszu, zostaną przeznaczone na: a) pokrycie strat powstałych w Funduszu z powodów niezawinionych przez Gwarancja (np. niemożliwość wyegzekwowania zadłużenia z tytułu niezapłaconych rat lub kosztów sądowych od uczestników Funduszu lub poręczycieli b) wypłatę rat podstawowych Inwestorom funduszu, którym nie został przydzielony towar, a którzy odstąpili od umowy lub została im wypowiedziana umowa przez Gwarancja, zgodni ...\"}, {\"chunk_id\": \"uokik_abusive_clause_248\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia Gwarancja zrealizowania przedmiotu umowy Inwestor Funduszu, którego dane osobowe wymienione są na pierwszej stronie umowy, przez jej zawarcie przekazuje na rzecz Gwarancja nieodwołalne i nie wygasające nawet po śmierci Inwestora Funduszu pełnomocnictwo na okres ważności prawnej funduszu, aż do ostatniego rozliczenia. Pełnomocnictwo to obejmuje prawa Gwarancja do równoprawnego rozwiązywania spraw dotyczących Inwestora Funduszu, w tym spowodowanych okolicznościami siły wyższej, a które poza wolą Gwarancja mogłaby przynieść szkody programowi i Funduszowi\"}, {\"chunk_id\": \"extractor_v9:filtered_0398_abusive_clause_411787ed9be1225a\", \"source_id\": \"uokik_abusive_clause_247\", \"source_type\": \"abusive_clause\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W ciągu 3 (trzech) miesięcy, licząc od terminu zakończenia planu ratalnego Gwarancja dokona ostatecznej likwidacji Funduszu. Fundusze, jakie ewentualnie pozostaną po likwidacji Funduszu, zostaną przeznaczone na: a) pokrycie strat powstałych w Funduszu z powodów niezawinionych przez Gwarancja (np. niemożliwość wyegzekwowania zadłużenia z tytułu niezapłaconych rat lub kosztów sądowych od uczestników Funduszu lub poręczycieli b) wypłatę rat podstawowych Inwestorom funduszu, którym nie został przydzielony towar, a którzy odstąpili od umowy lub została im wypowiedziana umowa przez Gwarancja, zgodni ...\"}, {\"chunk_id\": \"uokik_abusive_clause_241\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W przydziale towaru biorą udział wyłącznie pisemne oferty, które wpłynęły do Gwarancja na 5 (pięć) dni przed aktem operacyjnym. Oferty pisemne winne być wypełnione na drukach dostarczonych przez Gwarancja, stosownie do zawartych w nich wskazówek. Gwarancja zobowiązuje się do terminowego dostarczenia oferty przesłanej za pośrednictwem poczty\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_804\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 804 3 . Przepisy art. 804 1 oraz art. 804 2 § 1 nie mają zastosowania, jeżeli z przedłożonych dokumentów wynika, że przeniesienie uprawnienia: 1) ma charakter warunkowy, chyba że chodzi o warunek zawieszający, który spełnił się przed złożeniem wniosku o wszczęcie egzekucji albo wstąpieniem do postępowania, a wierzyciel lub osoba wstępująca do postępowania na miejsce wierzyciela przedłożyli dokument potwierdzający spełnienie w ...\"}]",
+   "tool_call_id": "call_006d93a9354641faa540a53e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Potrzebuję umowy ramowej na stałą współpracę z moim kontrahentem, zabezpieczonej gwarancją bankową."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcemy zawrzeć umowę ramową na 2 lata z firmą budowlaną na dostawy materiałów do wartości 500 tys. zł rocznie, zabezpieczoną gwarancją bankową na 10% wartości rocznej. Kontrahent ma wystawić gwarancję w banku w Polsce, ważną przez cały okres umowy z przedłużeniem na 3 miesiące po zakończeniu. Potrzebujemy też określenia procedury wywoływania gwarancji w przypadku opóźnień w płatnościach."
+  }
+ ]
+}

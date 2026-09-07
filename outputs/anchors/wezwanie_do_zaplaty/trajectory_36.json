@@ -1,0 +1,305 @@
+{
+ "run": 37,
+ "hint": "Wezwanie do zapłaty z żądaniem zapłaty w ciągu 14 dni",
+ "scenario": "Wezwanie do zapłaty z żądaniem zapłaty w ciągu 14 dni",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='wezwanie_do_zaplaty'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_273d7dd745824f8584f0303f",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"wezwanie_do_zaplaty\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"wezwanie_do_zaplaty\", \"kind\": \"structural_template\", \"text\": \"# Wezwanie do zapłaty\\nWezwanie do zapłaty w Polsce to pisemne żądanie wierzyciela skierowane do dłużnika, w którym wierzyciel domaga się uregulowania wymagalnej należności w wyznaczonym terminie. Jego podstawą prawną jest art. 455 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.), zgodnie z którym jeżeli termin spełnienia świadczenia nie jest oznaczony ani nie wynika z właściwości zobowiązania, świadczenie powinno być spełnione niezwłocznie po wezwaniu dłużnika do wykonania. Wezwanie do zapłaty pełni więc funkcję postawienia zobowiązania w stan wymagalności oraz udokumentowania, że wierzyciel podjął próbę polubownego odzyskania należności.\\n\\nWezwanie do zapłaty występuje w dwóch zasadniczych odmianach. Pierwszą jest zwykłe (przedsądowe) wezwanie do zapłaty, którym wierzyciel po raz pierwszy lub kolejny domaga się uregulowania długu. Drugą jest ostateczne przedsądowe wezwanie do zapłaty, które stanowi ostatni krok przed skierowaniem sprawy na drogę sądową i wyraźnie zapowiada wytoczenie powództwa w razie braku zapłaty. Ostateczne wezwanie ma silniejszy wydźwięk dyscyplinujący i często okazuje się skuteczne, ponieważ uświadamia dłużnikowi nieuchronność postępowania sądowego oraz związane z nim koszty.\\n\\nZ wezwaniem do zapłaty łączą się istotne skutki dotyczące odsetek. Zgodnie z art. 481 § 1 Kodeksu cywilnego, jeżeli dłużnik opóźnia się ze spełnieniem świadczenia pieniężnego, wierzyciel może żądać odsetek za czas opóźnienia, choćby nie poniósł żadnej szkody i choćby opóźnienie było następstwem okoliczności, za które dłużnik nie odpowiada. W braku stawki umownej należą się odsetki ustawowe za opóźnienie równe sumie stopy referencyjnej Narodowego Banku Polskiego i 5,5 punktu procentowego (art. 481 § 2 Kodeksu cywilnego). Wezwanie precyzuje kwotę główną oraz zasady naliczania odsetek.\\n\\nWezwanie do zapłaty ma duże znaczenie procesowe, ponieważ stanowi dowód próby polubownego rozwiązania sporu. Zgodnie z art. 187 Kodeksu postępowania cywilnego pozew powinien zawierać informację, czy strony podjęły próbę mediacji lub innego pozasądowego sposobu rozwiązania sporu, a jeżeli nie — wyjaśnienie przyczyn. Dołączenie do akt sprawy wezwania do zapłaty wraz z potwierdzeniem jego nadania wykazuje, że wierzyciel próbował odzyskać należność przed wniesieniem pozwu, co ma znaczenie dla oceny zasadności i kosztów postępowania.\\n\\nW obrocie konsumenckim wezwanie do zapłaty podlega dodatkowym wymaganiom dotyczącym rzetelności i niewprowadzania w błąd. Działalność firm windykacyjnych kierujących wezwania do konsumentów jest nadzorowana przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK), a nieuczciwe lub agresywne praktyki, w tym żądanie zapłaty przedawnionych długów bez stosownej informacji, mogą naruszać zbiorowe interesy konsumentów. Z tego względu wezwanie powinno rzetelnie wskazywać podstawę, wysokość i wymagalność długu.\\n\\nWarto odróżnić wezwanie do zapłaty od pokrewnych pism windykacyjnych. Monit (przypomnienie o płatności) ma charakter mniej formalny i zwykle nie wyznacza ostatecznego terminu pod rygorem postępowania sądowego, natomiast nota odsetkowa służy wyłącznie rozliczeniu naliczonych odsetek za opóźnienie. Wezwanie do zapłaty łączy oba cele — przypomina o długu i jednoznacznie żąda jego uregulowania w wyznaczonym terminie. W transakcjach handlowych między przedsiębiorcami wierzyciel może ponadto dochodzić rekompensaty za koszty odzyskiwania należności (tzw. rekompensata 40, 70 lub 100 euro w przeliczeniu na złote, w zależności od wysokości świadczenia) na podstawie ustawy o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, co warto zasygnalizować już w wezwaniu, aby zdyscyplinować kontrahenta i wykazać pełny zakres roszczenia.\\n\\nWezwanie do zapłaty w Polsce jest potrzebne zawsze wtedy, gdy dłużnik nie reguluje wymagalnej należności, a wierzyciel chce odzyskać pieniądze, zanim skieruje sprawę do sądu. Stanowi ono pierwszy, polubowny krok windykacji i daje dłużnikowi możliwość dobrowolnej zapłaty bez ponoszenia kosztów postępowania sądowego i egzekucyjnego.\\n\\nDokument jest niezbędny, gdy termin spełnienia świadczenia nie został oznaczony ani nie wynika z właściwości zobowiązania. Zgodnie z art. 455 Kodeksu cywilnego w takim przypadku świadczenie powinno być spełnione niezwłocznie po wezwaniu dłużnika, a samo wezwanie stawia zobowiązanie w stan wymagalności. Bez wezwania wierzyciel nie mógłby naliczać odsetek za opóźnienie ani skutecznie dochodzić roszczenia, ponieważ dłużnik nie pozostawałby w opóźnieniu.\\n\\nWezwanie do zapłaty jest stosowane przy nieopłaconych fakturach w obrocie gospodarczym, przy niezwróconych pożyczkach (art. 720 Kodeksu cywilnego), zaległym czynszu, niezapłaconych wynagrodzeniach z umów o dzieło czy zlecenia oraz przy wszelkich innych wymagalnych należnościach pieniężnych. Przedsiębiorcy często wysyłają je rutynowo po upływie terminu płatności faktury, aby zdyscyplinować kontrahenta i udokumentować opóźnienie.\\n\\nOstateczne przedsądowe wezwanie do zapłaty jest potrzebne jako ostatni etap przed wniesieniem pozwu. Wierzyciel wyznacza w nim dodatkowy, zwykle krótki termin zapłaty i wyraźnie zapowiada skierowanie sprawy do sądu, w tym do elektronicznego postępowania upominawczego przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie, VI Wydział Cywilny). Taki dokument ma znaczenie dowodowe, ponieważ wykazuje, że wierzyciel podjął próbę polubownego rozwiązania sporu, do czego nawiązuje art. 187 Kodeksu postępowania cywilnego.\\n\\nWezwanie do zapłaty bywa też potrzebne ze względu na przedawnienie. Choć samo wezwanie nie przerywa biegu przedawnienia, mobilizuje dłużnika do zapłaty lub do uznania długu, które już taki skutek wywołuje (art. 123 § 1 pkt 2 Kodeksu cywilnego). W relacjach z konsumentami wezwanie powinno być rzetelne i nie wprowadzać w błąd co do wymagalności i istnienia długu, ponieważ praktyki windykacyjne podlegają nadzorowi Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nWezwanie do zapłaty znajduje również zastosowanie przy roszczeniach zabezpieczonych — na przykład poprzedza wypełnienie weksla in blanco zgodnie z deklaracją wekslową albo realizację poręczenia z art. 876 Kodeksu cywilnego. Przed sięgnięciem po zabezpieczenie wierzyciel zwykle wzywa najpierw dłużnika głównego, a dopiero w razie bezskuteczności kieruje żądanie do poręczyciela lub wystawcy weksla. W sprawach gospodarczych dobrze udokumentowane wezwanie ułatwia także uzyskanie nakazu zapłaty w postępowaniu nakazowym, gdy roszczenie wynika z zaakceptowanej faktury lub uznania długu (art. 485 Kodeksu postępowania cywilnego).\\n\\nPrawidłowe wezwanie do zapłaty w Polsce, oparte na art. 455 i art. 481 Kodeksu cywilnego, powinno zawierać elementy pozwalające jednoznacznie zidentyfikować strony, należność oraz termin i sposób jej uregulowania.\\n\\nOznaczenie stron: pełne dane wierzyciela (wzywającego) i dłużnika (wzywanego). Dla osoby fizycznej należy podać imię, nazwisko i adres, a dla przedsiębiorcy — firmę, adres siedziby, numer NIP oraz numer wpisu w Krajowym Rejestrze Sądowym (KRS) lub w Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG). Prawidłowy adres dłużnika jest kluczowy, ponieważ od skutecznego doręczenia zależy postawienie zobowiązania w stan wymagalności.\\n\\nWskazanie tytułu (podstawy) należności: wezwanie musi odnosić się do konkretnego stosunku prawnego lub dokumentu, z którego dług wynika — na przykład do faktury VAT z oznaczonym numerem i datą, umowy pożyczki, umowy najmu czy umowy o dzieło. Precyzyjne wskazanie podstawy eliminuje wątpliwości co do tożsamości dochodzonego roszczenia.\\n\\nOkreślenie kwoty: kwotę główną (kapitał) należy podać cyfrowo i słownie, na przykład \\\"8 000 zł (osiem tysięcy złotych)\\\". Odrębnie wskazuje się należne odsetki — najczęściej odsetki ustawowe za opóźnienie z art. 481 § 2 Kodeksu cywilnego, z podaniem daty, od której są naliczane. Jednoznaczne określenie kwot zapobiega sporom o zakres żądania.\\n\\nData wymagalności: wezwanie powinno wskazywać pierwotny termin zapłaty lub dzień, w którym należność stała się wymagalna. To ważne dla wykazania, że dłużnik pozostaje w opóźnieniu, oraz dla ustalenia okresu naliczania odsetek.\\n\\nSposób zapłaty i forma rozliczenia: w wezwaniu należy jednoznacznie wskazać numer rachunku bankowego oraz tytuł przelewu, aby zapłata została prawidłowo zaksięgowana i powiązana z konkretną należnością. Jeżeli dług obejmuje kilka faktur lub rat, warto sporządzić ich zestawienie z podaniem numerów, dat i kwot, ponieważ zgodnie z art. 451 Kodeksu cywilnego sposób zaliczenia zapłaty na poczet kilku długów ma znaczenie dla ustalenia, które zobowiązania zostały zaspokojone. Przejrzyste zestawienie ogranicza spory co do tego, czy częściowa wpłata pokryła kapitał, czy odsetki.\\n\\nWyznaczenie dodatkowego terminu zapłaty: wierzyciel wyznacza dłużnikowi konkretny, dodatkowy termin na dobrowolną zapłatę, na przykład siedem dni od otrzymania pisma, oraz wskazuje rachunek bankowy, na który ma nastąpić przelew. Realny termin zwiększa skuteczność wezwania i wykazuje dobrą wolę wierzyciela.\\n\\nInformacja o skutkach braku zapłaty: w wezwaniu, zwłaszcza ostatecznym, należy zapowiedzieć skierowanie sprawy na drogę sądową w razie braku zapłaty, w tym do postępowania upominawczego lub elektronicznego postępowania upominawczego przed e-sądem, oraz wskazać, że dłużnik zostanie obciążony kosztami postępowania i egzekucji komorniczej. Serwis forms-legal.com udostępnia wzór wezwania do zapłaty jako praktyczny punkt wyjścia. Dokument powinien zawierać miejsce, datę sporządzenia i podpis wierzyciela, a przy wysyłce listem poleconym za potwierdzeniem odbioru wierzyciel uzyskuje dowód doręczenia istotny w późniejszym postępowaniu.\\n\\nWypełnianie wezwania do zapłaty w Polsce zacznij od oznaczenia stron. W polu wierzyciela wpisz swoje imię i nazwisko lub firmę, adres oraz numer rachunku bankowego, na który ma nastąpić zapłata. W polu dłużnika podaj dane osoby wzywanej oraz jej aktualny adres do doręczeń — prawidłowy adres jest istotny, ponieważ od skutecznego doręczenia zależy postawienie zobowiązania w stan wymagalności zgodnie z art. 455 Kodeksu cywilnego.\\n\\nWybierz rodzaj wezwania. Jeżeli to pierwsze pismo, zaznacz zwykłe wezwanie do zapłaty. Jeżeli wcześniejsze próby okazały się bezskuteczne i zamierzasz skierować sprawę do sądu, wybierz ostateczne przedsądowe wezwanie do zapłaty, które ma mocniejszy wydźwięk dyscyplinujący.\\n\\nW części dotyczącej należności wskaż jej tytuł, czyli podstawę — na przykład \\\"faktura VAT nr 12/2025 z dnia 15.03.2025 r.\\\" albo \\\"umowa pożyczki z dnia 10.01.2025 r.\\\". Podaj kwotę główną cyfrowo i słownie oraz osobno należne odsetki, najczęściej odsetki ustawowe za opóźnienie z art. 481 Kodeksu cywilnego, ze wskazaniem daty, od której są naliczane. Wpisz także pierwotny termin zapłaty lub dzień, w którym należność stała się wymagalna.\\n\\nWyznacz dodatkowy, realny termin na dobrowolną zapłatę, na przykład \\\"7 dni od otrzymania wezwania\\\". Zbyt krótki termin może być uznany za nierealny, a zbyt długi opóźnia dochodzenie roszczenia. Wskaż wyraźnie, że zapłata ma nastąpić przelewem na podany rachunek bankowy.\\n\\nW sekcji skutków braku zapłaty zapowiedz skierowanie sprawy na drogę sądową, w tym do postępowania upominawczego lub elektronicznego postępowania upominawczego przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie), oraz poinformuj o obciążeniu dłużnika kosztami postępowania i egzekucji. Na koniec uzupełnij miejscowość, datę sporządzenia pisma i złóż podpis. Wyślij wezwanie listem poleconym za potwierdzeniem odbioru i zachowaj dowód nadania — będzie on cennym dowodem w ewentualnym procesie.\\n\\nWymogi prawne wezwania do zapłaty w Polsce wynikają przede wszystkim z art. 455 Kodeksu cywilnego, zgodnie z którym jeżeli termin spełnienia świadczenia nie jest oznaczony ani nie wynika z właściwości zobowiązania, świadczenie powinno być spełnione niezwłocznie po wezwaniu dłużnika do wykonania. Wezwanie postawione w stan wymagalności otwiera wierzycielowi drogę do naliczania odsetek i dochodzenia roszczenia. Prawo nie przewiduje obowiązkowej formy wezwania, jednak forma pisemna, najlepiej list polecony za potwierdzeniem odbioru, jest niezbędna dla celów dowodowych.\\n\\nZ wezwaniem ściśle wiążą się przepisy o odsetkach za opóźnienie. Artykuł 481 § 1 Kodeksu cywilnego stanowi, że wierzyciel może żądać odsetek za czas opóźnienia, choćby nie poniósł szkody i choćby opóźnienie było następstwem okoliczności, za które dłużnik nie odpowiada. W braku stawki umownej należą się odsetki ustawowe za opóźnienie, czyli stopa referencyjna Narodowego Banku Polskiego powiększona o 5,5 punktu procentowego (art. 481 § 2), nie wyższe niż odsetki maksymalne za opóźnienie (art. 481 § 2¹).\\n\\nWezwanie ma znaczenie procesowe w świetle art. 187 Kodeksu postępowania cywilnego, który wymaga, aby pozew zawierał informację o podjęciu próby pozasądowego rozwiązania sporu. Dołączenie wezwania do zapłaty wraz z dowodem jego nadania wykazuje, że wierzyciel próbował odzyskać należność polubownie. Należy jednak pamiętać, że samo wezwanie nie przerywa biegu przedawnienia w rozumieniu art. 123 Kodeksu cywilnego — taki skutek wywołuje dopiero czynność przed sądem, uznanie roszczenia lub wszczęcie mediacji.\\n\\nW obrocie konsumenckim wezwanie do zapłaty musi być rzetelne i nie może wprowadzać w błąd co do istnienia, wysokości i wymagalności długu. Żądanie zapłaty przedawnionego długu od konsumenta bez stosownej informacji może stanowić nieuczciwą praktykę rynkową, ponieważ wobec konsumenta po upływie przedawnienia nie można domagać się zaspokojenia roszczenia, a sąd bada przedawnienie z urzędu (art. 117 § 2¹ Kodeksu cywilnego). Praktyki windykacyjne podlegają nadzorowi Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nNależy też pamiętać o właściwym ustaleniu daty wymagalności i początku naliczania odsetek. Przy świadczeniach z oznaczonym terminem dłużnik popada w opóźnienie z mocy art. 476 Kodeksu cywilnego już następnego dnia po upływie tego terminu, bez potrzeby wezwania. Dopiero przy świadczeniach bezterminowych konieczne jest wezwanie z art. 455 Kodeksu cywilnego. Prawidłowe rozróżnienie tych sytuacji decyduje o tym, od kiedy wierzyciel może liczyć odsetki za opóźnienie, dlatego wezwanie powinno jasno wskazywać podstawę i moment wymagalności roszczenia.\\n\\nNajczęstsze błędy przy wezwaniu do zapłaty w Polsce zaczynają się od nieprecyzyjnego wskazania należności. Wezwanie bez podania tytułu długu, dokładnej kwoty kapitału oraz zasad naliczania odsetek jest mało skuteczne i osłabia pozycję wierzyciela w ewentualnym procesie. Należność powinna być jednoznacznie zidentyfikowana, na przykład przez numer i datę faktury lub datę umowy.\\n\\nKolejnym błędem jest wysyłka wezwania na nieaktualny adres albo bez dowodu doręczenia. Ponieważ zgodnie z art. 455 Kodeksu cywilnego skutki wezwania powstają dopiero po jego doręczeniu dłużnikowi, brak potwierdzenia odbioru utrudnia wykazanie, że dłużnik popadł w opóźnienie. Zaleca się wysyłkę listem poleconym za potwierdzeniem odbioru i zachowanie dowodu nadania.\\n\\nPowszechnym uchybieniem jest wyznaczanie nierealnego terminu zapłaty. Termin zbyt krótki może zostać uznany za niedający realnej możliwości spełnienia świadczenia, natomiast zbyt długi niepotrzebnie opóźnia dochodzenie roszczenia. Termin powinien być rozsądny i jasno określony, na przykład siedem lub czternaście dni od otrzymania pisma.\\n\\nBłędem jest też błędne przekonanie, że samo wezwanie do zapłaty przerywa bieg przedawnienia. Wezwanie nie jest czynnością przerywającą przedawnienie w rozumieniu art. 123 Kodeksu cywilnego — taki skutek wywołuje dopiero wytoczenie powództwa, uznanie roszczenia przez dłużnika lub wszczęcie mediacji. Poleganie wyłącznie na wezwaniach może doprowadzić do przedawnienia roszczenia.\\n\\nW obrocie konsumenckim poważnym uchybieniem jest kierowanie wezwań dotyczących przedawnionych długów bez stosownej informacji lub stosowanie agresywnego, wprowadzającego w błąd języka. Takie praktyki mogą naruszać zbiorowe interesy konsumentów i podlegać ocenie Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK), narażając wierzyciela lub firmę windykacyjną na odpowiedzialność.\\n\\nInnym częstym błędem jest niespójność kwot między wezwaniem a późniejszym pozwem. Jeżeli wierzyciel w wezwaniu wskazuje jedną sumę, a w pozwie dochodzi wyższej bez wyjaśnienia różnicy, osłabia to wiarygodność roszczenia i może prowadzić do zakwestionowania go przez dłużnika w sprzeciwie od nakazu zapłaty. Należy też unikać naliczania odsetek od odsetek (anatocyzmu) z naruszeniem art. 482 Kodeksu cywilnego, zgodnie z którym od zaległych odsetek można żądać odsetek za opóźnienie dopiero od chwili wytoczenia o nie powództwa, chyba że strony umówiły się inaczej. Pominięcie tych zasad bywa źródłem sporów i podważa skuteczność windykacji.\\n\\nŹródło: https://forms-legal.com/pl/financial/debt/wezwanie-do-zaplaty (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_273d7dd745824f8584f0303f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-bb25df6fed26e35d",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"14 dni\", \"termin zapłaty\", \"wezwanie\", \"zapłata w ciągu\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1790_art_7\", \"source_id\": \"sejm_eli_du_2023_1790_art_7\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 7. 1. W transakcjach handlowych - z wyłączeniem transakcji, w których dłużnikiem jest podmiot publiczny - wierzycielowi, bez wezwania, przysługują odsetki ustawowe za opóźnienie w transakcjach handlowych, chyba że strony uzgodniły wyższe odsetki, za okres od dnia wymagalności świadczenia pieniężnego do dnia zapłaty, jeżeli są spełnione łącznie następujące warunki: 1) wierzyciel spełnił swoje świadczenie; 2) wierzyciel nie otrzymał zapłaty w terminie okr ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_13\", \"source_id\": \"sejm_eli_du_2023_1790_art_13\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 13. 1. Postanowienia umowy wyłączające lub ograniczające uprawnienia wierzyciela lub obowiązki dłużnika, o których mowa w art. 5, art. 6 ust. 1, art. 7 ust. 1 i 3, art. 8 ust. 1, 4 i 4a, art. 10, art. 11 i art. 12, lub mające na celu obejście tych przepisów, są nieważne, a zamiast nich stosuje się przepisy ustawy. 2. Zamiast postanowień umowy ustalających termin zapłaty z naruszeniem: 1) art. 7 ust. 2 - stosuje się termin zapłaty 60 dni, 2) art. 7 ust.  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_8\", \"source_id\": \"sejm_eli_du_2023_1790_art_8\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 8. 1. W transakcjach handlowych, w których dłużnikiem jest podmiot publiczny, wierzycielowi, bez wezwania, przysługują odsetki ustawowe za opóźnienie w transakcjach handlowych, za okres od dnia wymagalności świadczenia pieniężnego do dnia zapłaty, jeżeli są spełnione łącznie następujące warunki: 1) wierzyciel spełnił swoje świadczenie; 2) wierzyciel nie otrzymał zapłaty w terminie określonym w umowie. 2. Termin zapłaty określony w umowie nie może przekr ...\"}, {\"chunk_id\": \"uokik_items:uokik_6302c2841779abc3\", \"source_id\": \"uokik_rejestr_klauzul_5768\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"1. W przypadku powstania zadłużenia przeterminowanego, Pożyczkodawca ma prawo wszcząć postępowanie windykacyjne mające na celu doprowadzenie do dobrowolnej spłaty należności, którego koszty ponosi pożyczkobiorca. W związku z tym postępowaniem, Pożyczkodawca ma prawo: a) wysłać wezwanie do zapłaty (monit) pocztą tradycyjną, przy czym opłata za jedno wezwanie obciąża pożyczkobiorcę i wynosi 100 zł (maksymalna liczba wezwań do zapłaty wysłanych pocztą tradycyjną w jednym miesiącu wynosi 30 sztuk); b) wysłać wezwanie do zapłaty (monit) pocztą email, przy czym opłata za jedno wezwanie obciąża Pożyc ...\"}, {\"chunk_id\": \"uokik_items:uokik_34eab25216df91b8\", \"source_id\": \"uokik_rejestr_klauzul_5790\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"1. W przypadku powstania zadłużenia przeterminowanego, Pożyczkodawca ma prawo wszcząć postępowanie windykacyjne mające na celu doprowadzenie do dobrowolnej spłaty należności, którego koszty ponosi Pożyczkobiorca. W związku z tym postępowaniem, Pożyczkodawca ma prawo: a. wysłać wezwanie do zapłaty (monit) pocztą tradycyjną, przy czym opłata za jedno wezwanie obciąża Pożyczkobiorcę i wynosi 100 zł (maksymalna liczba wezwań do zapłaty wysłanych pocztą tradycyjną w jednym miesiącu wynosi 30 sztuk); b. wysłać wezwanie do zapłaty (monit) pocztą email, przy czym opłata za jedno wezwanie obciąża Pożyc ...\"}]",
+   "tool_call_id": "chatcmpl-tool-bb25df6fed26e35d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions about the 14-day payment deadline in payment demands, and also look at the Civil Code provisions about setting deadlines.",
+   "tool_calls": [
+    {
+     "id": "call-f023152b-1268-4445-8075-39f9b2e09485",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 455\", \"art. 481\", \"termin zapłaty\", \"wezwanie do zapłaty\", \"14 dni\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1790_art_7\", \"source_id\": \"sejm_eli_du_2023_1790_art_7\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 7. 1. W transakcjach handlowych - z wyłączeniem transakcji, w których dłużnikiem jest podmiot publiczny - wierzycielowi, bez wezwania, przysługują odsetki ustawowe za opóźnienie w transakcjach handlowych, chyba że strony uzgodniły wyższe odsetki, za okres od dnia wymagalności świadczenia pieniężnego do dnia zapłaty, jeżeli są spełnione łącznie następujące warunki: 1) wierzyciel spełnił swoje świadczenie; 2) wierzyciel nie otrzymał zapłaty w terminie okr ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_13\", \"source_id\": \"sejm_eli_du_2023_1790_art_13\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 13. 1. Postanowienia umowy wyłączające lub ograniczające uprawnienia wierzyciela lub obowiązki dłużnika, o których mowa w art. 5, art. 6 ust. 1, art. 7 ust. 1 i 3, art. 8 ust. 1, 4 i 4a, art. 10, art. 11 i art. 12, lub mające na celu obejście tych przepisów, są nieważne, a zamiast nich stosuje się przepisy ustawy. 2. Zamiast postanowień umowy ustalających termin zapłaty z naruszeniem: 1) art. 7 ust. 2 - stosuje się termin zapłaty 60 dni, 2) art. 7 ust.  ...\"}, {\"chunk_id\": \"uokik_items:uokik_6302c2841779abc3\", \"source_id\": \"uokik_rejestr_klauzul_5768\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"1. W przypadku powstania zadłużenia przeterminowanego, Pożyczkodawca ma prawo wszcząć postępowanie windykacyjne mające na celu doprowadzenie do dobrowolnej spłaty należności, którego koszty ponosi pożyczkobiorca. W związku z tym postępowaniem, Pożyczkodawca ma prawo: a) wysłać wezwanie do zapłaty (monit) pocztą tradycyjną, przy czym opłata za jedno wezwanie obciąża pożyczkobiorcę i wynosi 100 zł (maksymalna liczba wezwań do zapłaty wysłanych pocztą tradycyjną w jednym miesiącu wynosi 30 sztuk); b) wysłać wezwanie do zapłaty (monit) pocztą email, przy czym opłata za jedno wezwanie obciąża Pożyc ...\"}, {\"chunk_id\": \"uokik_items:uokik_34eab25216df91b8\", \"source_id\": \"uokik_rejestr_klauzul_5790\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"1. W przypadku powstania zadłużenia przeterminowanego, Pożyczkodawca ma prawo wszcząć postępowanie windykacyjne mające na celu doprowadzenie do dobrowolnej spłaty należności, którego koszty ponosi Pożyczkobiorca. W związku z tym postępowaniem, Pożyczkodawca ma prawo: a. wysłać wezwanie do zapłaty (monit) pocztą tradycyjną, przy czym opłata za jedno wezwanie obciąża Pożyczkobiorcę i wynosi 100 zł (maksymalna liczba wezwań do zapłaty wysłanych pocztą tradycyjną w jednym miesiącu wynosi 30 sztuk); b. wysłać wezwanie do zapłaty (monit) pocztą email, przy czym opłata za jedno wezwanie obciąża Pożyc ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_8\", \"source_id\": \"sejm_eli_du_2023_1790_art_8\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 8. 1. W transakcjach handlowych, w których dłużnikiem jest podmiot publiczny, wierzycielowi, bez wezwania, przysługują odsetki ustawowe za opóźnienie w transakcjach handlowych, za okres od dnia wymagalności świadczenia pieniężnego do dnia zapłaty, jeżeli są spełnione łącznie następujące warunki: 1) wierzyciel spełnił swoje świadczenie; 2) wierzyciel nie otrzymał zapłaty w terminie określonym w umowie. 2. Termin zapłaty określony w umowie nie może przekr ...\"}]",
+   "tool_call_id": "call-f023152b-1268-4445-8075-39f9b2e09485",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions about the 14-day deadline in payment demands, particularly in the context of the Civil Code and consumer protection.",
+   "tool_calls": [
+    {
+     "id": "call-c1e98f97-810a-48e6-95de-f30563284e6d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"wezwanie do zapłaty termin 14 dni zapłaty dobrowolnej przed sądem\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_dbaa67818f13cddd\", \"source_id\": \"uokik_rejestr_klauzul_869\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Żądaną należność należy wpłacić najpóźniej w terminie 14 dni od daty wystawienia wezwania do zapłaty\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"uokik_items:uokik_81cfe7db8e57ca49\", \"source_id\": \"uokik_rejestr_klauzul_5030\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku zalegania przez Kandydatów z w/w opłatami lub ich zaprzestania oraz w przypadku nie dojścia do porozumienia stron odnośnie nowego harmonogramu wpłat, (...) przysługuje prawo odstąpienia od wszelkich zobowiązań i w tym przypadku Kandydaci zobowiązują się do zapłacenia indywidualnie negocjowanego wynagrodzenia określonego w rubryce &quot;płatności&quot; Umowy Członkowskiej, w pozycji &quot;cena negocjowana&quot;. Kandydaci gwarantują zapłacenie w/w wynagrodzenia w terminie 3 dni na wezwanie do dobrowolnej zapłaty, a jego uregulowanie nastąpi bez potrzeby dokumentowania poniesionych k ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_480\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 480 2 . § 1. W nakazie zapłaty sąd nakazuje pozwanemu, aby w terminie oznaczonym w nakazie zaspokoił roszczenie w całości wraz z kosztami albo wniósł środek zaskarżenia. § 2. Termin, o którym mowa w § 1, wynosi: 1) dwa tygodnie od dnia doręczenia nakazu w przypadku nakazu zapłaty wydanego w postępowaniu upominawczym, gdy doręczenie nakazu pozwanemu ma mieć miejsce w kraju; 2) miesiąc od dnia doręczenia nakazu w przypadku naka ...\"}, {\"chunk_id\": \"uokik_items:uokik_95074490b47fc814\", \"source_id\": \"uokik_rejestr_klauzul_6950\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wezwanie do zapłaty, upomnienie, zawiadomienie posiadacza rachunku, kredytobiorcy, poręczycieli o wymagalności zadłużenia: a) wysłane listem zwykłym - od każdego wezwania wysłanego do posiadacza rachunku, kredytobiorcy, poręczycieli - nie więcej niż raz w miesiącu - 15 zł, b) wysłane listem poleconym - od każdego wezwania wysłanego do posiadacza rachunku, kredytobiorcy, poręczycieli - nie więcej niż raz w miesiącu - 20 zł. Uwaga. Opłatę pobiera się od posiadacza rachunku.\"}]",
+   "tool_call_id": "call-c1e98f97-810a-48e6-95de-f30563284e6d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I found a relevant UOKiK clause that mentions \"14 dni od daty wystawienia wezwania do zapłaty\" (14 days from the date of issuing the payment demand). Let me also search for more specific provisions about the 14-day deadline in the context of payment demands and the Civil Code.",
+   "tool_calls": [
+    {
+     "id": "call-1f5517ee-3bdf-40a1-8078-e606b033fd3d",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"uokik_items:uokik_dbaa67818f13cddd\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_dbaa67818f13cddd\", \"source_id\": \"uokik_rejestr_klauzul_869\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Żądaną należność należy wpłacić najpóźniej w terminie 14 dni od daty wystawienia wezwania do zapłaty\"}]",
+   "tool_call_id": "call-1f5517ee-3bdf-40a1-8078-e606b033fd3d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "WEZWANIE DO ZAPŁATY\n\nMiejscowość, data: ...........................\n\nWIERZYCIEL (WZYWAJĄCY):\nImię i nazwisko / Nazwa firmy: ...........................\nAdres: ...........................\nNIP: ...........................\nNr rachunku bankowego: ...........................\n\nDŁUŻNIK (WZYWANY):\nImię i nazwisko / Nazwa firmy: ...........................\nAdres: ...........................\nNIP: ...........................\n\nSzanowni Państwo,\n\nnawiązując do art. 455 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r. – tekst jednolity: Dz.U. 2020 poz. 1515 ze zm.), niniejszym wzywam Państwa do zapłaty w terminie 14 (czternastu) dni od dnia otrzymania niniejszego wezwania.\n\nTYTUŁ NALEŻNOŚCI:\n\nNależność wynika z: ........................... (np. faktury VAT nr ............. z dnia .............; umowy pożyczki z dnia .............; umowy najmu z dnia .............; umowy o dzieło/zlecenia z dnia .............).\n\nPIERWOTNY TERMIN ZAPŁATY: ...........................\n\nKWOTA NALEŻNOŚCI:\n\n1. Kwota główna (kapitał): ........................... zł (słownie: ................................................................ złotych)\n2. Odsetki ustawowe za opóźnienie naliczane od dnia ............. do dnia .............: ........................... zł (słownie: ................................................................ złotych)\n3. RAZEM Z ODSETKAMI: ........................... zł (słownie: ................................................................ złotych)\n\nUWAGA DOTYCZĄCA ODSETEK:\n\nZgodnie z art. 481 § 1 Kodeksu cywilnego, jeżeli dłużnik opóźnia się ze spełnieniem świadczenia pieniężnego, wierzyciel może żądać odsetek za czas opóźnienia, choćby nie poniósł żadnej szkody i choćby opóźnienie było następstwem okoliczności, za które dłużnik nie odpowiada. W braku stawki umownej należą się odsetki ustawowe za opóźnienie równe sumie stopy referencyjnej Narodowego Banku Polskiego i 5,5 punktu procentowego (art. 481 § 2 Kodeksu cywilnego). Odsetki naliczane są do dnia faktycznej zapłaty.\n\nSPOSÓB ZAPŁATY:\n\nProsimy o dokonanie przelewu na rachunek bankowy wierzyciela nr: ...........................\nw tytule przelewu proszę podać: \"...........................\" (np. faktura nr ............. / wezwanie do zapłaty z dnia .............).\n\nZgodnie z art. 451 Kodeksu cywilnego, w przypadku istnienia kilku długów tego samego rodzaju, zapłata zostaje zaliczona na poczet tego zobowiązania, które dłużnik wskazał w momencie zapłaty. W przypadku braku wskazania przez dłużnika, zapłata zostaje zaliczona na poczet zobowiązania najwcześniej wymagalnego.\n\nSKUTKI BRAKU ZAPŁATY:\n\nW przypadku nieuregulowania należności w wyznaczonym 14-dniowym terminie, wierzyciel zastrzega sobie prawo do:\n\n1. Skierowania sprawy na drogę sądową, w tym wniesienia pozwu do sądu powszechnego lub wydania nakazu zapłaty w postępowaniu upominawczym (art. 480 i nast. Kodeksu postępowania cywilnego) lub w elektronicznym postępowaniu upominawczym przed Sądem Rejonowym Lublin-Zachód w Lublinie (VI Wydział Cywilny);\n2. Domagan się zwrotu kosztów postępowania sądowego, w tym kosztów zastępstwa procesowego oraz kosztów egzekucji komorniczej;\n3. Domagan się dodatkowych odsetek ustawnych za opóźnienie za cały okres opóźnienia;\n4. W przypadku transakcji handlowych między przedsiębiorcami – dochodzenia rekompensaty za koszty odzyskiwanie należności na podstawie ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790), w wysokości 40, 70 lub 100 euro w przeliczeniu na złotówki, w zależności od wysokości świadczenia.\n\nINFORMACJA PROCESOWA:\n\nNiniejsze wezwanie stanowi próbę polubownego rozwiązania sporu w rozumieniu art. 187 Kodeksu postępowania cywilnego, zgodnie z którym pozew powinien zawierać informację, czy strony podjęły próbę mediacji lub innego pozasądowego sposobu rozwiązania sporu. Dołączenie niniejszego wezwania do ewentualnego pozwu wykazuje, że wierzyciel podjął próbę odzyskania należności przed wniesieniem sprawy na drogę sądową.\n\nUWAGA DOTYCZĄCA PRZEDAWNIENIA:\n\nInformuję, że zgodnie z art. 123 § 1 pkt 2 Kodeksu cywilnego, bieg przedawnienia przerywa się wyłącznie przez czynność przed sądem lub innym organem orzekającym w sprawie, uznanie roszczenia przez dłużnika lub wszczęcie mediacji. Samo wezwanie do zapłaty nie przerywa biegu przedawnienia. W relacjach z konsumentami, zgodnie z art. 117 § 2¹ Kodeksu cywilnego, sąd bada przedawnienie roszczenia z urzędu, a żądanie zapłaty przedawnionego długu bez stosownej informacji może stanowić nieuczciwą praktykę rynkową w rozumieniu ustawy o przeciwdziałaniu nieuczciwym praktykom rynkowym.\n\nUWAGA DOTYCZĄCA OCHRONY KONSUMENTÓW:\n\nJeżeli dłużnikiem jest konsument, niniejsze wezwanie jest rzetelne i nie wprowadza w błąd co do istnienia, wysokości oraz wymagalności długu. Wierzyciel nie stosuje nieuczciwych lub agresywnych praktyk windykacyjnych, a działalność w tym zakresie podlega nadzorowi Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK). W szczególności nie pobiera się opłat za samo wysłanie wezwania do konsumenta, a ewentualne koszty windykacji mogą być dochodzone wyłącznie na drodze sądowej.\n\nPROŚBA O DOBROWOLNĄ ZAPŁATĘ:\n\nWierząc w Państwa dobrą wolę i chęć polubownego uregulowania należności, wzywam Państwa do dokonania zapłaty w całości w terminie 14 (czternastu) dni od dnia otrzymania niniejszego pisma. Termin ten jest rozsądny i daje Państwu realną możliwość spełnienia świadczenia bez konieczności ponoszenia dodatkowych kosztów postępowania sądowego i egzekucyjnego.\n\nZ poważaniem,\n\n...........................\n(podpis wierzyciela)\n\nZałączniki:\n1. Kopia faktury / umowy / dokumentu stanowiącego podstawę należności\n2. Zestawienie naliczonych odsetek (jeśli dotyczy)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "WEZWANIE DO ZAPŁATY\n\nMiejscowość, data: ...........................\n\nWIERZYCIEL (WZYWAJĄCY):\nImię i nazwisko / Nazwa firmy: ...........................\nAdres: ...........................\nNIP: ...........................\nNr rachunku bankowego: ...........................\n\nDŁUŻNIK (WZYWANY):\nImię i nazwisko / Nazwa firmy: ...........................\nAdres: ...........................\nNIP: ...........................\n\nSzanowni Państwo,\n\nnawiązując do art. 455 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r. – tekst jednolity: Dz.U. 2020 poz. 1515 ze zm.), niniejszym wzywam Państwa do zapłaty w terminie 14 (czternastu) dni od dnia otrzymania niniejszego wezwania.\n\nTYTUŁ NALEŻNOŚCI:\n\nNależność wynika z: ........................... (np. faktury VAT nr ............. z dnia .............; umowy pożyczki z dnia .............; umowy najmu z dnia .............; umowy o dzieło/zlecenia z dnia .............).\n\nPIERWOTNY TERMIN ZAPŁATY: ...........................\n\nKWOTA NALEŻNOŚCI:\n\n1. Kwota główna (kapitał): ........................... zł (słownie: ................................................................ złotych)\n2. Odsetki ustawowe za opóźnienie naliczane od dnia ............. do dnia .............: ........................... zł (słownie: ................................................................ złotych)\n3. RAZEM Z ODSETKAMI: ........................... zł (słownie: ................................................................ złotych)\n\nUWAGA DOTYCZĄCA ODSETEK:\n\nZgodnie z art. 481 § 1 Kodeksu cywilnego, jeżeli dłużnik opóźnia się ze spełnieniem świadczenia pieniężnego, wierzyciel może żądać odsetek za czas opóźnienia, choćby nie poniósł żadnej szkody i choćby opóźnienie było następstwem okoliczności, za które dłużnik nie odpowiada. W braku stawki umownej należą się odsetki ustawowe za opóźnienie równe sumie stopy referencyjnej Narodowego Banku Polskiego i 5,5 punktu procentowego (art. 481 § 2 Kodeksu cywilnego). Odsetki naliczane są do dnia faktycznej zapłaty.\n\nSPOSÓB ZAPŁATY:\n\nProsimy o dokonanie przelewu na rachunek bankowy wierzyciela nr: ...........................\nw tytule przelewu proszę podać: \"...........................\" (np. faktura nr ............. / wezwanie do zapłaty z dnia .............).\n\nZgodnie z art. 451 Kodeksu cywilnego, w przypadku istnienia kilku długów tego samego rodzaju, zapłata zostaje zaliczona na poczet tego zobowiązania, które dłużnik wskazał w momencie zapłaty. W przypadku braku wskazania przez dłużnika, zapłata zostaje zaliczona na poczet zobowiązania najwcześniej wymagalnego.\n\nSKUTKI BRAKU ZAPŁATY:\n\nW przypadku nieuregulowania należności w wyznaczonym 14-dniowym terminie, wierzyciel zastrzega sobie prawo do:\n\n1. Skierowania sprawy na drogę sądową, w tym wniesienia pozwu do sądu powszechnego lub wydania nakazu zapłaty w postępowaniu upominawczym (art. 480 i nast. Kodeksu postępowania cywilnego) lub w elektronicznym postępowaniu upominawczym przed Sądem Rejonowym Lublin-Zachód w Lublinie (VI Wydział Cywilny);\n2. Domagan się zwrotu kosztów postępowania sądowego, w tym kosztów zastępstwa procesowego oraz kosztów egzekucji komorniczej;\n3. Domagan się dodatkowych odsetek ustawnych za opóźnienie za cały okres opóźnienia;\n4. W przypadku transakcji handlowych między przedsiębiorcami – dochodzenia rekompensaty za koszty odzyskiwanie należności na podstawie ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790), w wysokości 40, 70 lub 100 euro w przeliczeniu na złotówki, w zależności od wysokości świadczenia.\n\nINFORMACJA PROCESOWA:\n\nNiniejsze wezwanie stanowi próbę polubownego rozwiązania sporu w rozumieniu art. 187 Kodeksu postępowania cywilnego, zgodnie z którym pozew powinien zawierać informację, czy strony podjęły próbę mediacji lub innego pozasądowego sposobu rozwiązania sporu. Dołączenie niniejszego wezwania do ewentualnego pozwu wykazuje, że wierzyciel podjął próbę odzyskania należności przed wniesieniem sprawy na drogę sądową.\n\nUWAGA DOTYCZĄCA PRZEDAWNIENIA:\n\nInformuję, że zgodnie z art. 123 § 1 pkt 2 Kodeksu cywilnego, bieg przedawnienia przerywa się wyłącznie przez czynność przed sądem lub innym organem orzekającym w sprawie, uznanie roszczenia przez dłużnika lub wszczęcie mediacji. Samo wezwanie do zapłaty nie przerywa biegu przedawnienia. W relacjach z konsumentami, zgodnie z art. 117 § 2¹ Kodeksu cywilnego, sąd bada przedawnienie roszczenia z urzędu, a żądanie zapłaty przedawnionego długu bez stosownej informacji może stanowić nieuczciwą praktykę rynkową w rozumieniu ustawy o przeciwdziałaniu nieuczciwym praktykom rynkowym.\n\nUWAGA DOTYCZĄCA OCHRONY KONSUMENTÓW:\n\nJeżeli dłużnikiem jest konsument, niniejsze wezwanie jest rzetelne i nie wprowadza w błąd co do istnienia, wysokości oraz wymagalności długu. Wierzyciel nie stosuje nieuczciwych lub agresywnych praktyk windykacyjnych, a działalność w tym zakresie podlega nadzorowi Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK). W szczególności nie pobiera się opłat za samo wysłanie wezwania do konsumenta, a ewentualne koszty windykacji mogą być dochodzone wyłącznie na drodze sądowej.\n\nPROŚBA O DOBROWOLNĄ ZAPŁATĘ:\n\nWierząc w Państwa dobrą wolę i chęć polubownego uregulowania należności, wzywam Państwa do dokonania zapłaty w całości w terminie 14 (czternastu) dni od dnia otrzymania niniejszego pisma. Termin ten jest rozsądny i daje Państwu realną możliwość spełnienia świadczenia bez konieczności ponoszenia dodatkowych kosztów postępowania sądowego i egzekucyjnego.\n\nZ poważaniem,\n\n...........................\n(podpis wierzyciela)\n\nZałączniki:\n1. Kopia faktury / umowy / dokumentu stanowiącego podstawę należności\n2. Zestawienie naliczonych odsetek (jeśli dotyczy)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Ktoś mi nie zapłacił za wykonaną pracę i chcę wysłać mu oficjalne wezwanie do zapłaty z 14-dniowym terminem, zanim pójdę do sądu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam nierozliczoną fakturę VAT z marca za usługi remontowe, termin płatności minął dwa miesiące temu, a klient nie reaguje na przypomnienia. Potrzebuję wzoru wezwania, w którym policzę odsetki ustawowe od dnia wymagalności, wpiszę swoje dane i numer rachunku, a także ostrzeżę o kosztach sądowych i komorniczych, jeśli nie zapłaci w ciągu dwóch tygodni."
+  }
+ ]
+}

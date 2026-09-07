@@ -1,0 +1,54 @@
+Ubezpieczenie OC posiadaczy pojazdów (obowiązkowe komunikacyjne)
+Ubezpieczenie AC pojazdu (autocasco)
+Ubezpieczenie majątkowe domu lub mieszkania (od ognia i żywiołów)
+Ubezpieczenie mienia przedsiębiorstwa (budynki, wyposażenie)
+Ubezpieczenie odpowiedzialności cywilnej przedsiębiorstwa (OC firmowe)
+Ubezpieczenie na życie (śmierć ubezpieczonego)
+Ubezpieczenie na życie i dożycie (kapitałowe)
+Ubezpieczenie rentowe
+Ubezpieczenie NNW (następstwa nieszczęśliwych wypadków)
+Ubezpieczenie podróżne (koszty leczenia za granicą)
+Ubezpieczenie turystyczne (bagaż, opóźnienia)
+Ubezpieczenie zdrowotne (prywatne)
+Ubezpieczenie poważnego zachorowania
+Ubezpieczenie kredytu (na wypadek utraty pracy)
+Ubezpieczenie budynku wspólnoty mieszkaniowej
+Ubezpieczenie od kradzieży z włamaniem
+Ubezpieczenie sprzętu elektronicznego
+Ubezpieczenie maszyn od awarii
+Ubezpieczenie transportowe (przesyłki)
+Ubezpieczenie morskie (statek, konosament)
+Ubezpieczenie odpowiedzialności zawodowej (lekarz, radca prawny)
+Ubezpieczenie cyber (dane, cyberatak)
+Ubezpieczenie rolnicze (uprawy, zwierzęta)
+Ubezpieczenie inwentarza żywego (bydło)
+Ubezpieczenie budowlano-montażowe (CAR)
+Ubezpieczenie odpowiedzialności cywilnej floty pojazdów
+Ubezpieczenie na wypadek utraty dochodu
+Ubezpieczenie z osobą uposażoną (wdowa, dzieci)
+Ubezpieczenie z sumą gwarancyjną w walucie obcej
+Ubezpieczenie z franszyzą redukcyjną
+Ubezpieczenie z podlimitami odpowiedzialności
+Ubezpieczenie ze składką płatną w ratach
+Ubezpieczenie ze składką jednorazową
+Ubezpieczenie z karencją (okres karencji)
+Ubezpieczenie z wyłączeniami (wojna, rażące niedbalstwo)
+Ubezpieczenie z obowiązkiem zgłoszenia zmiany ryzyka
+Ubezpieczenie z regresem ubezpieczyciela wobec sprawcy
+Ubezpieczenie z terytorialnością (Polska lub świat)
+Ubezpieczenie zawarte na odległość (umowa direct)
+Ubezpieczenie na cudzy rachunek (pracodawca dla pracownika)
+Ubezpieczenie grupowe (pracownicze)
+Ubezpieczenie dobrowolne uzupełniające do NFZ
+Ubezpieczenie odpowiedzialności cywilnej za produkt
+Ubezpieczenie imprezy masowej (OC organizatora)
+Ubezpieczenie nieruchomości w budowie
+Ubezpieczenie odpowiedzialności cywilnej zarządcy nieruchomości
+Ubezpieczenie z odszkodowaniem za szkody na osobie i rzeczowe
+Ubezpieczenie z udziałem własnym (franszyza)
+Ubezpieczenie z likwidacją szkody i autoumową
+Ubezpieczenie na wypadek trwałego inwalidztwa
+Ubezpieczenie odpowiedzialności cywilnej właściciela nieruchomości
+Ubezpieczenie sprzętu medycznego
+Ubezpieczenie z możliwością wypowiedzenia przy zmianie ryzyka
+Ubezpieczenie z polisą i OWU jako integralną częścią umowy

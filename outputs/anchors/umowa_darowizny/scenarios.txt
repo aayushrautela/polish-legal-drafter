@@ -1,0 +1,55 @@
+Darowizna kwoty pieniężnej przelewem między członkami najbliższej rodziny (zwolnienie z podatku)
+Darowizna gotówkowa na rękę osobie z III grupy podatkowej (zgłoszenie SD-Z2)
+Darowizna mieszkania w formie aktu notarialnego z wpisem do księgi wieczystej
+Darowizna domu jednorodzinnego z działką (akt notarialny, obciążenie hipoteką)
+Darowizna udziału w nieruchomości (np. 1/2) z podpisem notarialnie poświadczonym
+Darowizna działki budowlanej na rzecz dziecka
+Darowizna samochodu osobowego z numerem VIN, w zwykłej formie pisemnej
+Darowizna pojazdu użytkowego na rzecz przedsiębiorcy
+Darowizna motocykla z protokołem przekazania
+Darowizna udziałów w spółce z o.o. z podpisem notarialnie poświadczonym
+Darowizna akcji spółki notowanej na giełdzie
+Darowizna przedsiębiorstwa wraz z majątkiem i zobowiązaniami (akt notarialny)
+Darowizna zorganizowanej części przedsiębiorstwa (restauracji z wyposażeniem)
+Darowizna poprzez umorzenie długu (bezpłatne zwolnienie z wierzytelności)
+Darowizna wierzytelności (cesja darowna) na rzecz osoby trzeciej
+Darowizna z poleceniem darczyńcy (świadczenie na rzecz wnuków)
+Darowizna z poleceniem określonego sposobu wykorzystania (np. na cele edukacyjne)
+Darowizna z obciążeniem przejęcia długów darczyńcy (podatek PCC)
+Darowizna z obciążeniem hipoteką (obdarowany przejmuje zabezpieczenie)
+Darowizna z odroczonym terminem wykonania (wymaga aktu notarialnego)
+Darowizna z datą wykonania w przyszłości (przelew w terminie 30 dni)
+Darowizna z zastrzeżeniem prawa odwołania w razie rażącej niewdzięczności
+Darowizna z możliwością odwołania niewykonanej darowizny (zmiana stanu majątkowego)
+Darowizna z obowiązkiem dostarczania środków utrzymania darczyńcy (niedostatek)
+Darowizna na rzecz fundacji (organizacji pożytku publicznego)
+Darowizna na rzecz gminy lub na cele charytatywne
+Darowizna na rzecz uczelni lub szkoły (stypendium rzeczowe)
+Darowizna rzeczy ruchomej używanej (meble, z oświadczeniem o stanie technicznym)
+Darowizna dzieła sztuki lub obrazu
+Darowizna biżuterii lub kolekcji monet
+Darowizna instrumentu muzycznego (pianina)
+Darowizna zwierzęcia (konia rasowego) z odpowiedzialnością za wady
+Darowizna psa rasowego z rodowodem
+Darowizna sprzętu AGD lub elektroniki
+Darowizna nakładów na rzecz wspólną (współwłasność małżeńska)
+Darowizna z majątku wspólnego małżonków (obydwoje darczyńcami)
+Darowizna na rzecz kilku obdarowanych (podział w udziałach)
+Darowizna dla małoletniego (przedstawiciel ustawowy przyjmuje)
+Darowizna pieniędzy w walucie obcej (przekaz zagraniczny)
+Darowizna z oświadczeniem o braku wad prawnych (brak egzekucji, zastawu, hipoteki)
+Darowizna z ustanowieniem służebności osobistej na rzecz darczyńcy (prawo do użytkowania)
+Darowizna z warunkiem zawieszającym (ukończenie studiów przez obdarowanego)
+Darowizna z zastrzeżeniem zwrotu w razie odwołania (bezpodstawne wzbogacenie)
+Darowizna w formie ustnej wykonana natychmiast (przekazanie rzeczy)
+Darowizna z obowiązkiem zapłaty podatku przez obdarowanego (SD-Z2 po terminie)
+Darowizna z przejęciem ciężarów (czynsz, opłaty bieżące) poza długami
+Darowizna udziału we współwłasności rzeczy (np. udział w garażu)
+Darowizna z obciążeniem użytkowaniem wieczystym nieruchomości
+Darowizna rzeczy z wadami fizycznymi (odpowiedzialność darczyńcy za wady)
+Darowizna z zastrzeżeniem kosztów sporządzenia aktu notarialnego
+Darowizna pieniędzy z zachowaniem prawa darczyńcy do odwołania przed wykonaniem
+Darowizna na rzecz osoby obcej (III grupa podatkowa, wyższy podatek)
+Darowizna z oświadczeniem o przebaczeniu niewdzięczności (wyłączenie odwołania)
+Darowizna przedsiębiorstwa z zobowiązaniem prowadzenia działalności (polecenie)
+Darowizna z zgłoszeniem do urzędu skarbowego przez notariusza (akt notarialny)

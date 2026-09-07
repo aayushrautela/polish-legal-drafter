@@ -1,0 +1,305 @@
+{
+ "run": 22,
+ "hint": "Pełnomocnictwo do zawarcia umowy o pracę w imieniu pracodawcy",
+ "scenario": "Pełnomocnictwo do zawarcia umowy o pracę w imieniu pracodawcy",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_c6805adec89e4e95aa9e0a31",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\"}"
+     }
+    },
+    {
+     "id": "call_8bdec69b79c04a179c29ad5b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo do zawarcia umowy o pracę w imieniu pracodawcy prawo pracy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do sprzedaży nieruchomości\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce to jednostronne oświadczenie woli właściciela nieruchomości (mocodawcy), przez które udziela on oznaczonej osobie (pełnomocnikowi) upoważnienia do dokonania w jego imieniu czynności prawnych związanych ze sprzedażą nieruchomości. Instytucję pełnomocnictwa regulują art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo do sprzedaży nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonej nieruchomości.\\n\\nArtykuł 99 par. 1 KC statuuje zasadę, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), pełnomocnictwo do sprzedaży nieruchomości musi być udzielone w formie aktu notarialnego przez notariusza. Pełnomocnictwo do sprzedaży nieruchomości sporządzone w zwykłej formie pisemnej lub ustnie jest nieważne i nie pozwoli pełnomocnikowi skutecznie zawrzeć umowy sprzedaży.\\n\\nZakres pełnomocnictwa musi być precyzyjnie określony. Pełnomocnictwo szczególne do sprzedaży nieruchomości powinno wskazywać: dane mocodawcy i pełnomocnika (z numerami PESEL i seriami dowodów osobistych), dokładny opis nieruchomości (adres, numer KW, numer działki ewidencyjnej i obręb), zakres umocowania (podpisanie umowy przedwstępnej, umowy przyrzeczonej w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku wieczystoksięgowego), ewentualną minimalną cenę sprzedaży oraz informację, czy pełnomocnik może udzielać dalszych pełnomocnictw (substytucja).\\n\\nPełnomocnictwo do sprzedaży nieruchomości jest typowo udzielane w następujących sytuacjach: właściciel przebywa za granicą lub jest chory i nie może osobiście stawić się u notariusza, właściciel jest osobą prawną reprezentowaną przez osobę trzecią, sprzedaż dotyczy udziałów kilku współwłaścicieli i jeden z nich udziela pełnomocnictwa innemu, transakcja wymaga zaangażowania profesjonalnego agenta lub adwokata.\\n\\nArtykuł 101 KC reguluje odwołanie pełnomocnictwa. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi. Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej lub udzielono go z klauzulą nieodwołalności na podstawie art. 101 par. 1 KC.\\n\\nW praktyce notarialnej kluczowe jest okazanie przez pełnomocnika aktualnego i ważnego pełnomocnictwa (notariusz kupującego weryfikuje jego autentyczność). Pełnomocnik działający na podstawie pełnomocnictwa notarialnego udzielonego za granicą musi zadbać o apostille lub legalizację dokumentu, jeżeli pochodzi z jurysdykcji spoza UE. Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa przedwstępna sprzedaży nieruchomości.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest potrzebne zawsze, gdy właściciel nieruchomości chce upoważnić inną osobę do zawarcia umowy sprzedaży w jego imieniu, bez konieczności osobistego stawiennictwa u notariusza. Poniżej opisano typowe sytuacje.\\n\\nWłaściciel przebywa za granicą. Polacy zamieszkali za granicą, którzy chcą sprzedać nieruchomość w Polsce, mogą udzielić pełnomocnictwa krewnemu lub prawnikowi przebywającemu w Polsce. Pełnomocnictwo może być udzielone u polskiego notariusza podczas wizyty w kraju lub u polskiego konsula albo miejscowego notariusza za granicą (z apostille). Jest to najczęstszy przypadek udzielenia pełnomocnictwa do sprzedaży nieruchomości.\\n\\nWłaściciel jest chory lub ma ograniczoną mobilność. Osoba starsza lub ciężko chora, która nie może osobiście stawić się w kancelarii notarialnej, udziela pełnomocnictwa zaufanej osobie — dziecku, małżonkowi lub prawnemu doradcy. Notariusz może sporządzić akt pełnomocnictwa poza kancelarią (w szpitalu lub w domu mocodawcy) za dodatkową opłatą.\\n\\nSprzedaż nieruchomości przez spółkę lub inną osobę prawną. Spółki z ograniczoną odpowiedzialnością, spółki akcyjne i inne osoby prawne sprzedają nieruchomości przez reprezentantów (zarząd) lub przez udzielone pełnomocnictwo. Zarząd upoważnia pełnomocnika, który podpisuje akt notarialny sprzedaży w imieniu spółki.\\n\\nKilku współwłaścicieli udziela pełnomocnictwa jednemu z nich. Gdy nieruchomość należy do kilku osób (np. rodzeństwo po rodzicach), a wszyscy nie mogą stawić się u notariusza, niektórzy z nich udzielają pełnomocnictwa jednemu ze współwłaścicieli lub wybranemu pełnomocnikowi do zawarcia umowy sprzedaży w ich imieniu.\\n\\nTransakcja wymaga profesjonalnego doradcy lub agenta. Inwestor realizujący wiele transakcji jednocześnie lub strona wymagająca reprezentacji prawnej udziela pełnomocnictwa adwokatowi, radcy prawnemu lub agentowi nieruchomości do przeprowadzenia transakcji sprzedaży.\\n\\nSprzedaż z pominięciem osobistego stawiennictwa przy podpisaniu aktu. Pełnomocnictwo umożliwia sprzedającemu uniknięcie konieczności stawiennictwa u notariusza kupującego, gdy sprzedaż odbywa się w innym mieście lub gdy terminy notarialne są niedogodne.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce musi zawierać elementy wymagane przez art. 95-109 KC i praktykę notarialną. Poniżej opisano kluczowe składniki.\\n\\nDane mocodawcy z numerem PESEL i dowodem osobistym. Notariusz sporządzający akt pełnomocnictwa jest zobowiązany do ustalenia tożsamości mocodawcy przez sprawdzenie dowodu osobistego lub paszportu. W treści pełnomocnictwa obowiązkowo wpisuje się imię, nazwisko, numer PESEL i serię numeru dowodu osobistego mocodawcy.\\n\\nDane pełnomocnika z numerem PESEL. Pełnomocnik musi być dokładnie oznaczony przez podanie imienia, nazwiska, numeru PESEL i adresu zamieszkania, a w praktyce notarialnej — serii i numeru dowodu osobistego. Jednoznaczna identyfikacja pełnomocnika zapobiega nadużyciom.\\n\\nDokładny opis nieruchomości. Pełnomocnictwo szczególne musi precyzyjnie opisywać nieruchomość, której dotyczy, przez podanie jej rodzaju, adresu lub położenia, numeru działki ewidencyjnej i obrębu oraz numeru księgi wieczystej, np. WA1M/00234567/8, prowadzonej przez Sąd Rejonowy (Sąd Wieczystoksięgowy). Opis nieruchomości ogranicza zakres pełnomocnictwa do tej konkretnej nieruchomości.\\n\\nZakres umocowania. Pełnomocnictwo musi precyzyjnie opisywać, jakie czynności pełnomocnik jest uprawniony wykonać: podpisanie umowy przedwstępnej sprzedaży, podpisanie umowy przyrzeczonej sprzedaży w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku o wpis prawa własności nabywcy w księdze wieczystej, składanie oświadczeń o stanie prawnym nieruchomości. Zbyt szerokie lub zbyt wąskie umocowanie może prowadzić do problemów przy zawieraniu umowy sprzedaży.\\n\\nEwentualna minimalna cena sprzedaży. Jeżeli mocodawca chce ograniczyć swobodę pełnomocnika, może wskazać minimalną cenę, za jaką pełnomocnik może sprzedać nieruchomość. Bez wskazania ceny minimalnej pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nPrawo do substytucji. Pełnomocnictwo może zawierać lub wykluczać prawo pełnomocnika do udzielenia dalszego pełnomocnictwa (substytucji). Substytucja pozwala pełnomocnikowi powierzyć część uprawnień innej osobie, co jest przydatne w transakcjach wymagających udziału adwokata lub notariusza.\\n\\nOkres ważności i odwołanie. Choć Kodeks cywilny nie wymaga wskazania terminu ważności, w praktyce pełnomocnictwa do sprzedaży nieruchomości udziela się na czas oznaczony lub ze wskazaniem, że wygasa po dokonaniu oznaczonej czynności. Mocodawca może odwołać pełnomocnictwo w każdym czasie (art. 101 KC). Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa zamiany nieruchomości.\\n\\nSporządzenie pełnomocnictwa do sprzedaży nieruchomości wymaga wizyty u notariusza i zebrania dokumentów obu stron. Poniżej opisano etapy.\\n\\nKrok 1 — zbierz dokumenty. Mocodawca przygotowuje swój dowód osobisty lub paszport, akt nabycia nieruchomości (akt notarialny zakupu lub darowizny), aktualny odpis z KW i dane pełnomocnika (imię, nazwisko, PESEL, adres, seria i numer dowodu osobistego).\\n\\nKrok 2 — zdecyduj o zakresie umocowania. Przed wizytą u notariusza precyzyjnie ustal, jakie czynności ma wykonać pełnomocnik: czy tylko podpisać akt notarialny sprzedaży, czy też zawrzeć umowę przedwstępną, odebrać cenę, wydać nieruchomość i złożyć wniosek wieczystoksięgowy. Im precyzyjniejszy zakres, tym mniejsze ryzyko nadużyć.\\n\\nKrok 3 — ustal minimalną cenę (jeśli dotyczy). Jeżeli chcesz ograniczyć swobodę pełnomocnika, wpisz minimalną cenę sprzedaży nieruchomości. Bez tej klauzuli pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nKrok 4 — zdecyduj o substytucji. Ustal, czy pełnomocnik ma prawo udzielić dalszego pełnomocnictwa innej osobie (substytucja). Substytucja jest przydatna, gdy pełnomocnikiem jest adwokat lub radca prawny, który może chcieć przekazać czynności notarialne współpracownikowi.\\n\\nKrok 5 — uzupełnij formularz i przygotuj wzór dla notariusza. Wpisz dane mocodawcy, pełnomocnika, opis nieruchomości i zakres umocowania. Wydrukowany wzór ułatwia rozmowę z notariuszem i zapobiega pominięciu ważnych elementów.\\n\\nKrok 6 — podpisz akt pełnomocnictwa u notariusza. Mocodawca osobiście stawia się u notariusza (lub przed konsulem za granicą). Notariusz weryfikuje tożsamość mocodawcy, sporządza akt pełnomocnictwa i przekazuje mocodawcy wypis aktu.\\n\\nKrok 7 — przekaż wypis pełnomocnikowi. Mocodawca przekazuje pełnomocnikowi wypis aktu notarialnego pełnomocnictwa. Przy transakcji notariusz kupującego weryfikuje autentyczność pełnomocnictwa.\\n\\nKrok 8 — odwołaj pełnomocnictwo niezwłocznie po transakcji lub gdy stosunek zaufania ustaje. Jeżeli pełnomocnik zawarł umowę sprzedaży, pełnomocnictwo wygasa z mocy prawa po dokonaniu czynności. Jeżeli transakcja nie doszła do skutku, mocodawca może odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce podlega ścisłym wymogom Kodeksu cywilnego.\\n\\nWymóg formy aktu notarialnego. Artykuł 99 par. 1 KC stanowi, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), dlatego pełnomocnictwo do sprzedaży nieruchomości musi być sporządzone przez notariusza. Pełnomocnictwo w formie pisemnej lub ustnej jest nieważne.\\n\\nRodzaj pełnomocnictwa. Pełnomocnictwo do sprzedaży konkretnej nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy poszczególnej czynności. Pełnomocnictwo rodzajowe obejmowałoby szereg czynności tego samego rodzaju; pełnomocnictwo ogólne obejmuje wyłącznie czynności zwykłego zarządu.\\n\\nSkutki działania pełnomocnika. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mocodawcy (art. 95 par. 2 KC). Umowa sprzedaży nieruchomości podpisana przez pełnomocnika działającego w granicach pełnomocnictwa notarialnego jest w pełni skuteczna i przenosi własność nieruchomości na nabywcę.\\n\\nOdwołanie i wygaśnięcie. Mocodawca może w każdym czasie odwołać pełnomocnictwo przez oświadczenie złożone pełnomocnikowi (art. 101 KC). Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, z chwilą odwołania lub po dokonaniu czynności, do której zostało udzielone. Klauzula nieodwołalności jest dopuszczalna jedynie wtedy, gdy umocowanie jest udzielone na czas oznaczony i z uzasadnionych przyczyn (art. 101 par. 1 KC).\\n\\nZakaz działania w imieniu własnym przy konflikcie interesów. Pełnomocnik nie może być drugą stroną czynności prawnej, której dokonuje w imieniu mocodawcy (zakaz samoumowy — art. 108 KC), chyba że mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść mocodawcy.\\n\\nPełnomocnictwo udzielone za granicą. Pełnomocnictwo sporządzone przez notariusza zagranicznego wymaga apostille zgodnie z Konwencją haską z 1961 r. lub legalizacji przez konsula, jeżeli pochodzi z kraju niebędącego stroną tej konwencji. Pełnomocnictwo udzielone przez polskiego konsula za granicą nie wymaga apostille.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest dokumentem wymagającym precyzji. Poniżej opisano najczęstsze błędy.\\n\\nBłąd 1 — pełnomocnictwo w formie pisemnej zamiast notarialnej. Mocodawcy niekiedy udzielają pełnomocnictwa do sprzedaży nieruchomości w zwykłej formie pisemnej, sądząc, że wystarczy podpis na kartce papieru. Takie pełnomocnictwo jest nieważne — art. 99 par. 1 KC w związku z art. 158 KC wymaga bezwzględnie formy aktu notarialnego. Notariusz kupującego odmówi przeprowadzenia transakcji na podstawie nieważnego pełnomocnictwa.\\n\\nBłąd 2 — zbyt ogólny lub zbyt wąski zakres umocowania. Pełnomocnictwo opisujące wyłącznie \\\"prawo do sprzedaży nieruchomości\\\" bez wskazania uprawnień do odbioru ceny, wydania nieruchomości i złożenia wniosku wieczystoksięgowego może nie obejmować wszystkich czynności niezbędnych do przeprowadzenia transakcji. Z drugiej strony pełnomocnictwo ogólne bez wskazania konkretnej nieruchomości jest zbyt szerokie i może być kwestionowane przez notariusza kupującego.\\n\\nBłąd 3 — brak danych pełnomocnika lub nieprawidłowy PESEL. Pełnomocnictwo bez numeru PESEL pełnomocnika lub z błędnymi danymi może uniemożliwić przeprowadzenie transakcji, gdyż notariusz kupującego nie będzie mógł zidentyfikować pełnomocnika.\\n\\nBłąd 4 — nieodwołanie pełnomocnictwa po rezygnacji z transakcji. Jeżeli właściciel zdecyduje się nie sprzedawać nieruchomości lub zaufanie do pełnomocnika ustaje, powinien niezwłocznie odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie. Brak odwołania naraża mocodawcę na ryzyko zawarcia transakcji przez nieuprawnionego pełnomocnika.\\n\\nBłąd 5 — pełnomocnictwo udzielone za granicą bez apostille. Pełnomocnictwo sporządzone przez zagranicznego notariusza wymaga apostille lub legalizacji, aby mogło być uznane przez polskiego notariusza. Brak apostille skutkuje odmową przyjęcia pełnomocnictwa i koniecznością ponownego sporządzenia dokumentu.\\n\\nŹródło: https://forms-legal.com/pl/real-estate/purchase-sale/pelnomocnictwo-do-sprzedazy-nieruchomosci (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_c6805adec89e4e95aa9e0a31",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"extractor_v9:broad_0074_statute_5cb610138686c356\", \"source_id\": \"sejm_eli_du_2023_1465_art_281\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 281. § 1. Kto, będąc pracodawcą lub działając w jego imieniu: 1) zawiera umowę cywilnoprawną w warunkach, w których zgodnie z art. 22 § 1 powinna być zawarta umowa o pracę, 1a) nie zawiadamia właściwego okręgowego inspektora pracy, w formie pisemnej lub elektronicznej, o zawarciu umowy o pracę, o której mowa w art. 25 1 §4 pkt 4, wraz ze wskazaniem przyczyn zawarcia takiej umowy, w terminie 5 dni roboczych od dnia jej zawarcia, 2) nie potwierdza na piśmie zawartej z pracownikiem umowy o pracę przed dopuszczeniem go do pracy, 2a 99) Dodany przez art. 1 pkt 43 lit. a ustawy, o której mowa w ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_281\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 281. § 1. Kto, będąc pracodawcą lub działając w jego imieniu: 1) zawiera umowę cywilnoprawną w warunkach, w których zgodnie z art. 22 § 1 powinna być zawarta umowa o pracę, 1a) nie zawiadamia właściwego okręgowego inspektora pracy, w formie pisemnej lub elektronicznej, o zawarciu umowy o pracę, o której mowa w art. 25 1 §4 pkt 4, wraz ze wskazaniem przyczyn zawarcia takiej umowy, w terminie 5 dni roboczych od dnia jej zawarcia, 2) nie potwierdza n ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_465\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 465. § 1. Pełnomocnikiem pracownika lub ubezpieczonego może być również przedstawiciel związku zawodowego lub inspektor pracy albo pracownik zakładu pracy, w którym mocodawca jest lub był zatrudniony, a ubezpieczonego - także przedstawiciel organizacji zrzeszającej emerytów i rencistów. § 1 1 . Pełnomocnikiem pracodawcy niebędącego osobą prawną lub przedsiębiorcą albo organu rentowego może być również jego pracownik. Pełnomoc ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22. § 1. Przez nawiązanie stosunku pracy pracownik zobowiązuje się do wykonywania pracy określonego rodzaju na rzecz pracodawcy i pod jego kierownictwem oraz w miejscu i czasie wyznaczonym przez pracodawcę, a pracodawca - do zatrudniania pracownika za wynagrodzeniem. § 1 1 . Zatrudnienie w warunkach określonych w § 1 jest zatrudnieniem na podstawie stosunku pracy, bez względu na nazwę zawartej przez strony umowy. § 1 2 . Nie jest dopuszczalne zast ...\"}, {\"chunk_id\": \"uokik_items:uokik_ea72360ef0032c13\", \"source_id\": \"uokik_rejestr_klauzul_327\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...) zrealizowania celu i przedmiotu Umowy, (...) poprzez zawarcie Umowy udziela (...) pełnomocnictwa do wykonywania zarządu środkami (...), zgodnie z postanowieniami Umowy oraz OWU, w tym w szczególności do dysponowania, w drodze przyznania (...), środkami finansowymi znajdującymi się na rachunku Funduszu, określonym w ust. 1. Pełnomocnictwo obejmuje także umocowanie(...)do podejmowania wszelkich decyzji oraz dokonywania czynności zmierzających do sprawnego wykonywania postanowień Umowy i OWU oraz zabezpieczenia interesu (...) oraz ochrony praw ogółu (...)\"}]",
+   "tool_call_id": "call_8bdec69b79c04a179c29ad5b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_d63b5d5ad4d94b79b3379e51",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"umowa o pracę\", \"forma\", \"Kodeks pracy\"]}"
+     }
+    },
+    {
+     "id": "call_2fa7eee48c424285a2d5704e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo do zawarcia umowy o pracę forma wymogi pracodawca reprezentacja\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_41\", \"source_id\": \"sejm_eli_du_2025_350_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 41. 1. Płatnik składek przekazuje do Zakładu imienne raporty miesięczne, po upływie każdego miesiąca kalendarzowego, w terminie ustalonym dla rozliczania składek, z zastrzeżeniem art. 48d. 2. Jeżeli obowiązek ubezpieczeń społecznych wygasł w ciągu miesiąca kalendarzowego, płatni k składek przekazuje do Zakładu raport, o którym mowa w ust. 1, za okres ubezpieczenia w danym miesiącu, w terminie i na zasadach określonych w art. 47 ust. 1 i 2. 3. Imienny raport miesięczny zawiera informacje dotyczące płatnika składek okr ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo d ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_71ab\", \"source_id\": \"sejm_eli_du_2025_350_art_71ab\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 71ab. 1. W przypadku podmiotu posiadającego jednocześnie profil informacyjny w systemie teleinformatycznym Zakładu oraz adres do doręczeń elektronicznych, o którym mowa w art. 2 pkt 1 ustawy z dnia 18 listopada 2020 r. o doręczeniach elektronicznych, wpisany do bazy adresów elektronicznych, o której mowa w art. 25 tej ustawy, doręczenie pisma w postaci elektronicznej, nadanego przez Zakład, następuje na adres do doręczeń elektronicznych. 1a. Po doręczeniu, o którym mowa w ust. 1, pismo jest przekazywane również na pr ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_428\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 428. § 1. Podczas obrad walnego zgromadzenia zarząd jest obowiązany do udzielenia akcjonariuszowi na jego żądanie informacji dotyczących spółki, jeżeli jest to uzasadnione dla oceny sprawy objętej porządkiem obrad. § 2. Zarząd odmawia udzielenia informacji, jeżeli mogłoby to wyrządzić szkodę spółce, spółce z nią powiązanej albo spółce lub spółdzielni zależnej, w szczególności przez ujawnienie tajemnic technicznych, handlowych lub organi ...\"}]",
+   "tool_call_id": "call_d63b5d5ad4d94b79b3379e51",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_465\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 465. § 1. Pełnomocnikiem pracownika lub ubezpieczonego może być również przedstawiciel związku zawodowego lub inspektor pracy albo pracownik zakładu pracy, w którym mocodawca jest lub był zatrudniony, a ubezpieczonego - także przedstawiciel organizacji zrzeszającej emerytów i rencistów. § 1 1 . Pełnomocnikiem pracodawcy niebędącego osobą prawną lub przedsiębiorcą albo organu rentowego może być również jego pracownik. Pełnomoc ...\"}, {\"chunk_id\": \"uokik_items:uokik_0238f41278379c60\", \"source_id\": \"uokik_rejestr_klauzul_1025\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Pełnomocnictwo powinno być udzielone w formie pisemnej. Własnoręczność podpisu powinna być potwierdzona przez pracownika firmy(...) lub notariusza\"}, {\"chunk_id\": \"uokik_items:uokik_ea72360ef0032c13\", \"source_id\": \"uokik_rejestr_klauzul_327\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...) zrealizowania celu i przedmiotu Umowy, (...) poprzez zawarcie Umowy udziela (...) pełnomocnictwa do wykonywania zarządu środkami (...), zgodnie z postanowieniami Umowy oraz OWU, w tym w szczególności do dysponowania, w drodze przyznania (...), środkami finansowymi znajdującymi się na rachunku Funduszu, określonym w ust. 1. Pełnomocnictwo obejmuje także umocowanie(...)do podejmowania wszelkich decyzji oraz dokonywania czynności zmierzających do sprawnego wykonywania postanowień Umowy i OWU oraz zabezpieczenia interesu (...) oraz ochrony praw ogółu (...)\"}, {\"chunk_id\": \"uokik_items:uokik_f81c9ab409ce908c\", \"source_id\": \"uokik_rejestr_klauzul_820\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa jest zawierana przez (…) Abonenta osobiście lub działającego w jego imieniu i na jego rzecz przedstawiciela lub pełnomocnika. Osoba umocowana obowiązana jest potwierdzić swoją tożsamość wobec Operatora oraz przedstawić dokument potwierdzający umocowanie. Pełnomocnictwo powinno być udzielone w formie pisemnej pod rygorem nieważności, przy czym upoważniony pracownik Operatora, Notariusz, a poza granicami kraju polska placówka dyplomatyczna poświadcza własnoręczność podpisu Mocodawcy\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_96\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 96. Umocowanie do działania w cudzym imieniu może opierać się na ustawie (przedstawicielstwo ustawowe) albo na oświadczeniu reprezentowanego (pełnomocnictwo).\"}]",
+   "tool_call_id": "call_2fa7eee48c424285a2d5704e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Now I need to find the specific provisions about the form of employment contracts in the Labour Code (Kodeks pracy). Let me search for that.",
+   "tool_calls": [
+    {
+     "id": "call-43c9ff46-66b3-4c4b-a00c-176e8fc8539e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 29\", \"Kodeks pracy\", \"umowa o pracę\", \"forma pisemna\"]}"
+     }
+    },
+    {
+     "id": "call-66450359-977b-46f9-9e5f-0439ea6e58e4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"art. 29 Kodeks pracy forma umowy o pracę pisemna potwierdzenie\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29 4 20) Dodany przez art. 1 pkt 9 ustawy, o której mowa w odnośniku 2. . § 1. Przyczyny uzasadniającej wypowiedzenie umowy o pracę lub jej rozwiązanie bez wypowiedzenia przez pracodawcę, przyczyny uzasadniającej przygotowanie do wypowiedzenia lub rozwiązania umowy bez wypowiedzenia albo przyczyny zastosowania działania mającego skutek równoważny z rozwiązaniem umowy o pracę nie może stanowić: 1) wystąpienie przez pracownika z wnioskiem, o którym  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_63\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 63 2 . § 1. Z dniem śmierci pracodawcy umowy o pracę z pracownikami wygasają, z zastrzeżeniem § 3-11. § 2. Pracownikowi, którego umowa o pracę wygasła z przyczyn określonych w § 1, przysługuje odszkodowanie w wysokości wynagrodzenia za okres wypowiedzenia. § 3. Przepis § 1 nie ma zastosowania w przypadku: 1) przejęcia pracownika przez nowego pracodawcę na zasadach określonych w art. 23 1 ; 2) ustanowienia zarządu sukcesyjnego z chwilą śmierci prac ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_294\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 294. § 1 208) W brzmieniu ustalonym przez art. 1 pkt 107 lit. a ustawy, o której mowa w odnośniku 2. . Kto dopuszcza się przestępstwa określonego w art. 278 § 1, 1a, 2, 3a lub 5, art. 284 § 1 lub 2, art. 285 § 1, art. 286 § 1 lub 2, art. 287 § 1, art. 288 § 1 lub 3, art. 290 § 1 lub w art. 291 § 1, w stosunku do mienia znacznej wartości, podlega karze pozbawienia wolności od roku do lat 10. § 2. Tej samej karze podlega sprawca, który dopuszcza się  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_281\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 281. § 1. Kto, będąc pracodawcą lub działając w jego imieniu: 1) zawiera umowę cywilnoprawną w warunkach, w których zgodnie z art. 22 § 1 powinna być zawarta umowa o pracę, 1a) nie zawiadamia właściwego okręgowego inspektora pracy, w formie pisemnej lub elektronicznej, o zawarciu umowy o pracę, o której mowa w art. 25 1 §4 pkt 4, wraz ze wskazaniem przyczyn zawarcia takiej umowy, w terminie 5 dni roboczych od dnia jej zawarcia, 2) nie potwierdza n ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29. § 1 11) W brzmieniu ustalonym przez art. 1 pkt 6 lit. a ustawy, o której mowa w odnośniku 2. . Umowa o pracę określa strony umowy, adres siedziby pracodawcy, a w przypadku pracodawcy będącego osobą fizyczną nieposiadającego siedziby - adres zamieszkania, a także rodzaj umowy, datę jej zawarcia oraz warunki pracy i płacy, w szczególności: 1) rodzaj pracy; 2) miejsce lub miejsca wykonywania pracy; 3) wynagrodzenie za pracę odpowiadające rodzajow ...\"}]",
+   "tool_call_id": "call-43c9ff46-66b3-4c4b-a00c-176e8fc8539e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29. § 1 11) W brzmieniu ustalonym przez art. 1 pkt 6 lit. a ustawy, o której mowa w odnośniku 2. . Umowa o pracę określa strony umowy, adres siedziby pracodawcy, a w przypadku pracodawcy będącego osobą fizyczną nieposiadającego siedziby - adres zamieszkania, a także rodzaj umowy, datę jej zawarcia oraz warunki pracy i płacy, w szczególności: 1) rodzaj pracy; 2) miejsce lub miejsca wykonywania pracy; 3) wynagrodzenie za pracę odpowiadające rodzajow ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_281\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 281. § 1. Kto, będąc pracodawcą lub działając w jego imieniu: 1) zawiera umowę cywilnoprawną w warunkach, w których zgodnie z art. 22 § 1 powinna być zawarta umowa o pracę, 1a) nie zawiadamia właściwego okręgowego inspektora pracy, w formie pisemnej lub elektronicznej, o zawarciu umowy o pracę, o której mowa w art. 25 1 §4 pkt 4, wraz ze wskazaniem przyczyn zawarcia takiej umowy, w terminie 5 dni roboczych od dnia jej zawarcia, 2) nie potwierdza n ...\"}, {\"chunk_id\": \"extractor_v9:broad_0074_statute_5cb610138686c356\", \"source_id\": \"sejm_eli_du_2023_1465_art_281\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 281. § 1. Kto, będąc pracodawcą lub działając w jego imieniu: 1) zawiera umowę cywilnoprawną w warunkach, w których zgodnie z art. 22 § 1 powinna być zawarta umowa o pracę, 1a) nie zawiadamia właściwego okręgowego inspektora pracy, w formie pisemnej lub elektronicznej, o zawarciu umowy o pracę, o której mowa w art. 25 1 §4 pkt 4, wraz ze wskazaniem przyczyn zawarcia takiej umowy, w terminie 5 dni roboczych od dnia jej zawarcia, 2) nie potwierdza na piśmie zawartej z pracownikiem umowy o pracę przed dopuszczeniem go do pracy, 2a 99) Dodany przez art. 1 pkt 43 lit. a ustawy, o której mowa w ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29 3 20) Dodany przez art. 1 pkt 9 ustawy, o której mowa w odnośniku 2. . § 1. Pracownik zatrudniony u danego pracodawcy co najmniej 6 miesięcy może raz w roku kalendarzowym wystąpić do pracodawcy z wnioskiem, złożonym w postaci papierowej lub elektronicznej, o zmianę rodzaju umowy o pracę na umowę o pracę na czas nieokreślony lub o bardziej przewidywalne i bezpieczne warunki pracy, w tym polegające na zmianie rodzaju pracy lub zatrudnieniu w pełn ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29 1 . § 1. (uchylony) 14) Przez art. 1 pkt 7 lit. a ustawy, o której mowa w odnośniku 2. § 2 15) W brzmieniu ustalonym przez art. 1 pkt 7 lit. b ustawy, o której mowa w odnośniku 2. . Przed wyjazdem pracownika do pracy lub w celu wykonania zadania służbowego poza granicami kraju na okres przekraczający 4 kolejne tygodnie pracodawca przekazuje pracownikowi niezależnie od informacji, o których mowa w art. 29 § 3, informacje w postaci papierowej lub ...\"}]",
+   "tool_call_id": "call-66450359-977b-46f9-9e5f-0439ea6e58e4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Pełnomocnictwo do zawarcia umowy o pracę w imieniu pracodawcy\n\nSporządzono w dniu ______________ r. w ______________.\n\n## § 1. Strony pełnomocnictwa\n\n**Mocodawca (Pracodawca):**\n1. Nazwa firmy / Imię i nazwisko: ________________________________________\n2. Siedziba / Adres zamieszkania: ________________________________________\n3. NIP / PESEL: ________________________________________\n4. Numer KRS / REGON (jeśli dotyczy): ________________________________________\n\n**Pełnomocnik:**\n1. Imię i nazwisko: ________________________________________\n2. Adres zamieszkania: ________________________________________\n3. Numer PESEL: ________________________________________\n4. Seria i numer dowodu osobistego / paszportu: ________________________________________\n\n## § 2. Podstawa prawna i rodzaj pełnomocnictwa\n\n1. Pełnomocnictwo udzielone jest na podstawie art. 96 Kodeksu cywilnego (umocowanie oparte na oświadczeniu reprezentowanego) i stanowi pełnomocnictwo szczególne w rozumieniu art. 98 § 1 Kodeksu cywilnego, gdyż dotyczy konkretnej czynności prawnej — zawarcia umowy o pracę w imieniu Mocodawcy.\n\n2. Zgodnie z art. 465 § 1¹ Kodeksu postępowania cywilnego, pełnomocnikiem pracodawcy niebędącego osobą prawną lub przedsiębiorcą może być również jego pracownik. Pełnomocnik oświadcza, że spełnia przesłanki do reprezentowania Mocodawcy.\n\n## § 3. Zakres pełnomocnictwa\n\n1. Mocodawca udziela Pełnomocnikowi upoważnienia do dokonywania w imieniu Mocodawcy następujących czynności:\n\n   a) negocjowanie i zawieranie umów o pracę z osobami wskazanymi przez Mocodawcę lub wybranymi przez Pełnomocnika za zgodą Mocodawcy,\n\n   b) określanie w umowach o pracę warunków pracy i płacy wymaganych przez art. 29 § 1 Kodeksu pracy, w szczególności:\n   - rodzaju pracy,\n   - miejsca lub miejsc wykonywania pracy,\n   - wynagrodzenia za pracę odpowiadającego rodzajowi pracy oraz normom ilościowym lub czasowym,\n   - czasu pracy,\n   - dnia rozpoczęcia pracy,\n   - rodzaju umowy (umowa na czas określony, nieokreślony, próbny, zastępstwo),\n\n   c) podpisywanie umów o pracę w imieniu Mocodawcy,\n\n   d) sporządzanie i przekazywanie pracownikom potwierdzeń zawarcia umowy o pracę w formie pisemnej przed dopuszczeniem do pracy, zgodnie z wymogiem art. 281 § 1 pkt 2 Kodeksu pracy,\n\n   e) składanie oświadczeń woli w zakresie niezbędnym do skutecznego zawarcia umowy o pracę.\n\n2. Pełnomocnik nie jest uprawniony do zawierania umów cywilnoprawnych (umowa zlecenie, umowa o dzieło) w warunkach, w których zgodnie z art. 22 § 1 Kodeksu pracy powinna być zawarta umowa o pracę, z zastrzeżeniem art. 281 § 1 pkt 1 Kodeksu pracy.\n\n3. Pełnomocnik działający w granicach umocowania wywiera skutki bezpośrednio dla Mocodawcy (art. 95 § 2 Kodeksu cywilnego).\n\n## § 4. Forma pełnomocnictwa\n\n1. Zgodnie z art. 99 § 1 Kodeksu cywilnego, jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ umowa o pracę wymaga formy pisemnej (art. 29 § 1 Kodeksu pracy), pełnomocnictwo udzielone jest w formie pisemnej pod rygorem nieważności.\n\n2. Własnoręczność podpisu Mocodawcy potwierdza się przed pracownikiem Pełnomocnika lub notariusza, zgodnie z wymogami wzorców obowiązujących w obrocie.\n\n## § 5. Ograniczenia umocowania\n\n1. Pełnomocnik nie może być drugą stroną umowy o pracę, której dokonuje w imieniu Mocodawcy (zakaz samoumowy — art. 108 Kodeksu cywilnego), chyba że Mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść Mocodawcy.\n\n2. Pełnomocnik nie jest uprawniony do udzielania dalszych pełnomocnictw (substytupcja) bez pisemnej zgody Mocodawcy.\n\n3. Pełnomocnik zobowiązany jest do zachowania w tajemnicy informacji uzyskanych w związku z wykonywaniem pełnomocnictwa, w szczególności danych osobowych kandydatów i pracowników.\n\n## § 6. Okres obowiązywania i odwołanie\n\n1. Pełnomocnictwo udzielone jest na czas oznaczony do dnia ______________ r. lub do dokonania czynności, do której zostało udzielone, w zależności od tego, co nastąpi wcześniej.\n\n2. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne oświadczenie złożone Pełnomocnikowi (art. 101 Kodeksu cywilnego).\n\n3. Pełnomocnictwo wygasa z chwilą śmierci Mocodawcy lub Pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej.\n\n4. Pełnomocnik zobowiązany jest niezwłocznie zwrócić pełnomocnictwo Mocodawcy w razie jego odwołania lub wygaśnięcia.\n\n## § 7. Oświadczenia stron\n\n1. Mocodawca oświadcza, że zapoznał się z przepisami art. 281 Kodeksu pracy dotyczącymi odpowiedzialności karnej za:\n   - zawarcie umowy cywilnoprawnej w warunkach, w których powinna być zawarta umowa o pracę (art. 22 § 1 KP),\n   - niepotwierdzenie na piśmie zawartej umowy o pracę przed dopuszczeniem pracownika do pracy,\n   - niezawiadomienie właściwego okręgowego inspektora pracy o zawarciu umowy o pracę wymagającej zawiadomienia.\n\n2. Pełnomocnik oświadcza, że zapoznał się z zakresem pełnomocnictwa i zobowiązuje się do działania zgodnie z instrukcjami Mocodawcy oraz przepisami prawa.\n\n## § 8. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszego pełnomocnictwa wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu cywilnego (art. 95-109) oraz Kodeksu pracy.\n\n3. Spory wynikłe z niniejszego pełnomocnictwa poddaje się sądowi właściwemu dla siedziby Mocodawcy.\n\n\n_________________________________                    _________________________________\n(Mocodawca)                                       (Pełnomocnik)\n\n\n_________________________________\n(Własnoręczność podpisu Mocodawcy potwierdzam)\n\n*Imię i nazwisko, stanowisko / notariusz*\n\n---\n\n**Informacja o przepisach prawa:**\n- Art. 95-109 Kodeksu cywilnego (Dz.U. 2024 poz. 1061) — ogólne przepisy o pełnomocnictwie\n- Art. 99 § 1 KC — wymóg formy pełnomocnictwa zgodnej z formą czynności prawnej\n- Art. 101 KC — odwołanie pełnomocnictwa\n- Art. 108 KC — zakaz samoumowy\n- Art. 29 Kodeksu pracy (Dz.U. 2023 poz. 1465) — forma i treść umowy o pracę\n- Art. 281 Kodeksu pracy — odpowiedzialność pracodawcy za naruszenie wymogów zatrudnienia\n- Art. 465 § 1¹ KPC — możliwość pełnomocnictwa pracownikowi pracodawcy",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Pełnomocnictwo do zawarcia umowy o pracę w imieniu pracodawcy\n\nSporządzono w dniu ______________ r. w ______________.\n\n## § 1. Strony pełnomocnictwa\n\n**Mocodawca (Pracodawca):**\n1. Nazwa firmy / Imię i nazwisko: ________________________________________\n2. Siedziba / Adres zamieszkania: ________________________________________\n3. NIP / PESEL: ________________________________________\n4. Numer KRS / REGON (jeśli dotyczy): ________________________________________\n\n**Pełnomocnik:**\n1. Imię i nazwisko: ________________________________________\n2. Adres zamieszkania: ________________________________________\n3. Numer PESEL: ________________________________________\n4. Seria i numer dowodu osobistego / paszportu: ________________________________________\n\n## § 2. Podstawa prawna i rodzaj pełnomocnictwa\n\n1. Pełnomocnictwo udzielone jest na podstawie art. 96 Kodeksu cywilnego (umocowanie oparte na oświadczeniu reprezentowanego) i stanowi pełnomocnictwo szczególne w rozumieniu art. 98 § 1 Kodeksu cywilnego, gdyż dotyczy konkretnej czynności prawnej — zawarcia umowy o pracę w imieniu Mocodawcy.\n\n2. Zgodnie z art. 465 § 1¹ Kodeksu postępowania cywilnego, pełnomocnikiem pracodawcy niebędącego osobą prawną lub przedsiębiorcą może być również jego pracownik. Pełnomocnik oświadcza, że spełnia przesłanki do reprezentowania Mocodawcy.\n\n## § 3. Zakres pełnomocnictwa\n\n1. Mocodawca udziela Pełnomocnikowi upoważnienia do dokonywania w imieniu Mocodawcy następujących czynności:\n\n   a) negocjowanie i zawieranie umów o pracę z osobami wskazanymi przez Mocodawcę lub wybranymi przez Pełnomocnika za zgodą Mocodawcy,\n\n   b) określanie w umowach o pracę warunków pracy i płacy wymaganych przez art. 29 § 1 Kodeksu pracy, w szczególności:\n   - rodzaju pracy,\n   - miejsca lub miejsc wykonywania pracy,\n   - wynagrodzenia za pracę odpowiadającego rodzajowi pracy oraz normom ilościowym lub czasowym,\n   - czasu pracy,\n   - dnia rozpoczęcia pracy,\n   - rodzaju umowy (umowa na czas określony, nieokreślony, próbny, zastępstwo),\n\n   c) podpisywanie umów o pracę w imieniu Mocodawcy,\n\n   d) sporządzanie i przekazywanie pracownikom potwierdzeń zawarcia umowy o pracę w formie pisemnej przed dopuszczeniem do pracy, zgodnie z wymogiem art. 281 § 1 pkt 2 Kodeksu pracy,\n\n   e) składanie oświadczeń woli w zakresie niezbędnym do skutecznego zawarcia umowy o pracę.\n\n2. Pełnomocnik nie jest uprawniony do zawierania umów cywilnoprawnych (umowa zlecenie, umowa o dzieło) w warunkach, w których zgodnie z art. 22 § 1 Kodeksu pracy powinna być zawarta umowa o pracę, z zastrzeżeniem art. 281 § 1 pkt 1 Kodeksu pracy.\n\n3. Pełnomocnik działający w granicach umocowania wywiera skutki bezpośrednio dla Mocodawcy (art. 95 § 2 Kodeksu cywilnego).\n\n## § 4. Forma pełnomocnictwa\n\n1. Zgodnie z art. 99 § 1 Kodeksu cywilnego, jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ umowa o pracę wymaga formy pisemnej (art. 29 § 1 Kodeksu pracy), pełnomocnictwo udzielone jest w formie pisemnej pod rygorem nieważności.\n\n2. Własnoręczność podpisu Mocodawcy potwierdza się przed pracownikiem Pełnomocnika lub notariusza, zgodnie z wymogami wzorców obowiązujących w obrocie.\n\n## § 5. Ograniczenia umocowania\n\n1. Pełnomocnik nie może być drugą stroną umowy o pracę, której dokonuje w imieniu Mocodawcy (zakaz samoumowy — art. 108 Kodeksu cywilnego), chyba że Mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść Mocodawcy.\n\n2. Pełnomocnik nie jest uprawniony do udzielania dalszych pełnomocnictw (substytupcja) bez pisemnej zgody Mocodawcy.\n\n3. Pełnomocnik zobowiązany jest do zachowania w tajemnicy informacji uzyskanych w związku z wykonywaniem pełnomocnictwa, w szczególności danych osobowych kandydatów i pracowników.\n\n## § 6. Okres obowiązywania i odwołanie\n\n1. Pełnomocnictwo udzielone jest na czas oznaczony do dnia ______________ r. lub do dokonania czynności, do której zostało udzielone, w zależności od tego, co nastąpi wcześniej.\n\n2. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne oświadczenie złożone Pełnomocnikowi (art. 101 Kodeksu cywilnego).\n\n3. Pełnomocnictwo wygasa z chwilą śmierci Mocodawcy lub Pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej.\n\n4. Pełnomocnik zobowiązany jest niezwłocznie zwrócić pełnomocnictwo Mocodawcy w razie jego odwołania lub wygaśnięcia.\n\n## § 7. Oświadczenia stron\n\n1. Mocodawca oświadcza, że zapoznał się z przepisami art. 281 Kodeksu pracy dotyczącymi odpowiedzialności karnej za:\n   - zawarcie umowy cywilnoprawnej w warunkach, w których powinna być zawarta umowa o pracę (art. 22 § 1 KP),\n   - niepotwierdzenie na piśmie zawartej umowy o pracę przed dopuszczeniem pracownika do pracy,\n   - niezawiadomienie właściwego okręgowego inspektora pracy o zawarciu umowy o pracę wymagającej zawiadomienia.\n\n2. Pełnomocnik oświadcza, że zapoznał się z zakresem pełnomocnictwa i zobowiązuje się do działania zgodnie z instrukcjami Mocodawcy oraz przepisami prawa.\n\n## § 8. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszego pełnomocnictwa wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu cywilnego (art. 95-109) oraz Kodeksu pracy.\n\n3. Spory wynikłe z niniejszego pełnomocnictwa poddaje się sądowi właściwemu dla siedziby Mocodawcy.\n\n\n_________________________________                    _________________________________\n(Mocodawca)                                       (Pełnomocnik)\n\n\n_________________________________\n(Własnoręczność podpisu Mocodawcy potwierdzam)\n\n*Imię i nazwisko, stanowisko / notariusz*\n\n---\n\n**Informacja o przepisach prawa:**\n- Art. 95-109 Kodeksu cywilnego (Dz.U. 2024 poz. 1061) — ogólne przepisy o pełnomocnictwie\n- Art. 99 § 1 KC — wymóg formy pełnomocnictwa zgodnej z formą czynności prawnej\n- Art. 101 KC — odwołanie pełnomocnictwa\n- Art. 108 KC — zakaz samoumowy\n- Art. 29 Kodeksu pracy (Dz.U. 2023 poz. 1465) — forma i treść umowy o pracę\n- Art. 281 Kodeksu pracy — odpowiedzialność pracodawcy za naruszenie wymogów zatrudnienia\n- Art. 465 § 1¹ KPC — możliwość pełnomocnictwa pracownikowi pracodawcy",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Prowadzę firmę i nie mam czasu samodzielnie podpisywać umów o pracę z nowymi pracownikami. Potrzebuję kogoś, kto będzie to robił w moim imieniu. Jak mogę oficjalnie komuś to powierzyć?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem właścicielem firmy i zatrudniam kilka osób w tym miesiącu, ale często wyjeżdżam w delegacje. Chcę upoważnić swojego kierownika działu do tego, żeby samodzielnie negocjował warunki pracy, ustalał wynagrodzenia i podpisywał umowy o pracę w moim imieniu. Muszę mieć pewność, że będzie to zgodne z prawem pracy i że nie podpisze umowy zlecenia tam, gdzie powinna być umowa o pracę. Jakie dokumenty muszę przygotować i jak powinno wyglądać takie upoważnienie?"
+  }
+ ]
+}

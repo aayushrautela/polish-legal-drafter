@@ -1,0 +1,307 @@
+{
+ "run": 8,
+ "hint": "Sezonowe prace rolne lub magazynowe z elastycznym grafikiem",
+ "scenario": "Sezonowe prace rolne lub magazynowe z elastycznym grafikiem",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_zlecenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of an \"umowa_zlecenia\" (contract of mandate) for seasonal agricultural or warehouse work with flexible scheduling. I need to:\n\n1. First read the base template for umowa_zlecenia\n2. Then search for provisions relevant to seasonal work, flexible scheduling, agricultural/warehouse work specifics\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-19b935b9-75aa-4fa3-9c3f-6245db6e491d",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"seasonal agricultural warehouse work flexible schedule\", \"doc_type\": \"umowa_zlecenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa zlecenia\\nUmowa zlecenia w Polsce to umowa cywilnoprawna, w której przyjmujący zlecenie (zleceniobiorca) zobowiązuje się do dokonania określonej czynności na rzecz dającego zlecenie (zleceniodawcy), uregulowana w art. 734-751 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Zgodnie z art. 734 § 1 Kodeksu cywilnego przez umowę zlecenia przyjmujący zlecenie zobowiązuje się do dokonania określonej czynności prawnej dla dającego zlecenie, a na podstawie art. 750 KC przepisy o zleceniu stosuje się odpowiednio do umów o świadczenie usług, które nie są uregulowane innymi przepisami — to właśnie ta konstrukcja jest najczęściej wykorzystywana w obrocie do świadczenia pracy bez nawiązywania stosunku pracy.\\n\\nUmowa zlecenia jest umową starannego działania, a nie umową rezultatu. Oznacza to, że zleceniobiorca zobowiązuje się do dołożenia należytej staranności (art. 355 KC) przy wykonywaniu powierzonych czynności, lecz nie odpowiada za osiągnięcie konkretnego efektu. Odróżnia to umowę zlecenia od umowy o dzieło z art. 627 Kodeksu cywilnego, w której przyjmujący zamówienie zobowiązuje się do wykonania oznaczonego dzieła — konkretnego, sprawdzalnego rezultatu.\\n\\nW przeciwieństwie do umowy o pracę, umowa zlecenia nie wiąże się z podporządkowaniem pracowniczym. Zleceniobiorca nie wykonuje czynności pod kierownictwem zleceniodawcy ani w ściśle wyznaczonym przez niego miejscu i czasie. Jest to istotne, ponieważ art. 22 § 1¹ Kodeksu pracy stanowi, że zatrudnienie w warunkach podporządkowania jest zatrudnieniem na podstawie stosunku pracy bez względu na nazwę zawartej umowy — dlatego Państwowa Inspekcja Pracy (PIP) lub sąd pracy mogą uznać umowę nazwaną zleceniem za faktyczną umowę o pracę, jeżeli występują cechy stosunku pracy.\\n\\nZleceniobiorcy przysługuje wynagrodzenie (art. 735 KC), chyba że z umowy lub okoliczności wynika, że zobowiązał się wykonać zlecenie bez wynagrodzenia. Od 2017 roku obowiązuje minimalna stawka godzinowa dla umów zlecenia i umów o świadczenie usług, ogłaszana corocznie na podstawie ustawy z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę. W związku z tym zleceniodawca ma obowiązek prowadzenia ewidencji liczby godzin wykonania zlecenia, aby potwierdzić, że wynagrodzenie nie jest niższe od stawki minimalnej.\\n\\nUmowa zlecenia podlega oskładkowaniu w Zakładzie Ubezpieczeń Społecznych (ZUS). Co do zasady stanowi tytuł do obowiązkowych ubezpieczeń społecznych (emerytalnego, rentowego i wypadkowego) oraz zdrowotnego; ubezpieczenie chorobowe jest dobrowolne. Wyjątek dotyczy studentów do ukończenia 26. roku życia, którzy z tytułu umowy zlecenia są zwolnieni ze składek ZUS. Zasady oskładkowania reguluje ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych.\\n\\nUmowa zlecenia może być wypowiedziana przez każdą ze stron w dowolnym czasie (art. 746 KC). Spory z umowy zlecenia, jako umowy cywilnoprawnej, rozpoznają sądy cywilne (sąd rejonowy lub okręgowy), a nie sądy pracy — chyba że sąd uzna, że strony łączył w rzeczywistości stosunek pracy.\\n\\nUmowa zlecenia w Polsce jest potrzebna, gdy zleceniodawca chce powierzyć wykonanie określonych czynności bez nawiązywania stosunku pracy, a charakter współpracy nie wymaga podporządkowania pracowniczego.\\n\\nDokument znajduje zastosowanie przy zadaniach wykonywanych samodzielnie, w elastycznym czasie i miejscu — na przykład przy obsłudze klientów, prowadzeniu szkoleń, świadczeniu usług doradczych, opiece, pracach porządkowych, akcjach promocyjnych czy obsłudze wydarzeń. Umowa zlecenia sprawdza się tam, gdzie liczy się staranne wykonywanie czynności, a nie dostarczenie konkretnego, gotowego dzieła.\\n\\nUmowę zlecenia stosuje się często przy zatrudnianiu studentów do 26. roku życia, ponieważ z tego tytułu są oni zwolnieni ze składek ZUS, co obniża koszty po stronie zleceniodawcy i podwyższa kwotę netto otrzymywaną przez zleceniobiorcę. Jest to popularna forma dorywczej pracy studenckiej i wakacyjnej.\\n\\nDokument przydaje się przy współpracy z osobami, które mają już inny tytuł do ubezpieczeń społecznych — na przykład są zatrudnione na pełen etat u innego pracodawcy z wynagrodzeniem co najmniej minimalnym. W takich przypadkach zasady zbiegu tytułów do ubezpieczeń (ustawa o systemie ubezpieczeń społecznych) wpływają na zakres oskładkowania umowy zlecenia.\\n\\nUmowa zlecenia bywa wybierana przy zadaniach krótkoterminowych, projektowych lub sezonowych, gdy nawiązywanie stosunku pracy byłoby nieadekwatne do charakteru i czasu trwania współpracy. Pozwala na elastyczne zakończenie współpracy, ponieważ każda ze stron może ją wypowiedzieć w każdym czasie (art. 746 KC).\\n\\nNależy jednak pamiętać o ryzyku przekwalifikowania. Jeżeli czynności są faktycznie wykonywane w warunkach stosunku pracy — pod kierownictwem zleceniodawcy, w wyznaczonym miejscu i czasie, z obowiązkiem osobistego świadczenia — inspektor Państwowej Inspekcji Pracy może w trybie art. 22 § 1¹ Kodeksu pracy żądać przekwalifikowania umowy zlecenia na umowę o pracę i wystąpić do sądu o ustalenie istnienia stosunku pracy. Dlatego umowy zlecenia nie powinno się stosować do zastępowania etatu, lecz do rzeczywiście samodzielnej współpracy.\\n\\nUmowa zlecenia w Polsce zawiera elementy wynikające z art. 734-751 Kodeksu cywilnego oraz z przepisów o minimalnej stawce godzinowej. Na portalu forms-legal.com dostępny jest wzór umowy zlecenia z ewidencją godzin i klauzulą ZUS, który można wypełnić online i pobrać w formacie PDF lub Word.\\n\\nOznaczenie stron: pełna identyfikacja zleceniodawcy (nazwa firmy, adres, NIP, numer KRS lub CEIDG dla przedsiębiorcy albo imię, nazwisko i adres dla osoby fizycznej) oraz zleceniobiorcy (imię, nazwisko, PESEL, adres zamieszkania, a w razie prowadzenia działalności także NIP). Prawidłowe oznaczenie stron jest niezbędne dla rozliczeń podatkowych i składkowych.\\n\\nPrzedmiot zlecenia: precyzyjny opis czynności, które zleceniobiorca zobowiązuje się wykonywać z należytą starannością. Przedmiot powinien być sformułowany jako zakres czynności (umowa starannego działania), a nie jako konkretny rezultat, aby uniknąć zakwalifikowania umowy jako umowy o dzieło. Wskazuje się również, czy zlecenie ma być wykonane osobiście, czy z dopuszczeniem zastępcy w granicach art. 738 KC.\\n\\nOkres obowiązywania: daty rozpoczęcia i zakończenia wykonywania zlecenia. Umowa może być zawarta na czas oznaczony lub do wykonania określonych czynności.\\n\\nWynagrodzenie i minimalna stawka godzinowa: kwota wynagrodzenia (godzinowa, miesięczna lub za całość zlecenia). Stawka za godzinę nie może być niższa od minimalnej stawki godzinowej ogłaszanej corocznie na podstawie ustawy o minimalnym wynagrodzeniu za pracę. Zgodnie z art. 735 KC wynagrodzenie należy się, jeżeli ani z umowy, ani z okoliczności nie wynika, że zleceniobiorca zobowiązał się wykonać zlecenie nieodpłatnie.\\n\\nEwidencja godzin: sposób potwierdzania liczby godzin wykonania zlecenia. Obowiązek ewidencji wynika z przepisów o minimalnej stawce godzinowej — pozwala wykazać, że wypłacone wynagrodzenie nie jest niższe od stawki minimalnej. Brak ewidencji utrudnia zleceniodawcy obronę w razie kontroli PIP.\\n\\nStatus ubezpieczeniowy: określenie, czy zleceniobiorca podlega obowiązkowym składkom ZUS, jest studentem do 26. roku życia zwolnionym ze składek, czy ma inny tytuł do ubezpieczeń. Zasady zbiegu tytułów reguluje ustawa o systemie ubezpieczeń społecznych.\\n\\nWypowiedzenie i poufność: zasady wypowiedzenia umowy (art. 746 KC — możliwość wypowiedzenia w każdym czasie, z rozliczeniem dotychczasowych czynności) oraz ewentualna klauzula poufności obejmująca tajemnicę przedsiębiorstwa zleceniodawcy. W postanowieniach końcowych wskazuje się stosowanie przepisów Kodeksu cywilnego oraz wymóg formy pisemnej dla zmian.\\n\\nUmowę zlecenia w Polsce wypełnia się etapami, dbając o prawidłowe odzwierciedlenie charakteru cywilnoprawnego współpracy i zgodność z art. 734-751 Kodeksu cywilnego.\\n\\nKrok 1 — dane zleceniodawcy. Wpisz nazwę lub imię i nazwisko zleceniodawcy, adres oraz identyfikatory (NIP, numer KRS lub wpis do CEIDG dla przedsiębiorcy). Dane te są potrzebne do rozliczeń podatkowych i składkowych.\\n\\nKrok 2 — dane zleceniobiorcy. Podaj imię, nazwisko, numer PESEL i adres zamieszkania zleceniobiorcy. Jeżeli zleceniobiorca prowadzi działalność gospodarczą, dodaj jego NIP. Dane są niezbędne do zgłoszenia do ZUS i rozliczenia podatku.\\n\\nKrok 3 — przedmiot zlecenia. Opisz czynności, które zleceniobiorca będzie wykonywał, jako zakres starannego działania (np. \\\"obsługa klientów i prowadzenie korespondencji handlowej\\\"). Unikaj sformułowań sugerujących konkretny rezultat, które mogłyby wskazywać na umowę o dzieło, oraz sformułowań wskazujących na podporządkowanie pracownicze.\\n\\nKrok 4 — okres i sposób wykonania. Wpisz daty rozpoczęcia i zakończenia. Zaznacz, czy zlecenie ma być wykonane wyłącznie osobiście, czy z dopuszczeniem zastępcy w granicach art. 738 KC.\\n\\nKrok 5 — wynagrodzenie. Podaj wysokość wynagrodzenia, najlepiej w ujęciu godzinowym lub miesięcznym (np. \\\"50 zł brutto za godzinę\\\"). Upewnij się, że stawka godzinowa nie jest niższa od aktualnej minimalnej stawki godzinowej. Określ termin i sposób wypłaty (np. do 10. dnia następnego miesiąca przelewem).\\n\\nKrok 6 — ewidencja godzin. Wskaż sposób potwierdzania liczby godzin wykonania zlecenia, na przykład miesięczną ewidencję przekazywaną zleceniodawcy. Ewidencja jest wymagana do wykazania zgodności z minimalną stawką godzinową.\\n\\nKrok 7 — status ZUS. Określ status zleceniobiorcy dla celów ubezpieczeń: podleganie obowiązkowym składkom, status studenta do 26. roku życia (zwolnienie ze składek) albo posiadanie innego tytułu do ubezpieczeń. Od tego zależy zakres oskładkowania.\\n\\nKrok 8 — klauzule końcowe i podpisy. Zdecyduj o klauzuli poufności. Wpisz miejscowość i datę zawarcia umowy. Sporządź umowę w dwóch egzemplarzach i podpisz ją przez obie strony. Po zawarciu umowy zleceniodawca zgłasza zleceniobiorcę do ZUS (jeżeli podlega ubezpieczeniom) w terminie 7 dni i odprowadza zaliczkę na podatek dochodowy.\\n\\nUmowa zlecenia w Polsce podlega przepisom Kodeksu cywilnego oraz regulacjom o minimalnej stawce godzinowej i ubezpieczeniach społecznych, których naruszenie rodzi odpowiedzialność cywilną i administracyjną.\\n\\nCharakter umowy i zakaz pozorności: umowa zlecenia jest umową starannego działania (art. 734 i art. 750 KC). Nie może być wykorzystywana do obejścia przepisów prawa pracy. Art. 22 § 1¹ Kodeksu pracy stanowi, że zatrudnienie w warunkach podporządkowania jest zatrudnieniem na podstawie stosunku pracy bez względu na nazwę umowy, dlatego Państwowa Inspekcja Pracy może żądać przekwalifikowania, a sąd ustalić istnienie stosunku pracy.\\n\\nMinimalna stawka godzinowa i ewidencja: wynagrodzenie za każdą godzinę wykonania zlecenia nie może być niższe od minimalnej stawki godzinowej ogłaszanej corocznie na podstawie ustawy z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę. Zleceniodawca ma obowiązek prowadzenia ewidencji liczby godzin; jej brak oraz wypłata poniżej stawki minimalnej są wykroczeniem zagrożonym karą grzywny od 1 000 do 30 000 zł, którą stwierdza Państwowa Inspekcja Pracy.\\n\\nUbezpieczenia społeczne: umowa zlecenia stanowi co do zasady tytuł do obowiązkowych ubezpieczeń emerytalnego, rentowego i wypadkowego oraz zdrowotnego, na podstawie ustawy z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych; ubezpieczenie chorobowe jest dobrowolne. Zleceniodawca jako płatnik zgłasza zleceniobiorcę do ZUS w terminie 7 dni od powstania obowiązku ubezpieczenia. Studenci do ukończenia 26. roku życia są zwolnieni ze składek z tytułu zlecenia.\\n\\nObowiązki podatkowe: zleceniodawca będący płatnikiem pobiera zaliczkę na podatek dochodowy od osób fizycznych od wynagrodzenia zleceniobiorcy zgodnie z ustawą o podatku dochodowym od osób fizycznych. Przy niskich kwotach jednorazowych może mieć zastosowanie ryczałt.\\n\\nWypowiedzenie: art. 746 KC pozwala każdej ze stron wypowiedzieć zlecenie w każdym czasie. Zleceniodawca wypowiadający umowę powinien zwrócić zleceniobiorcy wydatki i część wynagrodzenia za dotychczasowe czynności; wypowiedzenie bez ważnego powodu może rodzić odpowiedzialność odszkodowawczą wobec zleceniobiorcy działającego odpłatnie.\\n\\nOrzecznictwo Sądu Najwyższego: Sąd Najwyższy precyzował granice między zleceniem a stosunkiem pracy. W wyroku z dnia 9 stycznia 2001 r. (sygn. I PKN 872/00) Sąd Najwyższy wskazał, że o charakterze umowy decyduje sposób jej wykonywania, a nie nazwa nadana przez strony. W wyroku z dnia 11 września 2013 r. (sygn. II PK 372/12) Sąd Najwyższy stwierdził, że wykonywanie czynności pod kierownictwem oraz w miejscu i czasie wyznaczonym przez zatrudniającego przesądza o istnieniu stosunku pracy. W wyroku z dnia 4 lutego 2011 r. (sygn. II PK 82/10) Sąd Najwyższy uznał, że dopuszczalne jest zawarcie umowy zlecenia, gdy brak jest cechy podporządkowania charakterystycznej dla stosunku pracy. Orzeczenia te wyznaczają granicę legalnego stosowania umowy zlecenia.\\n\\nPrzy zawieraniu umowy zlecenia w Polsce popełniane są błędy, które prowadzą do przekwalifikowania umowy, zaległości w ZUS i kar nakładanych przez Państwową Inspekcję Pracy.\\n\\n1. Ukrywanie stosunku pracy pod umową zlecenia. Stosowanie zlecenia do pracy wykonywanej w warunkach podporządkowania narusza art. 22 § 1¹ KP. Inspektor PIP może żądać przekwalifikowania, a sąd ustalić stosunek pracy, co skutkuje zaległościami składkowymi i odsetkami. Prawidłowe rozwiązanie: stosować zlecenie tylko do rzeczywiście samodzielnej współpracy.\\n\\n2. Wynagrodzenie poniżej minimalnej stawki godzinowej. Ustalenie stawki niższej niż minimalna stawka godzinowa narusza ustawę o minimalnym wynagrodzeniu i jest wykroczeniem. Prawidłowe rozwiązanie: sprawdzić aktualną wysokość minimalnej stawki godzinowej i nie schodzić poniżej niej.\\n\\n3. Brak ewidencji godzin. Niedokumentowanie liczby godzin uniemożliwia wykazanie zgodności z minimalną stawką i naraża zleceniodawcę na karę w razie kontroli. Prawidłowe rozwiązanie: prowadzić comiesięczną ewidencję godzin potwierdzaną przez zleceniobiorcę.\\n\\n4. Nazwanie umowy zleceniem mimo cech dzieła. Określenie czynności jako konkretnego, sprawdzalnego rezultatu wskazuje na umowę o dzieło (art. 627 KC), co ma odmienne skutki składkowe. Prawidłowe rozwiązanie: dobrać rodzaj umowy do rzeczywistego charakteru zobowiązania — staranne działanie czy rezultat.\\n\\n5. Niezgłoszenie do ZUS. Brak zgłoszenia zleceniobiorcy do ubezpieczeń w terminie 7 dni skutkuje zaległościami składkowymi i odsetkami. Prawidłowe rozwiązanie: zgłosić zleceniobiorcę do ZUS niezwłocznie po zawarciu umowy, chyba że jest studentem do 26. roku życia.\\n\\n6. Błędne ustalenie statusu studenta. Stosowanie zwolnienia ze składek wobec osoby, która ukończyła 26 lat lub utraciła status studenta, prowadzi do zaległości. Prawidłowe rozwiązanie: pobrać i zachować oświadczenie zleceniobiorcy o statusie studenta oraz monitorować jego aktualność.\\n\\n7. Pominięcie zasad zbiegu tytułów. Nieuwzględnienie innego tytułu do ubezpieczeń (np. etatu u innego pracodawcy) prowadzi do błędnego naliczenia składek. Prawidłowe rozwiązanie: zebrać oświadczenie zleceniobiorcy o innych tytułach do ubezpieczeń.\\n\\n8. Zbyt ogólny przedmiot zlecenia. Niedoprecyzowanie czynności utrudnia rozliczenie i obronę charakteru cywilnoprawnego umowy. Prawidłowe rozwiązanie: opisać zakres czynności w sposób konkretny, ale bez cech podporządkowania.\\n\\n9. Wyłączenie prawa do wypowiedzenia. Postanowienia całkowicie pozbawiające strony prawa wypowiedzenia z ważnych powodów są nieskuteczne, ponieważ art. 746 § 3 KC zakazuje zrzeczenia się z góry uprawnienia do wypowiedzenia z ważnych powodów. Prawidłowe rozwiązanie: dopuścić wypowiedzenie z ważnych powodów w każdym czasie.\\n\\n10. Brak formy pisemnej i dwóch egzemplarzy. Zawarcie umowy ustnie utrudnia dowodzenie warunków i rozliczenia. Prawidłowe rozwiązanie: sporządzić umowę na piśmie w dwóch jednobrzmiących egzemplarzach i przekazać jeden zleceniobiorcy.\\n\\nŹródło: https://forms-legal.com/pl/employment/contracts/umowa-zlecenie-pracownik (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-19b935b9-75aa-4fa3-9c3f-6245db6e491d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. Let me search for provisions relevant to seasonal agricultural/warehouse work with flexible scheduling. I need to look for:\n1. Seasonal work provisions\n2. Flexible scheduling/hours\n3. Agricultural work specifics\n4. Warehouse work specifics\n5. Minimum wage compliance for seasonal work\n6. ZUS for seasonal workers\n7. Termination provisions for seasonal work",
+   "tool_calls": [
+    {
+     "id": "call-d5b7ecc5-c8ed-40b2-9588-6d41f51c799a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"seasonal agricultural work flexible schedule umowa zlecenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_8fe6c7b047ed12c5\", \"source_id\": \"uokik_rejestr_klauzul_4201\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zawarta zostaje na czas nieokreślony, nie dłużej jednak niż do momentu zakończenia czynności związanych z dochodzeniem roszczeń. W przypadku, gdy umowa zostanie rozwiązana przez Zleceniodawcę w trakcie wykonywania czynności związanych z jej realizacją bądź w przypadku rozwiązania jej przez Zleceniobiorcę z powodu naruszenia przez Zleceniodawcę postanowień § 2 pkt 3, Zleceniobiorcy przysługuje należne wynagrodzenie wg zasad określonych odpowiednio w § 3 pkt 1 niniejszej umowy\"}, {\"chunk_id\": \"uokik_items:uokik_b0ba5a3ab63bd0a8\", \"source_id\": \"uokik_rejestr_klauzul_3494\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na czas określony z możliwością wypowiedzenia przez obie strony w każdym czasie za jednomiesięcznym wypowiedzeniem ze skutkiem na koniec miesiąca kalendarzowego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_613\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 613. § 1. Przez umowę kontraktacji producent rolny zobowiązuje się wytworzyć i dostarczyć kontraktującemu oznaczoną ilość produktów rolnych określonego rodzaju, a kontraktujący zobowiązuje się te produkty odebrać w terminie umówionym, zapłacić umówioną cenę oraz spełnić określone świadczenie dodatkowe, jeżeli umowa lub przepisy szczególne przewidują obowiązek spełnienia takiego świadczenia. § 2. Ilość produktów rolnych może być w umowie oznaczon ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_734\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 734. § 1. Przez umowę zlecenia przyjmujący zlecenie zobowiązuje się do dokonania określonej czynności prawnej dla dającego zlecenie. § 2. W braku odmiennej umowy zlecenie obejmuje umocowanie do wykonania czynności w imieniu dającego zlecenie. Przepis ten nie uchybia przepisom o formie pełnomocnictwa.\"}, {\"chunk_id\": \"uokik_items:uokik_950466c638a49015\", \"source_id\": \"uokik_rejestr_klauzul_855\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Terminy określone w zawartej umowie są ścisłe, bez potrzeby udzielania dodatkowych terminów, specjalnych zawiadomień i wezwań\"}]",
+   "tool_call_id": "call-d5b7ecc5-c8ed-40b2-9588-6d41f51c799a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions related to seasonal work, flexible hours, and warehouse/agricultural work in the context of umowa zlecenia.",
+   "tool_calls": [
+    {
+     "id": "call-a519bc0c-3160-45d7-b9fb-44d74c3d9d23",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"praca sezonowa\", \"elastyczny grafik\", \"rolnictwo\", \"magazyn\", \"minimalna stawka godzinowa sezon\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_0590a0ad398a6492\", \"source_id\": \"uokik_rejestr_klauzul_2330\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Organizator zastrzega sobie prawo zmiany terminu dostawy w przypadku chwilowego braku Nagród w magazynie spowodowanego niezależnymi przyczynami (brak w magazynie dostawcy, przerwa w produkcji, kataklizm, strajk, itp.)\"}, {\"chunk_id\": \"uokik_items:uokik_18debdeacf574fea\", \"source_id\": \"uokik_rejestr_klauzul_5164\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Księgarnia internetowa (...) przystąpi do realizacji zamówienia pod warunkiem, że towar jest dostępny w magazynie księgarni lub w magazynie dostawców księgarni\"}, {\"chunk_id\": \"uokik_items:uokik_96ec63433b6e5f6d\", \"source_id\": \"uokik_rejestr_klauzul_6184\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku sprzedaży wysyłkowej wydanie towaru przewoźnikowi stanowi wykonanie umowy przez Sprzedającego. W przypadku nieuzasadnionego nieodebrania towaru przez Kupującego, Kupujący zobowiązuje się do odbioru towaru z magazynu (...) osobiście w dogodnym dla siebie terminie (w godz. od 9.00 od poniedziałku do piątku w godzinach od 8.00 do 16.00) po uprzednim poinformowaniu przez (...). W przypadku braku odbioru w terminie 30 dni Kupującego obciążać będą koszty magazynowania w wysokości 12 zł za każdy dzień zwłoki w odbiorze. Ewentualana ponowna dostawa przez (...)lub dostawa na inny wskazany a ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_183\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 183. § 1 132) W brzmieniu ustalonym przez art. 5 pkt 4 lit. a ustawy, o której mowa w odnośniku 26. . Kto wbrew przepisom składuje, usuwa, przetwarza, zbiera, unieszkodliwia, transportuje odpady lub substancje albo dokonuje odzysku odpadów lub substancji w takich warunkach lub w taki sposób, że może to zagrozić życiu lub zdrowiu człowieka lub spowodować obniżenie jakości wody, powietrza lub powierzchni ziemi lub zniszczenie w świecie roślinnym lub  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_55\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 55. 1. Przed przystąpieniem do użytkowania obiektu budowlanego należy uzyskać decyzję o pozwoleniu na użytkowanie, jeżeli: 1) na budowę obiektu budowlanego jest wymagane pozwolenie na budowę i jest on zaliczony do kategorii: a) V, IX-XVI, b) XVII - z wyjątkiem warsztatów rzemieślniczych, stacji obsługi pojazdów, myjni samochodowych i garaży do pięciu stanowisk włącznie, c) XVIII - z wyjątkiem obiektów magazynowych: budynki składowe, chłodnie, han ...\"}]",
+   "tool_call_id": "call-a519bc0c-3160-45d7-b9fb-44d74c3d9d23",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The keyword search didn't return very relevant results. Let me try semantic search for more specific provisions related to seasonal work, flexible scheduling, and minimum wage for seasonal workers.",
+   "tool_calls": [
+    {
+     "id": "call-699ecfab-64de-4edd-8033-a64c7b959147",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"minimum hourly wage seasonal workers agricultural warehouse flexible hours recording\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1773_art_1\", \"source_id\": \"sejm_eli_du_2024_1773_art_1\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 1. Użyte w ustawie określenia oznaczają: 1) „Rada Dialogu Społecznego” - Rada Dialogu Społecznego, o której mowa w ustawie z dnia 24 lipca 2015 r. o Radzie Dialogu Społecznego i innych instytucjach dialogu społecznego ( Dz. U. z 2018 r. poz. 2232 , z późn. zm. 1) Zmiany tekstu jednolitego wymienionej ustawy zostały ogłoszone w Dz. U. z 2020 r. poz. 568 i 2157, z 2021 r. poz. 2445, z 2022 r. poz. 2666 oraz z 2023 r. poz. 1586 i 1723. ) ; 1a) „minimalna stawka godzinowa” - minimalna wysokość wynagrodzenia za każdą god ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_2\", \"source_id\": \"sejm_eli_du_2024_1773_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 2. 1. Wysokość minimalnego wynagrodzenia za pracę, zwanego dalej „minimalnym wynagrodzeniem”, jest corocznie przedmiotem negocjacji w ramach Rady Dialogu Społecznego. 2. Rada Ministrów, w terminie do dnia 15 czerwca każdego roku, przedstawia Radzie Dialogu Społecznego: 1) propozycję wysokości minimalnego wynagrodzenia w roku następnym oraz propozycję wysokości minimalnej stawki godzinowej w roku następnym określoną zgodnie z ust. 3a i 3b, wraz z terminem zmiany tych wysokości, zgodnie z art. 3; 2) informację o wskaź ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_1242_art_1\", \"source_id\": \"sejm_eli_du_2025_1242_art_1\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Rozporządzenie Rady Ministrów z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę oraz wysokości minimalnej stawki godzinowej w 2026 r.\", \"display_address\": \"Dz.U. 2025 poz. 1242\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Rozporządzenie Rady Ministrów z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę oraz wysokości minimalnej stawki godzinowej w 2026 r.\\nDZIENNIK USTAW RZECZYPOSPOLITEJ POLSKIEJ Warszawa, dnia 15 września 2025 r. Poz. 1242 ROZPORZĄDZENIE RADY MINISTRÓW z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę oraz wysokości minimalnej stawki godzinowej w 2026 r. Na podstawie art. 2 ust. 5 ustawy z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę (Dz. U. z 2024 r. poz. 1773) zarządza się, co następuje: § 1. Od dnia 1 stycznia  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_8c\", \"source_id\": \"sejm_eli_du_2024_1773_art_8c\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 8c. Przedsiębiorca albo inna jednostka organizacyjna, na rzecz której jest wykonywane zlecenie lub są świadczone usługi, przechowuje dokumenty określające sposób potwierdzania liczby godzin wykonania zlecenia lub świadczenia usług oraz dokumenty potwierdzające liczbę godzin wykonania zlecenia lub świadczenia usług przez okres 3 lat od dnia, w którym wynagrodzenie stało się wymagalne.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_3\", \"source_id\": \"sejm_eli_du_2024_1773_art_3\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 3. Jeżeli prognozowany na rok następny wskaźnik cen, o którym mowa w art. 2 ust. 2 pkt 3, wynosi: 1) co najmniej 105 % - ustala się dwa terminy zmiany wysokości minimalnego wynagrodzenia oraz wysokości minimalnej stawki godzinowej: od dnia 1 stycznia i od dnia 1 lipca; 2) mniej niż 105 % - ustala się jeden termin zmiany wysokości minimalnego wynagrodzenia oraz wysokości minimalnej stawki godzinowej: od dnia 1 stycznia.\"}]",
+   "tool_call_id": "call-699ecfab-64de-4edd-8033-a64c7b959147",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I found the minimum wage act provisions. Let me also search for ZUS provisions for seasonal workers and flexible scheduling provisions.",
+   "tool_calls": [
+    {
+     "id": "call-f1bb89bf-c04d-407d-b05e-ccdc3e023f02",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"ZUS seasonal workers agricultural warehouse flexible schedule termination\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_34a2683bb51882f0\", \"source_id\": \"uokik_rejestr_klauzul_5659\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...)zastrzega sobie możliwość zmiany terminu, o którym mowa w § 4, niniejszej umowy w przypadku (…) poważnej awarii sieciowej uniemożliwiającej przeprowadzenie prac w terminie przez konieczność zaangażowania pracowników (...) wykonujących przedmiot umowy do usunięcia takiej awarii (...) Strony wyłączają odpowiedzialność odszkodowawczą(...) z powodu zmiany terminu wykonywania przedmiotu niniejszej umowy przyczynami opisanymi powyżej\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_49\", \"source_id\": \"sejm_eli_du_2025_350_art_49\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 49. 1. Rada Ministrów określa, w drodze rozporządzenia: 1) kolejność zaliczania wpłat składek na FUS oraz innych należności, do których poboru jest zobowiązany Zakład, jeżeli płatnik opłaca je i przekazuje niezgodnie z przepisami ustawy, 1a) kolejność i sposób zaliczania wpłat na należności FUS oraz inne należności, do których poboru jest obowiązany Zakład, 2) szczegółowe zasady i tryb postępowania w sprawach rozliczania składek i wypłaconych zasiłków, zasiłków rodzinnych i pielęgnacyjnych oraz kolejność zaliczania w ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_52\", \"source_id\": \"sejm_eli_du_2025_350_art_52\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 52. 1. Przychody FUS pochodzą: 1) ze składek na ubezpieczenia społeczne, niepodlegających przekazaniu na rzecz otwartych funduszy emerytalnych; 1a) ze środków rekompensujących kwoty składek przekazanych na rzecz otwartych funduszy emerytalnych; 1b) z wpłat, o których mowa w art. 111c ust. 1 ustawy z dnia 28 sierpnia 1997 r. o organizacji i funkcjonowaniu funduszy emerytalnych; 2) (uchylony) 3) z wpłat z budżetu państwa oraz z innych instytucji, przekazanych na świadczenia, których wypłatę zlecono Zakładowi, z wyjątki ...\"}, {\"chunk_id\": \"uokik_items:uokik_b0ba5a3ab63bd0a8\", \"source_id\": \"uokik_rejestr_klauzul_3494\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na czas określony z możliwością wypowiedzenia przez obie strony w każdym czasie za jednomiesięcznym wypowiedzeniem ze skutkiem na koniec miesiąca kalendarzowego\"}, {\"chunk_id\": \"uokik_items:uokik_025e9db32078e4ca\", \"source_id\": \"uokik_rejestr_klauzul_759\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Student ma prawo do rozwiązania umowy z końcem danego semestru tj. z dniem 28 lutego w semestrze zimowym i z dniem 30 września w semestrze letnim (…)”.\"}]",
+   "tool_call_id": "call-f1bb89bf-c04d-407d-b05e-ccdc3e023f02",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam umowy na sezonową pracę w rolnictwie lub magazynie, gdzie mogę sam decydować, kiedy przychodzę do pracy."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę podpisać umowę na sezon zbóż od czerwca do września, pracując 3-4 dni w tygodniu po 8 godzin, ale chciałbym mieć możliwość przesuwania dni pracy, gdy pada deszcz albo mam inne sprawy. Czy w umowie może być zapisane, że ja ustalam grafik co tydzień z przełożonym, a nie dostaję gotowy rozkład na cały miesiąc? Zależy mi też na tym, by za nadgodziny dostawałem wypoczynek, a nie tylko dopłatę."
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "run": 45,
+ "hint": "Pożyczka z zabezpieczeniem na udziałach w spółce",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Potrzebuję pożyczki, ale nie mam nieruchomości do zastawu. Mam udziały w spółce z ograniczoną odpowiedzialnością – czy można na nich zabezpieczyć dług?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem wspólnikiem spółki i posiadam 40% udziałów. Potrzebuję 200 tysięcy złotych na rozwój działalności, ale nie chcę sprzedawać udziałów. Czy da się tak ustalić pożyczkę, żeby zabezpieczyć ją na tych udziałach, a ja nadal nimi zarządzałem?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_pozyczki\"})\\nDRAFTER CALLED keyword_search({\"keywords\": [\"zastaw na udziałach\", \"zabezpieczenie udziały\", \"spółka z o.o. zastaw\"]})\\nDRAFTER CALLED semantic_search({\"query\": \"zabezpieczenie pożyczki na udziałach w spółce z ograniczoną odpowiedzialnością zastaw rejestrowy\"})\\nRESULT: [{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa o korepetycje\\nUmowa o korepetycje w Polsce to umowa cywilnoprawna, na podstawie której korepetytor (nauczyciel) zobowiązuje się świadczyć usługi edukacyjne na rzecz ucznia, a zleceniodawca (najczęściej rodzic lub uczeń pełnoletni) zobowiązuje się za te usługi zapłacić. Podstawą prawną jest art. 750 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), który do umów o świadczenie usług nieuregulowanych innymi przepisami nakazuje stosować odpowiednio przepisy o zleceniu (art. 734-751 Kodeksu cywilnego).\\n\\nKorepetycje to prywatne lekcje dodatkowe poza systemem szkolnym, uzupełniające lub rozszerzające treści realizowane w szkołach podstawowych, ponadpodstawowych (liceach ogólnokształcących, technikach) i wyższych uczelniach. Rynek prywatnych korepetycji w Polsce jest jednym z najbardziej dynamicznych segmentów rynku usług edukacyjnych — z usług korepetytorów korzysta corocznie kilka milionów polskich uczniów, szczególnie intensywnie przed egzaminem ósmoklasisty, maturą (organizowaną przez Centralną Komisję Egzaminacyjną) i egzaminami wstępnymi na studia.\\n\\nUmowa o korepetycje może być zawarta zarówno z osobą fizyczną — studentem, absolwentem lub nauczycielem — jak i z podmiotem prowadzącym działalność gospodarczą (szkołą językową, centrum edukacyjnym, agencją korepetytorów). Przy umowie z podmiotem gospodarczym wpisanym do CEIDG lub Krajowego Rejestru Sądowe"
+}

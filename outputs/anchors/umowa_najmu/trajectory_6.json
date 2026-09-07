@@ -1,0 +1,349 @@
+{
+ "run": 7,
+ "hint": "Najem lokalu użytkowego pod gabinet lekarski lub stomatologiczny",
+ "scenario": "Najem lokalu użytkowego pod gabinet lekarski lub stomatologiczny",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_najmu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a lease agreement (umowa_najmu) for a medical/dental office (gabinet lekarski lub stomatologiczny). I need to:\n\n1. First read the base template for umowa_najmu\n2. Then search for provisions relevant to medical/dental offices - things like sanitary requirements, medical waste, specific installations, registration requirements, etc.\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-b0d708d0-cacf-4504-9283-3791d598eacc",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"lokal użytkowy gabinet lekarski stomatologiczny\", \"doc_type\": \"umowa_najmu\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_najmu\", \"kind\": \"structural_template\", \"text\": \"# Umowa najmu gabinetu lekarskiego\\nUmowa najmu gabinetu lekarskiego w Polsce to umowa na mocy której właściciel lokalu lub podmiot leczniczy (Wynajmujący) oddaje lekarzowi, stomatologowi, fizjoterapeucie lub innemu świadczeniodawcy (Najemcy) do odpłatnego używania lokal przeznaczony na udzielanie świadczeń zdrowotnych. Podstawę prawną stanowi art. 659 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) o umowie najmu oraz przepisy ustawy z dnia 15 kwietnia 2011 r. o działalności leczniczej (Dz.U. 2011 nr 112 poz. 654 ze zm.) w zakresie wymagań wobec pomieszczeń podmiotów leczniczych.\\n\\nNajem gabinetu lekarskiego jest szczególną formą najmu lokalu użytkowego — lokal musi spełniać wymagania sanitarne, epidemiologiczne i techniczne wynikające z rozporządzenia Ministra Zdrowia z dnia 26 marca 2019 r. w sprawie szczegółowych wymagań, jakim powinny odpowiadać pomieszczenia i urządzenia podmiotu wykonującego działalność leczniczą. Wymagania te obejmują odpowiednią powierzchnię gabinetu, dostęp do umywalki, wentylację, oświetlenie, odpowiednie wyposażenie medyczne, możliwość dezynfekcji i sterylizacji narzędzi.\\n\\nLekarze prowadzący indywidualną praktykę lekarską lub indywidualną specjalistyczną praktykę lekarską w wynajmowanym gabinecie muszą uzyskać wpis do rejestru podmiotów wykonujących działalność leczniczą (RPWDL) dla danego adresu. Okręgowe Izby Lekarskie (OIL) lub właściwe organy rejestrowe sprawdzają, czy lokal spełnia wymogi rozporządzenia Ministra Zdrowia przed wpisem. Wynajmujący powinien zapewnić, że lokal nadaje się do wpisu w RPWDL — stanowi to istotny element umowy.\\n\\nGabinety lekarskie wynajmowane są w dwóch podstawowych modelach. Pierwszy model to najem całego gabinetu na wyłączność — lekarz korzysta z lokalu przez pełne godziny otwarcia lub wybrane dni tygodnia, bez współdzielenia z innymi świadczeniodawcami. Drugi model to najem gabinetu w systemie rotacyjnym (time-sharing) — kilku lekarzy różnych specjalności korzysta z tego samego gabinetu w ustalonych godzinach lub dniach, dzieląc koszty czynszu. Model rotacyjny jest popularny w wielospecjalistycznych centrach medycznych.\\n\\nUmowa najmu gabinetu lekarskiego powinna precyzyjnie określać: zakres pomieszczeń i wyposażenia (gabinet, poczekalnia, toaleta), harmonogram dostępności (dni i godziny), czynsz i opłaty eksploatacyjne, obowiązki dotyczące utrzymania czystości i dezynfekcji, zasady podziału kosztów mediów, obowiązki w zakresie RPWDL i wymogów sanitarnych oraz ochronę danych osobowych pacjentów (RODO art. 9).\\n\\nUmowa najmu gabinetu lekarskiego w Polsce jest potrzebna w każdej sytuacji, gdy lekarz lub inny świadczeniodawca prowadzi działalność w lokalu niebędącym jego własnością.\\n\\nIndywidualna praktyka lekarska B2B. Lekarz prowadzący indywidualną lub indywidualną specjalistyczną praktykę lekarską w zewnętrznym lokalu musi zawrzeć umowę najmu, aby uzyskać wpis do RPWDL dla tego adresu. Bez formalnego prawa do lokalu Okręgowa Izba Lekarska lub organ rejestrowy odmówi wpisu.\\n\\nGrupowa praktyka lekarska. Lekarz wstępujący do istniejącej grupowej praktyki lekarskiej jako nowy wspólnik może potrzebować osobnej umowy najmu (lub podnajmu) swojego gabinetu wewnątrz nieruchomości używanej przez grupę.\\n\\nNajem rotacyjny (time-sharing) w centrum medycznym. Specjaliści (kardiolog, ortopeda, dermatolog, ginekolog) przyjmujący pacjentów przez określone dni tygodnia w centrum medycznym podpisują umowy najmu na konkretne godziny lub dni. Taki model jest korzystny kosztowo — pełny czynsz podzielony jest proporcjonalnie do czasu używania.\\n\\nNajem gabinetu od innego podmiotu leczniczego (podnajem lub najem). Szpital lub duże centrum medyczne może wynajmować wolne gabinety specjalistom B2B, którzy obsługują zarówno pacjentów własnych, jak i kierowanych przez podmiot leczniczy — bez nawiązywania stosunku zatrudnienia.\\n\\nKabirolety i gabinety mobilne. Lekarze pracujący w kilku miastach lub regionach mogą wynajmować gabinety na godziny w różnych lokalizacjach. Umowa najmu dostosowana do godzinowego rozliczenia i elastycznego harmonogramu zabezpiecza interesy obu stron.\\n\\nGabinety stomatologiczne. Dentysta prowadzący praktykę w gabinecie stomatologicznym z unitami stomatologicznymi wynajętymi od właściciela podpisuje umowę, która precyzuje, co stanowi wyposażenie właściciela (unit, lampa, fotel, ssak, autoklaw), a co wnosi najemca (materiały stomatologiczne, asystentka).\\n\\nFizjoterapia i rehabilitacja. Gabinety fizjoterapii, salę do kinezyterapii i pomieszczenia do zabiegów fizykalnych mogą być wynajmowane przez fizjoterapeutów prowadzących praktykę zawodową. Od 2019 roku fizjoterapeuci podlegają obowiązkowej rejestracji RPWDL.\\n\\nUmowa najmu gabinetu lekarskiego w Polsce powinna zawierać następujące kluczowe elementy, aby była zgodna z Kodeksem cywilnym i wymogami działalności leczniczej.\\n\\nOznaczenie stron i tytułu prawnego. Pełna firma lub imię i nazwisko wynajmującego, numer NIP, a dla podmiotu leczniczego — numer RPWDL. Dane najemcy — lekarz lub podmiot leczniczy, NIP, numer PWZ i planowany numer wpisu do RPWDL dla wynajmowanego adresu.\\n\\nDokładny opis lokalu. Adres gabinetu ze wskazaniem numeru lokalu i piętra, powierzchnia w m², opis pomieszczeń (gabinet, poczekalnia, toaleta, zaplecze), wykaz wyposażenia stanowiącego wyposażenie wynajmowanego lokalu (meble lekarskie, unit stomatologiczny, sprzęt diagnostyczny) oraz wyposażenia pozostawionego przez właściciela do używania.\\n\\nHarmonogram dostępności. Dni i godziny, w których Najemca jest uprawniony do korzystania z gabinetu. Kluczowe przy modelu time-sharing — precyzyjne określenie slotów czasowych uniemożliwia konflikty między różnymi najemcami.\\n\\nCzynsz i opłaty eksploatacyjne. Kwota czynszu miesięcznego netto (PLN), stawka VAT lub zwolnienie z VAT (art. 43 ust. 1 pkt 36 ustawy o VAT — najem lokalu mieszkalnego lub medycznego), ryczałt za media lub sposób rozliczania wg liczników. Termin płatności i zasady aktualizacji czynszu (indeksacja do wskaźnika inflacji GUS).\\n\\nKaucja. Wysokość kaucji (zazwyczaj 1-3 miesięczne czynsze), warunki jej zatrzymania (szkody przekraczające normalne zużycie, zaległości), termin zwrotu po wydaniu lokalu.\\n\\nObowiązki stron dotyczące sanitarno-epidemiologiczne. Kto jest odpowiedzialny za utrzymanie standardów sanitarnych wymaganych przez Inspekcję Sanitarną (Sanepid): dezynfekcja i sterylizacja, segregacja odpadów medycznych (ustawa z dnia 14 grudnia 2012 r. o odpadach), wentylacja i klimatyzacja.\\n\\nOchrona danych osobowych pacjentów. Najemca jako administrator danych swoich pacjentów nie udostępnia danych wynajmującemu. Klauzula o zachowaniu poufności i rozdzielności systemów informatycznych obu stron. Przetwarzanie danych zdrowotnych — art. 9 ust. 2 lit. h RODO. Nadzór Prezesa Urzędu Ochrony Danych Osobowych (PUODO). Na platformie forms-legal.com dostępne są kompleksowe wzory klauzul RODO dla podmiotów medycznych.\\n\\nRozwiązanie umowy. Okres wypowiedzenia, przesłanki rozwiązania bez zachowania okresu (zaleganie z czynszem przez dwa miesiące — art. 672 KC, używanie lokalu niezgodnie z przeznaczeniem — art. 667 § 2 KC, naruszenie wymogów sanitarnych), zasady zwrotu lokalu i rozliczenia kaucji.\\n\\nUmowa najmu gabinetu lekarskiego w Polsce wypełniana jest krok po kroku, aby zapewniała legalną podstawę prowadzenia praktyki.\\n\\nKrok 1 — oznacz wynajmującego. Wpisz pełną firmę lub imię i nazwisko właściciela lokalu (lub podmiotu leczniczego wynajmującego gabinet), adres, NIP. Jeśli wynajmującym jest podmiot leczniczy — podaj numer RPWDL.\\n\\nKrok 2 — oznacz najemcę. Wpisz firmę lub imię i nazwisko lekarza/stomatologa/fizjoterapeuty, NIP i numer PWZ. Przy zakładaniu nowej praktyki — wskaż planowany numer wpisu do RPWDL (lub że trwa procedura wpisu).\\n\\nKrok 3 — opisz lokal. Dokładny adres gabinetu z numerem lokalu i piętra, powierzchnia w m², opis wyposażenia (meble, sprzęt medyczny, instalacje). Załącz protokół zdawczo-odbiorczy jako integralną część umowy.\\n\\nKrok 4 — ustal harmonogram dostępności. Wpisz dni tygodnia i godziny, w których Najemca może korzystać z gabinetu. Przy modelu time-sharing — precyzyjny terminarz godzinowy dla każdego dnia.\\n\\nKrok 5 — ustal czynsz i opłaty. Kwota czynszu netto, stawka VAT (zazwyczaj 23% dla najmu lokalu użytkowego), ryczałt za media lub rozliczenie wg wskazań liczników, kaucja (1-2 miesięczne czynsze), termin płatności.\\n\\nKrok 6 — dodaj klauzulę o RPWDL i sanitarnych. Wskaż, że Najemca jest zobowiązany do uzyskania wpisu do RPWDL dla adresu gabinetu i spełnienia wymogów rozporządzenia Ministra Zdrowia z 26 marca 2019 r. Ustal, kto ponosi koszty dostosowania lokalu (jeśli wymagane).\\n\\nKrok 7 — podpisz umowę. Data i miejscowość, podpisy obu stron. Dołącz protokół zdawczo-odbiorczy. Forma pisemna jest wystarczająca — nie jest wymagana forma notarialna.\\n\\nNajem gabinetu lekarskiego w Polsce podlega wymaganiom Kodeksu cywilnego, ustawy o działalności leczniczej i przepisów sanitarno-epidemiologicznych.\\n\\nWymogi Kodeksu cywilnego. Art. 659-692 KC regulują prawa i obowiązki stron umowy najmu lokalu użytkowego. Art. 662 KC nakłada na wynajmującego obowiązek wydania lokalu w stanie przydatnym do umówionego użytku i utrzymywania go w takim stanie przez czas trwania najmu. Art. 664 KC przyznaje najemcy prawo do obniżenia czynszu lub wypowiedzenia, gdy lokal ma wady uniemożliwiające lub ograniczające korzystanie z niego.\\n\\nWymogi Ministra Zdrowia dla gabinetów medycznych. Rozporządzenie Ministra Zdrowia z dnia 26 marca 2019 r. w sprawie szczegółowych wymagań, jakim powinny odpowiadać pomieszczenia i urządzenia podmiotu wykonującego działalność leczniczą określa minimalne wymogi: powierzchnię gabinetu lekarskiego (12 m² dla praktyki lekarza, 14 m² dla gabinetu stomatologicznego), dostęp do umywalki z ciepłą i zimną wodą, wentylację, odpowiednie oświetlenie, możliwość dezynfekcji. Wynajmujący musi zapewnić lokal spełniający te wymogi.\\n\\nRejestracja w RPWDL. Najemca prowadzący działalność leczniczą musi uzyskać wpis do RPWDL dla adresu wynajmowanego gabinetu zgodnie z art. 100-101 ustawy o działalności leczniczej. Wpis wymaga przedstawienia tytułu prawnego do lokalu (umowy najmu). Okręgowa Izba Lekarska lub właściwy organ rejestrowy przeprowadza kontrolę warunków lokalowych.\\n\\nOdpady medyczne. Podmiot leczniczy korzystający z gabinetu jest zobowiązany do postępowania z odpadami medycznymi zgodnie z ustawą z dnia 14 grudnia 2012 r. o odpadach i rozporządzeniem Ministra Zdrowia z dnia 5 października 2017 r. Umowa powinna określać, kto organizuje i finansuje odbiór odpadów medycznych.\\n\\nInspekcja Sanitarna (Sanepid). Przed uruchomieniem gabinetu lekarz może być zobowiązany do uzyskania decyzji lub opinii Państwowego Inspektora Sanitarnego potwierdzającej spełnienie wymogów sanitarno-epidemiologicznych. Kontrole Sanepidu mogą być przeprowadzane w trakcie działalności.\\n\\nOchrona danych pacjentów (RODO). Lekarz jako administrator danych swoich pacjentów musi wdrożyć odpowiednie środki techniczne i organizacyjne (art. 32 RODO) w wynajmowanym gabinecie. Szczególna ochrona danych zdrowotnych (art. 9 ust. 1 RODO) wymaga odpowiednich procedur bezpieczeństwa, zwłaszcza gdy gabinet jest współdzielony z innymi najemcami.\\n\\nUmowy najmu gabinetów lekarskich w Polsce często zawierają błędy mające poważne konsekwencje praktyczne.\\n\\nBłąd 1 — lokal niespełniający wymogów rozporządzenia Ministra Zdrowia. Wynajęcie gabinetu, który nie spełnia wymogów rozporządzenia z 26 marca 2019 r. (za mała powierzchnia, brak umywalki, niedostateczna wentylacja), uniemożliwia uzyskanie wpisu do RPWDL. Zalecenie: przed podpisaniem umowy najemca powinien zlecić ocenę lokalu pod kątem wymogów RPWDL lub skonsultować się z Okręgową Izbą Lekarską.\\n\\nBłąd 2 — brak precyzyjnego harmonogramu przy time-sharingu. W modelu rotacyjnym brak precyzyjnego rozkładu godzin prowadzi do konfliktów między różnymi najemcami o dostęp do gabinetu. Zalecenie: dołącz szczegółowy harmonogram tygodniowy jako załącznik do umowy.\\n\\nBłąd 3 — brak klauzuli o odpadach medycznych. Brak ustaleń co do kosztów i organizacji odbioru odpadów medycznych prowadzi do sporów. Zalecenie: wskaż w umowie, kto zawiera umowę z firmą odbierającą odpady medyczne i kto ponosi koszty.\\n\\nBłąd 4 — pominięcie wymogów sanitarnych przy przejęciu gabinetu. Przyjęcie lokalu bez sprawdzenia aktualności decyzji Sanepidu i stanu wyposażenia naraża najemcę na konieczność poniesienia kosztów dostosowania. Zalecenie: sporządź protokół zdawczo-odbiorczy z wyszczególnieniem stanu lokalu i wyposażenia.\\n\\nBłąd 5 — brak klauzuli o wypowiedzeniu przy utracie uprawnień. Jeśli lekarz utraci prawo wykonywania zawodu (zawieszenie lub pozbawienie PWZ), wynajmujący powinien mieć prawo do rozwiązania umowy bez okresu wypowiedzenia. Zalecenie: dodaj klauzulę automatycznego rozwiązania lub prawa wypowiedzenia bez zachowania okresu w przypadku utraty PWZ lub wpisu RPWDL.\\n\\nBłąd 6 — brak uregulowania poufności danych pacjentów przy gabinecie wieloosobowym. Przy gabinecie współdzielonym przez kilku lekarzy dane pacjentów jednego lekarza nie mogą być dostępne dla innych najemców. Zalecenie: wpisz obowiązek przechowywania dokumentacji medycznej w zamkniętych szafach lub systemach z hasłem dostępu.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-najmu-gabinetu-lekarskiego (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-b0d708d0-cacf-4504-9283-3791d598eacc",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I have the base template for a medical office lease. Now I need to search for additional provisions relevant to medical/dental offices - specifically around sanitary requirements, medical waste, RPWDL registration, dental unit specifics, etc. Let me search for more detailed provisions.",
+   "tool_calls": [
+    {
+     "id": "call-442aa26f-0408-4a1a-aafe-ca9906270eb1",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"gabinet stomatologiczny unit stomatologiczny autoklaw separator amalgamowy wentylacja mechaniczna wymogi sanitarne\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_215\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 215. Pracodawca jest obowiązany zapewnić, aby stosowane maszyny i inne urządzenia techniczne: 1) zapewniały bezpieczne i higieniczne warunki pracy, w szczególności zabezpieczały pracownika przed urazami, działaniem niebezpiecznych substancji chemicznych, porażeniem prądem elektrycznym, nadmiernym hałasem, działaniem drgań mechanicznych i promieniowania oraz szkodliwym i niebezpiecznym działaniem innych czynników środowiska pracy; 2) uwzględniały z ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0306_statute_fcff7f53c8a5c8e4\", \"source_id\": \"sejm_eli_du_2023_725_art_6b\", \"source_type\": \"statute\", \"top_category\": \"property_or_use_restriction\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Najemcę obciąża naprawa i konserwacja: 1) podłóg, posadzek, wykładzin podłogowych oraz ściennych okładzin ceramicznych, szklanych i innych; 2) okien i drzwi; 3) wbudowanych mebli, łącznie z ich wymianą; 4) trzonów kuchennych, kuchni i grzejników wody przepływowej (gazowych, elektrycznych i węglowych), podgrzewaczy wody, wanien, brodzików, mis klozetowych, zlewozmywaków i umywalek wraz z syfonami, baterii i zaworów czerpalnych oraz innych urządzeń sanitarnych, w które lokal jest wyposażony, łącznie z ich wymianą; 5) osprzętu i zabezpieczeń instalacji elektrycznej, z wyłączeniem wymiany przewodó ...\"}, {\"chunk_id\": \"uokik_items:uokik_4735c55261f18c5d\", \"source_id\": \"uokik_rejestr_klauzul_7784\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zakres prac wykończeniowych nie powinien naruszać konstrukcji Budynku oraz części wspólnych, a także zmieniać sposobu użytkowania Lokalu, nie powinien również naruszać instalacji i urządzeń z nimi związanych, a w szczególności instalacji elektrycznych, centralnego ogrzewania, instalacji wodnych i wentylacji (…).\"}, {\"chunk_id\": \"uokik_items:uokik_9ec4b62c3859b7f2\", \"source_id\": \"uokik_rejestr_klauzul_7445\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zakres prac wykończeniowych nie powinien naruszać konstrukcji Budynku oraz części wspólnych, a także zmieniać sposobu użytkowania Lokalu, nie powinien również naruszać instalacji i urządzeń z nimi związanych, a w szczególności instalacji elektrycznych, centralnego ogrzewania, instalacji wodnych i wentylacji, a ponadto musi być wykonany zgodnie z właściwymi przepisami prawa, wymaganą przepisami dokumentacją techniczną i sztuką budowlaną\"}, {\"chunk_id\": \"uokik_items:uokik_55851c7c81bfc74a\", \"source_id\": \"uokik_rejestr_klauzul_1531\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W szczególnych przypadkach przyjęcia do serwisu (...) sprzętu, który nie spełnia warunków określonych w pkt. 6, serwis (...) nie musi się wywiązać z terminu określonego w pkt. 8, oraz z możliwości realizacji reklamacji.\"}]",
+   "tool_call_id": "call-442aa26f-0408-4a1a-aafe-ca9906270eb1",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results aren't very specific to dental offices. Let me search more specifically for dental office requirements, medical waste, RPWDL, and sanitary requirements.",
+   "tool_calls": [
+    {
+     "id": "call-6a82aa23-f9f3-4950-9aaa-1290aa9c072d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odpady medyczne gabinet lekarski segregacja utylizacja umowa z firmą odbioru odpadów medycznych koszty\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"extractor_v9:filtered_0022_statute_aedef57d5e97265a\", \"source_id\": \"sejm_eli_du_2023_725_art_2\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"dbiór ścieków, odpadów i nieczystości ciekłych; 8a) kosztach utrzymania lokalu - należy przez to rozumieć koszty, ustalane proporcjonalnie do powierzchni użytkowej lokalu w stosunku do powierzchni użytkowej wszystkich lokali w danym budynku, obciążające właściciela, obejmujące opłatę za użytkowanie wieczyste gruntu, podatek od nieruchomości oraz koszty: a) konserwacji, utrzymania należytego stanu technicznego nieruchomości oraz przeprowadzonych remontów, b) zarządzania nieruchomością, c) utrzymania pomieszczeń wspólnego użytkowania, windy, anteny zbiorczej, domofonu oraz zieleni, d) ubezpiecze ...\"}, {\"chunk_id\": \"uokik_items:uokik_864dbffafff603cc\", \"source_id\": \"uokik_rejestr_klauzul_1391\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy umowa zostanie rozwiązana wskutek odstąpienia lub wypowiedzenia z przyczyn leżących po stronie Nabywcy, a w lokalu będącym przedmiotem umowy zostały wprowadzone indywidualne zmiany, Nabywca jest zobowiązany do pokrycia kosztów poniesionych przez (...) na przywrócenie lokalu do stanu zgodnego z pierwotnym projektem, o ile (...) nie znajdzie kandydata akceptującego zmiany wprowadzone na życzenie Nabywcy. Nabywca pokryje te koszty w terminie 7 dni od daty doręczenia mu kosztorysu wykonanych prac.\"}, {\"chunk_id\": \"uokik_items:uokik_c9b5772b4df6412e\", \"source_id\": \"uokik_rejestr_klauzul_2172\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie odebrania sprzętu w terminie 14 dni od daty pierwszego wezwania do odbioru, (...) naliczać będzie karę umowną w wysokości 25 pln za każdy dzień zwłoki, a po 60 dniach zwłoki (...)ma prawo do sprzedaży sprzętu w imieniu Klienta za cenę ustaloną przez(...) z prawem zaliczenia jej na poczet kar umownych\"}, {\"chunk_id\": \"uokik_items:uokik_6a21210388797ac1\", \"source_id\": \"uokik_rejestr_klauzul_1156\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Każdy przypadek rozwiązania umowy pociąga za sobą obowiązek zapłaty przez zawierającego umowę kosztów manipulacyjnych wg obowiązującego cennika.\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_22\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 22. 1. Kosztami uzyskania przychodów są koszty poniesione w celu osiągnięcia przychodów lub zachowania albo zabezpieczenia źródła przychodów, z wyjątkiem kosztów wymienionych w art. 23. 1a. (uchylony) 1aa. Kosztem uzyskania przychodów jest również wniesiona opłata recyklingowa, o której mowa w art. 40c ustawy z dnia 13 czerwca 2013 r. o gospodarce opakowaniami i odpadami opakowaniowymi . 1ab. Przy ustalaniu wysokości kosztów ...\"}]",
+   "tool_call_id": "call-6a82aa23-f9f3-4950-9aaa-1290aa9c072d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results aren't giving me specific medical waste provisions. Let me search for the specific regulation on medical waste and dental office requirements.",
+   "tool_calls": [
+    {
+     "id": "call-f333a4bf-4c38-4d70-9268-d8895b2f1373",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"odpady medyczne\", \"ustawa o odpadach\", \"gabinet stomatologiczny\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-f333a4bf-4c38-4d70-9268-d8895b2f1373",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me try different keywords for medical waste and dental office requirements",
+   "tool_calls": [
+    {
+     "id": "call-82060416-8f15-4d58-8478-405cc922c35a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"rozporządzenie Ministra Zdrowia 2019 wymagania pomieszczenia gabinet lekarski stomatologiczny powierzchnia umywalka wentylacja\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_11\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 11. 1. Minister właściwy do spraw zdrowia określi, w drodze rozporządzenia, dopuszczalne stężenia i natężenia czynników szkodliwych dla zdrowia wydzielanych przez materiały budowlane, urządzenia i elementy wyposażenia w pomieszczeniach przeznaczonych na pobyt ludzi. 2. Minister właściwy do spraw rolnictwa, w porozumieniu z ministrem właściwym do spraw zdrowia, może określić, w drodze rozporządzenia, dopuszczalne stężenia i natężenia czynników szk ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0086_statute_7d1e46366ab99ca5\", \"source_id\": \"sejm_eli_du_2023_725_art_2\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"w lokalu dotychczas używanym; warunek ten uznaje się za spełniony, jeżeli na członka gospodarstwa domowego przypada 10 m 2 powierzchni łącznej pokoi, a w wypadku gospodarstwa jednoosobowego - 20 m 2 tej powierzchni; 7) powierzchni użytkowej lokalu - należy przez to rozumieć powierzchnię wszystkich pomieszczeń znajdujących się w lokalu, a w szczególności pokoi, kuchni, spiżarni, przedpokoi, alków, holi, korytarzy, łazienek oraz innych pomieszczeń służących mieszkalnym i gospodarczym potrzebom lokatora, bez względu na ich przeznaczenie i sposób używania; za powierzchnię użytkową lokalu nie uważa ...\"}, {\"chunk_id\": \"uokik_items:uokik_4735c55261f18c5d\", \"source_id\": \"uokik_rejestr_klauzul_7784\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zakres prac wykończeniowych nie powinien naruszać konstrukcji Budynku oraz części wspólnych, a także zmieniać sposobu użytkowania Lokalu, nie powinien również naruszać instalacji i urządzeń z nimi związanych, a w szczególności instalacji elektrycznych, centralnego ogrzewania, instalacji wodnych i wentylacji (…).\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_220\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 220. § 1. Niedopuszczalne jest stosowanie materiałów i procesów technologicznych bez uprzedniego ustalenia stopnia ich szkodliwości dla zdrowia pracowników i podjęcia odpowiednich środków profilaktycznych. § 2. Minister Zdrowia i Opieki Społecznej 91) Obecnie minister właściwy do spraw zdrowia, na podstawie art. 4 ust. 1, art. 5 pkt 28 oraz art. 33 ustawy, o której mowa w odnośniku 42. w porozumieniu z Ministrem Pracy i Polityki Socjalnej 92) Obec ...\"}]",
+   "tool_call_id": "call-82060416-8f15-4d58-8478-405cc922c35a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results aren't giving me the specific regulation on medical office requirements. Let me try a more targeted search for the specific regulation from 2019.",
+   "tool_calls": [
+    {
+     "id": "call-a7ba640d-9c93-4de9-80db-5ec44511576d",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"rozporządzenie Ministra Zdrowia 2019\", \"działalność lecznicza\", \"RPWDL\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-a7ba640d-9c93-4de9-80db-5ec44511576d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me try a different approach - search for the specific regulation on medical office requirements.",
+   "tool_calls": [
+    {
+     "id": "call-4901d3a3-4499-4f1f-be71-938ec1da1544",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"wpis do rejestru podmiotów wykonujących działalność leczniczą RPWDL tytuł prawnego do lokalu umowa najmu Okręgowa Izba Lekarska\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"extractor_v9:filtered_0145_statute_c6c05c611ac3741a\", \"source_id\": \"sejm_eli_du_2023_725_art_19a\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 19a. 1. Umową najmu okazjonalnego lokalu jest umowa najmu lokalu mieszkalnego, którego właściciel, będący osobą fizyczną, nie prowadzi działalności gospodarczej w zakresie wynajmowania lokali, zawarta na czas oznaczony, nie dłuższy niż 10 lat. 1a. (uchylony) 2. Do umowy najmu okazjonalnego lokalu załącza się w szczególności: 1) oświadczenie najemcy w formie aktu notarialnego, w którym najemca poddał się egzekucji i zobowiązał się do opróżnienia i wydania lokalu używanego na podstawie umowy najmu okazjonalnego lokalu w terminie wskazanym w żądaniu, o którym mowa w art. 19d ust. 2; 2) wskaz ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0304_statute_10b5b99f791a80e3\", \"source_id\": \"sejm_eli_du_2023_725_art_33\", \"source_type\": \"statute\", \"top_category\": \"property_or_use_restriction\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Art. 33. 1. W razie ustania po dniu 12 listopada 1994 r. najmu lokalu zawartego przed tym dniem na czas trwania stosunku pracy były najemca lub osoby pozostające w lokalu po śmierci najemcy zachowują prawo do lokalu zamiennego, jeżeli przysługiwało im ono na podstawie przepisów obowiązujących przed tym dniem; w razie oddania w najem lokalu zamiennego, czynsz najmu za ten lokal w dniu zawarcia umowy najmu nie może w stosunku rocznym przekraczać 3% jego wartości odtworzeniowej. 2. Przepis ust. 1 stosuje się odpowiednio do osób, które utraciły tytuł prawny do lokalu przed dniem 12 listopada 1994  ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0256_statute_65363db912a0a267\", \"source_id\": \"sejm_eli_du_2023_725_art_23\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 23. 1. Umowę najmu socjalnego lokalu zawiera się na czas oznaczony. 2. Umowa najmu socjalnego lokalu, z uwzględnieniem art. 14 ust. 1, może być zawarta z osobą, która nie ma tytułu prawnego do lokalu i której dochody gospodarstwa domowego nie przekraczają wysokości określonej w uchwale rady gminy podjętej na podstawie art. 21 ust. 1 pkt 2, z uwzględnieniem art. 21b. 3. Umowę najmu socjalnego lokalu można po upływie oznaczonego w niej czasu przedłużyć na następny okres, jeżeli najemca nadal znajduje się w sytuacji uzasadniającej zawarcie takiej umowy. W razie wzrostu dochodów gospodarstwa  ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0375_statute_e975e76a5a8a99fb\", \"source_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 19f. 1. Umową najmu instytucjonalnego lokalu jest umowa najmu lokalu mieszkalnego zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną niebędącą osobą prawną, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali. 2. Umowa najmu instytucjonalnego lokalu zawierana jest na czas oznaczony. Przepisu art. 661 § 1 ustawy z dnia 23 kwietnia 1964 r. - Kodeks cywilny nie stosuje się. 3 11) Ze zmianą wprowadzoną przez art. 2 ustawy z dnia 29 września 2022 r. o zmianie niektórych ustaw wspierających poprawę warunków mieszkaniowych (Dz. U. poz. 2456), która weszła w ży ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_33\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 33. 1. W razie ustania po dniu 12 listopada 1994 r. najmu lokalu zawartego przed tym dniem na czas trwania stosunku pracy były najemca lub osoby pozostające w lokalu po śmierci najemcy zachowują prawo do lokalu zamiennego, jeżeli przysługiwało im ono na podstawie przepisów obowiązujących przed tym dniem; w razie oddania w najem lokalu zamiennego, czynsz najmu za ten lokal w dniu z ...\"}]",
+   "tool_call_id": "call-4901d3a3-4499-4f1f-be71-938ec1da1544",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć lokal pod gabinet lekarski, co muszę wiedzieć przed podpisaniem umowy?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję otworzyć gabinet stomatologiczny w lokalu ok. 80 m² w centrum miasta. Szukam umowy na 5 lat z opcją przedłużenia, jasnych zasad dotyczących remontu i adaptacji pod wymagania sanepidu oraz podziału kosztów eksploatacji. Czy możecie przygotować taki projekt umowy?"
+  }
+ ]
+}

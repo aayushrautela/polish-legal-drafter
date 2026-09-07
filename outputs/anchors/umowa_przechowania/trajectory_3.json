@@ -1,0 +1,339 @@
+{
+ "run": 7,
+ "hint": "Przechowanie bagażu na dworcu (skład przedsiębiorcy)",
+ "scenario": "Przechowanie bagażu na dworcu (skład przedsiębiorcy)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_przechowania'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_3e0e3844210c4e6b8e59abf0",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_przechowania\"}"
+     }
+    },
+    {
+     "id": "call_a8a48c478c864526b16e76ad",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"przechowanie bagażu dworzec skład przedsiębiorcy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_przechowania\", \"kind\": \"structural_template\", \"text\": \"# Umowa przechowania\\nUmowa przechowania w Polsce to umowa nazwana, uregulowana w art. 835-845 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą przechowawca zobowiązuje się zachować w stanie niepogorszonym ruchomość oddaną mu na przechowanie przez składającego. Celem umowy jest ochrona rzeczy właściciela — przechowawca przyjmuje pieczę nad mieniem składającego i odpowiada za jej należyte wykonanie.\\n\\nUmowa przechowania różni się od umowy użyczenia (art. 710-719 Kodeksu cywilnego) tym, że korzystanie z rzeczy przez przechowawcę jest co do zasady zabronione — przechowawca nie może używać rzeczy bez zgody składającego (art. 839 Kodeksu cywilnego). Różni się też od umowy składu regulowanej w art. 853-8592 Kodeksu cywilnego, która dotyczy profesjonalnych przedsiębiorców prowadzących składnice. Umowa przechowania może być zawarta zarówno między osobami fizycznymi, jak i przez przedsiębiorców.\\n\\nZgodnie z art. 836 Kodeksu cywilnego przechowawcy prowadzącemu działalność zarobkową polegającą na przechowywaniu rzeczy należy się wynagrodzenie, jeżeli z umowy lub okoliczności nie wynika, że zobowiązał się przechować bez wynagrodzenia. W obrocie nieprofesjonalnym (między osobami fizycznymi) przechowanie jest bardzo często nieodpłatne — sąsiad przechowuje meble sąsiada podczas remontu, znajomy trzyma rower przez zimę. Niezależnie od odpłatności staranność wymagana od przechowawcy jest jednakowa.\\n\\nKodeks cywilny nie wymaga żadnej formy szczególnej dla ważności umowy przechowania — wystarczy forma ustna. Jednakże forma pisemna jest zdecydowanie zalecana przy rzeczach o wyższej wartości. Pisemna umowa z precyzyjnym opisem stanu rzeczy i ich wartości stanowi dowód w postępowaniu przed Sądem Rejonowym w razie sporu o odszkodowanie za utratę lub uszkodzenie rzeczy. Przy braku pisemnego dowodu sąd ocenia wiarygodność zeznań świadków, co jest mniej przewidywalne.\\n\\nUmowa przechowania obejmuje różnorodne sytuacje życiowe. Najczęstsze z nich to: przechowanie mebli i rzeczy domowych podczas przeprowadzki lub remontu, przechowanie sprzętu sportowego (nart, rowerów, sprzętu windsurfingowego) poza sezonem, przechowanie pojazdu (samochodu, motocykla, przyczepy) w garażu osoby trzeciej, przechowanie towarów lub surowców w magazynie, przechowanie wartościowych przedmiotów (dzieł sztuki, biżuterii, zbiorów) w wynajętym sejfie lub u zaufanej osoby.\\n\\nSądy polskie — zarówno Sąd Rejonowy w pierwszej instancji, jak i Sąd Okręgowy w drugiej — rozpatrują spory z umów przechowania przede wszystkim w zakresie odszkodowania za utratę lub uszkodzenie rzeczy. Zgodnie z art. 837 Kodeksu cywilnego przechowawca powinien przechowywać rzecz w sposób, do jakiego się zobowiązał, a w braku umowy w tym zakresie — w sposób wynikający z właściwości przechowywanej rzeczy i okoliczności. Ocena należytej staranności przechowawcy stanowi kluczowe zagadnienie tych sporów.\\n\\nUmowa przechowania w Polsce jest potrzebna w każdej sytuacji, gdy właściciel oddaje rzecz pod opiekę innej osoby lub podmiotu i chce formalnymi zapisami zabezpieczyć swoje interesy.\\n\\nDokument jest szczególnie ważny podczas przeprowadzki lub remontu, gdy meble, sprzęt elektroniczny, dokumenty lub inne wartościowe przedmioty przechowywane są tymczasowo w garażu, piwnicy lub magazynie należącym do osoby trzeciej. Pisemna umowa z opisem stanu i wartości rzeczy chroni składającego przed ryzykiem, że przechowawca zaneguje swoją odpowiedzialność za uszkodzenia.\\n\\nDokument jest niezbędny przy sezonowym przechowaniu sprzętu sportowego — nart, deski snowboardowej, łódki, przyczepy kempingowej, motoroweru. Precyzyjny opis stanu technicznego sprzętu w chwili oddania i odebrania eliminuje spory o uszkodzenia, które mogły powstać u przechowawcy lub podczas transportu.\\n\\nDokument jest konieczny przy odpłatnym przechowaniu w prywatnym garażu lub magazynie. Pisemna umowa określa wynagrodzenie, termin jego płatności oraz konsekwencje zalegania z opłatą — w tym prawo retencji przechowawcy wynikające z art. 461 § 1 Kodeksu cywilnego. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) zwraca uwagę na przejrzystość warunków odpłatnego przechowania.\\n\\nDokument jest potrzebny, gdy rzeczy o wyższej wartości (dzieła sztuki, instrumenty muzyczne, zabytkowe pojazdy) zostaną powierzone osobie trzeciej. W takich przypadkach umowa powinna dokładnie określać warunki przechowania (temperatura, wilgotność, zabezpieczenie przeciwkradzieżowe), obowiązek ubezpieczenia oraz zakres odpowiedzialności za uszkodzenia.\\n\\nDokument jest wymagany, gdy przechowanie odbywa się przez dłuższy czas, np. kilka miesięcy lub lat. Długotrwałe przechowanie bez pisemnego potwierdzenia rodzi ryzyko zapomnenia warunków przez obie strony, szczególnie w zakresie terminu zwrotu i wartości przechowywanej rzeczy.\\n\\nPrawidłowa umowa przechowania w Polsce, oparta na art. 835-845 Kodeksu cywilnego, powinna zawierać kluczowe elementy gwarantujące jasność warunków i ochronę obu stron.\\n\\nOznaczenie stron: pełne dane przechowawcy i składającego — imię i nazwisko lub firma, PESEL lub NIP, adres zamieszkania lub siedziby. Dokładne dane umożliwią dochodzenie roszczeń przed Sądem Rejonowym właściwym dla miejsca przechowania rzeczy lub miejsca zamieszkania pozwanego (art. 27 Kodeksu postępowania cywilnego).\\n\\nSzczegółowy opis rzeczy: każda rzecz powinna być opisana z podaniem marki, modelu, numeru seryjnego lub cech indywidualizujących (np. kolor, wymiary, rok produkcji), stanu technicznego w chwili przyjęcia oraz listy akcesoriów. Szacunkowa wartość rynkowa wpisana w złotych polskich (cyfrowo i słownie) stanowi punkt wyjścia do ewentualnych roszczeń odszkodowawczych.\\n\\nMiejsce i warunki przechowania: wskazanie konkretnego miejsca (adres, pomieszczenie), w którym rzeczy będą przechowywane, oraz — dla rzeczy wrażliwych — wymaganych warunków (temperatura, wilgotność, zabezpieczenie). Przechowawca bez zgody składającego nie może zmienić miejsca przechowania (art. 841 Kodeksu cywilnego), chyba że jest to konieczne dla ochrony rzeczy.\\n\\nCzas trwania i termin zwrotu: określenie okresu przechowania lub konkretnej daty zwrotu. Zgodnie z art. 844 § 1 Kodeksu cywilnego składający może odebrać rzecz w każdym czasie, nawet przed umówionym terminem. Przechowawca może żądać odebrania rzeczy po upływie terminu lub gdy dalsze przechowanie stało się niemożliwe (art. 844 § 2 Kodeksu cywilnego).\\n\\nWynagrodzenie i warunki płatności: wyraźne wskazanie, czy przechowanie jest odpłatne czy nieodpłatne. Przy przechowaniu odpłatnym — kwota wynagrodzenia, termin i sposób płatności, konsekwencje opóźnienia (w tym prawo retencji z art. 461 § 1 Kodeksu cywilnego). Strony mogą skorzystać z szablonu umowy przechowania na serwisie forms-legal.com, który automatycznie uwzględnia warianty odpłatny i nieodpłatny.\\n\\nOdpowiedzialność i ubezpieczenie: zakres odpowiedzialności przechowawcy za utratę lub uszkodzenie rzeczy; wskazanie strony zobowiązanej do ubezpieczenia rzeczy podczas przechowania — szczególnie istotne przy rzeczach o wyższej wartości.\\n\\nWypełnianie umowy przechowania w Polsce zacznij od danych przechowawcy. Wpisz imię i nazwisko lub firmę, PESEL lub NIP oraz pełny adres — jest to jednocześnie adres miejsca przechowania. Dokładne dane przechowawcy są kluczowe w razie dochodzenia odpowiedzialności przed Sądem Rejonowym.\\n\\nNastępnie wpisz dane składającego — właściciela rzeczy. Podaj imię i nazwisko lub firmę, PESEL lub NIP oraz adres zamieszkania lub siedziby. Adresy obydwu stron są potrzebne do prawidłowego doręczania korespondencji oraz wyznaczenia sądu właściwości miejscowej.\\n\\nW sekcji opisu rzeczy opisz każdą rzecz oddawaną na przechowanie jak najdokładniej. Wpisz markę, model i numer seryjny. Wymień wszystkie elementy wchodzące w skład zestawu (np. przy rowerze: koła, pompka, sakwy, bagażnik). Opisz stan techniczny — \\\"stan dobry, bez uszkodzeń\\\" lub konkretne defekty widoczne przy odbiorze. Wpisz szacunkową wartość rynkową — kwotą cyfrowo i słownie, w złotych polskich.\\n\\nWybierz rodzaj wynagrodzenia: nieodpłatne lub odpłatne. Przy przechowaniu odpłatnym wpisz kwotę i termin płatności — np. \\\"200 zł miesięcznie, płatne z góry do 5. dnia miesiąca\\\". Wpisz datę przyjęcia rzeczy na przechowanie oraz termin ich odbioru przez składającego.\\n\\nPodpisz umowę w dwóch egzemplarzach — po jednym dla przechowawcy i składającego. Warto wykonać dokumentację fotograficzną rzeczy przed przekazaniem — zdjęcia z datą są pomocnym dowodem w razie sporu. Przy drogich przedmiotach zalecane jest sporządzenie osobnego pokwitowania odbioru z listą rzeczy.\\n\\nWymogi prawne umowy przechowania w Polsce wynikają z art. 835-845 Kodeksu cywilnego. Przepisy te mają charakter dyspozytywny — strony mogą odmiennie unormować wzajemne prawa i obowiązki, z wyjątkiem przepisów bezwzględnie obowiązujących.\\n\\nPodstawowe obowiązki przechowawcy według Kodeksu cywilnego: obowiązek przechowania rzeczy w sposób umówiony, a w braku umowy — w sposób odpowiadający właściwościom rzeczy i okolicznościom (art. 837); zakaz korzystania z przechowywanej rzeczy bez zgody składającego (art. 839); zakaz oddawania rzeczy innej osobie na przechowanie bez zgody składającego, chyba że przechowawca jest do tego zmuszony przez okoliczności (art. 840); obowiązek niezwłocznego zawiadomienia składającego o potrzebie zmiany miejsca lub sposobu przechowania (art. 841).\\n\\nPrawa składającego: prawo odebrania rzeczy w każdym czasie, nawet przed upływem umówionego terminu (art. 844 § 1 Kodeksu cywilnego) — jest to prawo bezwzględne, którego nie można wyłączyć umową. Składający traci to prawo jedynie wyjątkowo, gdy odbiór wcześniejszy byłby ze względu na termin lub inne okoliczności sprzeczny z treścią umowy.\\n\\nOdpowiedzialność przechowawcy: przechowawca odpowiada za szkodę wynikłą z utraty lub uszkodzenia rzeczy, chyba że szkoda nastąpiła wskutek okoliczności, którym przy zachowaniu należytej staranności nie mógł zapobiec. Ocena staranności przechowawcy dokonywana jest przez Sąd Rejonowy z uwzględnieniem okoliczności — profesjonalny przechowawca odpowiada surowiej niż osoba przechowująca bezpłatnie.\\n\\nPrzedawnienie roszczeń: roszczenia z umowy przechowania przedawniają się na zasadach ogólnych z art. 118 Kodeksu cywilnego — trzy lata dla roszczeń związanych z działalnością gospodarczą, sześć lat dla pozostałych.\\n\\nNajczęstsze błędy przy umowie przechowania w Polsce wynikają z braku precyzyjnego opisu rzeczy. Gdy w umowie nie wskazano stanu technicznego, uszkodzeń i wartości rzeczy w chwili przyjęcia, trudno po zwrocie udowodnić, że konkretna szkoda powstała w trakcie przechowania. Zalecane jest sporządzenie dokumentacji fotograficznej z datą jako załącznika do umowy.\\n\\nKolejnym błędem jest brak określenia wartości rzeczy. W razie utraty lub uszkodzenia składający będzie musiał wykazać wartość przed Sądem Rejonowym — wycena poza umową bywa trudna i kosztowna, szczególnie dla przedmiotów sprzed kilku lat lub kolekcjonerskich.\\n\\nPomijanie klauzuli dotyczącej ubezpieczenia to poważne ryzyko przy rzeczach wartościowych. Polisy domowe przechowawcy często nie obejmują cudzego mienia przechowywanego odpłatnie lub nie w celach prywatnych. Należy wyraźnie wskazać, kto ubezpiecza rzecz i na jaką kwotę.\\n\\nBłędem jest nieokreślenie skutków zalegania z wynagrodzeniem przy przechowaniu odpłatnym. Bez takiego zapisu przechowawca ma tylko prawo retencji z art. 461 § 1 Kodeksu cywilnego, ale nie może żądać natychmiastowego rozwiązania umowy bez stosownego postanowienia. Warto wskazać konsekwencje opóźnienia w płatności wynagrodzenia.\\n\\nNiedopełnienie wymogu pisemnego pokwitowania przy zwrocie rzeczy prowadzi do sporów o to, czy rzecz faktycznie oddano i w jakim stanie. Protokół zdawczo-odbiorczy przy zwrocie — choćby krótki — chroni przechowawcę przed późniejszymi roszczeniami o uszkodzenia.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-przechowania (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_3e0e3844210c4e6b8e59abf0",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_853\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 853. § 1. Przez umowę składu przedsiębiorca składowy zobowiązuje się do przechowania, za wynagrodzeniem, oznaczonych w umowie rzeczy ruchomych. § 2. Przedsiębiorca składowy jest obowiązany wydać składającemu pokwitowanie, które powinno wymieniać rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 6 . Jeżeli składający nie odbiera rzeczy pomimo upływu umówionego terminu lub terminu wypowiedzenia umowy, przedsiębiorca składowy może oddać rzecz na przechowanie na koszt i ryzyko składającego. Może on jednak wykonać to prawo tylko wtedy, jeżeli uprzedził składającego o zamiarze skorzystania z przysługującego mu prawa listem poleconym albo na adres do doręczeń elektronicznych, o którym mowa w art. 2 pkt 1 ustawy z dnia 18 listopada 2020 r. ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_857\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 857. Jeżeli stan rzeczy nadesłanych przedsiębiorcy składowemu nasuwa podejrzenie, że ma miejsce brak, ubytek, zepsucie albo uszkodzenie rzeczy, przedsiębiorca składowy powinien dokonać czynności niezbędnych do zabezpieczenia mienia i praw składającego.\"}, {\"chunk_id\": \"uokik_abusive_clause_262\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Przewóz bagażu należącego do uczestnika odbywa się na całkowitą jego odpowiedzialność i Organizator w żadnym przypadku nie może być pociągnięty do odpowiedzialność za ewentualne szkody, kradzież i zaginięcie mogące mieć miejsce podczas wycieczki\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 8 . § 1. Przez odebranie rzeczy bez zastrzeżeń oraz zapłatę wszystkich należności przedsiębiorcy składowego wygasają wszelkie roszczenia do przedsiębiorcy składowego z tytułu umowy składu, z wyjątkiem roszczeń z tytułu niewidocznych uszkodzeń rzeczy, jeżeli składający, w ciągu siedmiu dni od odbioru, zawiadomił o nich przedsiębiorcę składowego. § 2. Przepisu § 1 nie stosuje się w przypadku, gdy powstanie uszkodzenia jest następstwem winy umy ...\"}]",
+   "tool_call_id": "call_a8a48c478c864526b16e76ad",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about luggage storage at train stations (skład bagażu na dworcu) and the specific regulations that apply to entrepreneurs operating such storage facilities.",
+   "tool_calls": [
+    {
+     "id": "call-93d1b6d9-5720-4186-8b39-f791feb04614",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"skład bagażu\", \"dworzec\", \"przechowalnia bagażu\"]}"
+     }
+    },
+    {
+     "id": "call-357834ff-2e7f-43e4-bce6-9e392423b8ce",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"przechowalnia bagażu dworzec kolejowy przedsiębiorca regulamin\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-93d1b6d9-5720-4186-8b39-f791feb04614",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_f943ae17fbe6f14c\", \"source_id\": \"uokik_rejestr_klauzul_5867\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...)zastrzega sobie prawo do zmian w niniejszym regulaminie. Wprowadzone zmiany zaczynają obowiązywać w terminie 14 dni od ich ogłoszenia poprzez wywieszenie na budynku (...) i zamieszczenie na stronie internetowej (...) pod adresem(...). Zmiana Regulaminu (...) dotyczy każdorazowo wszystkich użytkowników (...)\"}, {\"chunk_id\": \"uokik_items:uokik_3b3b0a34f1469e00\", \"source_id\": \"uokik_rejestr_klauzul_4496\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Operator zastrzega prawo zmiany powyższego regulaminu z 7 dniowym wyprzedzeniem (informacja na stronie głównej)\"}, {\"chunk_id\": \"uokik_items:uokik_b19bb55af601eabc\", \"source_id\": \"uokik_rejestr_klauzul_4862\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Niniejszy regulamin znajduje się na stronie serwisu (…) i w każdym czasie może zostać zmieniony (§17 ust.1 Regulaminu)\"}, {\"chunk_id\": \"uokik_items:uokik_32044c2e1e61a3e5\", \"source_id\": \"uokik_rejestr_klauzul_4095\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Firma &quot(...)&quot; zastrzega sobie prawo do zmiany powyższego regulaminu w dowolnym momencie\"}, {\"chunk_id\": \"uokik_items:uokik_12ce46662aeeaa03\", \"source_id\": \"uokik_rejestr_klauzul_3199\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ostateczna interpretacja niniejszego regulaminu należy wyłącznie do Organizatora\"}]",
+   "tool_call_id": "call-357834ff-2e7f-43e4-bce6-9e392423b8ce",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "tool_calls": [
+    {
+     "id": "call_4bebab200fc54ba7ba36181a",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"szafa bagażowa\", \"przechowalnia\", \"kamera celna\"]}"
+     }
+    },
+    {
+     "id": "call_13aea6ce66e946d285f23dbb",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"przechowanie rzeczy w szafach bagażowych na dworcu kolejowym odpowiedzialność przedsiębiorcy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_4bebab200fc54ba7ba36181a",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_853\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 853. § 1. Przez umowę składu przedsiębiorca składowy zobowiązuje się do przechowania, za wynagrodzeniem, oznaczonych w umowie rzeczy ruchomych. § 2. Przedsiębiorca składowy jest obowiązany wydać składającemu pokwitowanie, które powinno wymieniać rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\"}, {\"chunk_id\": \"uokik_abusive_clause_262\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Przewóz bagażu należącego do uczestnika odbywa się na całkowitą jego odpowiedzialność i Organizator w żadnym przypadku nie może być pociągnięty do odpowiedzialność za ewentualne szkody, kradzież i zaginięcie mogące mieć miejsce podczas wycieczki\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_777\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 777. § 1. Za bagaż, który podróżny przewozi ze sobą, przewoźnik ponosi odpowiedzialność tylko wtedy, gdy szkoda wynikła z winy umyślnej lub rażącego niedbalstwa przewoźnika. § 2. Za bagaż powierzony przewoźnikowi przewoźnik ponosi odpowiedzialność według zasad przewidzianych dla przewozu rzeczy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 6 . Jeżeli składający nie odbiera rzeczy pomimo upływu umówionego terminu lub terminu wypowiedzenia umowy, przedsiębiorca składowy może oddać rzecz na przechowanie na koszt i ryzyko składającego. Może on jednak wykonać to prawo tylko wtedy, jeżeli uprzedził składającego o zamiarze skorzystania z przysługującego mu prawa listem poleconym albo na adres do doręczeń elektronicznych, o którym mowa w art. 2 pkt 1 ustawy z dnia 18 listopada 2020 r. ...\"}, {\"chunk_id\": \"uokik_items:uokik_be34e3ef75824041\", \"source_id\": \"uokik_rejestr_klauzul_5191\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za rzeczy przewożone poza lukiem bagażowym (bagaż podręczny, dokumenty, biżuteria, gotówka, papiery wartościowe) przewoźnik nie ponosi odpowiedzialności\"}]",
+   "tool_call_id": "call_13aea6ce66e946d285f23dbb",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "tool_calls": [
+    {
+     "id": "call_dbd51185883e4beeaf8bb7f8",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_853\", \"sejm_eli_du_2024_1061_art_859\", \"sejm_eli_du_2024_1061_art_857\"]}"
+     }
+    },
+    {
+     "id": "call_fc04c53f9836485f876072e4",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 853 KC\", \"umowa składu\", \"przedsiębiorca składowy\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_853\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 853. § 1. Przez umowę składu przedsiębiorca składowy zobowiązuje się do przechowania, za wynagrodzeniem, oznaczonych w umowie rzeczy ruchomych. § 2. Przedsiębiorca składowy jest obowiązany wydać składającemu pokwitowanie, które powinno wymieniać rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 9 . Roszczenia z tytułu umowy składu przedawniają się z upływem roku. Tytuł XXXI Spółka\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_857\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 857. Jeżeli stan rzeczy nadesłanych przedsiębiorcy składowemu nasuwa podejrzenie, że ma miejsce brak, ubytek, zepsucie albo uszkodzenie rzeczy, przedsiębiorca składowy powinien dokonać czynności niezbędnych do zabezpieczenia mienia i praw składającego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call_dbd51185883e4beeaf8bb7f8",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_855\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 855. § 1. Przedsiębiorca składowy odpowiada za szkodę wynikłą z utraty, ubytku lub uszkodzenia rzeczy w czasie od przyjęcia jej na skład do wydania osobie uprawnionej do odbioru, chyba że udowodni, że nie mógł zapobiec szkodzie, mimo dołożenia należytej staranności. § 2. Przedsiębiorca składowy jest obowiązany dokonywać odpowiednich czynności konserwacyjnych. Przeciwne postanowienie umowy jest nieważne. § 3. Przedsiębiorca składowy nie ponosi od ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_853\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 853. § 1. Przez umowę składu przedsiębiorca składowy zobowiązuje się do przechowania, za wynagrodzeniem, oznaczonych w umowie rzeczy ruchomych. § 2. Przedsiębiorca składowy jest obowiązany wydać składającemu pokwitowanie, które powinno wymieniać rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_854\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 854. Przepisów tytułu niniejszego nie stosuje się w przypadkach, gdy przedsiębiorca składowy nabywa własność złożonych rzeczy i jest obowiązany zwrócić tylko taką samą ilość rzeczy tego samego gatunku i takiej samej jakości.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_856\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 856. Przedsiębiorca składowy jest obowiązany do ubezpieczenia rzeczy jedynie wtedy, gdy otrzymał takie zlecenie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_857\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 857. Jeżeli stan rzeczy nadesłanych przedsiębiorcy składowemu nasuwa podejrzenie, że ma miejsce brak, ubytek, zepsucie albo uszkodzenie rzeczy, przedsiębiorca składowy powinien dokonać czynności niezbędnych do zabezpieczenia mienia i praw składającego.\"}]",
+   "tool_call_id": "call_fc04c53f9836485f876072e4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA SKŁADU (PRZECHOWANIE BAGAŻU NA DWORCOWYM SKŁADZIE PRZEDSIĘBIORCY)\n\nzawarta w dniu ______________ w ______________, pomiędzy:\n\n§ 1. STRONY UMOWY\n\n1. Przedsiębiorcą Składowym:\n________________________________________________________________________\n(nazwa firmy / imię i nazwisko przedsiębiorcy)\nNIP: _______________________ REGON: _____________________\nAdres siedziby / zamieszkania: _______________________________________\n________________________________________________________________________\nreprezentowanym przez: _____________________________________________\n(zwanym dalej „Przedsiębiorcą Składowym\")\n\n2. Składającym:\n________________________________________________________________________\n(imię i nazwisko podróżnego)\nPESEL: _______________________ Seria i nr dowodu osobistego/paszportu: _______________\nAdres zamieszkania: _________________________________________________\n________________________________________________________________________\n(zwanym dalej „Składającym\")\n\n§ 2. PRZEDMIOT UMOWY\n\n1. Przedsiębiorca Składowy zobowiązuje się do przechowania, za wynagrodzeniem, rzeczy ruchomych (bagażu) określonych w niniejszej umowie, a Składający zobowiązuje się do zapłaty umówionego wynagrodzenia.\n\n2. Przedmiotem przechowania jest bagaż Składającego o następujących cechach:\n\n   a) Rodzaj rzeczy: _________________________________________________\n   b) Ilość opakowań/sztuk: _________________________________________\n   c) Oznaczenia (znaki, nalepki, kolory, opisy): _______________________\n   ________________________________________________________________\n   d) Sposób opakowania: ____________________________________________\n   e) Stan w chwili przyjęcia: ________________________________________\n   ________________________________________________________________\n   f) Szacunkowa wartość rynkowa: ___________________________________\n   (słownie: ________________________________________________________)\n\n3. Strony potwierdzają, że opis rzeczy dokonano w chwili przyjęcia na skład. Składający oświadcza, że rzeczy nie zawierają materiałów niebezpiecznych, zabronionych lub łatwopalnych, chyba że zostały one wyraźnie opisane w pkt 2 lit. a) i osobnie uzgodnione.\n\n§ 3. POKWITOWANIE (art. 853 § 2 KC)\n\n1. Przedsiębiorca Składowy jest obowiązany wydać Składającemu pokwitowanie, które wymienia rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\n\n2. Pokwitowanie zostanie wydane w chwili przyjęcia rzeczy na skład w formie dokumentowej lub elektronicznej. Składający jest obowiązany przedstawić pokwitowanie przy odbiorze rzeczy.\n\n3. W przypadku utraty pokwitowania Składający jest obowiązany wykazać prawo do odbioru rzeczy w inny sposób dopuszczony prawem.\n\n§ 4. CZAS I MIEJSCE PRZECHOWANIA\n\n1. Rzeczy zostają przyjęte na skład w dniu ______________.\n\n2. Miejsce przechowania: ____________________________________________\n(adres dworca, pomieszczenie, numer szafki/komórki)\n\n3. Czas przechowania: od dnia ______________ do dnia ______________.\n\n4. Przechowawca bez zgody składającego nie może zmienić miejsca przechowania (art. 841 Kodeksu cywilnego), chyba że jest to konieczne dla ochrony rzeczy. W takim przypadku Przedsiębiorca Składowy niezwłocznie zawiadomi Składającego o zmianie miejsca lub sposobu przechowania.\n\n5. Składający może odebrać rzecz w każdym czasie, nawet przed upływem umówionego terminu (art. 844 § 1 KC).\n\n§ 5. WYNAGRODZENIE I WARUNKI PŁATNOŚCI\n\n1. Przechowanie jest odpłatne. Wynagrodzenie Przedsiębiorcy Składowego wynosi:\n   ______________ zł za dobę / za cały okres przechowania\n   (słownie: ________________________________________________________)\n\n2. Wynagrodzenie płatne jest z góry w chwili przyjęcia rzeczy na skład / w chwili odbioru rzeczy.\n\n3. W przypadku opóźnienia w płatności wynagrodzenia Przedsiębiorca Składowy ma prawo do odsetek ustawowych za opóźnienie oraz prawo retencji rzeczy przechowywanych do czasu całkowitego zaspokojenia swoich roszczeń (art. 461 § 1 KC).\n\n4. W przypadku przedłużenia okresu przechowania ponad termin określony w § 4 ust. 3, Składający jest obowiązany zapłacić dodatkowe wynagrodzenie według stawki określonej w ust. 1, za każdy rozpoczęty dzień przedłużenia.\n\n§ 6. ODBIÓR RZECZY I SKUTKI NIEODEBRANIA\n\n1. Składający jest obowiązany odebrać rzeczy w terminie określonym w § 4 ust. 3, po przedstawieniu pokwitowania i uregulowaniu wszystkich należności.\n\n2. Przez odebranie rzeczy bez zastrzeżeń oraz zapłatę wszystkich należności Przedsiębiorcy Składowemu wygasają wszelkie roszczenia do Przedsiębiorcy Składowego z tytułu umowy składu, z wyjątkiem roszczeń z tytułu niewidocznych uszkodzeń rzeczy, jeżeli Składający, w ciągu siedmiu dni od odbioru, zawiadomił o nich Przedsiębiorcę Składowego (art. 859^8 KC).\n\n3. Jeżeli Składający nie odbiera rzeczy pomimo upływu umówionego terminu, Przedsiębiorca Składowy może oddać rzecz na przechowanie na koszt i ryzyko Składającego. Może on jednak wykonać to prawo tylko wtedy, jeżeli uprzedził Składającego o zamiarze skorzystania z przysługującego mu prawa listem poleconym albo na adres do doręczeń elektronicznych (art. 859^6 KC).\n\n4. Koszty dodatkowego przechowania, o którym mowa w ust. 3, obciążają Składającego i podlegają zapłacie w terminie 7 dni od doręczenia wezwania.\n\n§ 7. ODPOWIEDZIALNOŚĆ PRZEDSIĘBIORCY SK�ADOWEGO (art. 855 KC)\n\n1. Przedsiębiorca Składowy odpowiada za szkodę wynikłą z utraty, ubytku lub uszkodzenia rzeczy w czasie od przyjęcia jej na skład do wydania osobie uprawnionej do odbioru, chyba że udowodni, że nie mógł zapobiec szkodzie, mimo dołożenia należytej staranności.\n\n2. Przedsiębiorca Składowy jest obowiązany dokonywać odpowiednich czynności konserwacyjnych. Przeciwne postanowienie umowy jest nieważne (art. 855 § 2 KC).\n\n3. Przedsiębiorca Składowy nie ponosi odpowiedzialności za szkodę wynikłą z okoliczności, którym przy zachowaniu należytej staranności nie mógł zapobiec, w tym m.in. za szkody wynikły z:\n   a) siły wyższej (klęski żywiołowe, działania wojenne, akty terrorystyczne),\n   b) wad rzeczy samej, o których Przedsiębiorca Składowy nie wiedział i nie mógł wiedzieć przy zachowaniu należytej staranności,\n   c) oznaczenia rzeczy jako nieprawdziwego lub niepełnego przez Składającego.\n\n§ 8. UBEZPIECZENIE (art. 856 KC)\n\n1. Przedsiębiorca Składowy jest obowiązany do ubezpieczenia rzeczy jedynie wtedy, gdy otrzymał takie zlecenie od Składającego.\n\n2. W przypadku braku zlecenia ubezpieczenia rzeczy pozostają na ryzyku Składającego, z zastrzeżeniem odpowiedzialności Przedsiębiorcy Składowego określonej w § 7.\n\n3. Składający może zlecić ubezpieczenie rzeczy na kwotę nieprzekraczającą szacunkowej wartości rynkowej określonej w § 2 ust. 2 lit. f). Koszty ubezpieczenia ponosi Składający.\n\n§ 9. POSTĘPOWANIE W RAZIE USZKODZENIA LUB UBYTKU (art. 857 KC)\n\n1. Jeżeli stan rzeczy nadesłanych Przedsiębiorcy Składowemu nasuwa podejrzenie, że ma miejsce brak, ubytek, zepsucie albo uszkodzenie rzeczy, Przedsiębiorca Składowy powinien dokonać czynności niezbędnych do zabezpieczenia mienia i praw Składającego.\n\n2. W przypadku stwierdzenia uszkodzenia lub ubytku rzeczy Przedsiębiorca Składowy niezwłocznie zawiadomi Składającego, dokonując jednocześnie dokumentacji fotograficznej i spisu protokołu szkody.\n\n3. Składający zobowiązuje się do niezwłocznego powiadomienia Przedsiębiorcy Składowego o wszelkich roszczeniach z tytułu uszkodzenia lub ubytku rzeczy, nie później niż w chwili odbioru, a w przypadku uszkodzeń niewidocznych – w terminie 7 dni od odbioru.\n\n§ 10. ZAKAZ KORZYSTANIA Z RZECZY (art. 839 KC)\n\n1. Przedsiębiorca Składowy nie może korzystać z przechowywanej rzeczy ani oddawać jej do korzystania osobom trzecim bez zgody Składającego.\n\n2. Przedsiębiorca Składowy nie może oddawać rzeczy innej osobie na przechowanie bez zgody Składającego, chyba że jest do tego zmuszony przez okoliczności (art. 840 KC).\n\n§ 11. PRZEDAWNIENIE ROSZCZEŃ (art. 859^9 KC)\n\n1. Roszczenia z tytułu umowy składu przedawniają się z upływem roku.\n\n2. Bieg terminu przedawnienia rozpoczyna się od dnia odbioru rzeczy lub od dnia, w którym rzeczy należało wydać.\n\n§ 12. KLAUZULE INFORMACYJNE I OCHRONA DANYCH\n\n1. Administratorem danych osobowych Składającego jest Przedsiębiorca Składowy. Dane osobowe przetwarzane są w celu wykonania umowy oraz dochodzenia ewentualnych roszczeń, zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO).\n\n2. Składający ma prawo dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz prawo do cofnięcia zgody w każdym czasie.\n\n§ 13. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 853-859^9 KC (umowa składu) oraz art. 835-845 KC (przechowanie) w zakresie niezgodnym z umową składu.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd powszechny właściwy dla siedziby Przedsiębiorcy Składowego / miejsca przechowania rzeczy (art. 27 KPC).\n\n4. Niniejsza umowę sporzączono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n5. Składający oświadcza, że zapoznał się z treścią umowy, otrzył jej egzemplarz i nie wnosi do niej zastrzeżeń.\n\n§ 14. ZAŁĄCZNIKI\n\n1. Pokwitowanie przyjęcia rzeczy na skład (wg wzoru zgodnego z art. 853 § 2 KC)\n2. Protokół zdawczo-odbiorczy rzeczy (opcjonalnie)\n\n\n\n_________________________________          _________________________________\n(miejscowość i data)                     (podpis Przedsiębiorcy Składowego)\n\n\n_________________________________\n(podpis Składającego)\n\n\n\nZAŁĄCZNIK NR 1: POKWITOWANIE PRZYJĘCIA RZECZY NA SK�AD\n\nZgodnie z art. 853 § 2 Kodeksu cywilnego niniejszym potwierdza się przyjęcie na skład rzeczy o następujących cechach:\n\n1. Rodzaj rzeczy: _________________________________________________\n2. Ilość: _______________________________________________________\n3. Oznaczenia: __________________________________________________\n4. Sposób opakowania: ____________________________________________\n5. Stan w chwili przyjęcia: ________________________________________\n6. Data przyjęcia: ________________________________________________\n7. Planowana data wydania: _______________________________________\n8. Wynagrodzenie: ______________________________________________\n\nWydano w dniu ______________\n\n_________________________________\n(podpis Przedsiębiorcy Składowego)\n\n_________________________________\n(podpis Składającego – potwierdzenie odbioru pokwitowania)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA SKŁADU (PRZECHOWANIE BAGAŻU NA DWORCOWYM SKŁADZIE PRZEDSIĘBIORCY)\n\nzawarta w dniu ______________ w ______________, pomiędzy:\n\n§ 1. STRONY UMOWY\n\n1. Przedsiębiorcą Składowym:\n________________________________________________________________________\n(nazwa firmy / imię i nazwisko przedsiębiorcy)\nNIP: _______________________ REGON: _____________________\nAdres siedziby / zamieszkania: _______________________________________\n________________________________________________________________________\nreprezentowanym przez: _____________________________________________\n(zwanym dalej „Przedsiębiorcą Składowym\")\n\n2. Składającym:\n________________________________________________________________________\n(imię i nazwisko podróżnego)\nPESEL: _______________________ Seria i nr dowodu osobistego/paszportu: _______________\nAdres zamieszkania: _________________________________________________\n________________________________________________________________________\n(zwanym dalej „Składającym\")\n\n§ 2. PRZEDMIOT UMOWY\n\n1. Przedsiębiorca Składowy zobowiązuje się do przechowania, za wynagrodzeniem, rzeczy ruchomych (bagażu) określonych w niniejszej umowie, a Składający zobowiązuje się do zapłaty umówionego wynagrodzenia.\n\n2. Przedmiotem przechowania jest bagaż Składającego o następujących cechach:\n\n   a) Rodzaj rzeczy: _________________________________________________\n   b) Ilość opakowań/sztuk: _________________________________________\n   c) Oznaczenia (znaki, nalepki, kolory, opisy): _______________________\n   ________________________________________________________________\n   d) Sposób opakowania: ____________________________________________\n   e) Stan w chwili przyjęcia: ________________________________________\n   ________________________________________________________________\n   f) Szacunkowa wartość rynkowa: ___________________________________\n   (słownie: ________________________________________________________)\n\n3. Strony potwierdzają, że opis rzeczy dokonano w chwili przyjęcia na skład. Składający oświadcza, że rzeczy nie zawierają materiałów niebezpiecznych, zabronionych lub łatwopalnych, chyba że zostały one wyraźnie opisane w pkt 2 lit. a) i osobnie uzgodnione.\n\n§ 3. POKWITOWANIE (art. 853 § 2 KC)\n\n1. Przedsiębiorca Składowy jest obowiązany wydać Składającemu pokwitowanie, które wymienia rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\n\n2. Pokwitowanie zostanie wydane w chwili przyjęcia rzeczy na skład w formie dokumentowej lub elektronicznej. Składający jest obowiązany przedstawić pokwitowanie przy odbiorze rzeczy.\n\n3. W przypadku utraty pokwitowania Składający jest obowiązany wykazać prawo do odbioru rzeczy w inny sposób dopuszczony prawem.\n\n§ 4. CZAS I MIEJSCE PRZECHOWANIA\n\n1. Rzeczy zostają przyjęte na skład w dniu ______________.\n\n2. Miejsce przechowania: ____________________________________________\n(adres dworca, pomieszczenie, numer szafki/komórki)\n\n3. Czas przechowania: od dnia ______________ do dnia ______________.\n\n4. Przechowawca bez zgody składającego nie może zmienić miejsca przechowania (art. 841 Kodeksu cywilnego), chyba że jest to konieczne dla ochrony rzeczy. W takim przypadku Przedsiębiorca Składowy niezwłocznie zawiadomi Składającego o zmianie miejsca lub sposobu przechowania.\n\n5. Składający może odebrać rzecz w każdym czasie, nawet przed upływem umówionego terminu (art. 844 § 1 KC).\n\n§ 5. WYNAGRODZENIE I WARUNKI PŁATNOŚCI\n\n1. Przechowanie jest odpłatne. Wynagrodzenie Przedsiębiorcy Składowego wynosi:\n   ______________ zł za dobę / za cały okres przechowania\n   (słownie: ________________________________________________________)\n\n2. Wynagrodzenie płatne jest z góry w chwili przyjęcia rzeczy na skład / w chwili odbioru rzeczy.\n\n3. W przypadku opóźnienia w płatności wynagrodzenia Przedsiębiorca Składowy ma prawo do odsetek ustawowych za opóźnienie oraz prawo retencji rzeczy przechowywanych do czasu całkowitego zaspokojenia swoich roszczeń (art. 461 § 1 KC).\n\n4. W przypadku przedłużenia okresu przechowania ponad termin określony w § 4 ust. 3, Składający jest obowiązany zapłacić dodatkowe wynagrodzenie według stawki określonej w ust. 1, za każdy rozpoczęty dzień przedłużenia.\n\n§ 6. ODBIÓR RZECZY I SKUTKI NIEODEBRANIA\n\n1. Składający jest obowiązany odebrać rzeczy w terminie określonym w § 4 ust. 3, po przedstawieniu pokwitowania i uregulowaniu wszystkich należności.\n\n2. Przez odebranie rzeczy bez zastrzeżeń oraz zapłatę wszystkich należności Przedsiębiorcy Składowemu wygasają wszelkie roszczenia do Przedsiębiorcy Składowego z tytułu umowy składu, z wyjątkiem roszczeń z tytułu niewidocznych uszkodzeń rzeczy, jeżeli Składający, w ciągu siedmiu dni od odbioru, zawiadomił o nich Przedsiębiorcę Składowego (art. 859^8 KC).\n\n3. Jeżeli Składający nie odbiera rzeczy pomimo upływu umówionego terminu, Przedsiębiorca Składowy może oddać rzecz na przechowanie na koszt i ryzyko Składającego. Może on jednak wykonać to prawo tylko wtedy, jeżeli uprzedził Składającego o zamiarze skorzystania z przysługującego mu prawa listem poleconym albo na adres do doręczeń elektronicznych (art. 859^6 KC).\n\n4. Koszty dodatkowego przechowania, o którym mowa w ust. 3, obciążają Składającego i podlegają zapłacie w terminie 7 dni od doręczenia wezwania.\n\n§ 7. ODPOWIEDZIALNOŚĆ PRZEDSIĘBIORCY SK�ADOWEGO (art. 855 KC)\n\n1. Przedsiębiorca Składowy odpowiada za szkodę wynikłą z utraty, ubytku lub uszkodzenia rzeczy w czasie od przyjęcia jej na skład do wydania osobie uprawnionej do odbioru, chyba że udowodni, że nie mógł zapobiec szkodzie, mimo dołożenia należytej staranności.\n\n2. Przedsiębiorca Składowy jest obowiązany dokonywać odpowiednich czynności konserwacyjnych. Przeciwne postanowienie umowy jest nieważne (art. 855 § 2 KC).\n\n3. Przedsiębiorca Składowy nie ponosi odpowiedzialności za szkodę wynikłą z okoliczności, którym przy zachowaniu należytej staranności nie mógł zapobiec, w tym m.in. za szkody wynikły z:\n   a) siły wyższej (klęski żywiołowe, działania wojenne, akty terrorystyczne),\n   b) wad rzeczy samej, o których Przedsiębiorca Składowy nie wiedział i nie mógł wiedzieć przy zachowaniu należytej staranności,\n   c) oznaczenia rzeczy jako nieprawdziwego lub niepełnego przez Składającego.\n\n§ 8. UBEZPIECZENIE (art. 856 KC)\n\n1. Przedsiębiorca Składowy jest obowiązany do ubezpieczenia rzeczy jedynie wtedy, gdy otrzymał takie zlecenie od Składającego.\n\n2. W przypadku braku zlecenia ubezpieczenia rzeczy pozostają na ryzyku Składającego, z zastrzeżeniem odpowiedzialności Przedsiębiorcy Składowego określonej w § 7.\n\n3. Składający może zlecić ubezpieczenie rzeczy na kwotę nieprzekraczającą szacunkowej wartości rynkowej określonej w § 2 ust. 2 lit. f). Koszty ubezpieczenia ponosi Składający.\n\n§ 9. POSTĘPOWANIE W RAZIE USZKODZENIA LUB UBYTKU (art. 857 KC)\n\n1. Jeżeli stan rzeczy nadesłanych Przedsiębiorcy Składowemu nasuwa podejrzenie, że ma miejsce brak, ubytek, zepsucie albo uszkodzenie rzeczy, Przedsiębiorca Składowy powinien dokonać czynności niezbędnych do zabezpieczenia mienia i praw Składającego.\n\n2. W przypadku stwierdzenia uszkodzenia lub ubytku rzeczy Przedsiębiorca Składowy niezwłocznie zawiadomi Składającego, dokonując jednocześnie dokumentacji fotograficznej i spisu protokołu szkody.\n\n3. Składający zobowiązuje się do niezwłocznego powiadomienia Przedsiębiorcy Składowego o wszelkich roszczeniach z tytułu uszkodzenia lub ubytku rzeczy, nie później niż w chwili odbioru, a w przypadku uszkodzeń niewidocznych – w terminie 7 dni od odbioru.\n\n§ 10. ZAKAZ KORZYSTANIA Z RZECZY (art. 839 KC)\n\n1. Przedsiębiorca Składowy nie może korzystać z przechowywanej rzeczy ani oddawać jej do korzystania osobom trzecim bez zgody Składającego.\n\n2. Przedsiębiorca Składowy nie może oddawać rzeczy innej osobie na przechowanie bez zgody Składającego, chyba że jest do tego zmuszony przez okoliczności (art. 840 KC).\n\n§ 11. PRZEDAWNIENIE ROSZCZEŃ (art. 859^9 KC)\n\n1. Roszczenia z tytułu umowy składu przedawniają się z upływem roku.\n\n2. Bieg terminu przedawnienia rozpoczyna się od dnia odbioru rzeczy lub od dnia, w którym rzeczy należało wydać.\n\n§ 12. KLAUZULE INFORMACYJNE I OCHRONA DANYCH\n\n1. Administratorem danych osobowych Składającego jest Przedsiębiorca Składowy. Dane osobowe przetwarzane są w celu wykonania umowy oraz dochodzenia ewentualnych roszczeń, zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO).\n\n2. Składający ma prawo dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz prawo do cofnięcia zgody w każdym czasie.\n\n§ 13. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 853-859^9 KC (umowa składu) oraz art. 835-845 KC (przechowanie) w zakresie niezgodnym z umową składu.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd powszechny właściwy dla siedziby Przedsiębiorcy Składowego / miejsca przechowania rzeczy (art. 27 KPC).\n\n4. Niniejsza umowę sporzączono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n5. Składający oświadcza, że zapoznał się z treścią umowy, otrzył jej egzemplarz i nie wnosi do niej zastrzeżeń.\n\n§ 14. ZAŁĄCZNIKI\n\n1. Pokwitowanie przyjęcia rzeczy na skład (wg wzoru zgodnego z art. 853 § 2 KC)\n2. Protokół zdawczo-odbiorczy rzeczy (opcjonalnie)\n\n\n\n_________________________________          _________________________________\n(miejscowość i data)                     (podpis Przedsiębiorcy Składowego)\n\n\n_________________________________\n(podpis Składającego)\n\n\n\nZAŁĄCZNIK NR 1: POKWITOWANIE PRZYJĘCIA RZECZY NA SK�AD\n\nZgodnie z art. 853 § 2 Kodeksu cywilnego niniejszym potwierdza się przyjęcie na skład rzeczy o następujących cechach:\n\n1. Rodzaj rzeczy: _________________________________________________\n2. Ilość: _______________________________________________________\n3. Oznaczenia: __________________________________________________\n4. Sposób opakowania: ____________________________________________\n5. Stan w chwili przyjęcia: ________________________________________\n6. Data przyjęcia: ________________________________________________\n7. Planowana data wydania: _______________________________________\n8. Wynagrodzenie: ______________________________________________\n\nWydano w dniu ______________\n\n_________________________________\n(podpis Przedsiębiorcy Składowego)\n\n_________________________________\n(podpis Składającego – potwierdzenie odbioru pokwitowania)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Podróżuję pociągiem wieczorem, ale przyjechałem do miasta rano. Szukam miejsca na dworcu, gdzie mógłbym zostawić swoje walizki na kilka godzin za opłatą."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję wyjazd na kilka dni i muszę zostawić dwie duże walizki oraz plecak na dworcu centralnym. Chciałbym wiedzieć, ile kosztuje przechowanie na cały ten czas, czy moje rzeczy będą tam bezpieczne, oraz co się stanie, jeśli coś się zepsuje lub zgubi. Zależy mi na tym, żeby dostać jakiś papier z opisem moich rzeczy i potwierdzeniem, że je zostawiłem. Jak będzie wyglądał odbiór i czy muszę zapłacić z góry?"
+  }
+ ]
+}

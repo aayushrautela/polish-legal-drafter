@@ -1,0 +1,17 @@
+{
+ "run": 31,
+ "hint": "Prywatne zakupy i załatwianie spraw (usługi concierge)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam kogoś, kto załatwi dla mnie różne sprawy i zrobi zakupy, bo nie mam na to czasu. Czy oferujecie takie usługi?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem osobą zajętą i potrzebuję pomocy w codziennych sprawach – chodzi o zakupy w sklepach, odbiór paczek, załatwianie spraw urzędowych i tego typu drobne zlecenia. Chciałbym zlecić to jednej osobie na stałe, żeby oszczędzać czas. Czy jesteście w stanie pomóc i jak to wygląda w praktyce?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"dla usług concierge, zakupów prywatnych, załatwiania spraw osobistych\", \"doc_type\": \"umowa_zlecenia\"})\\nRESULT: [{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa zlecenia\\nUmowa zlecenia w Polsce to umowa cywilnoprawna, w której przyjmujący zlecenie (zleceniobiorca) zobowiązuje się do dokonania określonej czynności na rzecz dającego zlecenie (zleceniodawcy), a ten zobowiązuje się zazwyczaj do zapłaty wynagrodzenia. Podstawą prawną jest art. 734 i nast. Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przy czym do umów o świadczenie usług, które nie są uregulowane innymi przepisami, stosuje się odpowiednio przepisy o zleceniu zgodnie z art. 750 Kodeksu cywilnego.\\n\\nNajważniejszą cechą prawną zlecenia jest to, że jest to umowa starannego działania, a nie umowa rezultatu. Zleceniobiorca odpowiada za sumienne i staranne wykonanie powierzonych czynności z należytą starannością określoną w art. 355 Kodeksu cywilnego, a nie za osiągnięcie konkretnego efektu. Odróżnia to zlecenie od umowy o dzieło (art. 627 Kodeksu cywilnego), w której liczy się zindywidualizowany rezultat. To rozróżnienie ma kluczowe skutki podatkowe i ubezpieczeniowe — umowa zlecenia co do zasady podlega oskładkowaniu w Zakładzie Ubezpieczeń Społecznych (ZUS), podczas gdy umowa o dzieło zasadniczo składkom nie podlega.\\n\\nZlecenie z założenia jest odpłatne — art. 735 Kodeksu cywilnego ustanawia domniemanie odpłatności, zgodnie z którym jeżeli ani z umowy, ani z okoliczności nie wynika, że przyjmujący zlecenie zobowiązał się wykonać je bez wynagrodzenia, należy się wynagrodzenie odpowiadające wykonanej pracy. Do umów zlecenia stosuje się również przepisy o minimalnej stawce godzinowej wynikającej z ustawy o minimalnym wynagrodze"
+}

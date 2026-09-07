@@ -1,0 +1,55 @@
+Pełnomocnictwo ogólne do zarządu majątkiem (zwykły zarząd)
+Pełnomocnictwo szczególne do sprzedaży konkretnej nieruchomości (akt notarialny)
+Pełnomocnictwo rodzajowe do zarządzania nieruchomościami (najem)
+Pełnomocnictwo do zawarcia umowy najmu lokalu
+Pełnomocnictwo do ustanowienia służebności gruntowej
+Pełnomocnictwo do sprzedaży pojazdu
+Pełnomocnictwo do zakupu nieruchomości
+Pełnomocnictwo do odbioru świadczenia lub przesyłki
+Pełnomocnictwo do rachunku bankowego (dysponowanie środkami)
+Pełnomocnictwo procesowe (przed sądem)
+Pełnomocnictwo do spraw przed urzędem skarbowym
+Pełnomocnictwo do spraw w ZUS
+Pełnomocnictwo do reprezentacji spółki (KRS)
+Pełnomocnictwo do złożenia odwołania administracyjnego
+Prokura (wpis do KRS, przedsiębiorca)
+Prokura łączna lub oddziałowa (ograniczona)
+Pełnomocnictwo z prawem do ustanawiania substytutów (dalszych pełnomocników)
+Pełnomocnictwo bez prawa substytucji
+Pełnomocnictwo z ograniczeniem (tylko za zgodą mocodawcy)
+Pełnomocnictwo na określony czas (termin)
+Pełnomocnictwo do odwołania (warunek)
+Pełnomocnictwo do zawarcia umowy o pracę w imieniu pracodawcy
+Pełnomocnictwo do zawarcia umowy przenoszącej własność (akt notarialny)
+Pełnomocnictwo do podziału gruntu na działki
+Pełnomocnictwo do sprzedaży udziałów w spółce
+Pełnomocnictwo do zawarcia umowy kredytu (przekracza zwykły zarząd)
+Pełnomocnictwo do odbioru dokumentów i zaświadczeń
+Pełnomocnictwo do zarejestrowania pojazdu
+Pełnomocnictwo do zawarcia umowy ubezpieczenia
+Pełnomocnictwo do likwidacji szkody (odszkodowanie)
+Pełnomocnictwo do spraw spadkowych
+Pełnomocnictwo do zawarcia umowy darowizny
+Pełnomocnictwo do przepisania pojazdu (cesja)
+Pełnomocnictwo elektroniczne z kwalifikowanym podpisem
+Pełnomocnictwo do reprezentacji wspólnoty mieszkaniowej
+Pełnomocnictwo do zawarcia umowy dzierżawy gruntu
+Pełnomocnictwo do sprzedaży przedsiębiorstwa (wymaga szczególnego)
+Pełnomocnictwo rodzajowe do sprzedaży określonej kategorii towarów
+Pełnomocnictwo do występowania przed organami podatkowymi (VAT)
+Pełnomocnictwo do zawarcia umowy leasingu
+Pełnomocnictwo do odbioru wynagrodzenia lub pensji
+Pełnomocnictwo do zawarcia ugody sądowej
+Pełnomocnictwo do złożenia wniosku o wpis do księgi wieczystej
+Pełnomocnictwo do zarządzania kontem firmowym
+Pełnomocnictwo do reprezentacji w postępowaniu egzekucyjnym
+Pełnomocnictwo do zawarcia umowy pożyczki w imieniu mocodawcy
+Pełnomocnictwo z zakazem dalszego obciążania majątku
+Pełnomocnictwo dla pełnoletniego dziecka (sprawy bieżące)
+Pełnomocnictwo do zawarcia umowy o roboty budowlane
+Pełnomocnictwo do zgłoszenia szkody ubezpieczycielowi
+Pełnomocnictwo do odwołania wcześniejszego pełnomocnictwa
+Pełnomocnictwo do reprezentacji wspólnika w spółce
+Pełnomocnictwo rodzajowe do spraw z zakresu prawa pracy (zatrudnianie)
+Pełnomocnictwo do przyjęcia spadku w imieniu spadkobiercy
+Pełnomocnictwo z wskazaniem danych PESEL i dowodu osobistego

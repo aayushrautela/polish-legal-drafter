@@ -1,0 +1,320 @@
+{
+ "run": 33,
+ "hint": "Faktoring odnawialny (revolving) dla stałych dostaw",
+ "scenario": "Faktoring odnawialny (revolving) dla stałych dostaw",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_faktoringu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_cafd3115ac19490a9fbfe475",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_faktoringu\", \"query\": \"faktoring odnawialny revolving stałe dostawy\"}"
+     }
+    },
+    {
+     "id": "call_2d9304ab0da34b3cbe3f7f6c",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring odnawialny revolving ciągłe dostawy limit odnawialny\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_a0d09b8b37264319b96c7081",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"faktoring odnawialny\", \"revolving\", \"limit odnawialny\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_faktoringu\", \"kind\": \"structural_template\", \"text\": \"# Umowa faktoringu odwrotnego\\nUmowa faktoringu odwrotnego w Polsce (reverse factoring, supply chain finance — SCF) to kontrakt regulujący program finansowania łańcucha dostaw, w którym faktor — bank lub spółka faktoringowa — finansuje zobowiązania handlowe nabywcy (dużego odbiorcy) wobec jego dostawców, wypłacając dostawcom należności z wyprzedzeniem, przed oryginalnym terminem płatności. Podstawę prawną cesji wierzytelności dostawcy na faktora stanowi art. 509 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), a działalność instytucji finansowej prowadzącej program reguluje ustawa z dnia 29 sierpnia 1997 r. Prawo bankowe (Dz.U. 1997 nr 140 poz. 939 ze zm.).\\n\\nIstotą faktoringu odwrotnego jest odwrócenie inicjatywy w stosunku do tradycyjnego faktoringu: to nabywca (nie dostawca) inicjuje program i wybiera faktora, zapewniając dostawcom dostęp do taniego finansowania opartego na własnej zdolności kredytowej nabywcy. Dostawca, zwłaszcza mały lub średni przedsiębiorca (MŚP), uzyskuje finansowanie po korzystniejszej stopie niż mógłby samodzielnie uzyskać na rynku, gdyż faktor ocenia ryzyko kredytowe nabywcy — który często jest dużą spółką giełdową lub instytucją publiczną — a nie każdego dostawcy z osobna.\\n\\nMechanizm programu jest następujący: dostawca wystawia fakturę na nabywcę i przesyła ją do systemu platformy faktoringowej. Nabywca zatwierdza fakturę w systemie, potwierdzając jej zgodność z zamówieniem i zobowiązując się do zapłaty faktorowi w oryginalnym terminie. Dostawca może następnie złożyć wniosek o wcześniejszą wypłatę — faktor wypłaca mu kwotę faktury pomniejszoną o prowizję (dyskonto). W dniu płatności oryginalnej faktor pobiera pełną kwotę od nabywcy.\\n\\nNadzór nad instytucjami bankowymi prowadzącymi programy supply chain finance sprawuje Komisja Nadzoru Finansowego (KNF). Spółki niebankowe działają na podstawie ustawy z dnia 6 marca 2018 r. Prawo przedsiębiorców. Rynkowe standardy programów SCF definiują Globalne Standardy Finansowania Łańcucha Dostaw (Global Supply Chain Finance Forum) wydane przez Bankers Association for Finance and Trade (BAFT) we współpracy z Międzynarodową Izbą Handlową (ICC) w Paryżu.\\n\\nW Polsce faktoring odwrotny stosowany jest głównie przez sieci handlowe, duże przedsiębiorstwa produkcyjne i podmioty publiczne jako narzędzie poprawy warunków dla dostawców (krótszy czas oczekiwania na płatność) przy jednoczesnym zachowaniu długich terminów płatności. Związek Polskiego Leasingu (ZPL) monitoruje rynek faktoringu, w tym faktoringu odwrotnego, publikując kwartalne dane o wartości sfinansowanych wierzytelności. Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych nakłada na dużych nabywców ograniczenia terminów płatności do 60 dni — faktoring odwrotny jest często stosowany jako zgodne z prawem rozwiązanie umożliwiające dostawcom otrzymanie płatności wcześniej, przy zachowaniu dłuższych terminów dla nabywcy.\\n\\nUmowa faktoringu odwrotnego w Polsce jest potrzebna zarówno nabywcom chcącym wesprzeć swoich dostawców, jak i samym dostawcom uczestniczącym w programie.\\n\\nDuże sieci handlowe z wieloma dostawcami. Sieci supermarketów, hurtownie i operatorzy logistyczni posiadający setki dostawców korzystają z faktoringu odwrotnego jako programu wsparcia łańcucha dostaw — dostawcy rzadziej doświadczają problemów płynnościowych, co przekłada się na stabilność dostaw.\\n\\nPoprawa warunków dostawców MŚP bez kosztów po stronie nabywcy. Mały dostawca korzysta z tańszego finansowania opartego na ratingu kredytowym nabywcy. Nabywca nie ponosi kosztu — ewentualny koszt faktoringu ponosi dostawca (prowizja jest niższa niż koszt kredytu obrotowego MŚP).\\n\\nOptymalizacja kapitału obrotowego nabywcy. Nabywca może negocjować z dostawcami dłuższe terminy płatności — np. 90 zamiast 30 dni — w zamian za udostępnienie programu SCF. Dostawca nie odczuwa negatywnych skutków dłuższego terminu, bo i tak korzysta z wcześniejszej wypłaty przez faktora.\\n\\nZmniejszenie ryzyka zakłócenia dostaw. Nabywca, który wie, że dostawca ma problemy z płynnością, może zachęcić go do skorzystania z programu SCF zamiast szukać tańszego dostawcy. Stabilność dostawcy jest ważnym elementem zarządzania ryzykiem łańcucha dostaw (supply chain risk management).\\n\\nWypełnienie wymogów ustawy o przeciwdziałaniu nadmiernym opóźnieniom. Duże przedsiębiorstwa (przychody > 50 mln EUR) zobowiązane są do sprawozdawania wartości przeterminowanych zobowiązań wobec MŚP. Program faktoringu odwrotnego, w ramach którego faktor wypłaca dostawcy wcześniej, może zmniejszyć efektywne opóźnienia płatności mierzone od perspektywy dostawcy.\\n\\nProgramy rządowe i zamówienia publiczne. Instytucje publiczne realizujące duże projekty infrastrukturalne (GDDKiA, PKP, podmioty Skarbu Państwa) coraz częściej oferują wykonawcom i podwykonawcom dostęp do platform SCF, aby ograniczyć zatory płatnicze i ryzyko upadłości wykonawców w trakcie realizacji kontraktu.\\n\\nUmowa faktoringu odwrotnego w Polsce powinna regulować zarówno stosunki nabywca-faktor (umowa ramowa programu), jak i warunki przystępowania dostawców.\\n\\nOznaczenie stron — faktor i nabywca. Pełna firma faktora — bank z numerem KNF, spółka faktoringowa z KRS. Pełna firma nabywcy — NIP, REGON, KRS. Wskazanie organu reprezentacji zgodnie z aktualnym odpisem z Krajowego Rejestru Sądowego.\\n\\nZakres i limit programu. Łączna kwota zobowiązań nabywcy objętych programem (limit całkowity). Ewentualne sublimity na dostawców lub grupy produktowe. Waluta programu (PLN lub waluty obce dla importu). Zasady zmiany limitu w trakcie trwania umowy.\\n\\nMechanizm zatwierdzania faktur przez nabywcę. Termin, w jakim nabywca zobowiązuje się zatwierdzić każdą fakturę dostawcy po jej przesłaniu do systemu platformy. Milczące zatwierdzenie — po upływie terminu bez reakcji faktura uznawana za zatwierdzoną. Zasady odrzucenia faktury — przyczyny, formularz powiadomienia. Nieodwołalność zatwierdzenia — raz zatwierdzona faktura nie może być cofnięta.\\n\\nProwizja faktora i warunki wypłaty. Stawka prowizji (procentowa lub dzienna) potrącana od kwoty wypłaconej dostawcy. Prowizja nie może przekraczać odsetek maksymalnych z art. 359 § 2¹ KC (dwukrotność odsetek ustawowych). Termin wypłaty po zatwierdzeniu faktury (standardowo 1–3 dni robocze). Waluta wypłaty i zasady przewalutowania. forms-legal.com zaleca porównanie prowizji programu SCF z innymi formami finansowania przed przystąpieniem.\\n\\nWarunki przystępowania i cesji przez dostawców. Dostawca przystępuje do programu przez podpisanie odrębnej umowy cesji wierzytelności z faktorem na podstawie art. 509 KC. Warunki kwalifikacyjne dostawcy: brak zaległości wobec ZUS i KAS, brak wpisu do rejestrów dłużników (BIK, BIG), akceptacja regulaminu platformy. Zawiadomienie nabywcy o cesji przez faktora lub dostawcę.\\n\\nSpłata przez nabywcę. Termin i sposób spłaty faktorowi przez nabywcę (w dniu oryginalnej wymagalności faktury). Rachunek bankowy faktora do wpłat. Odsetki za opóźnienie nabywcy w spłacie — zgodne z art. 481 § 2 KC (odsetki ustawowe za opóźnienie). Skutki braku spłaty przez nabywcę — eskalacja, wypowiedzenie programu.\\n\\nPlatforma technologiczna i bezpieczeństwo danych. Opis systemu informatycznego zarządzającego programem. Warunki dostępu do platformy dla nabywcy i dostawców. Obowiązki związane z ochroną danych osobowych zgodnie z rozporządzeniem (UE) 2016/679 (RODO) — dostawcami mogą być osoby fizyczne prowadzące działalność, których dane osobowe przetwarza faktor i nabywca. Nadzór nad przetwarzaniem danych sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nUmowa faktoringu odwrotnego w Polsce wymaga precyzyjnego określenia parametrów programu, gdyż obejmuje ona zarówno stosunki finansowe, jak i operacyjne między faktorem, nabywcą i dostawcami.\\n\\nKrok 1 — zidentyfikuj strony. Wpisz pełne dane faktora (bank lub spółka faktoringowa z numerem KRS) i nabywcy (inicjatora programu). Upewnij się, że nabywca ma odpowiedni rating kredytowy akceptowany przez faktora — program SCF jest tańszy dla dostawców właśnie dlatego, że ryzyko oceniane jest na poziomie nabywcy.\\n\\nKrok 2 — określ limit i zakres programu. Wskaż łączny limit w PLN obejmujący wszystkie wierzytelności dostawców finansowane przez faktora. Limit powinien odpowiadać co najmniej 50% rocznych zobowiązań wobec dostawców zaproszonych do programu, aby był praktycznie użyteczny.\\n\\nKrok 3 — ustal termin płatności i wcześniejszą wypłatę. Standardowy termin płatności nabywcy to termin, w jakim zapłaciłby dostawcy bez udziału faktora (np. 90 dni). Wcześniejsza wypłata to czas od zatwierdzenia faktury do wypłaty przez faktora dostawcy (np. 2 dni robocze).\\n\\nKrok 4 — opisz prowizję. Wpisz stawkę prowizji — najczęściej jako procent dzienny od wartości faktury (np. 0,025% dziennie = ~9% rocznie). Oblicz efektywny roczny koszt finansowania, aby sprawdzić, czy nie przekracza odsetek maksymalnych z art. 359 § 2¹ KC.\\n\\nKrok 5 — wybierz platformę. Wskaż system informatyczny obsługujący program i adres URL dostępu. Platforma powinna zapewniać elektroniczny obieg faktur, zatwierdzanie nabywcy, wnioski dostawców i raportowanie do faktora.\\n\\nKrok 6 — zdefiniuj warunki przystąpienia dostawcy. Wskaż jakie dokumenty dostawca musi złożyć (zaświadczenia ZUS/KAS, KRS/CEIDG) i jakie umowy podpisać (cesja wierzytelności z faktorem). Możliwe jest wdrożenie automatycznego onboardingu przez platformę.\\n\\nKrok 7 — podpisz i wdróż. Po podpisaniu umowy ramowej faktor uruchamia platformę i zaprasza dostawców. Dla każdego dostawcy zawierana jest odrębna umowa cesji. Nabywca udostępnia dostawcom regulamin programu i instrukcję obsługi platformy.\\n\\nUmowa faktoringu odwrotnego w Polsce podlega przepisom Kodeksu cywilnego, Prawa bankowego i ustaw konsumenckich i podatkowych.\\n\\nKodeks cywilny — art. 509–518 (przelew wierzytelności). Cesja wierzytelności dostawcy na faktora (art. 509 KC) jest rdzeniem programu faktoringu odwrotnego. Art. 509 § 1 KC — wierzyciel może bez zgody dłużnika przenieść wierzytelność na osobę trzecią, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu lub właściwości zobowiązania. Art. 512 KC — dopóki nabywca nie zostanie poinformowany o cesji, może skutecznie zapłacić dostawcy. Art. 509 § 2 KC — z wierzytelnością przechodzą wszelkie związane z nią prawa.\\n\\nOdsetki maksymalne — art. 359 § 2¹ KC i art. 481 § 2¹ KC. Prowizja faktora pobierana od dostawcy nie może przekraczać odsetek maksymalnych (dwukrotność odsetek ustawowych wynikających ze stopy referencyjnej NBP + 3,5 pp). Odsetki za opóźnienie nabywcy wobec faktora nie mogą przekraczać dwukrotności odsetek ustawowych za opóźnienie (art. 481 § 2¹ KC).\\n\\nUstawa o przeciwdziałaniu nadmiernym opóźnieniom — z dnia 8 marca 2013 r. Ustawa (Dz.U. 2013 poz. 403 ze zm.) ogranicza terminy płatności w transakcjach handlowych — standardowo do 60 dni. Duże podmioty (przychody > 50 mln EUR) zobowiązane są do corocznego raportowania do ministra właściwego do spraw gospodarki wartości przeterminowanych zobowiązań. Program faktoringu odwrotnego, z perspektywy dostawcy, może skrócić efektywny czas oczekiwania na środki.\\n\\nRegulaminy platform faktoringowych i ochrona konkurencji. Programy SCF obsługiwane przez dominujących nabywców mogą być badane przez Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) pod kątem ewentualnego nadużywania pozycji rynkowej wobec dostawców — szczególnie jeśli udział w programie jest warunkiem współpracy.\\n\\nPrzetwarzanie danych — RODO i u.o.d.o. Dane osobowe dostawców i ich reprezentantów przetwarzane przez faktora i nabywcę podlegają rozporządzeniu (UE) 2016/679 (RODO) i ustawie z dnia 10 maja 2018 r. o ochronie danych osobowych, nadzorowanej przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO). Dostawcy powinni otrzymać klauzulę informacyjną przed przystąpieniem do programu.\\n\\nVAT i rachunkowość. Wcześniejsza wypłata przez faktora nie zmienia momentu powstania obowiązku podatkowego VAT u dostawcy — jest nim wystawienie faktury lub dostawa towaru. Prowizja faktora stanowi koszt uzyskania przychodu dostawcy. Nabywca spłacający faktorowi zobowiązanie handlowe może zaliczyć je jako koszt na zasadach ogólnych ustawy o CIT.\\n\\nUmowa faktoringu odwrotnego w Polsce zawiera typowe błędy, które mogą prowadzić do konfliktów między nabywcą, faktorem i dostawcami.\\n\\nBłąd 1 — brak klauzuli o nieodwołalności zatwierdzenia. Jeżeli nabywca może cofnąć zatwierdzenie faktury po jej zatwierdzeniu, faktor nie ma pewności co do spłaty i odmawia wypłaty dostawcy. Zalecenie: zamieść wyraźną klauzulę nieodwołalności zatwierdzenia — raz potwierdzona faktura nie może być cofnięta.\\n\\nBłąd 2 — milczące zatwierdzenie bez wyraźnej klauzuli. Brak wyraźnego postanowienia o domyślnym zatwierdzeniu po upływie terminu prowadzi do sporów, gdy nabywca nie zareaguje na fakturę. Zalecenie: wpisz expressis verbis, że brak reakcji nabywcy w terminie X dni = zatwierdzenie.\\n\\nBłąd 3 — prowizja przekraczająca odsetki maksymalne. Przy wysokich stawkach dziennych (np. 0,1% dziennie = 36% rocznie) prowizja może przekraczać odsetki maksymalne z art. 359 § 2¹ KC. Zalecenie: oblicz roczny ekwiwalent prowizji i sprawdź zgodność z KC.\\n\\nBłąd 4 — brak zawiadomienia nabywcy o cesji przez dostawcę. Nabywca, który nie wie o cesji, może zapłacić dostawcy bezpośrednio — faktor traci środki. Zalecenie: zadbaj, aby faktor lub dostawca zawiadamiał nabywcę o każdej cesji wierzytelności na piśmie, zgodnie z art. 512 KC.\\n\\nBłąd 5 — pominięcie klauzuli RODO przy onboardingu dostawców. Program obejmujący setki dostawców bez klauzuli informacyjnej RODO narusza art. 13 rozporządzenia (UE) 2016/679 (RODO). Zalecenie: platforma powinna automatycznie dostarczać klauzulę informacyjną każdemu nowemu dostawcy podczas rejestracji.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-faktoringu-odwrotnego (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_cafd3115ac19490a9fbfe475",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_5eba3e0e8b026809\", \"source_id\": \"uokik_rejestr_klauzul_3758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie możliwość ograniczania asortymentu dla wybranych stref dostawy\"}, {\"chunk_id\": \"uokik_items:uokik_c353c6c06eae23c4\", \"source_id\": \"uokik_rejestr_klauzul_6207\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Przelew zwrotny będzie pomniejszony o różnicę / koszt dostawy zamówienia, z którego produkt pochodzi\"}, {\"chunk_id\": \"uokik_items:uokik_2328a04509384ab8\", \"source_id\": \"uokik_rejestr_klauzul_3757\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...)zastrzega sobie możliwość limitowania ilości zakupionych przez Państwa artykułów oznaczonych znacznikiem &(...);\"}, {\"chunk_id\": \"uokik_items:uokik_dfa8761fec1e480e\", \"source_id\": \"uokik_rejestr_klauzul_6376\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie prawo do zaprzestania prowadzenia rachunków lokat terminowych określonego rodzaju o czym informuje listem zwykłym posiadaczy tych lokat. W takim przypadku lokaty odnawialne, którym w dacie podjęcia uchwały przez (...) nie upłynął termin, na jaki zostały złożone, nie ulegają odnowieniu. Po upływie okresu umownego środki zgromadzone na rachunku lokaty nie podlegają oprocentowaniu: jeżeli członek posiada rachunek oszczędnościowo-rozliczeniowy, (...) udostępnia te środki poprzez ich przekazanie na rachunek oszczędnościowo-rozliczeniowy\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_14\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 14. 1. Maksymalny limit wydatków z budżetu państwa przeznaczonych na wykonywanie zadań wynikających z niniejszej ustawy, z wyłączeniem zadań, o których mowa w art. 15, wynosi w roku: 1) 2023 - 0 zł; 2) 2024 - 1,03 mln zł; 3) 2025 - 1,03 mln zł; 4) 2026 - 1,03 mln zł; 5) 2027 - 1,03 mln zł; 6) 2028 - 1,03 mln zł; 7) 2029 - 1,03 mln zł; 8) 2030 - 1,03 mln zł; 9) 2031 - 1,03 mln zł; 10) 2032 - 1,03 mln zł. 2. Minister Sprawiedliwości monit ...\"}]",
+   "tool_call_id": "call_2d9304ab0da34b3cbe3f7f6c",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_a0d09b8b37264319b96c7081",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results didn't return specific provisions about revolving factoring (faktoring odnawialny). Let me search more specifically for this concept and also look at the base template more carefully. The template returned was for \"umowa faktoringu odwrotnego\" (reverse factoring), not standard factoring. Let me search for standard factoring template and revolving factoring provisions.",
+   "tool_calls": [
+    {
+     "id": "call-8c2b03a3-7096-4113-8ee0-09a1b94602dd",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring odnawialny limit kredytowy odnawialny ciągłe finansowanie wierzytelności revolving credit facility\", \"top_k\": 10}"
+     }
+    },
+    {
+     "id": "call-cb1a9718-c1d9-48f4-9287-57a21e2239c0",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"faktoring\", \"odnawialny\", \"revolving\", \"limit\", \"ciągły\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_0ed40e3a0aa348bc\", \"source_id\": \"uokik_rejestr_klauzul_2529\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank zastrzega sobie prawo do odmowy autoryzowania transakcji lub wprowadzenia ograniczeń limitów (kwotowych bądź ilościowych) autoryzowanych transakcji gotówkowych i/lub bezgotówkowych przeprowadzanych w ramach dostępnego limitu kredytowego w przypadku: a) naruszenia postanowień Umowy limitu lub Regulaminu limitu, b) naruszenia postanowień Umowy o kartę lub Regulaminu karty (jeśli posiadacz rachunku kredytowego zawarł z bankiem Umowę o kartę), c) powzięcia wiarygodnych informacji o pogorszeniu zdolności kredytowej lub sytuacji majątkowej Posiadacza rachunku kredytowego (...).&quot;\"}, {\"chunk_id\": \"uokik_items:uokik_4076d1c2cd161b01\", \"source_id\": \"uokik_rejestr_klauzul_3695\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kwota transakcji, na którą została udzielona autoryzacja, pomniejsza dostępny limit kredytu do czasu rozliczenia transakcji. Maksymalny czas, przez jaki autoryzacja pomniejsza dostępny limit kredytu w przypadku braku rozliczenia transakcji, jest określany przez Bank\"}, {\"chunk_id\": \"uokik_items:uokik_dfa8761fec1e480e\", \"source_id\": \"uokik_rejestr_klauzul_6376\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie prawo do zaprzestania prowadzenia rachunków lokat terminowych określonego rodzaju o czym informuje listem zwykłym posiadaczy tych lokat. W takim przypadku lokaty odnawialne, którym w dacie podjęcia uchwały przez (...) nie upłynął termin, na jaki zostały złożone, nie ulegają odnowieniu. Po upływie okresu umownego środki zgromadzone na rachunku lokaty nie podlegają oprocentowaniu: jeżeli członek posiada rachunek oszczędnościowo-rozliczeniowy, (...) udostępnia te środki poprzez ich przekazanie na rachunek oszczędnościowo-rozliczeniowy\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_14\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 14. 1. Maksymalny limit wydatków z budżetu państwa przeznaczonych na wykonywanie zadań wynikających z niniejszej ustawy, z wyłączeniem zadań, o których mowa w art. 15, wynosi w roku: 1) 2023 - 0 zł; 2) 2024 - 1,03 mln zł; 3) 2025 - 1,03 mln zł; 4) 2026 - 1,03 mln zł; 5) 2027 - 1,03 mln zł; 6) 2028 - 1,03 mln zł; 7) 2029 - 1,03 mln zł; 8) 2030 - 1,03 mln zł; 9) 2031 - 1,03 mln zł; 10) 2032 - 1,03 mln zł. 2. Minister Sprawiedliwości monit ...\"}, {\"chunk_id\": \"uokik_items:uokik_09c5564714f700e1\", \"source_id\": \"uokik_rejestr_klauzul_3016\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kredyt oprocentowany jest według zmiennej stopy procentowej obowiązującej w okresach, za które naliczane są odsetki. Wysokość ustalonego oprocentowania może ulec zmianie w przypadku zmiany o co najmniej 0,25 punktu procentowego jednego z niżej wymienionych czynników 1/ stawek WIBOR 2/ stopy procentowej bonów skarbowych 52-tygodniowych 3/ stopy redyskonta weksli NBP 4/ stopy procentowej kredytu lombardowego NBP 5/ wysokości stopy rezerw obowiązkowych Zmiana wysokości oprocentowania następuje z dniem wejścia w życie w bankach Uchwały Zarządu Banku zmieniającej wysokość stopy procentowej\"}, {\"chunk_id\": \"uokik_items:uokik_4217689807c8720a\", \"source_id\": \"uokik_rejestr_klauzul_1174\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie prawo odstąpienia od umowy w całości lub części i postawienia pożyczki w stan natychmiastowej wykonalności w przypadku gdy: a) Pożyczkobiorca naruszył istotne postanowienia umowy, d) Sytuacja ekonomiczno - finansowa Pożyczkobiorcy pogorszyła się w sposób znaczny, f) Pożyczkobiorca naruszył jakiekolwiek inne postanowienie umowy albo przepis prawa w zakresie objętym jej treścią w szczególności w przypadku - zaniechania poinformowania &quot;FF&quot; o zamiarze zaciągnięcia pożyczek lub kredytów, bądź udzielenia poręczeń lub zaciągnięcie innych zobowiązań i podjęcie innych de ...\"}, {\"chunk_id\": \"uokik_items:uokik_a8054af44a39b4f9\", \"source_id\": \"uokik_rejestr_klauzul_484\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli w ciągu dwóch kolejnych procesów przydziału pożyczek procent terminowej spłacalności udzielonych już pożyczek będzie niższy niż 60% udzielonych pożyczek, URiWF upoważniony jest do odraczania lub wstrzymania procesów przydziałów pożyczek i podjęcia innego rozwiązania, które najlepiej posłuży interesom Unii Rozwoju i Wspierania Finansowego i Klientom oraz umożliwi dalsze funkcjonowanie w Programie Klientowi\"}, {\"chunk_id\": \"uokik_items:uokik_9e199e40e460c778\", \"source_id\": \"uokik_rejestr_klauzul_3803\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) przysługuje wydłużenie terminu w następujących przypadkach […] zaistnienia czynników leżących po stronie osób trzecich takich jak (decyzje administracyjne, siła wyższa itd.)\"}, {\"chunk_id\": \"uokik_items:uokik_729d7b926c16be59\", \"source_id\": \"uokik_rejestr_klauzul_3819\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dokonanie blokady środków na rachunku bieżącym z tytułu zabezpieczenia kredytu udzielonego przez inny bank: 1% minimum 10 zł maximum 100 zł\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_297\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 297. § 1. Kto, w celu uzyskania dla siebie lub kogo innego, od banku lub jednostki organizacyjnej prowadzącej podobną działalność gospodarczą na podstawie ustawy albo od organu lub instytucji dysponujących środkami publicznymi - kredytu, pożyczki pieniężnej, poręczenia, gwarancji, akredytywy, dotacji, subwencji, potwierdzenia przez bank zobowiązania wynikającego z poręczenia lub z gwarancji lub podobnego świadczenia pieniężnego na określony cel gos ...\"}]",
+   "tool_call_id": "call-8c2b03a3-7096-4113-8ee0-09a1b94602dd",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_725_art_108\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 108. Ustawa wchodzi w życie z dniem 1 stycznia 1995 r. 1) Niniejsza ustawa wdraża postanowienia następujących dyrektyw Unii Europejskiej: 1) dyrektywy Rady 92/57/EWG z dnia 24 czerwca 1992 r. w sprawie wdrożenia minimalnych wymagań bezpieczeństwa i ochrony zdrowia na tymczasowych lub ruchomych budowach (ósma szczegółowa dyrektywa w rozumieniu art. 16 ust. 1 dyrektywy 89/391/EWG) (Dz. Urz. WE L 245 z 26.08.1992, str. 6; Dz. Urz. UE Polskie wydanie ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_14\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 14. 1. Maksymalny limit wydatków z budżetu państwa przeznaczonych na wykonywanie zadań wynikających z niniejszej ustawy, z wyłączeniem zadań, o których mowa w art. 15, wynosi w roku: 1) 2023 - 0 zł; 2) 2024 - 1,03 mln zł; 3) 2025 - 1,03 mln zł; 4) 2026 - 1,03 mln zł; 5) 2027 - 1,03 mln zł; 6) 2028 - 1,03 mln zł; 7) 2029 - 1,03 mln zł; 8) 2030 - 1,03 mln zł; 9) 2031 - 1,03 mln zł; 10) 2032 - 1,03 mln zł. 2. Minister Sprawiedliwości monit ...\"}, {\"chunk_id\": \"uokik_items:uokik_0ed40e3a0aa348bc\", \"source_id\": \"uokik_rejestr_klauzul_2529\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank zastrzega sobie prawo do odmowy autoryzowania transakcji lub wprowadzenia ograniczeń limitów (kwotowych bądź ilościowych) autoryzowanych transakcji gotówkowych i/lub bezgotówkowych przeprowadzanych w ramach dostępnego limitu kredytowego w przypadku: a) naruszenia postanowień Umowy limitu lub Regulaminu limitu, b) naruszenia postanowień Umowy o kartę lub Regulaminu karty (jeśli posiadacz rachunku kredytowego zawarł z bankiem Umowę o kartę), c) powzięcia wiarygodnych informacji o pogorszeniu zdolności kredytowej lub sytuacji majątkowej Posiadacza rachunku kredytowego (...).&quot;\"}, {\"chunk_id\": \"uokik_items:uokik_183040bdc4fc5f83\", \"source_id\": \"uokik_rejestr_klauzul_6949\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank może w trakcie obowiązywania Umowy: 1) zwiększyć wysokość przyznanego Limitu, o ile zdolność kredytowa Posiadacza/y rachunku będzie pozwalała na spłatę zwiększonej wysokości Limitu, a Posiadacz/e rachunku rzetelnie wywiązywać się będzie/ będą ze wszystkich postanowień Umowy. Limit ten zostanie podwyższony od dnia wskazanego w piśmie przesłanym przez Bank, jeżeli w terminie 14 dni od daty otrzymania przez Posiadacza/y rachunku pisemnej propozycji podwyższenia Limitu, Posiadacz/e rachunku nie poinformują Banku o odmowie przyjęcia tej propozycji.\"}, {\"chunk_id\": \"uokik_items:uokik_1e40aea86c95aa56\", \"source_id\": \"uokik_rejestr_klauzul_5604\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kredytobiorca oraz Współkredytobiorca (jeśli jest stroną Umowy) oświadcza w trybie art. 97 ust. 1 i 2 ustawy z 29.08.1997 r. Prawo bankowe (Dz. U. 72 z 2002 r. poz. 665 z późn. zm.), że poddaje się egzekucji na podstawie bankowego tytułu egzekucyjnego w zakresie roszczeń Banku wynikających z niniejszej Umowy z tytułu: a) Kredytu, w tym kapitału, odsetek oraz należnych opłat i prowizji, do kwoty 80 000 zł, przy czym Bank może wystawić bankowy tytuł egzekucyjny do kwoty zadłużenia 80 000 oraz wystąpić o nadanie bankowemu tytułowi egzekucyjnemu klauzuli wykonalności w terminie do 31.12.2030 roku. ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43k\", \"source_id\": \"sejm_eli_du_2024_1796_art_43k\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43k. 1. Treść cyfrowa lub usługa cyfrowa są zgodne z umową, jeżeli zgodne z umową pozostają w szczególności ich: 1) opis, rodzaj, ilość, jakość, kompletność, funkcjonalność, kompatybilność, interoperacyjność oraz dostępność wsparcia technicznego i aktualizacji; 2) przydatność do szczególnego celu, do którego są potrzebne konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przedsiębiorca zaa ...\"}, {\"chunk_id\": \"curated:institutional_lease_six_month_cap_conditional\", \"source_id\": \"curated:institutional_lease_six_month_cap_conditional\", \"source_type\": \"statute_summary\", \"top_category\": \"deposit_or_advance\", \"title\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\", \"display_address\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\", \"legal_area\": [\"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\\nLimit sześciokrotności czynszu dla kaucji dotyczy szczególnych reżimów najmu, takich jak najem instytucjonalny albo okazjonalny. Nie należy przenosić tego limitu do zwykłego najmu mieszkania, najmu lokalu użytkowego ani zadania, które nie wskazuje szczególnego reżimu instytucjonalnego lub okazjonalnego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_2\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 2. 1. Przepisów ustawy nie stosuje się do: 1) przychodów z działalności rolniczej, z wyjątkiem przychodów z działów specjalnych produkcji rolnej; 2) przychodów z gospodarki leśnej w rozumieniu ustawy o lasach ; 3) przychodów podlegających przepisom o podatku od spadków i darowizn; 4) przychodów wynikających z czynności, które nie mogą być przedmiotem prawnie skutecznej umowy; 5) przychodów z tytułu podziału wspólnego majątku ...\"}, {\"chunk_id\": \"uokik_items:uokik_4076d1c2cd161b01\", \"source_id\": \"uokik_rejestr_klauzul_3695\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kwota transakcji, na którą została udzielona autoryzacja, pomniejsza dostępny limit kredytu do czasu rozliczenia transakcji. Maksymalny czas, przez jaki autoryzacja pomniejsza dostępny limit kredytu w przypadku braku rozliczenia transakcji, jest określany przez Bank\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_18c\", \"source_id\": \"sejm_eli_du_2025_350_art_18c\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 18c. 1. Podstawa wymiaru składek na ubezpieczenia emerytalne i rentowe ubezpieczonego, o którym mowa w art. 8 ust. 6 pkt 1, którego roczny przychód z pozarolniczej działalności gospodarczej uzyskany w poprzednim roku kalendarzowym nie przekroczył kwoty 120 000 złotych, uzależniona jest od dochodu z pozarolniczej działalności gospodarczej w rozumieniu przepisów o podatku dochodowym od osób fizycznych, zwanego dalej „dochodem z pozarolniczej działalności gospodarczej”, uzyskanego w poprzednim roku kalendarzowym. 2. Pod ...\"}]",
+   "tool_call_id": "call-cb1a9718-c1d9-48f4-9287-57a21e2239c0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "The search results are not giving me specific provisions about revolving factoring (faktoring odnawialny). Let me try a different approach - search for more specific terms related to factoring with revolving limits, and also look at the standard factoring template (not reverse factoring).",
+   "tool_calls": [
+    {
+     "id": "call-9838b036-ae98-4687-b4f7-5ba29f4c8ddf",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa faktoringu limit odnawialny revolving ciągłe przelew wierzytelności stały dostawca\", \"top_k\": 10}"
+     }
+    },
+    {
+     "id": "call-faa90f03-f68a-4e8e-846d-50e68e061f6f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"faktoring\", \"limit\", \"odnawialny\", \"revolving\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_fcdcd8bb53e7d1a6\", \"source_id\": \"uokik_rejestr_klauzul_3802\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony zgodnie oświadczają, że przelew przez Klienta jakiejkolwiek jego wierzytelności, wynikającej lub mogącej powstać z niniejszej umowy, nie może nastąpić bez pisemnej zgody (...), zastrzeżonej pod rygorem nieważności\"}, {\"chunk_id\": \"uokik_items:uokik_31a7acab43fe8f38\", \"source_id\": \"uokik_rejestr_klauzul_1501\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Nabywca może dokonać przelewu wierzytelności wynikających z niniejszej umowy za zgodą spółki.\"}, {\"chunk_id\": \"uokik_items:uokik_8550d798622f505c\", \"source_id\": \"uokik_rejestr_klauzul_6144\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na czas określony tj. do dnia odzyskania przez Przejmującego wierzytelności określonych w § 2 Umowy i końcowego rozliczenia się między stronami\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_510\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 510. § 1. Umowa sprzedaży, zamiany, darowizny lub inna umowa zobowiązująca do przeniesienia wierzytelności przenosi wierzytelność na nabywcę, chyba że przepis szczególny stanowi inaczej albo że strony inaczej postanowiły. § 2. Jeżeli zawarcie umowy przelewu następuje w wykonaniu zobowiązania wynikającego z uprzednio zawartej umowy zobowiązującej do przeniesienia wierzytelności, z zapisu zwykłego, z bezpodstawnego wzbogacenia lub z innego zdarzen ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_514\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 514. Jeżeli wierzytelność jest stwierdzona pismem, zastrzeżenie umowne, iż przelew nie może nastąpić bez zgody dłużnika, jest skuteczne względem nabywcy tylko wtedy, gdy pismo zawiera wzmiankę o tym zastrzeżeniu, chyba że nabywca w chwili przelewu o zastrzeżeniu wiedział.\"}, {\"chunk_id\": \"uokik_items:uokik_00352abea1191b10\", \"source_id\": \"uokik_rejestr_klauzul_2270\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank zastrzega sobie możliwość zmiany wysokości stawek pobieranych prowizji i opłat w trakcie trwania Umowy\"}, {\"chunk_id\": \"uokik_items:uokik_6577f11e25fb6801\", \"source_id\": \"uokik_rejestr_klauzul_3711\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dostawca Usług może przenieść prawa i obowiązki wynikające z Umowy i Regulaminu na podmiot powiązany z nim kapitałowo lub organizacyjnie, z zachowaniem przez ten podmiot ciągłości świadczonej Usługi oraz warunków jej wykonania\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"uokik_items:uokik_1930e4c1a9361bc5\", \"source_id\": \"uokik_rejestr_klauzul_944\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Z tytułu przelewu praw i obowiązków umownych Pożyczkobiorca zobowiązany będzie do wpłacenia na rzecz Pożyczkodawcy kwoty stanowiącej równowartość 3% kwoty pożyczki. Skutki prawne z jakimi wiąże się przelew praw i obowiązków umownych powstają z chwilą uregulowania tej należności\"}, {\"chunk_id\": \"uokik_items:uokik_7dd145e22056e17a\", \"source_id\": \"uokik_rejestr_klauzul_4690\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia od umowy, otrzymujesz cenę uiszczoną tytułem nabycia towaru, po pomniejszeniu jej o koszty wykonania przelewu. Nie możesz żądać zwrotu kosztów dostawy i odesłania towaru\"}]",
+   "tool_call_id": "call-9838b036-ae98-4687-b4f7-5ba29f4c8ddf",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_725_art_108\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 108. Ustawa wchodzi w życie z dniem 1 stycznia 1995 r. 1) Niniejsza ustawa wdraża postanowienia następujących dyrektyw Unii Europejskiej: 1) dyrektywy Rady 92/57/EWG z dnia 24 czerwca 1992 r. w sprawie wdrożenia minimalnych wymagań bezpieczeństwa i ochrony zdrowia na tymczasowych lub ruchomych budowach (ósma szczegółowa dyrektywa w rozumieniu art. 16 ust. 1 dyrektywy 89/391/EWG) (Dz. Urz. WE L 245 z 26.08.1992, str. 6; Dz. Urz. UE Polskie wydanie ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_14\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 14. 1. Maksymalny limit wydatków z budżetu państwa przeznaczonych na wykonywanie zadań wynikających z niniejszej ustawy, z wyłączeniem zadań, o których mowa w art. 15, wynosi w roku: 1) 2023 - 0 zł; 2) 2024 - 1,03 mln zł; 3) 2025 - 1,03 mln zł; 4) 2026 - 1,03 mln zł; 5) 2027 - 1,03 mln zł; 6) 2028 - 1,03 mln zł; 7) 2029 - 1,03 mln zł; 8) 2030 - 1,03 mln zł; 9) 2031 - 1,03 mln zł; 10) 2032 - 1,03 mln zł. 2. Minister Sprawiedliwości monit ...\"}, {\"chunk_id\": \"uokik_items:uokik_0ed40e3a0aa348bc\", \"source_id\": \"uokik_rejestr_klauzul_2529\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank zastrzega sobie prawo do odmowy autoryzowania transakcji lub wprowadzenia ograniczeń limitów (kwotowych bądź ilościowych) autoryzowanych transakcji gotówkowych i/lub bezgotówkowych przeprowadzanych w ramach dostępnego limitu kredytowego w przypadku: a) naruszenia postanowień Umowy limitu lub Regulaminu limitu, b) naruszenia postanowień Umowy o kartę lub Regulaminu karty (jeśli posiadacz rachunku kredytowego zawarł z bankiem Umowę o kartę), c) powzięcia wiarygodnych informacji o pogorszeniu zdolności kredytowej lub sytuacji majątkowej Posiadacza rachunku kredytowego (...).&quot;\"}, {\"chunk_id\": \"uokik_items:uokik_183040bdc4fc5f83\", \"source_id\": \"uokik_rejestr_klauzul_6949\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank może w trakcie obowiązywania Umowy: 1) zwiększyć wysokość przyznanego Limitu, o ile zdolność kredytowa Posiadacza/y rachunku będzie pozwalała na spłatę zwiększonej wysokości Limitu, a Posiadacz/e rachunku rzetelnie wywiązywać się będzie/ będą ze wszystkich postanowień Umowy. Limit ten zostanie podwyższony od dnia wskazanego w piśmie przesłanym przez Bank, jeżeli w terminie 14 dni od daty otrzymania przez Posiadacza/y rachunku pisemnej propozycji podwyższenia Limitu, Posiadacz/e rachunku nie poinformują Banku o odmowie przyjęcia tej propozycji.\"}, {\"chunk_id\": \"uokik_items:uokik_1e40aea86c95aa56\", \"source_id\": \"uokik_rejestr_klauzul_5604\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kredytobiorca oraz Współkredytobiorca (jeśli jest stroną Umowy) oświadcza w trybie art. 97 ust. 1 i 2 ustawy z 29.08.1997 r. Prawo bankowe (Dz. U. 72 z 2002 r. poz. 665 z późn. zm.), że poddaje się egzekucji na podstawie bankowego tytułu egzekucyjnego w zakresie roszczeń Banku wynikających z niniejszej Umowy z tytułu: a) Kredytu, w tym kapitału, odsetek oraz należnych opłat i prowizji, do kwoty 80 000 zł, przy czym Bank może wystawić bankowy tytuł egzekucyjny do kwoty zadłużenia 80 000 oraz wystąpić o nadanie bankowemu tytułowi egzekucyjnemu klauzuli wykonalności w terminie do 31.12.2030 roku. ...\"}, {\"chunk_id\": \"curated:institutional_lease_six_month_cap_conditional\", \"source_id\": \"curated:institutional_lease_six_month_cap_conditional\", \"source_type\": \"statute_summary\", \"top_category\": \"deposit_or_advance\", \"title\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\", \"display_address\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\", \"legal_area\": [\"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\\nLimit sześciokrotności czynszu dla kaucji dotyczy szczególnych reżimów najmu, takich jak najem instytucjonalny albo okazjonalny. Nie należy przenosić tego limitu do zwykłego najmu mieszkania, najmu lokalu użytkowego ani zadania, które nie wskazuje szczególnego reżimu instytucjonalnego lub okazjonalnego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_2\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 2. 1. Przepisów ustawy nie stosuje się do: 1) przychodów z działalności rolniczej, z wyjątkiem przychodów z działów specjalnych produkcji rolnej; 2) przychodów z gospodarki leśnej w rozumieniu ustawy o lasach ; 3) przychodów podlegających przepisom o podatku od spadków i darowizn; 4) przychodów wynikających z czynności, które nie mogą być przedmiotem prawnie skutecznej umowy; 5) przychodów z tytułu podziału wspólnego majątku ...\"}, {\"chunk_id\": \"uokik_items:uokik_4076d1c2cd161b01\", \"source_id\": \"uokik_rejestr_klauzul_3695\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kwota transakcji, na którą została udzielona autoryzacja, pomniejsza dostępny limit kredytu do czasu rozliczenia transakcji. Maksymalny czas, przez jaki autoryzacja pomniejsza dostępny limit kredytu w przypadku braku rozliczenia transakcji, jest określany przez Bank\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_18c\", \"source_id\": \"sejm_eli_du_2025_350_art_18c\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 18c. 1. Podstawa wymiaru składek na ubezpieczenia emerytalne i rentowe ubezpieczonego, o którym mowa w art. 8 ust. 6 pkt 1, którego roczny przychód z pozarolniczej działalności gospodarczej uzyskany w poprzednim roku kalendarzowym nie przekroczył kwoty 120 000 złotych, uzależniona jest od dochodu z pozarolniczej działalności gospodarczej w rozumieniu przepisów o podatku dochodowym od osób fizycznych, zwanego dalej „dochodem z pozarolniczej działalności gospodarczej”, uzyskanego w poprzednim roku kalendarzowym. 2. Pod ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_77\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 77 5 . § 1. Pracownikowi wykonującemu na polecenie pracodawcy zadanie służbowe poza miejscowością, w której znajduje się siedziba pracodawcy, lub poza stałym miejscem pracy przysługują należności na pokrycie kosztów związanych z podróżą służbową. § 2. Minister właściwy do spraw pracy określi, w drodze rozporządzenia, wysokość oraz warunki ustalania należności przysługujących pracownikowi, zatrudnionemu w państwowej lub samorządowej jednostce sfery ...\"}]",
+   "tool_call_id": "call-faa90f03-f68a-4e8e-846d-50e68e061f6f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę ustawić faktoring dla moich stałych dostawców, żeby oni dostawali płatność od razu, a my płaciliśmy później. Czy macie coś w stylu limitu, który się odnawia?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mamy kilkanaście dostawców, z którymi współpracujemy regularnie co miesiąc na kwoty rzędu 50-150 tys. zł. Chcemy im skrócić termin płatności do 7 dni, a my chcemy płacić w 60-90 dni. Interesuje nas limit obrotowy, który się odnawia po spłacie, bez konieczności podpisywania nowej umowy za każdym razem. Ważne, by procedura weryfikacji faktur była prosta i szybka."
+  }
+ ]
+}

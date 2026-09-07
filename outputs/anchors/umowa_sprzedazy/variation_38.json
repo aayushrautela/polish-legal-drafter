@@ -1,0 +1,17 @@
+{
+ "run": 41,
+ "hint": "Sprzedaż psa rasowego z rodowodem",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Sprzedaję psa rasowego z rodowodem i potrzebuję umowy, żeby wszystko było na piśmie. Chcę, żeby dokument zawierał dane psa, cenę i warunki sprzedaży."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam do sprzedaży suczkę rasy golden retriever z rodowodem ZKwP, ma 4 miesiące i jest zaszczepiona. Kupujący chce kupić ją jako psa towarzyszącego, bez prawa do hodowli. Potrzebuję umowy, która określi cenę, warunki zwrotu w razie problemów zdrowotnych i zobowiązanie kupującego do odpowiedniej opieki nad psem."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_sprzedazy\", \"query\": \"sprzedaż psa rasowego z rodowodem\"})\\nRESULT: [{\"doc_type\": \"umowa_sprzedazy\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży psa\\nUmowa sprzedaży psa w Polsce to umowa cywilnoprawna, przez którą sprzedawca — hodowca, właściciel lub osoba fizyczna — zobowiązuje się przenieść na kupującego własność psa i wydać mu zwierzę, a kupujący zobowiązuje się odebrać psa i zapłacić uzgodnioną cenę. Podstawa prawna to art. 535 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), który definiuje umowę sprzedaży, a w zakresie szczególnej ochrony zwierząt — ustawa z dnia 21 sierpnia 1997 r. o ochronie zwierząt (Dz.U. 1997 nr 111 poz. 724 ze zm.).\\n\\nZwierzę w polskim prawie ma szczególny status prawny. Art. 1 ust. 1 ustawy o ochronie zwierząt stanowi, że zwierzę jako istota żyjąca, zdolna do odczuwania cierpienia, nie jest rzeczą. Jednocześnie art. 1 ust. 2 ustawy doprecyzowuje, że w sprawach nieuregulowanych ustawą do zwierząt stosuje się odpowiednio przepisy dotyczące rzeczy, w tym przepisy Kodeksu cywilnego o sprzedaży. Oznacza to, że umowa sprzedaży psa korzysta z regulacji art. 535–602 KC, jednak jest uzupełniona obowiązkami wynikającymi z ustawy o ochronie zwierząt.\\n\\nPolski Związek Kynologiczny (PZK), działający jako organizacja afiliowana przy Fédération Cynologique Internationale (FCI), prowadzi Polską Księgę Rodowodową (PKR) dla psów rasowych. Dla psów z rodowodem PZK umowa powinna wskazywać numer rodowodu, potwierdzając przynależność do hodowli. Dla psów bezrasowych lub bez rodowodu wystarczy opis zwierzęcia z numerem mikroczipa.\\n\\nNumer mikroczipa stanowi obowiązkowy element identyfikacji psa w Polsce. Obowiązek znakowania psów wynika z art. 11a ustawy o ochronie zwierząt"
+}

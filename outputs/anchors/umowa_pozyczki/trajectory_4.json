@@ -1,0 +1,291 @@
+{
+ "run": 5,
+ "hint": "Pożyczka z oprocentowaniem i prowizją",
+ "scenario": "Pożyczka z oprocentowaniem i prowizją",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_pozyczki'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a loan agreement (umowa_pozyczki) with interest and commission (oprocentowaniem i prowizją). I need to:\n\n1. First read the base template for umowa_pozyczki\n2. Then search for provisions relevant to interest and commission in loan agreements\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-da1a0368-f4c5-4814-8692-397d1bf4c2ce",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"pożyczka z oprocentowaniem i prowizją\", \"doc_type\": \"umowa_pozyczki\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa pożyczki\\nUmowa pożyczki w Polsce to umowa nazwana uregulowana w art. 720-724 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.), przez którą dający pożyczkę zobowiązuje się przenieść na własność biorącego określoną ilość pieniędzy albo rzeczy oznaczonych co do gatunku, a biorący zobowiązuje się zwrócić tę samą ilość pieniędzy albo tę samą ilość rzeczy tego samego gatunku i tej samej jakości. Definicja ta wynika wprost z art. 720 § 1 Kodeksu cywilnego i odróżnia pożyczkę od użyczenia (które jest nieodpłatne i dotyczy używania rzeczy bez przeniesienia własności) oraz od kredytu bankowego regulowanego prawem bankowym.\\n\\nCechą charakterystyczną pożyczki jest przeniesienie własności przedmiotu pożyczki na pożyczkobiorcę. Biorący pożyczkę staje się właścicielem otrzymanych środków i może nimi swobodnie dysponować, a jego obowiązkiem jest zwrot takiej samej kwoty lub ilości rzeczy, a nie tych konkretnych pieniędzy czy rzeczy, które otrzymał. Pożyczka może być odpłatna (oprocentowana) albo nieodpłatna (nieoprocentowana) — odpłatność nie należy do elementów przedmiotowo istotnych umowy, lecz zależy od woli stron. W obrocie rodzinnym i sąsiedzkim dominują pożyczki nieoprocentowane, natomiast pożyczki udzielane przez przedsiębiorców pożyczkowych są zwykle odpłatne i podlegają dodatkowo ustawie z dnia 12 maja 2011 r. o kredycie konsumenckim, gdy pożyczkobiorcą jest konsument.\\n\\nForma umowy pożyczki została uregulowana w art. 720 § 2 Kodeksu cywilnego: umowa, której wartość przekracza tysiąc złotych, wymaga zachowania formy dokumentowej. Jest to forma zastrzeżona dla celów dowodowych (ad probationem), a nie pod rygorem nieważności — niezachowanie formy nie unieważnia umowy, lecz utrudnia dowodzenie jej treści w postępowaniu przed sądem rejonowym. Forma dokumentowa jest spełniona przez każdy nośnik informacji umożliwiający zapoznanie się z treścią oświadczenia i ustalenie osoby składającej oświadczenie, w tym wiadomość e-mail lub SMS.\\n\\nUmowa pożyczki rodzi po stronie pożyczkodawcy obowiązek wydania przedmiotu pożyczki, a po stronie pożyczkobiorcy obowiązek jego zwrotu w umówionym terminie. Zgodnie z art. 721 Kodeksu cywilnego dający pożyczkę może odstąpić od umowy i odmówić wydania przedmiotu pożyczki, jeżeli zwrot jest wątpliwy z powodu złego stanu majątkowego drugiej strony — chyba że w chwili zawarcia umowy o stanie tym wiedział lub z łatwością mógł się dowiedzieć. Roszczenie biorącego o wydanie przedmiotu pożyczki przedawnia się z upływem sześciu miesięcy od chwili, gdy przedmiot miał być wydany (art. 722 Kodeksu cywilnego). Za wady rzeczy pożyczonych dający pożyczkę odpowiada na zasadach art. 724 Kodeksu cywilnego.\\n\\nOpodatkowanie pożyczki regulują przepisy o podatku od czynności cywilnoprawnych — umowa pożyczki co do zasady podlega podatkowi w wysokości 0,5 procent, z licznymi zwolnieniami, w tym dla pożyczek między najbliższą rodziną po spełnieniu warunków zgłoszenia do właściwego urzędu skarbowego (KAS). Pożyczkodawca będący przedsiębiorcą musi też uwzględnić obowiązki wynikające z RODO przy przetwarzaniu danych osobowych pożyczkobiorcy oraz z ustawy o przeciwdziałaniu praniu pieniędzy przy większych kwotach.\\n\\nWypowiedzenie i wymagalność pożyczki zależą od treści umowy. Przy pożyczce z oznaczonym terminem zwrotu roszczenie staje się wymagalne z nadejściem tego terminu, natomiast przy pożyczce bezterminowej dający pożyczkę musi ją najpierw wypowiedzieć, a zwrot następuje w ciągu sześciu tygodni od wypowiedzenia zgodnie z art. 723 Kodeksu cywilnego. Po upływie terminu zwrotu wierzyciel może kierować wezwanie do zapłaty, a w razie jego bezskuteczności dochodzić należności na drodze sądowej. Pisemna umowa wraz z potwierdzeniem przelewu stanowi mocny dowód, który ułatwia uzyskanie nakazu zapłaty, zwłaszcza gdy spłatę zabezpieczono wekslem umożliwiającym postępowanie nakazowe na podstawie art. 485 Kodeksu postępowania cywilnego. Roszczenie o zwrot pożyczki przedawnia się na zasadach ogólnych — sześć lat dla roszczeń między osobami fizycznymi i trzy lata dla roszczeń związanych z działalnością gospodarczą (art. 118 Kodeksu cywilnego) — przy czym uznanie długu przez pożyczkobiorcę przerywa bieg przedawnienia zgodnie z art. 123 § 1 pkt 2 Kodeksu cywilnego, dlatego przy dłuższych zaległościach warto uzyskać od dłużnika pisemne potwierdzenie zadłużenia.\\n\\nUmowa pożyczki w Polsce jest potrzebna zawsze, gdy jedna osoba przekazuje drugiej określoną kwotę pieniędzy z obowiązkiem jej zwrotu, a strony chcą jasno udokumentować warunki tej czynności. Sporządzenie umowy na piśmie nie jest wymogiem powstania zobowiązania, jednak przy wartości przekraczającej tysiąc złotych art. 720 § 2 Kodeksu cywilnego nakazuje zachowanie formy dokumentowej dla celów dowodowych, a brak dokumentu znacząco utrudnia dochodzenie roszczeń przed sądem rejonowym.\\n\\nDokument ten jest niezbędny przy pożyczkach prywatnych między osobami fizycznymi — rodzicami i dziećmi, rodzeństwem, przyjaciółmi czy wspólnikami. Pisemna umowa pozwala odróżnić pożyczkę od darowizny, co ma kluczowe znaczenie podatkowe: brak dokumentu i brak zgłoszenia do urzędu skarbowego może skutkować zakwalifikowaniem przekazania środków jako darowizny obciążonej podatkiem od spadków i darowizn. Przy pożyczkach w gronie najbliższej rodziny zachowanie formy dokumentowej i udokumentowanie przelewu na rachunek bankowy są warunkami skorzystania ze zwolnienia z podatku od czynności cywilnoprawnych.\\n\\nUmowa jest potrzebna, gdy pożyczkodawcą jest przedsiębiorca, a pożyczkobiorcą konsument — wówczas obok przepisów Kodeksu cywilnego zastosowanie znajduje ustawa z dnia 12 maja 2011 r. o kredycie konsumenckim, nakładająca obowiązek podania rzeczywistej rocznej stopy oprocentowania (RRSO), całkowitej kwoty do zapłaty oraz pouczenia o prawie odstąpienia w terminie czternastu dni. Naruszenie obowiązków informacyjnych może uruchomić sankcję kredytu darmowego z art. 45 tej ustawy, a nadzór nad rynkiem firm pożyczkowych sprawują Urząd Ochrony Konkurencji i Konsumentów (UOKiK) oraz Rzecznik Finansowy.\\n\\nSporządzenie umowy pożyczki jest wskazane, gdy pożyczka ma być zabezpieczona — wekslem własnym, poręczeniem (art. 876 Kodeksu cywilnego), zastawem, hipoteką wpisaną w księdze wieczystej lub przewłaszczeniem na zabezpieczenie. Dokument zabezpieczenia powinien odwoływać się do umowy pożyczki, aby precyzyjnie określić zabezpieczaną wierzytelność. Przy wekslu in blanco niezbędna jest dodatkowo deklaracja wekslowa wskazująca, kiedy i na jaką kwotę wierzyciel może wypełnić weksel.\\n\\nDokument jest również potrzebny, gdy strony chcą określić zasady naliczania odsetek. Bez wyraźnego postanowienia pożyczka jest nieoprocentowana, a odsetki kapitałowe należą się tylko wtedy, gdy wynika to z czynności prawnej, ustawy, orzeczenia lub decyzji (art. 359 Kodeksu cywilnego). Umowa pozwala także zastrzec odsetki ustawowe za opóźnienie zgodnie z art. 481 Kodeksu cywilnego oraz wskazać sąd właściwy do rozpoznania ewentualnych sporów, co ma znaczenie w razie dochodzenia roszczenia w postępowaniu upominawczym lub w elektronicznym postępowaniu upominawczym przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie, VI Wydział Cywilny).\\n\\nPrawidłowa umowa pożyczki w Polsce, oparta na art. 720-724 Kodeksu cywilnego, powinna zawierać elementy pozwalające jednoznacznie ustalić strony, przedmiot i warunki zobowiązania oraz skutecznie dochodzić zwrotu w razie sporu.\\n\\nOznaczenie stron: pełne dane pożyczkodawcy (dającego pożyczkę) i pożyczkobiorcy (biorącego pożyczkę). Dla osoby fizycznej należy podać imię, nazwisko, numer PESEL, adres zamieszkania oraz — dla celów doręczeń — adres e-mail lub numer telefonu. Dla przedsiębiorcy konieczne jest podanie firmy, adresu siedziby, numeru NIP, REGON oraz numeru wpisu w Krajowym Rejestrze Sądowym (KRS) lub w Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), a także wskazanie organu reprezentacji.\\n\\nKwota i waluta pożyczki: kwota powinna być wyrażona cyfrowo i słownie, na przykład \\\"10 000 zł (dziesięć tysięcy złotych)\\\", co zapobiega sporom co do wysokości zobowiązania. Walutą jest złoty polski (PLN). Przy wartości przekraczającej tysiąc złotych wymagana jest forma dokumentowa zgodnie z art. 720 § 2 Kodeksu cywilnego.\\n\\nSposób i termin wydania przedmiotu pożyczki: umowa powinna wskazywać, czy wypłata nastąpi przelewem na rachunek bankowy, czy gotówką, oraz datę wydania. Zalecany jest przelew, ponieważ stanowi czytelny dowód przeniesienia własności środków na pożyczkobiorcę i ułatwia korzystanie ze zwolnień podatkowych. Dający pożyczkę może odmówić wydania na podstawie art. 721 Kodeksu cywilnego, jeżeli zwrot stał się wątpliwy z powodu złego stanu majątkowego drugiej strony.\\n\\nTermin i sposób zwrotu: data lub harmonogram zwrotu pożyczki, a także sposób spłaty (przelew na rachunek pożyczkodawcy albo gotówka za pokwitowaniem). Jeżeli termin nie zostanie oznaczony, biorący obowiązany jest zwrócić pożyczkę w ciągu sześciu tygodni po wypowiedzeniu przez dającego pożyczkę, zgodnie z art. 723 Kodeksu cywilnego. Przy spłacie ratalnej warto zastrzec rygor natychmiastowej wymagalności całości w razie zaległości.\\n\\nOprocentowanie i odsetki: jeżeli pożyczka jest odpłatna, należy podać stopę oprocentowania w skali roku, pamiętając, że odsetki maksymalne nie mogą przekraczać dwukrotności odsetek ustawowych (art. 359 § 2¹ Kodeksu cywilnego). Odrębnie reguluje się odsetki za opóźnienie — w braku stawki umownej należą się odsetki ustawowe za opóźnienie równe sumie stopy referencyjnej Narodowego Banku Polskiego i 5,5 punktu procentowego (art. 481 § 2 Kodeksu cywilnego), nie wyższe niż odsetki maksymalne za opóźnienie.\\n\\nZabezpieczenie spłaty: opis ewentualnego zabezpieczenia — weksla własnego lub in blanco z deklaracją wekslową, poręczenia cywilnego (art. 876 Kodeksu cywilnego), zastawu, hipoteki wpisanej do księgi wieczystej albo przewłaszczenia na zabezpieczenie opartego na swobodzie umów z art. 353¹ Kodeksu cywilnego. Klauzula zabezpieczenia powinna określać zabezpieczaną wierzytelność i zasady zwolnienia zabezpieczenia po spłacie.\\n\\nCel pożyczki i oświadczenia stron: choć cel pożyczki nie należy do elementów koniecznych, jego wskazanie bywa przydatne, zwłaszcza gdy strony chcą udokumentować gospodarcze przeznaczenie środków. Warto dodać oświadczenia stron o zdolności do czynności prawnych oraz, przy pożyczce między najbliższą rodziną, wzmiankę o zamiarze skorzystania ze zwolnienia podatkowego, co wymaga przelewu na rachunek bankowy i zgłoszenia do urzędu skarbowego (KAS) w ustawowym terminie.\\n\\nPostanowienia końcowe: zastrzeżenie formy pisemnej dla zmian, wskazanie sądu właściwego (z uwzględnieniem ograniczeń klauzul prorogacyjnych w sprawach z udziałem konsumenta), liczba egzemplarzy oraz miejsce i data zawarcia. Serwis forms-legal.com udostępnia wzór umowy pożyczki jako praktyczny punkt wyjścia, jednak przy wyższych kwotach lub zabezpieczeniach hipotecznych warto skonsultować dokument z radcą prawnym lub adwokatem. Dobrze sporządzona umowa pozwala szybciej uzyskać nakaz zapłaty w postępowaniu upominawczym przed sądem rejonowym lub przed e-sądem.\\n\\nWypełnianie umowy pożyczki w Polsce należy rozpocząć od dokładnego oznaczenia stron. W polu pożyczkodawcy wpisz imię i nazwisko (lub firmę) osoby dającej pożyczkę, jej numer PESEL albo NIP, adres oraz numer rachunku bankowego, na który ma nastąpić zwrot. Analogicznie uzupełnij dane pożyczkobiorcy. Staranne oznaczenie stron, z numerem PESEL i adresem, jest niezbędne do późniejszego wniesienia pozwu o zapłatę i prawidłowego doręczenia korespondencji.\\n\\nKwotę pożyczki podaj cyfrowo i słownie, na przykład \\\"15 000 zł (piętnaście tysięcy złotych)\\\". Pamiętaj, że przy kwocie przekraczającej tysiąc złotych konieczne jest zachowanie formy dokumentowej (art. 720 § 2 Kodeksu cywilnego). Następnie określ sposób wypłaty — zalecany jest przelew na rachunek pożyczkobiorcy, ponieważ potwierdzenie przelewu jest najsilniejszym dowodem wydania przedmiotu pożyczki i umożliwia skorzystanie ze zwolnień podatkowych.\\n\\nWskaż datę wydania pożyczki oraz termin jej zwrotu. Jeżeli planujesz spłatę jednorazową, podaj konkretną datę. Przy spłacie ratalnej dołącz harmonogram z wysokością i terminami rat. Gdy nie chcesz oznaczać terminu, pamiętaj, że zwrot nastąpi w ciągu sześciu tygodni od wypowiedzenia (art. 723 Kodeksu cywilnego) — w takim przypadku warto przewidzieć formę i sposób wypowiedzenia.\\n\\nW części dotyczącej oprocentowania zaznacz, czy pożyczka jest odpłatna. Jeżeli tak, wpisz stopę roczną, kontrolując, by nie przekraczała odsetek maksymalnych równych dwukrotności odsetek ustawowych (art. 359 § 2¹ Kodeksu cywilnego). Odrębnie wskaż odsetki za opóźnienie — najczęściej wybiera się odsetki ustawowe za opóźnienie z art. 481 § 2 Kodeksu cywilnego. Jeżeli ustalasz odsetki umowne, sprawdź ich zgodność z limitem odsetek maksymalnych za opóźnienie.\\n\\nW sekcji zabezpieczenia zdecyduj, czy pożyczka będzie zabezpieczona. Jeśli tak, opisz przedmiot zabezpieczenia — weksel, poręczenie, zastaw lub przewłaszczenie. Przy wekslu in blanco sporządź odrębną deklarację wekslową. Na końcu uzupełnij miejscowość i datę zawarcia umowy oraz wskaż sąd właściwy. Dokument podpisz w dwóch egzemplarzach — po jednym dla każdej ze stron — i zachowaj potwierdzenie przelewu razem z umową.\\n\\nWymogi prawne umowy pożyczki w Polsce wynikają przede wszystkim z art. 720-724 Kodeksu cywilnego. Zgodnie z art. 720 § 1 do powstania zobowiązania wystarczy zgodne oświadczenie woli stron — przeniesienia własności i zwrotu — natomiast art. 720 § 2 wymaga formy dokumentowej dla umów o wartości przekraczającej tysiąc złotych. Jest to forma ad probationem, zastrzeżona dla celów dowodowych; jej brak nie powoduje nieważności, lecz ogranicza możliwość dowodzenia umowy zeznaniami świadków lub z przesłuchania stron w postępowaniu cywilnym.\\n\\nOdsetki podlegają ograniczeniom ustawowym. Odsetki kapitałowe należą się tylko wtedy, gdy wynika to z czynności prawnej, ustawy, orzeczenia lub decyzji (art. 359 § 1 Kodeksu cywilnego), a ich wysokość nie może przekraczać odsetek maksymalnych, czyli dwukrotności odsetek ustawowych (art. 359 § 2¹). Odsetki za opóźnienie reguluje art. 481 Kodeksu cywilnego — w braku stawki umownej należą się odsetki ustawowe za opóźnienie (stopa referencyjna NBP powiększona o 5,5 punktu procentowego), z górnym limitem odsetek maksymalnych za opóźnienie (art. 481 § 2¹).\\n\\nGdy pożyczkodawcą jest przedsiębiorca, a pożyczkobiorcą konsument w rozumieniu art. 22¹ Kodeksu cywilnego, zastosowanie znajduje ustawa z dnia 12 maja 2011 r. o kredycie konsumenckim, wymagająca formy pisemnej, podania rzeczywistej rocznej stopy oprocentowania (RRSO) oraz pouczenia o prawie odstąpienia w terminie czternastu dni (art. 53 tej ustawy). Roszczenia związane z prowadzeniem działalności gospodarczej oraz roszczenia o świadczenia okresowe przedawniają się z upływem trzech lat (art. 118 Kodeksu cywilnego), a sąd bada przedawnienie roszczenia przeciwko konsumentowi z urzędu (art. 117 § 2¹). Dodatkowo umowa pożyczki podlega podatkowi od czynności cywilnoprawnych, którego rozliczenie następuje przed właściwym urzędem skarbowym (Krajowa Administracja Skarbowa, KAS).\\n\\nNajczęstsze błędy przy umowie pożyczki w Polsce zaczynają się od braku jakiegokolwiek dokumentu przy kwotach przekraczających tysiąc złotych. Choć ustna pożyczka pozostaje ważna, art. 720 § 2 Kodeksu cywilnego wymaga formy dokumentowej, a jej brak poważnie utrudnia udowodnienie warunków przed sądem rejonowym i naraża strony na zarzut, że przekazanie środków było w istocie darowizną opodatkowaną podatkiem od spadków i darowizn.\\n\\nKolejnym błędem jest wypłata pożyczki gotówką bez pokwitowania. Bez potwierdzenia przelewu lub pokwitowania pożyczkodawca może mieć trudność z wykazaniem, że przedmiot pożyczki został rzeczywiście wydany, a sam dokument umowy nie dowodzi faktu przekazania pieniędzy. Przelew bankowy z odpowiednim tytułem jest najpewniejszym dowodem i warunkiem zwolnień podatkowych w obrocie rodzinnym.\\n\\nPowszechnym uchybieniem jest zastrzeganie odsetek przekraczających limity ustawowe. Postanowienie o odsetkach kapitałowych wyższych niż dwukrotność odsetek ustawowych (art. 359 § 2¹ Kodeksu cywilnego) lub o odsetkach za opóźnienie wyższych niż odsetki maksymalne za opóźnienie (art. 481 § 2¹) jest w nadwyżce nieskuteczne, a w obrocie konsumenckim może zostać uznane za niedozwoloną klauzulę umowną przez Prezesa UOKiK.\\n\\nBłędem jest też pomijanie zgłoszenia podatkowego oraz mylenie pożyczki z darowizną w rozliczeniach z urzędem skarbowym. Pominięcie deklaracji podatku od czynności cywilnoprawnych lub brak zgłoszenia pożyczki rodzinnej skutkuje utratą zwolnień i ryzykiem sankcyjnej stawki podatku. Wreszcie strony często zaniedbują precyzyjne określenie terminu zwrotu, zabezpieczenia i sądu właściwego, co opóźnia dochodzenie roszczenia w postępowaniu upominawczym lub przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie).\\n\\nŹródło: https://forms-legal.com/pl/financial/loans/umowa-pozyczki (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-da1a0368-f4c5-4814-8692-397d1bf4c2ce",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_a6428faac2e9491b8caad99e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"prowizja od pożyczki oprocentowanie umowa pożyczki prowizja kredytowa\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_0e8541b1fa8844e29fdb1806",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"prowizja\", \"pożyczka\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_23s\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23s. 1. W przypadku transakcji kontrolowanej dotyczącej pożyczki organ podatkowy odstępuje od określenia dochodu (straty) podatnika w zakresie wysokości oprocentowania tej pożyczki, jeżeli łącznie są spełnione następujące warunki: 1) oprocentowanie pożyczki w ujęciu rocznym na dzień zawarcia umowy jest ustalane w oparciu o rodzaj bazowej stopy procentowej i marżę, określone w obwieszczeniu ministra właściwego do spraw finans ...\"}, {\"chunk_id\": \"uokik_items:uokik_a8ca9e62910ca568\", \"source_id\": \"uokik_rejestr_klauzul_6046\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Poniżej określone zostały rodzaje czynności oraz wysokość opłat pobieranych przez Bank za ich wykonanie według stanu na dzień zawarcia Umowy: 1) zmiana harmonogramu spłat kredytu (z wyłączeniem pkt.a) 2,0% nie mniej, niż 25 zł; 2) zmiana harmonogramu spłat pożyczki (z wyłączeniem pkt. a) 2,0% nie mniej niż 25 zł; 3) zmiana stopy oprocentowania kredytu ze stałej na zmienną (lub odwrotnie) 2,0% nie mniej niż 50 zł; 4) zmiana stopy oprocentowania pożyczki ze stałej na zmienną (lub odwrotnie) 2,0% nie mniej, niż 50 zł\"}, {\"chunk_id\": \"uokik_items:uokik_f536fadaa91de778\", \"source_id\": \"uokik_rejestr_klauzul_1760\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany nie ma prawa do zwrotu prowizji szczególnie w wypadku, gdy zainteresowany nie posiadał takiego zabezpieczenia, żeby mógł zaciągnąć pożyczkę, zainteresowany nie wykazał, że jest właścicielem zabezpieczenia przez okazanie oryginalnego dokumentu, ceny nabycia, zainteresowany nie wyraził zgody na zabezpieczenie umowy pożyczki formą zabezpieczenia proponowaną przez wierzyciela i nie dostarczył materiałów lub nie dopełnił warunków ustanowionych niniejszą umową ogólnymi warunkami umowy, wymaganych przez wierzyciela lub pośrednika. Zainteresowany zobowiązuje się: zapewnieć zwrot pożyczk ...\"}, {\"chunk_id\": \"uokik_items:uokik_148f04e54c7fcc2a\", \"source_id\": \"uokik_rejestr_klauzul_5250\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Z zastrzeżeniem pkt 5 i 7 oprocentowana jest według zmiennej stopy procentowej ustalonej przez Zarząd (...) wynoszącej w dniu zawarcia umowy 18.00% w skali roku. Zmiana oprocentowania pożyczki może nastąpić w przypadku zmiany: - wysokości stóp procentowych przez (...) (lit. b), -stawek WIBOR (lit.d), -wskaźnika wzrostu cen towarów i usług konsumpcyjnych ogłaszanej przez Prezesa GUS (lit.e)\"}, {\"chunk_id\": \"uokik_items:uokik_b303ecb05efed82f\", \"source_id\": \"uokik_rejestr_klauzul_7285\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank, zgodnie z \\\"Tabelą prowizji za czynności bankowe oraz opłat za inne czynności w (...)\\\" (\\\"Tabela\\\"), pobiera opłaty i prowizje za wykonanie czynności wynikających z umowy lub związanych z jej obsługą lub zmianą. Poniżej określone zostały rodzaje czynności oraz wysokość opłat pobieranych przez bank za ich wykonanie wg stanu na dzień zawarcia umowy kredytu: (...) - wysłanie pocztą do Kredytobiorcy lub poręczyciela monitu - 15 PLN, - wysłanie pocztą do Kredytobiorcy lub poręczyciela wezwania do zapłaty - 30 PLN, - wysłanie pocztą do Kredytobiorcy lub poręczyciela monitu w formie SMS - 1,99 PLN ...\"}]",
+   "tool_call_id": "call_a6428faac2e9491b8caad99e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_758\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 758 1 . § 1. Jeżeli sposób wynagrodzenia nie został w umowie określony, agentowi należy się prowizja. § 2. Prowizją jest wynagrodzenie, którego wysokość zależy od liczby lub wartości zawartych umów. § 3. Jeżeli wysokość prowizji nie została w umowie określona, należy się ona w wysokości zwyczajowo przyjętej w stosunkach danego rodzaju, w miejscu działalności prowadzonej przez agenta, a w razie niemożności ustalenia prowizji w ten sposób, agentow ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_719\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 719. Roszczenie użyczającego przeciwko biorącemu do używania o naprawienie szkody za uszkodzenie lub pogorszenie rzeczy, jak również roszczenia biorącego do używania przeciwko użyczającemu o zwrot nakładów na rzecz oraz o naprawienie szkody poniesionej wskutek wad rzeczy przedawniają się z upływem roku od dnia zwrotu rzeczy. Tytuł XIX Pożyczka\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 3 . § 1. Jeżeli w związku z zawarciem umowy, o której mowa w art. 720 2 § 1, biorący pożyczkę zobowiązuje się udzielić zabezpieczenia zwrotu pożyczki, zobowiązanie to należy określić w umowie. W takim przypadku w umowie wskazuje się sposób zabezpieczenia oraz, stosownie do okoliczności, rzecz lub prawo majątkowe będące przedmiotem zabezpieczenia i jego wartość albo określoną w inny sposób sumę zabezpieczenia. § 2. Czynność prawna zobowiązują ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 5 . § 1. W przypadku spłaty pożyczki, o której mowa w art. 720 2 § 1, przed terminem określonym w umowie nie można żądać odsetek za okres pozostały do zakończenia okresu, na który zgodnie z umową została udzielona pożyczka. § 2. W przypadku spłaty pożyczki, o której mowa w art. 720 2 § 1, przed terminem określonym w umowie poniesione pozaodsetkowe koszty ulegają obniżeniu o te koszty, które dotyczą okresu, o który skrócono czas obowiązywania ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_761\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 761 2 . Agent nie może żądać prowizji, o której mowa w art. 761, jeżeli prowizja ta należy się zgodnie z art. 761 1 poprzedniemu agentowi, chyba że z okoliczności wynika, że względy słuszności przemawiają za podziałem prowizji między obu agentów.\"}]",
+   "tool_call_id": "call_0e8541b1fa8844e29fdb1806",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_4630c0e259be4e8e990d477b",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_720\", \"uokik_items:uokik_f536fadaa91de778\", \"uokik_items:uokik_b303ecb05efed82f\"]}"
+     }
+    },
+    {
+     "id": "call_9260e21fc68c411cbdcc537b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odsetki maksymalne pożyczka art 359 KC limit oprocentowania\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 6 . (uchylony) 11) Przez art. 1 pkt 2 ustawy, o której mowa w odnośniku 5.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"uokik_items:uokik_f536fadaa91de778\", \"source_id\": \"uokik_rejestr_klauzul_1760\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany nie ma prawa do zwrotu prowizji szczególnie w wypadku, gdy zainteresowany nie posiadał takiego zabezpieczenia, żeby mógł zaciągnąć pożyczkę, zainteresowany nie wykazał, że jest właścicielem zabezpieczenia przez okazanie oryginalnego dokumentu, ceny nabycia, zainteresowany nie wyraził zgody na zabezpieczenie umowy pożyczki formą zabezpieczenia proponowaną przez wierzyciela i nie dostarczył materiałów lub nie dopełnił warunków ustanowionych niniejszą umową ogólnymi warunkami umowy, wymaganych przez wierzyciela lub pośrednika. Zainteresowany zobowiązuje się: zapewnieć zwrot pożyczki łącznie z ewentualnymi karami umownymi w sposób wymagany przez wierzyciela, przy czym zainteresowany jest świadom, że w wypadku braku owego zapewnienia nie ma prawa do zwrotu prowizji. Zainteresowany nie ma prawa do zwrotu prowizji w szczególności w wypadku, gdy zainteresowany wspólnie z właścicielami lub współwłaścicielami nie zawarł umowy o zabezpieczeniu pożyczki przez przeniesienie na mocy umowy prawa własności do pojazdu mechanicznego lub nie ustanowiła zastaw rejestrowy, gdy zainteresowany nie dowiódł, że był właścicielem lub współwłaścicielem pojazdu mechanicznego, to zaś szczególnie przez okazanie oryginałów dokumentów nabywczych i niedostarczył metariałów lub nie dopełnił warunków ustanowionych niniejszą umową ogólnymi warunkami umowy, wymaganych przez wierzyciela lub pośrednika.\"}, {\"chunk_id\": \"uokik_items:uokik_b303ecb05efed82f\", \"source_id\": \"uokik_rejestr_klauzul_7285\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank, zgodnie z \\\"Tabelą prowizji za czynności bankowe oraz opłat za inne czynności w (...)\\\" (\\\"Tabela\\\"), pobiera opłaty i prowizje za wykonanie czynności wynikających z umowy lub związanych z jej obsługą lub zmianą. Poniżej określone zostały rodzaje czynności oraz wysokość opłat pobieranych przez bank za ich wykonanie wg stanu na dzień zawarcia umowy kredytu: (...) - wysłanie pocztą do Kredytobiorcy lub poręczyciela monitu - 15 PLN, - wysłanie pocztą do Kredytobiorcy lub poręczyciela wezwania do zapłaty - 30 PLN, - wysłanie pocztą do Kredytobiorcy lub poręczyciela monitu w formie SMS - 1,99 PLN, - przeprowadzenie wizyty terenowej u Kredytobiorcy lub poręczyciela - 110 PLN\"}]",
+   "tool_call_id": "call_4630c0e259be4e8e990d477b",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"extractor_v9:filtered_0251_statute_e7bf4a12ebf7ffec\", \"source_id\": \"sejm_eli_du_2024_1061_art_359\", \"source_type\": \"statute\", \"top_category\": \"penalty_or_interest\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 359. § 1. Odsetki od sumy pieniężnej należą się tylko wtedy, gdy to wynika z czynności prawnej albo z ustawy, z orzeczenia sądu lub z decyzji innego właściwego organu. § 2. Jeżeli wysokość odsetek nie jest w inny sposób określona, należą się odsetki ustawowe w wysokości równej sumie stopy referencyjnej Narodowego Banku Polskiego i 3,5 punktów procentowych. § 2 1 . Maksymalna wysokość odsetek wynikających z czynności prawnej nie może w stosunku rocznym przekraczać dwukrotności wysokości odsetek ustawowych (odsetki maksymalne). § 2 2 . Jeżeli wysokość odsetek wynikających z czynności prawne ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_359\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 359. § 1. Odsetki od sumy pieniężnej należą się tylko wtedy, gdy to wynika z czynności prawnej albo z ustawy, z orzeczenia sądu lub z decyzji innego właściwego organu. § 2. Jeżeli wysokość odsetek nie jest w inny sposób określona, należą się odsetki ustawowe w wysokości równej sumie stopy referencyjnej Narodowego Banku Polskiego i 3,5 punktów procentowych. § 2 1 . Maksymalna wysokość odsetek wynikających z czynności prawnej nie może w stosunku r ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_481\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 481. § 1. Jeżeli dłużnik opóźnia się ze spełnieniem świadczenia pieniężnego, wierzyciel może żądać odsetek za czas opóźnienia, chociażby nie poniósł żadnej szkody i chociażby opóźnienie było następstwem okoliczności, za które dłużnik odpowiedzialności nie ponosi. § 2. Jeżeli stopa odsetek za opóźnienie nie była oznaczona, należą się odsetki ustawowe za opóźnienie w wysokości równej sumie stopy referencyjnej Narodowego Banku Polskiego i 5,5 punkt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 2 . § 1. Jeżeli przepisy szczególne nie stanowią inaczej, w umowie pożyczki pieniężnej zawieranej z osobą fizyczną i niezwiązanej bezpośrednio z działalnością gospodarczą lub zawodową tej osoby łączna wysokość pozaodsetkowych kosztów nie może przekraczać maksymalnej wysokości pozaodsetkowych kosztów określonej wzorem: MPK = K × n/R × 20% w którym poszczególne symbole oznaczają: MPK - maksymalną wysokość pozaodsetkowych kosztów, K - całkowitą ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23s\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23s. 1. W przypadku transakcji kontrolowanej dotyczącej pożyczki organ podatkowy odstępuje od określenia dochodu (straty) podatnika w zakresie wysokości oprocentowania tej pożyczki, jeżeli łącznie są spełnione następujące warunki: 1) oprocentowanie pożyczki w ujęciu rocznym na dzień zawarcia umowy jest ustalane w oparciu o rodzaj bazowej stopy procentowej i marżę, określone w obwieszczeniu ministra właściwego do spraw finans ...\"}]",
+   "tool_call_id": "call_9260e21fc68c411cbdcc537b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę pożyczyć pieniądze od prywatnej osoby i potrzebuję umowy, która ustali oprocentowanie oraz prowizję za udzielenie pożyczki."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję wziąć pożyczkę w wysokości 50 000 zł od znajomego na 2 lata. Chcemy ustalić stałe oprocentowanie roczne na poziomie 8% oraz jednorazową prowizję 2% kwoty pożyczki za jej udzielenie. Potrzebujemy umowy, która to wszystko uporządkuje i zabezpieczy nasze interesy."
+  }
+ ]
+}

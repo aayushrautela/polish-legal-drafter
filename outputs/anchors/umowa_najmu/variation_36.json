@@ -1,0 +1,17 @@
+{
+ "run": 40,
+ "hint": "Najem części mieszkania w trybie współnajmu",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć pokój w moim mieszkaniu nowemu najemcy, żeby stał się współnajemcą z takimi samymi prawami jak ja. Jak to zrobić?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam mieszkanie wynajęte na współnajmie z kolegą i chcę do nas dołączyć trzecią osobę do jednego z pokoi. Nowy najemca ma płacić swoją część czynszu i mediów, mieć klucze do wszystkiego i decydować o sprawach wspólnych na równi z nami. Potrzebuję umowy, która to ureguluje – kaucję, zasady użytkowania kuchni i łazienki, oraz co się stanie, jak ktoś wyprowadzi się wcześniej."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"query\": \"najem części mieszkania współnajem pokój wynajem lokalu mieszkalnego\", \"doc_type\": \"umowa_najmu\"})\\nRESULT: [{\"doc_type\": \"umowa_najmu\", \"kind\": \"structural_template\", \"text\": \"# Umowa najmu lokalu mieszkalnego\\nUmowa najmu lokalu mieszkalnego w Polsce to dwustronna umowa, przez którą wynajmujący zobowiązuje się oddać najemcy lokal do używania na cele mieszkalne, a najemca zobowiązuje się płacić umówiony czynsz, zgodnie z art. 659 par. 1 Kodeksu cywilnego. Stosunek najmu lokalu mieszkalnego podlega podwójnemu reżimowi prawnemu: przepisom ogólnym o najmie (art. 659-679 KC), przepisom szczególnym o najmie lokalu (art. 680-692 KC) oraz bezwzględnie obowiązującym przepisom ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego. Pierwsze 40-60 słów tego dokumentu odpowiada wprost na pytanie: jest to sformalizowany kontrakt chroniący zarówno właściciela, jak i lokatora.\\n\\nCzynsz może być oznaczony w pieniądzach albo w świadczeniach innego rodzaju, co wynika z art. 659 par. 2 Kodeksu cywilnego. W praktyce obrotu mieszkaniowego czynsz określa się kwotowo w złotych polskich, np. 2 500 zł (dwa tysiące pięćset złotych) miesięcznie, a obok niego wskazuje się opłaty eksploatacyjne i koszty mediów, które najemca pokrywa według faktycznego zużycia. Termin płatności reguluje art. 669 Kodeksu cywilnego: gdy nie został oznaczony, czynsz przy najmie trwającym dłużej niż miesiąc płatny jest miesięcznie z góry do dziesiątego dnia miesiąca.\\n\\nReżim ochronny ustawy o ochronie praw lokatorów odróżnia najem mieszkalny od najmu lokalu użytkowego. Najemcy lokalu mieszkalnego przysługuje silna ochrona przed wypowiedzeniem: właściciel może wypowiedzieć umowę wyłącznie z przyczyn ustawowych wskazanych w art. 11"
+}

@@ -1,0 +1,326 @@
+{
+ "run": 51,
+ "hint": "Umowa licencyjna z minimalnym nakładem (print run) przy publikacji",
+ "scenario": "Umowa licencyjna z minimalnym nakładem (print run) przy publikacji",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_licencyjna'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a licensing agreement (umowa_licencyjna) that includes a minimum print run (minimalny nakład) provision for publication. Let me start by reading the base template, then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-cc6366c1-8634-4087-acf5-1e0e703f0d32",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"minimalny nakład publikacja print run\", \"doc_type\": \"umowa_licencyjna\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_licencyjna\", \"kind\": \"structural_template\", \"text\": \"# Umowa o pracę nakładczą\\nUmowa o pracę nakładczą w Polsce, zwana potocznie \\\"umową chałupniczą\\\", to szczególna forma zatrudnienia pośrednia między stosunkiem pracy a umowami cywilnoprawnymi. Jej podstawą prawną jest rozporządzenie Rady Ministrów z dnia 31 grudnia 1975 r. w sprawie uprawnień pracowniczych osób wykonujących pracę nakładczą (Dz.U. 1976 nr 3 poz. 19 ze zm.), które stanowi jedyne źródło regulacji tej instytucji w polskim prawie. Warto podkreślić, że Kodeks pracy (ustawa z dnia 26 czerwca 1974 r.) i Kodeks cywilny (ustawa z dnia 23 kwietnia 1964 r.) nie regulują tej umowy bezpośrednio — stosuje się je posiłkowo na mocy rozporządzenia.\\n\\nIstotą pracy nakładczej jest wytwarzanie przez wykonawcę (chałupnika) określonych produktów lub wykonywanie usług z materiałów dostarczonych przez nakładcę (zakład nakładczy). Wykonawca pracuje we własnym miejscu zamieszkania lub innym wybranym przez siebie miejscu, bez podległości służbowej i bez obowiązku osobistego stawiennictwa w zakładzie nakładcy. Brak podporządkowania organizacyjnego typowego dla stosunku pracy jest cechą wyróżniającą pracę nakładczą od umowy o pracę z art. 22 § 1 Kodeksu pracy.\\n\\nKluczowym mechanizmem prawnym jest minimalna norma pracy. Rozporządzenie z 1975 r. nakłada na nakładcę obowiązek zapewnienia wykonawcy takiej ilości pracy, aby miesięczne wynagrodzenie wynosiło co najmniej 50% aktualnego minimalnego wynagrodzenia za pracę. Minimalne wynagrodzenie jest corocznie waloryzowane i ogłaszane rozporządzeniem Rady Ministrów na podstawie ustawy z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę. Jeżeli wykonawca jest wyłącznie utrzymywany przez pracę nakładczą i nie ma innych źródeł dochodu, normę minimalną wyznacza się na poziomie zapewniającym 100% minimalnego wynagrodzenia.\\n\\nPod względem ubezpieczeniowym wykonawcy pracy nakładczej podlegają ubezpieczeniom społecznym w Zakładzie Ubezpieczeń Społecznych (ZUS) na zasadach zbliżonych do pracowników — obowiązkowym ubezpieczeniom emerytalnemu, rentowemu i wypadkowemu, z zastrzeżeniami wynikającymi z ustawy z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych. Nakładca jako płatnik zgłasza wykonawcę do ubezpieczeń i odprowadza należne składki.\\n\\nUmowa o pracę nakładczą jest zatem formą elastycznego zatrudnienia pozwalającą na pracę w domu bez narzuconego harmonogramu, przy zachowaniu pewnych uprawnień pracowniczych — prawa do urlopu, ochrony wynagrodzenia i ubezpieczenia społecznego. Współcześnie praca nakładcza jest stosowana przede wszystkim w przemyśle włókienniczym, obuwniczym, galanterii skórzanej, wyrobów rękodzielniczych, montażu elektroniki i podobnych branżach wytwórczych.\\n\\nUmowa o pracę nakładczą w Polsce jest stosowana w specyficznych sytuacjach, gdy nakładca potrzebuje regularnej produkcji lub usług wykonywanych przez osoby pracujące we własnych domach.\\n\\nProdukcja chałupnicza w tradycyjnych branżach. Zakłady odzieżowe, szewskie, galanterii skórzanej, wyrobów wikliniarskich i rękodzielniczych stosują umowę nakładczą, aby korzystać z pracy wykwalifikowanych rzemieślników, którzy mogą pracować w domu z powodów rodzinnych, zdrowotnych lub ze względu na posiadanie własnego warsztatu.\\n\\nMontaż elementów i podzespołów. Firmy z branży elektronicznej, meblowej i oświetleniowej zlecają montaż prostych podzespołów lub wykończeniowe prace chałupnicze, gdy praca nie wymaga specjalistycznego wyposażenia zakładu produkcyjnego.\\n\\nPrace rękodzielnicze i artystyczne. Twórcy ludowi, rękodzielnicy, twórcy biżuterii i ozdób stosują umowę nakładczą przy produkcji wyrobów z materiałów zleceniodawcy dla sieci handlowych lub galerii.\\n\\nPrace wykończeniowe w branży tekstylnej. Haftowanie, przyszywanie guzików, aplikacje, wykańczanie wyrobów tekstylnych to klasyczne prace chałupnicze wykonywane na podstawie umowy nakładczej.\\n\\nElastyczne zatrudnienie dla osób nieaktywnych zawodowo. Praca nakładcza umożliwia zarobkowanie osobom mającym trudności z zatrudnieniem etatowym — rodzicom małoletnich dzieci, osobom z orzeczeniem o niepełnosprawności lub emerytom uzupełniającym dochody. Zakład nakładczy korzysta na elastyczności tej formy bez konieczności zapewniania miejsca pracy w zakładzie.\\n\\nAlternatywa dla umowy zlecenia. Nakładca wybierający umowę nakładczą zamiast zlecenia zyskuje bardziej uregulowane ramy prawne (rozporządzenie z 1975 r.) oraz jasno określone obowiązki dotyczące minimalnej normy i ewidencji produkcji.\\n\\nKiedy umowa nakładcza nie jest właściwa. Jeżeli praca wymaga stałego kierownictwa, obecności w zakładzie, narzuconego harmonogramu godzin i bezpośredniego nadzoru przełożonych — są to cechy stosunku pracy z art. 22 § 1 Kodeksu pracy, a Państwowa Inspekcja Pracy (PIP) może zakwestionować kwalifikację umowy i naliczyć zaległe świadczenia pracownicze.\\n\\nUmowa o pracę nakładczą w Polsce powinna zawierać następujące elementy wymagane rozporządzeniem z 1975 r. i praktyką nakładczą.\\n\\nOznaczenie stron z pełnymi danymi. Nazwa i dane nakładcy jako organizatora pracy nakładczej (firma, NIP, REGON, KRS lub CEIDG, adres siedziby) oraz pełne dane wykonawcy (imię i nazwisko, adres zamieszkania, PESEL). Dane są niezbędne dla zgłoszenia do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu ZUS ZUA oraz dla prawidłowego rozliczenia podatkowego z Krajową Administracją Skarbową (KAS).\\n\\nRodzaj i opis pracy nakładczej. Precyzyjny opis czynności wytwórczych lub usługowych wykonywanych przez chałupnika z materiałów nakładcy. Opis powinien wskazywać konkretny produkt lub czynność, standard jakości i normy techniczne. Precyzja opisu ułatwia ocenę wykonania normy i rozliczenie przez nakładcę.\\n\\nMinimalna miesięczna norma pracy. Określenie minimalnej ilości pracy (np. liczba par, sztuk, kompletów), której wykonanie zapewnia wynagrodzenie co najmniej równe 50% minimalnego wynagrodzenia za pracę (lub 100% dla wykonawców bez innych źródeł dochodu). Nakładca ma obowiązek zapewnienia takiej ilości pracy — jest to fundamentalne uprawnienie wynikające z rozporządzenia z 1975 r.\\n\\nStawka akordowa za jednostkę pracy. Wynagrodzenie za każdą wykonaną jednostkę pracy (parę, sztukę, godzinę usługi). Iloczyn stawki i liczby wykonanych jednostek wyznacza wynagrodzenie brutto za dany okres rozliczeniowy.\\n\\nTermin rozliczenia i wypłaty. Termin, w którym nakładca rozlicza wykonaną pracę i wypłaca wynagrodzenie. Wynagrodzenie z pracy nakładczej podlega ochronie podobnej do wynagrodzenia pracowniczego — nie może być wypłacane rzadziej niż raz w miesiącu.\\n\\nZasady dostarczania materiałów i odbioru wyrobów. Określenie, kto dostarcza materiały, kiedy i gdzie, jak często następuje odbiór gotowych wyrobów i zwrot nieużytych surowców. Szczegółowe zasady zapobiegają sporom o niedobory materiałowe i jakość wyrobów.\\n\\nOdpowiedzialność za powierzone materiały. Klauzula określająca zakres odpowiedzialności wykonawcy za utratę lub uszkodzenie materiałów powierzonych przez nakładcę. Odpowiedzialność jest ograniczona — wykonawca odpowiada do wartości szkody przy zachowaniu ogólnych zasad odpowiedzialności cywilnej.\\n\\nUbezpieczenia społeczne — ZUS. Wskazanie, że nakładca jako płatnik zgłasza wykonawcę do ubezpieczeń w Zakładzie Ubezpieczeń Społecznych (ZUS) na formularzu ZUS ZUA lub ZZA i odprowadza składki na zasadach wynikających z ustawy systemowej.\\n\\nOkres i sposób rozwiązania umowy. Zasady rozwiązania umowy za porozumieniem stron, z wypowiedzeniem i ze skutkiem natychmiastowym. Rozporządzenie z 1975 r. nakazuje stosowanie przepisów Kodeksu pracy o rozwiązaniu umów o pracę odpowiednio do umów nakładczych.\\n\\nPlatforma forms-legal.com udostępnia gotowy wzór umowy nakładczej umożliwiający szybkie wypełnienie wszystkich obowiązkowych elementów z prawidłowym powołaniem rozporządzenia z 1975 r.\\n\\nUmowa o pracę nakładczą w Polsce wypełniana jest według poniższych kroków, zapewniających zgodność z rozporządzeniem Rady Ministrów z dnia 31 grudnia 1975 r.\\n\\nKrok 1 — oznacz nakładcę. Wpisz pełną nazwę zakładu nakładczego lub imię i nazwisko osoby fizycznej prowadzącej działalność, adres siedziby, NIP, REGON i numer KRS lub CEIDG. Nakładca jako płatnik składek ZUS musi być jednoznacznie zidentyfikowany.\\n\\nKrok 2 — oznacz wykonawcę. Wpisz pełne imię i nazwisko chałupnika, adres zamieszkania (gdzie praca jest wykonywana) i PESEL. Adres zamieszkania wyznacza miejsce wykonywania pracy i właściwość Państwowej Inspekcji Pracy (PIP).\\n\\nKrok 3 — opisz pracę nakładczą. Podaj dokładny opis czynności wytwórczych lub usługowych: rodzaj produktu, używane materiały nakładcy, wymagania jakościowe i techniczne. Im precyzyjniejszy opis, tym łatwiejsza jest ocena wykonania normy i rozliczenie.\\n\\nKrok 4 — ustal normę minimalną. Wpisz minimalną miesięczną ilość pracy zapewniającą co najmniej 50% minimalnego wynagrodzenia za pracę. Sprawdź aktualną wartość minimalnego wynagrodzenia ogłaszaną rozporządzeniem Rady Ministrów i oblicz normę na jej podstawie.\\n\\nKrok 5 — ustal stawkę akordową. Wpisz wynagrodzenie za każdą jednostkę wykonanej pracy. Sprawdź, czy iloczyn stawki i normy minimalnej daje co najmniej 50% minimalnego wynagrodzenia.\\n\\nKrok 6 — określ terminy rozliczenia i wypłaty. Wskaż dzień lub przedział, w którym nakładca rozlicza wykonaną pracę i wypłaca wynagrodzenie. Termin nie może być dłuższy niż raz w miesiącu.\\n\\nKrok 7 — ureguluj dostarczanie materiałów. Wpisz szczegółowe zasady: kto, kiedy, gdzie dostarcza materiały i jak odbywa się odbiór gotowych wyrobów. Jasne zasady logistyczne zapobiegają sporom o niedobory surowców.\\n\\nKrok 8 — podpisz i zarejestruj. Wpisz miejscowość i datę zawarcia umowy. Podpisz w dwóch egzemplarzach. Nakładca jako płatnik składek ZUS zobowiązany jest zgłosić wykonawcę do ubezpieczeń w Zakładzie Ubezpieczeń Społecznych (ZUS) na formularzu ZUS ZUA lub ZZA w terminie 7 dni od zawarcia umowy.\\n\\nUmowa o pracę nakładczą w Polsce podlega następującym wymogom prawnym wynikającym z rozporządzenia z 1975 r. i powiązanych aktów.\\n\\nRozporządzenie z 1975 r. — podstawowe źródło prawa. Rozporządzenie Rady Ministrów z dnia 31 grudnia 1975 r. w sprawie uprawnień pracowniczych osób wykonujących pracę nakładczą (Dz.U. 1976 nr 3 poz. 19 ze zm.) jest jedynym aktem prawnym bezpośrednio regulującym tę formę zatrudnienia. Określa zakres uprawnień pracowniczych chałupników, zasady obliczania wynagrodzenia, normę minimalną, rozwiązanie umowy i stosowanie odpowiednich przepisów Kodeksu pracy.\\n\\nMinimalna norma pracy — obowiązek nakładcy. Nakładca zobowiązany jest zapewnić wykonawcy taką ilość pracy, aby wynagrodzenie za jej wykonanie wyniosło co najmniej 50% aktualnego minimalnego wynagrodzenia za pracę. Przy wykonawcy niemającym innych źródeł dochodów — co najmniej 100% minimalnego wynagrodzenia. Niezapewnienie minimalnej normy uprawnia wykonawcę do roszczeń.\\n\\nUbezpieczenia społeczne i ZUS. Wykonawcy pracy nakładczej podlegają ubezpieczeniom społecznym w Zakładzie Ubezpieczeń Społecznych (ZUS) na zasadach wynikających z ustawy z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych. Nakładca jako płatnik zgłasza wykonawcę na formularzu ZUS ZUA w terminie 7 dni od zawarcia umowy i odprowadza składki emerytalne, rentowe i wypadkowe, a przy spełnieniu warunków — zdrowotną i chorobową.\\n\\nOchrona wynagrodzenia. Wynagrodzenie z pracy nakładczej podlega ochronie podobnej do wynagrodzenia pracowniczego — nie można się go zrzec, musi być wypłacane regularnie (co najmniej raz w miesiącu) i nie podlega nieograniczonym potrąceniom.\\n\\nOchrona macierzyńska i uprawnienia rodzicielskie. Wykonawcy pracy nakładczej korzystają z ochrony zbliżonej do pracowniczej w zakresie urlopu macierzyńskiego i rodzicielskiego, stosowanej odpowiednio na mocy rozporządzenia z 1975 r.\\n\\nRozwiązanie umowy — tryby podobne do KP. Rozporządzenie nakazuje stosować przepisy Kodeksu pracy (ustawa z dnia 26 czerwca 1974 r.) odpowiednio do rozwiązania umowy nakładczej — za porozumieniem stron, z wypowiedzeniem lub bez wypowiedzenia przy naruszeniu obowiązków. Spory z umów nakładczych rozpoznaje sąd pracy (Sąd Rejonowy — wydział pracy i ubezpieczeń społecznych).\\n\\nPaństwowa Inspekcja Pracy (PIP) sprawuje kontrolę przestrzegania przepisów dotyczących pracy nakładczej, w tym normy minimalnej, terminowości wypłat i prawidłowości ubezpieczeń w ZUS.\\n\\nUmowa o pracę nakładczą w Polsce jest narażona na poniższe błędy, których konsekwencje mogą być dotkliwe dla nakładcy i wykonawcy.\\n\\nBłąd 1 — brak zapewnienia minimalnej normy. Nakładca, który nie zapewnia wykonawcy minimalnej ilości pracy pozwalającej na zarobienie co najmniej 50% minimalnego wynagrodzenia, narusza podstawowy obowiązek wynikający z rozporządzenia z 1975 r. Wykonawca może dochodzić roszczeń przed sądem pracy. Zalecenie: oblicz normę minimalną na podstawie aktualnej stawki minimalnego wynagrodzenia i akordowej stawki jednostkowej.\\n\\nBłąd 2 — brak zgłoszenia do ZUS. Niezgłoszenie wykonawcy do ubezpieczeń w Zakładzie Ubezpieczeń Społecznych (ZUS) na formularzu ZUS ZUA w terminie 7 dni od zawarcia umowy jest poważnym naruszeniem. Zalecenie: zgłoś wykonawcę do ZUS bezpośrednio po podpisaniu umowy.\\n\\nBłąd 3 — błędna kwalifikacja jako umowy o dzieło lub zlecenia. Praca nakładcza ma odrębną podstawę prawną (rozporządzenie z 1975 r.) i odrębne skutki dla ZUS. Kwalifikowanie jej jako zwykłej umowy o dzieło (brak obowiązku zgłoszenia ZUA) może prowadzić do zaległości ubezpieczeniowych. Zalecenie: zawieraj umowę wyraźnie jako umowę o pracę nakładczą z powołaniem na rozporządzenie z 1975 r.\\n\\nBłąd 4 — brak pisemnego rozliczenia wykonanej pracy. Ustne lub nieudokumentowane rozliczenie utrudnia weryfikację liczby wykonanych jednostek i podstawy do wypłaty wynagrodzenia. Zalecenie: wystawiaj miesięczne dokumenty rozliczeniowe zawierające liczbę wykonanych jednostek, stawkę i kwotę wynagrodzenia brutto.\\n\\nBłąd 5 — brak klauzuli o odpowiedzialności za materiały. Pominięcie zasad odpowiedzialności za powierzone surowce prowadzi do sporów w razie ich utraty lub uszkodzenia. Zalecenie: określ zakres odpowiedzialności wykonawcy za powierzone materiały i sposób ich zwrotu.\\n\\nBłąd 6 — nieprecyzyjny opis pracy. Ogólnikowy opis czynności uniemożliwia ocenę jakości i ilości wykonanej pracy, co może prowadzić do sporów przy rozliczeniu. Zalecenie: opisz dokładnie produkt, czynność, materiały i wymagania jakościowe.\\n\\nBłąd 7 — pominięcie okresu wypowiedzenia. Brak klauzuli o wypowiedzeniu skutkuje stosowaniem przepisów Kodeksu pracy odpowiednio — co może prowadzić do sporów o długość okresu wypowiedzenia. Zalecenie: wyraźnie określ okres wypowiedzenia w umowie.\\n\\nŹródło: https://forms-legal.com/pl/employment/contracts/umowa-o-prace-nakladcza (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-cc6366c1-8634-4087-acf5-1e0e703f0d32",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The template returned is for \"Umowa o pracę nakładczą\" (homeworker agreement), not \"Umowa licencyjna\" (licensing agreement). This seems to be a mismatch. Let me search for the actual licensing agreement template and then search for provisions related to minimum print run (minimalny nakład) in licensing agreements.",
+   "tool_calls": [
+    {
+     "id": "call-611b1095-e7a8-4a16-bf16-970a57aedd69",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa licencyjna minimalny nakład print run publikacja wydawnictwo\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_66\", \"source_id\": \"sejm_eli_du_2025_24_art_66\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 66. 1.29) Umowa licencyjna uprawnia do korzystania z utworu w okresie pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę albo miejsce zamieszkania, chyba że w umowie postanowiono inaczej. 2. Po upływie terminu, o którym mowa w ust. 1, prawo uzyskane na podstawie umowy licencyjnej wygasa.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_997\", \"source_id\": \"sejm_eli_du_2025_24_art_997\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 997. 1. Publikacją prasową jest zbiór utworów lub przedmiotów praw pokrewnych złożony głównie z utworów słownych o charakterze dziennikarskim, stanowiący odrębną całość w ramach periodycznej lub regularnie aktualizowanej pod jednym tytułem publikacji, takiej jak dziennik, czasopismo, serwis agencji prasowej lub internetowy serwis informacyjny, rozpowszechniany w celach informacyjnych w dowolnej formie i w dowolny sposób w ramach działalności gospodarczej lub statutowej i na odpowiedzialność podmiotu, który sprawuje nad ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"uokik_items:uokik_9771130c79553870\", \"source_id\": \"uokik_rejestr_klauzul_2878\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku dokumentów chronionych prawem autorskim, zgodnie z Ustawą z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, (...)może wykonywać reprodukcje lub reprodukcje cyfrowe o objętości nie przekraczającej 1 arkusza wydawniczego (ok. 22 stron).\"}, {\"chunk_id\": \"uokik_items:uokik_04c6b424d156b49f\", \"source_id\": \"uokik_rejestr_klauzul_1256\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na okres …Roku tj. do dnia…2006 r. Po upływie tego terminu umowa ulega automatycznemu przedłużeniu na czas nieoznaczony (…), chyba, że strony postanowią inaczej\"}, {\"chunk_id\": \"uokik_items:uokik_2328a04509384ab8\", \"source_id\": \"uokik_rejestr_klauzul_3757\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...)zastrzega sobie możliwość limitowania ilości zakupionych przez Państwa artykułów oznaczonych znacznikiem &(...);\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_50\", \"source_id\": \"sejm_eli_du_2025_24_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 50. Odrębne pola eksploatacji stanowią w szczególności: 1) w zakresie utrwalania i zwielokrotniania utworu – wytwarzanie określoną techniką egzemplarzy utworu, w tym techniką drukarską, reprograficzną, zapisu magnetycznego oraz techniką cyfrową; 2) w zakresie obrotu oryginałem albo egzemplarzami, na których utwór utrwalono – wprowadzanie do obrotu, użyczenie lub najem oryginału albo egzemplarzy; 3) w zakresie rozpowszechniania utworu w sposób inny niż określony w pkt 2 – publiczne wykonanie, wystawienie, wyświetlenie,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_14\", \"source_id\": \"sejm_eli_du_2025_24_art_14\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 14. 1. Jeżeli w umowie o pracę nie postanowiono inaczej, instytucji naukowej przysługuje pierwszeństwo opublikowania utworu naukowego pracownika, który stworzył ten utwór w wyniku wykonywania obowiązków ze stosunku pracy. Twórcy przysługuje prawo do wynagrodzenia. Pierwszeństwo opublikowania wygasa, jeżeli w ciągu sześciu miesięcy od dostarczenia utworu nie zawarto z twórcą umowy o wydanie utworu albo jeżeli w okresie dwóch lat od daty jego przyjęcia utwór nie został opublikowany. 2. Instytucja naukowa może, bez odrębn ...\"}, {\"chunk_id\": \"uokik_items:uokik_f7cd77beab13e174\", \"source_id\": \"uokik_rejestr_klauzul_5758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sądem właściwym do rozpoznawania sporów wynikających z umowy sprzedaży jest sąd właściwy dla siedziby wydawnictwa\"}]",
+   "tool_call_id": "call-611b1095-e7a8-4a16-bf16-970a57aedd69",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results don't directly address \"minimalny nakład\" (minimum print run) in licensing agreements. Let me search more specifically for this concept in Polish publishing/licensing context.",
+   "tool_calls": [
+    {
+     "id": "call-e983cfa9-caa7-4f82-b283-267ddb404121",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"minimalny nakład\", \"nakład minimalny\", \"print run\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-e983cfa9-caa7-4f82-b283-267ddb404121",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "No results for \"minimalny nakład\" in the corpus. Let me try searching for publishing-related licensing agreements and minimum print run concepts.",
+   "tool_calls": [
+    {
+     "id": "call-29a14356-a9f2-482f-8e90-bf30cabe2768",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"licencja wydawnicza nakład egzemplarzy minimalna liczba kopii publikacja książki\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_995\", \"source_id\": \"sejm_eli_du_2025_24_art_995\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 995. 1. Przepisy ustawy stosuje się do pierwszych wydań: 1) których wydawca ma na terytorium Rzeczypospolitej Polskiej miejsce zamieszkania lub siedzibę lub 2) których wydawca ma na terytorium Europejskiego Obszaru Gospodarczego miejsce zamieszkania lub siedzibę, lub 3) które są chronione na podstawie umów międzynarodowych, w zakresie, w jakim ich ochrona wynika z tych umów. 2. Przepisy ustawy stosuje się do wydań naukowych i krytycznych, które: 1) zostały dokonane przez obywatela polskiego albo osobę zamieszkałą na te ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_28\", \"source_id\": \"sejm_eli_du_2025_24_art_28\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 28. 1.17) Instytucje oświatowe, uczelnie, federacje pod miotów systemu szkolnictwa wyższego i nauki, instytuty badawcze prowadzące działalność, o której mowa w art. 2 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o instytutach badawczych (Dz. U. z 2024 r. poz. 534), instytuty naukowe Polskiej Akademii Nauk prowadząc e działalność, o której mowa w art. 50 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o Polskiej Akademii Nauk (Dz. U. z 2020 r. poz. 1796), Centrum Łukasiewicz i instytuty Sieci Badawczej Łukasiewicz prowadzące dział ...\"}, {\"chunk_id\": \"uokik_items:uokik_9771130c79553870\", \"source_id\": \"uokik_rejestr_klauzul_2878\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku dokumentów chronionych prawem autorskim, zgodnie z Ustawą z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, (...)może wykonywać reprodukcje lub reprodukcje cyfrowe o objętości nie przekraczającej 1 arkusza wydawniczego (ok. 22 stron).\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_351\", \"source_id\": \"sejm_eli_du_2025_24_art_351\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 351. 1. Wynagrodzenie za użyczanie egzemplarzy utworów, o których mowa w art. 28 ust. 4, przez biblioteki publiczne, zwane dalej „wynagrodzeniem za użyczanie”, jest wypłacane przez wyznaczoną przez ministra właściwego do spraw kultury i ochrony dziedzictwa narodowego organizację zbiorowego zarządzania prawami autorskimi z dofinansowania przekazywanego jej przez ministra właściwego do spraw kultury i ochrony dziedzictwa narodowego ze środków Funduszu Promocji Kultury, o którym mowa w art. 87 ustawy z dnia 19 listopada 2 ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_354\", \"source_id\": \"sejm_eli_du_2025_24_art_354\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 354. Minister właściwy do spraw kultury i ochrony dziedzictwa narodowego, po zasięgnięciu opinii organizacji zbiorowego zarządzania prawami autorskimi lub prawami pokrewnymi, stowarzyszeń twórców, organizacji zrzeszających biblioteki publiczne oraz właściwych izb gospodarczych, określi, w drodze rozporządzenia: 1) procedurę podziału i wypłaty wynagrodzenia za użyczanie, mając na uwadze liczbę użyczeń egzemplarzy utworów pozostających w zbiorach bibliotek publicznych oraz rodzaje kosztów, o których mowa w art. 351 ust.  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_997\", \"source_id\": \"sejm_eli_du_2025_24_art_997\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 997. 1. Publikacją prasową jest zbiór utworów lub przedmiotów praw pokrewnych złożony głównie z utworów słownych o charakterze dziennikarskim, stanowiący odrębną całość w ramach periodycznej lub regularnie aktualizowanej pod jednym tytułem publikacji, takiej jak dziennik, czasopismo, serwis agencji prasowej lub internetowy serwis informacyjny, rozpowszechniany w celach informacyjnych w dowolnej formie i w dowolny sposób w ramach działalności gospodarczej lub statutowej i na odpowiedzialność podmiotu, który sprawuje nad ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_35a\", \"source_id\": \"sejm_eli_du_2025_24_art_35a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 35a. 1. Beneficjent lub osoba działająca w jego imieniu może zwielokrotniać utwory w celu wykonania kopii utworów w dostępnych formatach. 2. Upoważniony podmiot może: 1) zwielokrotniać utwory w celu wykonania kopii utworów w dostępnych formatach; 2) rozpowszechniać kopie utworów w dostępnych formatach, sporządzone samodzielnie lub otrzymane od innego upoważnionego podmiotu, wśród beneficjentów oraz upoważnionych podmiotów. 3. Czynności, o których mowa w ust. 1 i 2, mogą być dokonywane wyłącznie w celu zapewnienia benef ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_50\", \"source_id\": \"sejm_eli_du_2025_24_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 50. Odrębne pola eksploatacji stanowią w szczególności: 1) w zakresie utrwalania i zwielokrotniania utworu – wytwarzanie określoną techniką egzemplarzy utworu, w tym techniką drukarską, reprograficzną, zapisu magnetycznego oraz techniką cyfrową; 2) w zakresie obrotu oryginałem albo egzemplarzami, na których utwór utrwalono – wprowadzanie do obrotu, użyczenie lub najem oryginału albo egzemplarzy; 3) w zakresie rozpowszechniania utworu w sposób inny niż określony w pkt 2 – publiczne wykonanie, wystawienie, wyświetlenie,  ...\"}]",
+   "tool_call_id": "call-29a14356-a9f2-482f-8e90-bf30cabe2768",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_ede4dad92ef743678856e0ce",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa licencyjna wydawnicza nakład minimalny egzemplarze wydanie książki\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_66\", \"source_id\": \"sejm_eli_du_2025_24_art_66\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 66. 1.29) Umowa licencyjna uprawnia do korzystania z utworu w okresie pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę albo miejsce zamieszkania, chyba że w umowie postanowiono inaczej. 2. Po upływie terminu, o którym mowa w ust. 1, prawo uzyskane na podstawie umowy licencyjnej wygasa.\"}, {\"chunk_id\": \"uokik_items:uokik_04c6b424d156b49f\", \"source_id\": \"uokik_rejestr_klauzul_1256\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na okres …Roku tj. do dnia…2006 r. Po upływie tego terminu umowa ulega automatycznemu przedłużeniu na czas nieoznaczony (…), chyba, że strony postanowią inaczej\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"uokik_items:uokik_9771130c79553870\", \"source_id\": \"uokik_rejestr_klauzul_2878\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku dokumentów chronionych prawem autorskim, zgodnie z Ustawą z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, (...)może wykonywać reprodukcje lub reprodukcje cyfrowe o objętości nie przekraczającej 1 arkusza wydawniczego (ok. 22 stron).\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_52\", \"source_id\": \"sejm_eli_du_2025_24_art_52\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 52. 1. Jeżeli umowa nie stanowi i naczej, przeniesienie własności egzemplarza utworu nie powoduje przejścia autorskich praw majątkowych do utworu. 2. Jeżeli umowa nie stanowi inaczej, przejście autorskich praw majątkowych nie powoduje przeniesienia na nabywcę własności egzemplarza utworu. 3. Nabywca oryginału utworu jest obowiązany udostępnić go twórcy w takim zakresie, w jakim jest to niezbędne do wykonywania prawa autorskiego. Nabywca oryginału może jednak domagać się od twórcy odpowiedniego zabezpieczenia oraz wynag ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_408\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 408. § 1. Zobowiązany do wydania korzyści może żądać zwrotu nakładów koniecznych o tyle, o ile nie znalazły pokrycia w użytku, który z nich osiągnął. Zwrotu innych nakładów może żądać o tyle, o ile zwiększają wartość korzyści w chwili jej wydania; może jednak zabrać te nakłady, przywracając stan poprzedni. § 2. Kto czyniąc nakłady wiedział, że korzyść mu się nie należy, ten może żądać zwrotu nakładów tylko o tyle, o ile zwiększają wartość korzyś ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0274_statute_ccb9a29869daf7b4\", \"source_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_type\": \"statute\", \"top_category\": \"unilateral_change\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"jej wypowiedzenia; 15) zastrzegają dla kontrahenta konsumenta uprawnienie wypowiedzenia umowy zawartej na czas nieoznaczony, bez wskazania ważnych przyczyn i stosownego terminu wypowiedzenia; 16) nakładają wyłącznie na konsumenta obowiązek zapłaty ustalonej sumy na wypadek rezygnacji z zawarcia lub wykonania umowy; 17) nakładają na konsumenta, który nie wykonał zobowiązania lub odstąpił od umowy, obowiązek zapłaty rażąco wygórowanej kary umownej lub odstępnego; 18) stanowią, że umowa zawarta na czas oznaczony ulega przedłużeniu, o ile konsument, dla którego zastrzeżono rażąco krótki termin, ni ...\"}, {\"chunk_id\": \"uokik_items:uokik_727db223763776be\", \"source_id\": \"uokik_rejestr_klauzul_7257\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Minimalna wartość indywidualnego rachunku po dokonaniu częściowego wykupu i pobraniu opłaty za wykup wynosi 5000 (pięć tysięcy złotych)\"}, {\"chunk_id\": \"uokik_items:uokik_f7cd77beab13e174\", \"source_id\": \"uokik_rejestr_klauzul_5758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sądem właściwym do rozpoznawania sporów wynikających z umowy sprzedaży jest sąd właściwy dla siedziby wydawnictwa\"}]",
+   "tool_call_id": "call_ede4dad92ef743678856e0ce",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_de640ee757cd40f28603f388",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"nakład\", \"wydanie\", \"egzemplarze\", \"druk\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2019_1000_art_2\", \"source_id\": \"sejm_eli_du_2019_1000_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 2. 1. Nie podlega opłacie skarbowej: 1) dokonanie czynności urzędowej, wydanie zaświadczenia i zezwolenia (pozwolenia, koncesji) albo złożenie dokumentu stwierdzającego udzielenie pełnomocnictwa lub prokury albo jego odpisu, wypisu lub kopii w sprawach: a) alimentacyjnych, opieki, kurateli i przysposobienia, b) ubezpieczenia społecznego, ubezpieczenia zdrowotnego, rent strukturalnych, ulg określonych w przepisach szczególnych dla żołnierzy niezawodowych i osób odbywających służbę zastępczą or ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_408\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 408. § 1. Zobowiązany do wydania korzyści może żądać zwrotu nakładów koniecznych o tyle, o ile nie znalazły pokrycia w użytku, który z nich osiągnął. Zwrotu innych nakładów może żądać o tyle, o ile zwiększają wartość korzyści w chwili jej wydania; może jednak zabrać te nakłady, przywracając stan poprzedni. § 2. Kto czyniąc nakłady wiedział, że korzyść mu się nie należy, ten może żądać zwrotu nakładów tylko o tyle, o ile zwiększają wartość korzyś ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_226\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 226. § 1. Samoistny posiadacz w dobrej wierze może żądać zwrotu nakładów koniecznych o tyle, o ile nie mają pokrycia w korzyściach, które uzyskał z rzeczy. Zwrotu innych nakładów może żądać o tyle, o ile zwiększają wartość rzeczy w chwili jej wydania właścicielowi. Jednakże gdy nakłady zostały dokonane po chwili, w której samoistny posiadacz w dobrej wierze dowiedział się o wytoczeniu przeciwko niemu powództwa o wydanie rzeczy, może on żądać zwr ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_603a\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 603a. § 1. Jeżeli umowa międzynarodowa, której Rzeczpospolita Polska jest stroną, tak stanowi, wniosek państwa obcego o zastosowanie tymczasowego aresztowania osoby ściganej zastępuje wniosek o wydanie. § 2. W wypadku, o którym mowa w § 1, prokurator podczas przesłuchania informuje osobę ściganą o możliwości wyrażenia przez nią zgody na wydanie lub zgody na wydanie połączonej ze zrzeczeniem się korzystania z ograniczeń określonych w  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_605\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 605. § 1. Jeżeli wniosek o wydanie dotyczy przestępstwa, którego sprawca podlega wydaniu, sąd okręgowy z urzędu lub na wniosek prokuratora może wydać postanowienie o tymczasowym aresztowaniu osoby ściganej; przepis art. 263 stosuje się odpowiednio. § 2. Przed złożeniem wniosku o wydanie sąd może wydać postanowienie o tymczasowym aresztowaniu ściganego na czas nie dłuższy niż 40 dni, jeżeli organ państwa obcego zwraca się o to, zapewn ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_348\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 348. Przeniesienie posiadania następuje przez wydanie rzeczy. Wydanie dokumentów, które umożliwiają rozporządzanie rzeczą, jak również wydanie środków, które dają faktyczną władzę nad rzeczą, jest jednoznaczne z wydaniem samej rzeczy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_417\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 417 1 . § 1. Jeżeli szkoda została wyrządzona przez wydanie aktu normatywnego, jej naprawienia można żądać po stwierdzeniu we właściwym postępowaniu niezgodności tego aktu z Konstytucją , ratyfikowaną umową międzynarodową lub ustawą. § 2. Jeżeli szkoda została wyrządzona przez wydanie prawomocnego orzeczenia lub ostatecznej decyzji, jej naprawienia można żądać po stwierdzeniu we właściwym postępowaniu ich niezgodności z prawem, chyba że przepisy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_604\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 604. § 1. Wydanie jest niedopuszczalne, jeżeli: 1) osoba, której wniosek dotyczy, jest obywatelem polskim albo korzysta w Rzeczypospolitej Polskiej z prawa azylu; 2) czyn nie zawiera znamion czynu zabronionego albo gdy ustawa uznaje, że czyn nie stanowi przestępstwa albo że sprawca nie popełnia przestępstwa lub nie podlega karze; 3) nastąpiło przedawnienie; 4) postępowanie karne co do tego samego czynu tej samej osoby zostało prawomo ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_47g\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 47g. 1. O wydanie dziennika budowy występuje inwestor. 2. Organem właściwym do wydania dziennika budowy jest: 1) organ administracji architektoniczno-budowlanej; 2) organ nadzoru budowlanego - w przypadku robót budowlanych objętych decyzją o: a) legalizacji budowy, o której mowa w art. 49 ust. 4, b) pozwoleniu na wznowienie robót budowlanych, o której mowa w art. 51 ust. 4. 3. Wystąpienie o wydanie dziennika budowy prowadzonego w postaci elektron ...\"}]",
+   "tool_call_id": "call_de640ee757cd40f28603f388",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wydawać książkę i szukam umowy, która gwarantuje, że wydawnictwo faktycznie wydrukuje minimalną liczbę egzemplarzy, a nie tylko trzyma prawa bez publikacji."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję wydać swoją powieść przez wydawnictwo i chcę umowę licencyjną, w której wydawnictwo zobowiązuje się wydrukować konkretny minimalny nakład w ustalonym terminie. Zależy mi na jasnych zasadach rozliczania tantiem od sprzedanych egzemplarzy, kontroli jakości wydania oraz możliwości rozwiązania umowy, jeśli wydawnictwo nie dotrzyma terminów publikacji lub nie wyda gwarantowanego nakładu."
+  }
+ ]
+}

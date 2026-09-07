@@ -1,0 +1,305 @@
+{
+ "run": 9,
+ "hint": "Pełnomocnictwo do rachunku bankowego (dysponowanie środkami)",
+ "scenario": "Pełnomocnictwo do rachunku bankowego (dysponowanie środkami)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a power of attorney (pełnomocnictwo) specifically for bank account management (dysponowanie środkami na rachunku bankowym). I need to:\n\n1. First read the base template for \"pelnomocnictwo\"\n2. Then search for relevant provisions related to bank account powers of attorney\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-2dbd2749-51ad-460c-957f-d3daf1235f14",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\", \"query\": \"do rachunku bankowego dysponowanie środkami\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Upoważnienie do rachunku bankowego\\nUpoważnienie do rachunku bankowego w Polsce to dokument pełnomocnictwa, na podstawie którego posiadacz rachunku bankowego (mocodawca) udziela innej osobie (pełnomocnikowi) prawa do dokonywania operacji bankowych na wskazanym rachunku w imieniu i na rzecz mocodawcy. Instytucja ta opiera się na przepisach ogólnych Kodeksu cywilnego o pełnomocnictwie (art. 95-109 KC) w połączeniu ze szczególną regulacją zawartą w art. 56 ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe (tekst jedn. Dz.U. 2023 poz. 2488 ze zm.). Prawo bankowe wyróżnia kilka form upoważnień — w szczególności pełnomocnictwo do rachunku (art. 56 PrBank) i dyspozycję na wypadek śmierci (art. 56 ust. 1 PrBank) — które mają odmienne skutki prawne.\\n\\nPełnomocnictwo bankowe udzielane jest przez mocodawcę i stanowi umocowanie dla pełnomocnika do działania w jego imieniu w zakresie czynności bankowych związanych z danym rachunkiem. Zgodnie z art. 98 Kodeksu cywilnego pełnomocnictwo ogólne upoważnia do czynności zwykłego zarządu, natomiast do czynności przekraczających zwykły zarząd potrzebne jest pełnomocnictwo szczególne lub rodzajowe. Przy upoważnieniu bankowym należy precyzyjnie wskazać zakres uprawnień pełnomocnika — pełny lub ograniczony — gdyż bank działa w ramach udzielonego umocowania i nie może wymagać od pełnomocnika uzasadnienia poszczególnych operacji.\\n\\nPełnomocnictwo bankowe różni się od dyspozycji na wypadek śmierci (art. 56 ust. 1 PrBank). Dyspozycja na wypadek śmierci działa wyłącznie po śmierci posiadacza rachunku i umożliwia wypłatę środków wskazanym osobom bez postępowania spadkowego, do limitu ustawowego. Pełnomocnictwo bankowe działa za życia mocodawcy i wygasa z chwilą jego śmierci (art. 101 § 2 KC), chyba że pełnomocnictwo zostało udzielone jako nieodwołalne lub strony wyraźnie postanowiły o jego dalszym obowiązywaniu po śmierci mocodawcy.\\n\\nZakres upoważnienia do rachunku bankowego może być pełny lub ograniczony. Pełne pełnomocnictwo bankowe daje pełnomocnikowi takie same uprawnienia jak właścicielowi rachunku — może wypłacać i wpłacać gotówkę, wykonywać przelewy, zaciągać debety w rachunku, zawierać umowy lokat terminowych i dokonywać wszelkich dyspozycji. Ograniczone pełnomocnictwo może dotyczyć wyłącznie określonych operacji (np. tylko wypłat do określonej kwoty) lub konkretnego rachunku spośród kilku prowadzonych przez bank.\\n\\nOdwołanie pełnomocnictwa bankowego: mocodawca może w każdym czasie odwołać pełnomocnictwo, składając pisemne oświadczenie bezpośrednio w banku lub doręczając pisemne odwołanie pełnomocnikowi i bankowi. Art. 101 KC przewiduje odwołalność jako zasadę, chyba że pełnomocnictwo zostało udzielone z zastrzeżeniem nieodwołalności z powodu uzasadnionego prawnie interesu mocodawcy lub osoby trzeciej (art. 101 § 1 KC). W praktyce bankowej pełnomocnictwa do rachunków są odwołalne — bank usuwa pełnomocnika z systemu na żądanie właściciela rachunku.\\n\\nWartość pełnomocnictwa bankowego jest ogromna — dlatego należy udzielać go wyłącznie osobom zaufanym i z precyzyjnie określonym zakresem uprawnień. Nadużycie pełnomocnictwa przez pełnomocnika (np. wyprowadzenie środków) rodzi odpowiedzialność cywilną odszkodowawczą pełnomocnika wobec mocodawcy (art. 415 KC) oraz możliwą odpowiedzialność karną z art. 284 Kodeksu karnego (przywłaszczenie) lub art. 296 Kodeksu karnego (wyrządzenie szkody w obrocie gospodarczym).\\n\\nUpoważnienie do rachunku bankowego w Polsce jest potrzebne w każdej sytuacji, gdy właściciel rachunku chce umożliwić innej osobie korzystanie z jego konta — bez przenoszenia własności środków i bez konieczności każdorazowego osobistego stawiania się w banku.\\n\\nDokument jest niezbędny, gdy właściciel rachunku jest chory lub niepełnosprawny. Osoby starsze lub chore, które nie mogą samodzielnie dotrzeć do oddziału banku, udzielają pełnomocnictwa bankowego zaufanemu członkowi rodziny (dziecku, małżonkowi), aby ten mógł opłacać rachunki, wypłacać gotówkę na bieżące potrzeby i wykonywać inne dyspozycje. Pełnomocnictwo bankowe jest prostszym i szybszym rozwiązaniem niż ustanowienie opiekuna prawnego przez Sąd Rejonowy.\\n\\nDokument jest konieczny przy wyjazdach zagranicznych właściciela rachunku. Przedsiębiorca lub osoba fizyczna wyjeżdżająca za granicę na dłuższy okres może udzielić pełnomocnictwa pracownikowi lub osobie bliskiej do obsługi rachunku firmowego lub osobistego w kraju — regulowania zobowiązań, wypłat i przelewów wynagrodzenia.\\n\\nDokument jest potrzebny przy prowadzeniu działalności gospodarczej przez rodzinę. Małżonkowie prowadzący działalność na rozdzielnym rachunku bankowym często upoważniają się wzajemnie, aby oboje mogli obsługiwać konto firmowe. Pełnomocnictwo bankowe umożliwia obsługę rachunku przez jednego z małżonków bez formalnego ustanawiania współposiadacza konta.\\n\\nDokument jest niezbędny przy opiece nad majątkiem osoby starszej (piecza nieformalna). Zanim zostanie ustanowiony opiekun prawny przez Sąd Okręgowy lub kurator sądowy, pełnomocnictwo bankowe umożliwia bliskim zaspokajanie bieżących potrzeb finansowych osoby, która z różnych powodów nie może samodzielnie zarządzać środkami.\\n\\nDokument jest potrzebny w sytuacjach nagłych. Właściciel rachunku hospitalizowany w trybie nagłym może wcześniej ustanowione pełnomocnictwo bankowe aktywować dla bliskiej osoby, która będzie mogła regulować bieżące płatności (czynsz, media, raty kredytu) bez konieczności postępowania sądowego.\\n\\nPrawidłowe upoważnienie do rachunku bankowego w Polsce powinno zawierać elementy wymagane przez bank i przepisy Prawa bankowego oraz Kodeksu cywilnego.\\n\\nDane mocodawcy: pełne imię i nazwisko, PESEL, adres zamieszkania i seria/numer dowodu osobistego posiadacza rachunku. Bank weryfikuje tożsamość mocodawcy przy rejestracji pełnomocnictwa w systemie — niezbędne jest okazanie oryginału dokumentu tożsamości.\\n\\nDane pełnomocnika: pełne imię i nazwisko, PESEL, adres zamieszkania i seria/numer dowodu osobistego pełnomocnika. Pełnomocnik identyfikowany jest przy każdej operacji bankowej przez okazanie dowodu osobistego lub innego dokumentu tożsamości akceptowanego przez bank.\\n\\nDane rachunku bankowego: pełny numer rachunku w formacie IBAN (PL + 26 cyfr), nazwa banku i rodzaj rachunku. Przy posiadaniu wielu rachunków w tym samym banku warto wyraźnie wskazać, do których rachunków pełnomocnictwo się odnosi.\\n\\nZakres uprawnień: precyzyjne wskazanie, jakie operacje może wykonywać pełnomocnik — pełne pełnomocnictwo (wszystkie operacje bankowe) lub ograniczone (np. wyłącznie wpłaty i wypłaty gotówkowe do kwoty X zł, zakaz zaciągania kredytów i debetów, zakaz zawierania lokat terminowych). Serwis forms-legal.com udostępnia wzór upoważnienia jako punkt wyjścia — ostateczny zakres pełnomocnictwa powinien być uzgodniony bezpośrednio z bankiem, który ma własne formularze i procedury rejestracji pełnomocnictw.\\n\\nCzas obowiązywania: wskazanie, czy pełnomocnictwo jest bezterminowe (do odwołania) czy terminowe (z datą wygaśnięcia). Bezterminowe pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika (art. 101 § 2 KC) albo po skutecznym odwołaniu.\\n\\nKlauzula niesubstytucji: wyraźne zastrzeżenie, że pełnomocnik nie jest uprawniony do udzielania dalszych pełnomocnictw (substytucja wymaga wyraźnego upoważnienia w dokumencie).\\n\\nWypełnianie upoważnienia do rachunku bankowego w Polsce zaczyna się od wpisania pełnych danych mocodawcy — właściciela rachunku: imię i nazwisko, PESEL, adres zamieszkania, seria i numer dowodu osobistego. Następnie wpisz analogiczne dane pełnomocnika — osoby upoważnianej.\\n\\nW sekcji rachunku bankowego podaj pełny numer IBAN rachunku (PL + 26 cyfr), nazwę banku i rodzaj rachunku (rachunek osobisty ROR, oszczędnościowy, bieżący firmowy lub lokata). Jeżeli posiadasz kilka rachunków w tym banku i chcesz upoważnić do wszystkich, możesz wpisać je wszystkie lub sformułować upoważnienie ogólnie.\\n\\nW sekcji zakresu upoważnienia wybierz, czy pełnomocnictwo ma być pełne (wszelkie operacje bankowe) czy ograniczone. Przy pełnomocnictwie ograniczonym opisz dokładnie dozwolone operacje i ewentualne limity kwotowe. Przy pełnym pełnomocnictwie upewnij się, że ufasz pełnomocnikowi całkowicie — ma on takie same uprawnienia jak właściciel rachunku.\\n\\nWskaż czas obowiązywania: bezterminowe (do odwołania) lub terminowe z konkretną datą wygaśnięcia. Jeżeli dajesz pełnomocnictwo na czas ograniczony (np. na czas Twojego wyjazdu), wskaż datę końcową.\\n\\nPodpisz dokument w miejscowości i dniu wskazanych w formularzu. Pamiętaj, że banki często mają własne formularze pełnomocnictw — niniejszy wzór może posłużyć jako projekt do dyskusji z bankiem lub jako upoważnienie przy operacjach poza systemem bankowym. Przed złożeniem pełnomocnictwa w banku zapytaj o wymagania formalne konkretnego banku — niektóre banki wymagają potwierdzenia podpisu mocodawcy przez pracownika placówki lub notariusza.\\n\\nWymogi prawne upoważnienia do rachunku bankowego w Polsce wynikają z Kodeksu cywilnego i ustawy Prawo bankowe.\\n\\nPodstawa prawna: art. 95-109 Kodeksu cywilnego (instytucja pełnomocnictwa), art. 56 ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe (pełnomocnictwo bankowe). Bank może mieć własne wymagania formalne co do formy pełnomocnictwa — warto uzgodnić je bezpośrednio z oddziałem banku.\\n\\nZakres umocowania: art. 98 KC — pełnomocnictwo ogólne obejmuje czynności zwykłego zarządu; do czynności przekraczających zwykły zarząd (np. zaciąganie kredytów) potrzebne jest pełnomocnictwo szczególne lub rodzajowe. Pełnomocnictwo do zaciągania zobowiązań finansowych (debet, kredyt w rachunku) powinno być wyraźnie opisane.\\n\\nOdwołanie: art. 101 KC — pełnomocnictwo może być w każdym czasie odwołane przez mocodawcę; wygasa z chwilą śmierci mocodawcy lub pełnomocnika (art. 101 § 2 KC). Mocodawca może zastrzec nieodwołalność pełnomocnictwa, jeżeli jest to uzasadnione prawnie uzasadnionym interesem.\\n\\nWygaśnięcie z chwilą śmierci: pełnomocnictwo bankowe nie zastępuje dyspozycji na wypadek śmierci z art. 56 ust. 1 Prawa bankowego — po śmierci mocodawcy środki wchodzą w skład masy spadkowej, chyba że właściciel rachunku złożył odrębną dyspozycję wkładem na wypadek śmierci.\\n\\nOchrona danych osobowych: pełnomocnictwo zawiera dane osobowe mocodawcy i pełnomocnika — ich przetwarzanie przez bank podlega RODO (rozporządzenie (UE) 2016/679) i regulacjom Prawa bankowego, z nadzorem Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nNajczęstsze błędy przy upoważnieniu do rachunku bankowego w Polsce dotyczą zarówno treści dokumentu, jak i późniejszego korzystania z pełnomocnictwa.\\n\\nPełnomocnictwo zbyt szerokie: właściciele rachunków często udzielają pełnego pełnomocnictwa bez refleksji nad jego zakresem. Pełne pełnomocnictwo daje pełnomocnikowi takie same uprawnienia jak właścicielowi — w tym możliwość wyprowadzenia całych środków. Przy upoważnieniu dla osoby niebędącej najbliższym krewnym warto ograniczyć zakres do konkretnych operacji lub kwot.\\n\\nBrak precyzyjnego wskazania rachunku: upoważnienie nieidentyfikujące konkretnego rachunku numerem IBAN może być kwestionowane przez bank lub prowadzić do nadmiernego rozszerzenia zakresu pełnomocnictwa na wszystkie rachunki w danym banku.\\n\\nNiewypowiedzenie pełnomocnictwa po ustaniu potrzeby: właściciele rachunków często zapominają odwołać pełnomocnictwo po ustaniu jego celu (np. po powrocie z zagranicy, po wyzdrowieniu). Aktywne pełnomocnictwo pozostające bez odwołania stanowi stałe ryzyko nadużycia przez pełnomocnika.\\n\\nMyłe kwestia wygaśnięcia po śmierci: wiele osób błędnie sądzi, że pełnomocnictwo bankowe umożliwia bliskim wypłatę środków po śmierci właściciela. Tymczasem pełnomocnictwo wygasa z chwilą śmierci mocodawcy (art. 101 § 2 KC) — do dyspozycji środkami po śmierci służy odrębna dyspozycja wkładem na wypadek śmierci (art. 56 ust. 1 Prawa bankowego).\\n\\nBrak weryfikacji wymagań banku: każdy bank ma własne wewnętrzne procedury dotyczące pełnomocnictw. Niestandardowy dokument sporządzony poza bankiem może nie być akceptowany bez potwierdzenia notarialnego podpisu lub bez złożenia na formularzu bankowym. Przed sporządzeniem upoważnienia warto skontaktować się z bankiem i zapytać o jego wymagania.\\n\\nŹródło: https://forms-legal.com/pl/personal/legal-declarations/upowaznienie-do-rachunku-bankowego (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-2dbd2749-51ad-460c-957f-d3daf1235f14",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I have the base template for a bank account power of attorney. Now I need to search for more specific legal provisions related to bank account powers of attorney, particularly from the Banking Law (Prawo bankowe) and Civil Code (Kodeks cywilny) to ensure I have all the relevant statutory references and practical requirements.",
+   "tool_calls": [
+    {
+     "id": "call-0bc55c86-40a3-4ee8-8de9-de5055c0fe6f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 56\", \"Prawo bankowe\", \"pełnomocnictwo bankowe\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_598\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 598 2 . § 1. W czasie trwania postępowania o odebranie osoby podlegającej władzy rodzicielskiej lub pozostającej pod opieką toczącego się na podstawie konwencji haskiej z 1980 r. przed sądem, o którym mowa w art. 518 2 § 1 lub art. 569 1 § 1 lub 3, nie można rozstrzygać w przedmiocie władzy rodzicielskiej lub opieki nad tą osobą. Postępowanie w tych sprawach sąd zawiesza z urzędu z chwilą otrzymania informacji przesłanej prze ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_565\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 565. § 1. Jeżeli prośbę o ułaskawienie choćby jeden sąd zaopiniował pozytywnie, Prokurator Generalny przedstawia Prezydentowi Rzeczypospolitej Polskiej prośbę o ułaskawienie wraz z aktami sprawy i swoim wnioskiem. § 2. Prośbę o ułaskawienie skierowaną bezpośrednio do Prezydenta Rzeczypospolitej Polskiej przekazuje się Prokuratorowi Generalnemu w celu nadania jej biegu zgodnie z art. 561 albo art. 567.\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_13k\", \"source_id\": \"sejm_eli_du_2023_1790_art_13k\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 13k. 1. Kontrolujący może zwrócić się do właściwego ze względu na miejsce prowadzenia czynności kontrolnych komendanta Policji o udzielenie pomocy, jeżeli istnieje uzasadnione przypuszczenie, że w toku czynności kontrolnych kontrolujący natrafi na opór, który utrudni lub uniemożliwi mu wykonywanie tych czynności. 2. Komendant Policji, o którym mowa w ust. 1, zapewnia pomoc przy przeprowadzeniu kontroli. 3. Z pisemnym wnioskiem o udzielenie pomocy kontro ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 5 . Przepisów art. 563 oraz art. 567 § 2 dotyczących kupującego nie stosuje się do osoby fizycznej zawierającej umowę bezpośrednio związaną z jej działalnością gospodarczą, gdy z treści tej umowy wynika, że nie posiada ona dla tej osoby charakteru zawodowego, wynikającego w szczególności z przedmiotu wykonywanej przez nią działalności gospodarczej, udostępnionego na podstawie przepisów o Centralnej Ewidencji i Informacji o Działalności Gospo ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 3 . Z zastrzeżeniem art. 561 1 § 2 koszty wymiany lub naprawy ponosi sprzedawca. W szczególności obejmuje to koszty demontażu i dostarczenia rzeczy, robocizny, materiałów oraz ponownego zamontowania i uruchomienia.\"}]",
+   "tool_call_id": "call-0bc55c86-40a3-4ee8-8de9-de5055c0fe6f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_16d8729efba44d10aed25209",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 95\", \"art. 98\", \"art. 101\", \"Kodeks cywilny\", \"pełnomocnictwo\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_1088\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 1088. (uchylony) 1) Niniejsza ustawa dokonuje w zakresie swojej regulacji transpozycji dyrektywy 2000/31/WE Parlamentu Europejskiego i Rady z dnia 8 czerwca 2000 r. w sprawie niektórych aspektów prawnych usług społeczeństwa informacyjnego, w szczególności handlu elektronicznego w ramach rynku wewnętrznego (dyrektywa o handlu elektronicznym) (Dz. Urz. WE L 178 z 17.07.2000, str. 1; Dz. Urz. UE Polskie wydanie specjalne, rozdz. 13, t. 25, str. 399 ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_89\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 89. § 1. Pełnomocnik jest obowiązany przy pierwszej czynności procesowej dołączyć do akt sprawy pełnomocnictwo z podpisem mocodawcy lub wierzytelny odpis pełnomocnictwa wraz z odpisem dla strony przeciwnej. Adwokat, radca prawny, rzecznik patentowy, a także radca Prokuratorii Generalnej Rzeczypospolitej Polskiej mogą sami uwierzytelnić odpis udzielonego im pełnomocnictwa oraz odpisy innych dokumentów wykazujących ich umocowan ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_101\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 101. § 1. Pełnomocnictwo może być w każdym czasie odwołane, chyba że mocodawca zrzekł się odwołania pełnomocnictwa z przyczyn uzasadnionych treścią stosunku prawnego będącego podstawą pełnomocnictwa. § 2. Umocowanie wygasa ze śmiercią mocodawcy lub pełnomocnika, chyba że w pełnomocnictwie inaczej zastrzeżono z przyczyn uzasadnionych treścią stosunku prawnego będącego podstawą pełnomocnictwa.\"}]",
+   "tool_call_id": "call_16d8729efba44d10aed25209",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now let me search for the specific Banking Law provisions (art. 56 Prawo bankowe) and also look for any specific requirements for bank account powers of attorney.",
+   "tool_calls": [
+    {
+     "id": "call-919499ff-1b6c-4993-b406-3317a8c467e4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"art. 56 ustawa Prawo bankowe pełnomocnictwo do rachunku bankowego\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_ea72360ef0032c13\", \"source_id\": \"uokik_rejestr_klauzul_327\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...) zrealizowania celu i przedmiotu Umowy, (...) poprzez zawarcie Umowy udziela (...) pełnomocnictwa do wykonywania zarządu środkami (...), zgodnie z postanowieniami Umowy oraz OWU, w tym w szczególności do dysponowania, w drodze przyznania (...), środkami finansowymi znajdującymi się na rachunku Funduszu, określonym w ust. 1. Pełnomocnictwo obejmuje także umocowanie(...)do podejmowania wszelkich decyzji oraz dokonywania czynności zmierzających do sprawnego wykonywania postanowień Umowy i OWU oraz zabezpieczenia interesu (...) oraz ochrony praw ogółu (...)\"}, {\"chunk_id\": \"uokik_abusive_clause_206\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...)zrealizowania przedmiotu niniejszej umowy, klient którego dane osobowe określone zostały na pierwszej stronie umowy przez jego zawarcie przekazuje na rzecz (...). nieodwołalne i nie wygasające nawet po śmierci lub upadłości klienta pełnomocnictwo na okres formalnego istnienia zespołu aż do ostatecznego rozliczenia. Pełnomocnictwo to obejmuje prawo (...) do równoprawnego rozwiązywania spraw dotyczących klientów, w tym spowodowanych okolicznościami siły wyższej, a które mogłyby przynieść szkody programowi i zespołowi\"}, {\"chunk_id\": \"uokik_items:uokik_f0890a28ef187fc6\", \"source_id\": \"uokik_rejestr_klauzul_6691\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku niestosowania się przez Posiadacza rachunku do (…) innych regulaminów bankowych (…), (...)ma prawo do 1. zablokowania dostępu do rachunku (...)wypowiedzenia umowy (…)\"}, {\"chunk_id\": \"uokik_abusive_clause_100\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia Spółce zrealizowania celu i przedmiotu niniejszej Umowy klient, którego dane osobowe wymienione są na pierwszej stronie Umowy, przez jej zawarcie przekazuje na rzecz Spółki nieodwołalne pełnomocnictwo na okres formalnego działania Programu, aż do ostatecznego rozliczenia. Pełnomocnictwo to obejmuje upoważnienie Spółki do równoprawnego rozwiązywania spraw dotyczących Klientów, w tym spowodowanych okolicznościami siły wyższej, a które mogłyby przynieść szkody Programowi i jego Klientom. Działając w granicach zakreślonych przez artykuł 101 Kodeksu Cywilnego Klient, mając na uwadz ...\"}, {\"chunk_id\": \"uokik_items:uokik_4fae5cc9233e99ae\", \"source_id\": \"uokik_rejestr_klauzul_1744\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeśli wymagają tego względy bezpieczeństwa lub inne, niezależne od Banku względy, Bank może czasowo ograniczyć dostęp do rachunku za pośrednictwem kanałów, przez okres jakiego wymaga usunięcie przyczyn braku dostępu. W takim wypadku bank nie ponosi odpowiedzialności za zaistniałe ograniczenia w dostępności rachunku.\"}]",
+   "tool_call_id": "call-919499ff-1b6c-4993-b406-3317a8c467e4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_27a69d197aac4f1588165d31",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 56\", \"ust. 1\", \"Prawo bankowe\", \"rachunek bankowy\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_36\", \"source_id\": \"sejm_eli_du_2025_350_art_36\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 36. 1. Każda osoba objęta obowiązkowo ubezpieczeniami emerytalnym i rentowymi podlega zgłoszeniu do ubezpieczeń społecznych. 2. Obowiązek zgłoszenia do ubezpieczeń społecznych osób określonych w art. 6 ust. 1 pkt 1–4, 6–9b, 11, 12, 19 –22, ust. 2, 2a i 2d, duchownych będących członkami zakonów lub klasztorów oraz osób współpracujących, o których mowa w art. 8 ust. 11, należy do płatnika składek. 2a. Osoba przebywająca na urlopie wychowawczym jest obowiązana poinformować płatnika składek o ustaleniu prawa do emerytury ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_18\", \"source_id\": \"sejm_eli_du_2025_350_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 18. 1. Podstawę wymiaru składek na ubezpieczenia emerytalne i rentowe ubezpieczonych wymienionych w art. 6 ust. 1 pkt 1–3 stanowi przychód, o którym mowa w art. 4 pkt 9 i 10, z zastrzeżeniem ust. 1a, 2, ust. 4 pkt 5 i ust. 12. 1a. W przypadku ubezpieczonych, o których mowa w art. 8 ust. 2a, w podstawie wymiaru składek na ubezpieczenia emerytalne i rentowe uwzględnia się również przychód z tytułu umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się prz ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_16\", \"source_id\": \"sejm_eli_du_2025_350_art_16\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 16. 1. Składki na ubezpieczenia emerytalne: 1) pracowników, 2) osób wykonujących pracę nakładczą, 3) członków spółdzielni, 4) zleceniobiorców, 5) posłów i senatorów, 6) stypendystów sportowych, 7) pobierających stypendium słuchaczy Krajowej Szkoły Administracji Publicznej im. Prezydenta Rzeczypospolitej Po lskiej Lecha Kaczyńskiego, 7a) otrzymujących stypendium doktoranckie doktorantów, 8) osób wykonujących odpłatnie pracę, na podstawie skierowania do pracy, w czasie odbywania kary pozbawienia wolności lub tymczasowe ...\"}]",
+   "tool_call_id": "call_27a69d197aac4f1588165d31",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "PEŁNOMOCNICTWO DO RACHUNKU BANKOWEGO\n(Dysponowanie środkami)\n\nMiejscowość, data: ________________________\n\nI. MOCODAWCA:\nImię i nazwisko: ________________________\nPESEL: ________________________\nAdres zamieszkania: ________________________\nSeria i numer dowodu osobistego: ________________________\n\nII. PEŁNOMOCNIK:\nImię i nazwisko: ________________________\nPESEL: ________________________\nAdres zamieszkania: ________________________\nSeria i numer dowodu osobistego: ________________________\n\nIII. RACHUNEK BANKOWY:\nNazwa banku: ________________________\nNumer rachunku (IBAN): ________________________\nRodzaj rachunku: ________________________\n\nIV. ZAKRES UPRAWNIEŃ:\nMocodawca udziela Pełnomocniku pełnomocnictwa do rachunku bankowego, obejmującego umocowanie do następujących czynności:\n\n1. Czynności zwykłego zarządu (na podstawie art. 98 Kodeksu cywilnego):\n   - dokonywania wpłat na rachunek,\n   - dokonywania wypłat gotówki z rachunku,\n   - wykonywania przelewów na rzecz osób trzecich,\n   - zlecenia przelewów stałych i zleceń zapłaty,\n   - podglądu stanu rachunku i historii operacji,\n   - zgłaszania zleceń blokad i odblokowań kart płatniczych.\n\n2. Czynności przekraczające zakres zwykłego zarządu (na podstawie art. 98 w zw. z art. 99 § 1 Kodeksu cywilnego — wymagające wyraźnego wskazania):\n   - zawierania umów lokat terminowych i ich rozwiązywania,\n   - zaciągania debetów w rachunku (kredyt w rachunku),\n   - zawierania umów kredytu i pożyczki,\n   - udzielania zgód do wypowiedzenia umów bankowych,\n   - dokonywania czynności zabezpieczających wierzytelności.\n\nPełnomocnictwo obejmuje wszelkie czynności prawne i faktyczne niezbędne do realizacji powyższych uprawnień, w granicach obowiązujących przepisów prawa i regulaminu banku.\n\nV. FORMA PEŁNOMOCNICTWA:\nNiniejsze pełnomocnictwo zostało sporządzone na piśmie, zgodnie z wymogiem art. 99 § 2 Kodeksu cywilnego, pod rygorem nieważności. W przypadku czynności wymagających szczególnej formy, pełnomocnictwo udzielone zostało w tej samej formie, zgodnie z art. 99 § 1 Kodeksu cywilnego.\n\nVI. CZAS OBIOWIĄZYWANIA:\nPełnomocnictwo jest udzielone na czas nieokreślony (do odwołania) / do dnia: ________________________ (niepotrzebne skreślić).\n\nVII. ODWOWANIE PEŁNOMOCNICTWA:\nMocodawca zastrzega sobie prawo odwołania pełnomocnictwa w każdym czasie, zgodnie z art. 101 § 1 Kodeksu cywilnego, poprzez złożenie pisemnego oświadczenia w banku lub doręczenie pisemnego odwołania Pełnomocnikowi i bankowi. Odwołanie pełnomocnictwa następuje z chwilą jego doręczenia bankowi.\n\nVIII. WYGAŚNIĘCIE PEŁNOMOCNICTWA:\nPełnomocnictwo wygasa z chwilą śmierci Mocodawcy lub Pełnomocnika, chyba że z przyczyn uzasadnionych treścią stosunku prawnego będącego podstawą pełnomocnictwa postanowiono inaczej, zgodnie z art. 101 § 2 Kodeksu cywilnego. Strony nie postanawiają o dalszym obowiązywaniu pełnomocnictwa po śmierci Mocodawcy. Pełnomocnictwo nie stanowi dyspozycji na wypadek śmierci w rozumieniu art. 56 ust. 1 ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe.\n\nIX. KLZUULA NIESUBSTYTUCJI:\nPełnomocnik nie jest uprawniony do udzielania dalszych pełnomocnictw (substytucji) w rozumieniu art. 95¹ Kodeksu cywilnego, chyba że niniejsze pełnomocnictwo wyraźnie upoważnia Pełnomocnika do działania przez osoby trzecie.\n\nX. OCHRONA DANYCH OSOBOWYCH:\nMocodawca i Pełnomocnik wyrażają zgodę na przetwarzanie ich danych osobowych przez bank w celu realizacji niniejszego pełnomocnictwa, zgodnie z rozporządzeniem (UE) 2016/679 (RODO) oraz przepisami Prawa bankowego. Bank przetwarza dane osobowe w celu wykonania umowy i wypełnienia obowiązków prawnych ciążących na banku.\n\nXI. PODSTAWY PRAWNE:\n- Art. 95-109 ustawy z dnia 23 kwietnia 1964 r. — Kodeks cywilny (tekst jedn.: Dz.U. 2024 poz. 1061),\n- Art. 56 ustawy z dnia 29 sierpnia 1997 r. — Prawo bankowe (tekst jedn.: Dz.U. 2023 poz. 2488 ze zm.).\n\nXII. OŚWIADCZENIA STRON:\nMocodawca oświadcza, że zapoznał się z wymogami banku dotyczącymi rejestracji pełnomocnictwa i zobowiązuje się niezwłocznie złożyć niniejsze pełnomocnictwo w placówce banku.\n\nPełnomocnik oświadcza, że zapoznał się z zakresem udzielonego pełnomocnictwa i zobowiązuje się do działania wyłącznie w granicach udzielonego umocowania, z należytą starannością i w interesie Mocodawcy.\n\nXIII. PODPISY:\n\n___________________________\n(Mocodawca)\n\n___________________________\n(Pełnomocnik)\n\n\nUZWIENIENIA DLA BANKU:\n1. Niniejsze pełnomocnictwo podlega rejestracji w systemie bankowym.\n2. Pełnomocnik zobowiązany jest do okazania dokumentu tożsamości przy każdej operacji bankowej.\n3. Bank zastrzega prawo do weryfikacji podpisu Mocodawcy i wymogu dodatkowego potwierdzenia tożsamości.\n4. W przypadku wątpliwości co do ważności pełnomocnictwa, bank może wstrzymać realizację dyspozycji do czasu wyjaśnienia sprawy.\n\n\n* Dokument sporządzono w dwóch jednobrzmiących egzemplarzach — po jednym dla Mocodawcy i Pełnomocnika. Oryginał przekazany do banku.*",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "PEŁNOMOCNICTWO DO RACHUNKU BANKOWEGO\n(Dysponowanie środkami)\n\nMiejscowość, data: ________________________\n\nI. MOCODAWCA:\nImię i nazwisko: ________________________\nPESEL: ________________________\nAdres zamieszkania: ________________________\nSeria i numer dowodu osobistego: ________________________\n\nII. PEŁNOMOCNIK:\nImię i nazwisko: ________________________\nPESEL: ________________________\nAdres zamieszkania: ________________________\nSeria i numer dowodu osobistego: ________________________\n\nIII. RACHUNEK BANKOWY:\nNazwa banku: ________________________\nNumer rachunku (IBAN): ________________________\nRodzaj rachunku: ________________________\n\nIV. ZAKRES UPRAWNIEŃ:\nMocodawca udziela Pełnomocniku pełnomocnictwa do rachunku bankowego, obejmującego umocowanie do następujących czynności:\n\n1. Czynności zwykłego zarządu (na podstawie art. 98 Kodeksu cywilnego):\n   - dokonywania wpłat na rachunek,\n   - dokonywania wypłat gotówki z rachunku,\n   - wykonywania przelewów na rzecz osób trzecich,\n   - zlecenia przelewów stałych i zleceń zapłaty,\n   - podglądu stanu rachunku i historii operacji,\n   - zgłaszania zleceń blokad i odblokowań kart płatniczych.\n\n2. Czynności przekraczające zakres zwykłego zarządu (na podstawie art. 98 w zw. z art. 99 § 1 Kodeksu cywilnego — wymagające wyraźnego wskazania):\n   - zawierania umów lokat terminowych i ich rozwiązywania,\n   - zaciągania debetów w rachunku (kredyt w rachunku),\n   - zawierania umów kredytu i pożyczki,\n   - udzielania zgód do wypowiedzenia umów bankowych,\n   - dokonywania czynności zabezpieczających wierzytelności.\n\nPełnomocnictwo obejmuje wszelkie czynności prawne i faktyczne niezbędne do realizacji powyższych uprawnień, w granicach obowiązujących przepisów prawa i regulaminu banku.\n\nV. FORMA PEŁNOMOCNICTWA:\nNiniejsze pełnomocnictwo zostało sporządzone na piśmie, zgodnie z wymogiem art. 99 § 2 Kodeksu cywilnego, pod rygorem nieważności. W przypadku czynności wymagających szczególnej formy, pełnomocnictwo udzielone zostało w tej samej formie, zgodnie z art. 99 § 1 Kodeksu cywilnego.\n\nVI. CZAS OBIOWIĄZYWANIA:\nPełnomocnictwo jest udzielone na czas nieokreślony (do odwołania) / do dnia: ________________________ (niepotrzebne skreślić).\n\nVII. ODWOWANIE PEŁNOMOCNICTWA:\nMocodawca zastrzega sobie prawo odwołania pełnomocnictwa w każdym czasie, zgodnie z art. 101 § 1 Kodeksu cywilnego, poprzez złożenie pisemnego oświadczenia w banku lub doręczenie pisemnego odwołania Pełnomocnikowi i bankowi. Odwołanie pełnomocnictwa następuje z chwilą jego doręczenia bankowi.\n\nVIII. WYGAŚNIĘCIE PEŁNOMOCNICTWA:\nPełnomocnictwo wygasa z chwilą śmierci Mocodawcy lub Pełnomocnika, chyba że z przyczyn uzasadnionych treścią stosunku prawnego będącego podstawą pełnomocnictwa postanowiono inaczej, zgodnie z art. 101 § 2 Kodeksu cywilnego. Strony nie postanawiają o dalszym obowiązywaniu pełnomocnictwa po śmierci Mocodawcy. Pełnomocnictwo nie stanowi dyspozycji na wypadek śmierci w rozumieniu art. 56 ust. 1 ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe.\n\nIX. KLZUULA NIESUBSTYTUCJI:\nPełnomocnik nie jest uprawniony do udzielania dalszych pełnomocnictw (substytucji) w rozumieniu art. 95¹ Kodeksu cywilnego, chyba że niniejsze pełnomocnictwo wyraźnie upoważnia Pełnomocnika do działania przez osoby trzecie.\n\nX. OCHRONA DANYCH OSOBOWYCH:\nMocodawca i Pełnomocnik wyrażają zgodę na przetwarzanie ich danych osobowych przez bank w celu realizacji niniejszego pełnomocnictwa, zgodnie z rozporządzeniem (UE) 2016/679 (RODO) oraz przepisami Prawa bankowego. Bank przetwarza dane osobowe w celu wykonania umowy i wypełnienia obowiązków prawnych ciążących na banku.\n\nXI. PODSTAWY PRAWNE:\n- Art. 95-109 ustawy z dnia 23 kwietnia 1964 r. — Kodeks cywilny (tekst jedn.: Dz.U. 2024 poz. 1061),\n- Art. 56 ustawy z dnia 29 sierpnia 1997 r. — Prawo bankowe (tekst jedn.: Dz.U. 2023 poz. 2488 ze zm.).\n\nXII. OŚWIADCZENIA STRON:\nMocodawca oświadcza, że zapoznał się z wymogami banku dotyczącymi rejestracji pełnomocnictwa i zobowiązuje się niezwłocznie złożyć niniejsze pełnomocnictwo w placówce banku.\n\nPełnomocnik oświadcza, że zapoznał się z zakresem udzielonego pełnomocnictwa i zobowiązuje się do działania wyłącznie w granicach udzielonego umocowania, z należytą starannością i w interesie Mocodawcy.\n\nXIII. PODPISY:\n\n___________________________\n(Mocodawca)\n\n___________________________\n(Pełnomocnik)\n\n\nUZWIENIENIA DLA BANKU:\n1. Niniejsze pełnomocnictwo podlega rejestracji w systemie bankowym.\n2. Pełnomocnik zobowiązany jest do okazania dokumentu tożsamości przy każdej operacji bankowej.\n3. Bank zastrzega prawo do weryfikacji podpisu Mocodawcy i wymogu dodatkowego potwierdzenia tożsamości.\n4. W przypadku wątpliwości co do ważności pełnomocnictwa, bank może wstrzymać realizację dyspozycji do czasu wyjaśnienia sprawy.\n\n\n* Dokument sporządzono w dwóch jednobrzmiących egzemplarzach — po jednym dla Mocodawcy i Pełnomocnika. Oryginał przekazany do banku.*",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Wyjeżdżam na dłuższy czas za granicę i nie będę miał możliwości samodzielnie zarządzać swoim kontem bankowym. Potrzebuję, żeby ktoś bliski mógł wypłacać z niego pieniądze i wykonywać przelewy za mnie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę udzielić pełnomocnictwa mojemu synowi do mojego konta bankowego, żeby mógł załatwiać w banku wszystkie potrzebne sprawy. Ma mieć możliwość sprawdzania stanu konta, robienia przelewów i wypłacania gotówki, ale też otwierania lokat terminowych czy zaciągania kredytu, jeśli zajdzie taka potrzeba. Pełnomocnictwo ma obowiązywać do czasu, aż je sam odwołam, i nie chcę, żeby on mógł przekazać te uprawnienia dalej innej osobie. Zależy mi też na tym, żeby bank mógł przetwarzać nasze dane osobowe w związku z tym pełnomocnictwem."
+  }
+ ]
+}

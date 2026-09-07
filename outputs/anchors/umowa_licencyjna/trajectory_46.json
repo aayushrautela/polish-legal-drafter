@@ -1,0 +1,312 @@
+{
+ "run": 47,
+ "hint": "Umowa licencyjna z prawem do badań i rozwoju (R&D) na utworze",
+ "scenario": "Umowa licencyjna z prawem do badań i rozwoju (R&D) na utworze",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_licencyjna'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a licensing agreement (umowa_licencyjna) that includes R&D rights (prawo do badań i rozwoju) on the work. Let me start by reading the base template, then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-159abd78-81b3-49c5-92f6-c582de113f51",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_licencyjna\", \"query\": \"licencja z prawem do badań i rozwoju R&D\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_licencyjna\", \"kind\": \"structural_template\", \"text\": \"# Umowa o prace badawczo-rozwojowe (R&D)\\nUmowa o prace badawczo-rozwojowe (R&D) w Polsce to umowa, na mocy której wykonawca — jednostka naukowa, instytut badawczy, spółka technologiczna lub niezależny badacz — zobowiązuje się przeprowadzić prace badawcze lub badawczo-rozwojowe na rzecz zamawiającego (przedsiębiorcy lub instytucji finansującej), a zamawiający zobowiązuje się do zapłaty wynagrodzenia i odbioru wyników. Podstawą prawną jest art. 627 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) dotyczący umowy o dzieło, w połączeniu z art. 353¹ KC (swoboda umów) i przepisami ustaw szczegółowych — ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (pr. aut.) oraz ustawy z dnia 30 czerwca 2000 r. — Prawo własności przemysłowej (p.w.p.).\\n\\nPrace badawczo-rozwojowe definiowane są w polskim prawie jako prace twórcze obejmujące badania naukowe lub prace rozwojowe, podejmowane w sposób systematyczny w celu zwiększenia zasobów wiedzy oraz znalezienia nowych zastosowań dla tej wiedzy — analogicznie do definicji z art. 4a pkt 26–28 ustawy z dnia 15 lutego 1992 r. o podatku dochodowym od osób prawnych (CIT), uwzględniającej regulacje OECD i Frascati Manual. Rozróżnia się: badania podstawowe (poszukiwanie nowej wiedzy bez określonego zastosowania), badania stosowane (praca na rzecz konkretnych zastosowań) i prace rozwojowe (tworzenie produktów, procesów lub usług na bazie wyników badań).\\n\\nNajistotniejszą kwestią prawną w umowach R&D jest własność intelektualnego wkładu — wyniki prac mogą stanowić: utwór w rozumieniu art. 1 pr. aut. (oprogramowanie, dokumentacja, raporty badawcze, modele matematyczne), wynalazek lub wzór użytkowy w rozumieniu p.w.p. (kwalifikowany do rejestracji w Urzędzie Patentowym RP, UPRP), know-how (niezarejestrowana tajna wiedza techniczna chroniona przez art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji) lub dane badawcze. Prawa do tych wyników nie przechodzą automatycznie na zamawiającego — konieczne jest wyraźne postanowienie umowne.\\n\\nSpecyfika polskiego rynku R&D wynika z istnienia wyspecjalizowanych instytucji finansujących: Narodowego Centrum Badań i Rozwoju (NCBR), Narodowego Centrum Nauki (NCN) oraz funduszy unijnych w ramach programu Horyzont Europa (HE). Projekty dofinansowane z tych źródeł podlegają specjalnym regułom co do własności IP, dostępu do wyników i publikacji. Umowa R&D powinna uwzględniać te ograniczenia, jeżeli finansowanie pochodzi ze środków publicznych.\\n\\nWzór umowy dostępny na forms-legal.com jest przeznaczony do relacji B2B — między przedsiębiorcą-zamawiającym a wykonawcą (firmą technologiczną, uczelnią lub instytutem badawczym). Obejmuje kluczowe elementy: precyzyjny opis zakresu prac i kamieni milowych, harmonogram, wynagrodzenie i model płatności, klauzulę o własności wyników i przeniesienia praw autorskich, zobowiązanie do złożenia wniosku patentowego w UPRP, klauzulę poufności i zakaz ujawniania tajemnicy przedsiębiorstwa.\\n\\nUmowa o prace badawczo-rozwojowe w Polsce jest niezbędna w każdej sytuacji, gdy przedsiębiorstwo zleca zewnętrznemu podmiotowi prowadzenie prac innowacyjnych, których wyniki mają wartość handlową.\\n\\nWspółpraca z uczelniami i instytutami badawczymi. Przedsiębiorcy wdrażający nowe technologie zlecają pracownikom naukowym Politechniki, AGH, Politechniki Śląskiej lub instytutów PAN przeprowadzenie badań stosowanych. Ustawa z dnia 20 lipca 2018 r. — Prawo o szkolnictwie wyższym i nauce reguluje zasady współpracy uczelni z przemysłem i własność wyników takiej współpracy. Umowa R&D precyzuje, które prawa należą do uczelni, a które do zamawiającego.\\n\\nRozwój oprogramowania i algorytmów AI. Firmy technologiczne zlecają wyspecjalizowanym laboratoriom lub naukowcom opracowanie modeli uczenia maszynowego, algorytmów optymalizacyjnych lub systemów przetwarzania danych. Wyniki prac są chronione zarówno prawem autorskim (kod źródłowy jako utwór z art. 1 pr. aut., szczególny reżim programów z art. 74–77² pr. aut.) jak i potencjalnie prawem patentowym (wynalazki dotyczące metod technicznych).\\n\\nPrace farmaceutyczne i biotechnologiczne. Przedsiębiorcy z branży Life Sciences zlecają instytutom farmaceutycznym i laboratoriom badania nad nowymi związkami chemicznymi lub metodami diagnostycznymi. Wyniki mogą być chronione patentami UPRP lub europejskim patentem (EPO). Umowa R&D musi precyzyjnie regulować własność IP i zasady ubiegania się o patenty.\\n\\nPrototypy urządzeń i wzory przemysłowe. Producenci przemysłowi zlecają inżynierom lub ośrodkom projektowym opracowanie prototypów nowych produktów. Umowa R&D precyzuje, że dokumentacja techniczna i pliki CAD/CAM stanowią wyniki prac i są objęte poufnością.\\n\\nProjekty dofinansowane z NCBR i Horyzontu Europa. Umowy R&D w projektach współfinansowanych ze środków publicznych muszą uwzględniać wymogi regulaminów NCBR, NCN i Komisji Europejskiej. Zasady dostępu do wyników (access rights) i ich upowszechniania są ściśle określone — naruszenie może skutkować koniecznością zwrotu dotacji.\\n\\nTransfer technologii ze startupu do korporacji. Startupy rozwijające innowacyjne technologie zawierają z korporacjami umowy R&D jako element due diligence przed akwizycją lub zawarciu umowy licencyjnej. Umowa precyzuje, jakie wyniki i know-how zostaną przekazane korporacji i na jakich zasadach.\\n\\nUmowa o prace badawczo-rozwojowe w Polsce powinna zawierać precyzyjnie sformułowane elementy, zapewniające ochronę własności intelektualnej i efektywne zarządzanie projektem.\\n\\nOznaczenie stron i kompetencje. Pełne dane Zamawiającego i Wykonawcy z KRS lub CEIDG. Ważne jest wskazanie kompetencji naukowych lub technicznych Wykonawcy potwierdzających jego zdolność do realizacji projektu. W przypadku uczelni — wskazanie konkretnej jednostki organizacyjnej (katedry, zakładu, instytutu) i osoby kierującej projektem.\\n\\nSzczegółowy opis zakresu prac. Precyzyjne określenie problemu badawczego, metodologii, zaplanowanych eksperymentów lub analiz, spodziewanych wyników i formy ich przekazania (raport, oprogramowanie, prototyp, dokumentacja patentowa). Im dokładniejszy opis, tym łatwiej ocenić, czy wyniki zostały osiągnięte, i rozliczyć wynagrodzenie. Brak precyzji prowadzi do sporów o to, czy \\\"wyniki\\\" zostały dostarczone.\\n\\nKamienie milowe i harmonogram. Podział prac na etapy z konkretną datą ich zakończenia i opisem deliverables (raport, demo, prototyp, kod źródłowy). Powiązanie płatności z osiągnięciem kamieni milowych motywuje Wykonawcę i chroni Zamawiającego przed płaceniem za brak wyników.\\n\\nWynagrodzenie i podatki. Kwota netto wynagrodzenia, harmonogram płatności, warunki wypłaty zaliczek i rozliczeń końcowych. Dla projektów dofinansowanych ze środków publicznych — wskazanie maksymalnej stawki grantowej i zasad rozliczania kosztów. Wynagrodzenie podlega VAT 23% (ustawa z dnia 11 marca 2004 r. o VAT), a podatkowe ulgi na B&D rozlicza Zamawiający (art. 18d ustawy CIT — odliczenie 100% lub 150% kosztów kwalifikowanych). forms-legal.com zaleca skonsultowanie struktury podatkowej z Krajową Administracją Skarbową (KAS).\\n\\nWłasność wyników i prawa do IP. Kluczowe postanowienie o tym, kto jest właścicielem wyników prac: prawa autorskie (art. 41 i 53 pr. aut. — forma pisemna dla przeniesienia), prawa do wynalazków (art. 11 i 97 p.w.p. — kto jest uprawniony do zgłoszenia w UPRP), know-how chronione przez art. 11 u.z.n.k. Jeżeli Wykonawcą jest uczelnia, zastosowanie mogą mieć przepisy ustawy — Prawo o szkolnictwie wyższym i nauce regulujące własność IP uczelni.\\n\\nPoufność. Zakaz ujawniania danych badawczych, metodologii i wyników osobom trzecim przez czas trwania umowy i po jej zakończeniu (minimum 5 lat). Klauzula powinna obejmować pracowników i współpracowników Wykonawcy zaangażowanych w projekt.\\n\\nOdpowiedzialność i kary. Kara umowna za zwłokę w dostarczeniu kamieni milowych (art. 483 KC). Odpowiedzialność Wykonawcy za jakość wyników (art. 471 KC). Ograniczenie odpowiedzialności Wykonawcy dla wyników badań podstawowych, gdzie niepowodzenie jest immanentną cechą procesu naukowego.\\n\\nUmowę o prace badawczo-rozwojowe w Polsce wypełnia się według następujących kroków, zapewniających precyzyjne uregulowanie zakresu, wynagrodzenia i własności IP.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane Zamawiającego i Wykonawcy z KRS lub CEIDG. Dla uczelni wyższych — nazwę uczelni, adres i dane prorektora ds. nauki lub osoby posiadającej pełnomocnictwo do zawierania umów R&D. Zweryfikuj reprezentację w KRS.\\n\\nKrok 2 — opisz zakres prac. Wpisz precyzyjny opis tematu badań i zakresu prac: co ma zostać zbadane, jaką metodologią, jakie eksperymenty zostaną przeprowadzone i jaką formę będą miały wyniki (raport, kod, prototyp, dokumentacja patentowa). Precyzyjny opis eliminuje spory o zakres wykonanego dzieła.\\n\\nKrok 3 — ustal kamienie milowe. Podziel projekt na etapy z datami zakończenia i opisem deliverables (co zostanie dostarczone po każdym etapie). Kamienie milowe powinny być weryfikowalne i mierzalne — \\\"gotowy prototyp spełniający parametry X\\\" jest lepsza niż \\\"przeprowadzone testy\\\".\\n\\nKrok 4 — określ wynagrodzenie. Wpisz łączną kwotę netto i wybierz model płatności. Zaliczkowe płatności powiązane z kamieniami milowymi są standardem w projektach R&D i chronią Zamawiającego przed ryzykiem niewykonania. Uwzględnij VAT 23% i zasady wystawiania faktur.\\n\\nKrok 5 — ureguluj własność IP. To najważniejsza decyzja w umowie R&D. Zdecyduj, czy wyniki prac przechodzą w całości na Zamawiającego (najczęstsza opcja w projektach przemysłowych), czy są wspólne, czy Wykonawca zachowuje prawa i udziela licencji. Dla opcji \\\"przeniesienie praw\\\" — wskaż wyraźnie pola eksploatacji i moment przejścia praw (art. 64 pr. aut.).\\n\\nKrok 6 — dodaj klauzulę poufności. Wpisz okres obowiązywania klauzuli poufności po zakończeniu projektu — dla strategicznych projektów R&D zaleca się minimum 5 lat. Upewnij się, że klauzula obejmuje wszystkich pracowników i podwykonawców Wykonawcy.\\n\\nKrok 7 — podpisz umowę. Umowa przenosząca autorskie prawa majątkowe wymaga formy pisemnej pod rygorem nieważności (art. 53 pr. aut.). Wydrukuj dwa egzemplarze i podpisz własnoręcznie lub z kwalifikowanym podpisem elektronicznym.\\n\\nUmowy o prace badawczo-rozwojowe w Polsce podlegają kilku reżimom prawnym, wymagającym uwagi przy ich sporządzaniu.\\n\\nWłasność wyników na uczelni. Ustawa z dnia 20 lipca 2018 r. — Prawo o szkolnictwie wyższym i nauce stanowi, że uczelnia może przenieść lub licencjonować prawa do wyników badań komercyjnych na partnerów przemysłowych, ale wymaga to decyzji właściwego organu uczelni (zazwyczaj prorektora ds. nauki lub zarządu spółki celowej). Naruszenie przepisów uczelni może skutkować nieważnością umowy.\\n\\nUlgi podatkowe B+R. Zamawiający będący podatnikiem CIT może odliczyć od podstawy opodatkowania 100% kosztów kwalifikowanych (przedsiębiorcy niebędący centrem badawczym) lub 150% (certyfikowane centrum badawcze, CBR) poniesionych na działalność badawczo-rozwojową (art. 18d ustawy CIT). Prawidłowo zawarta umowa R&D z dokumentacją wydatków jest podstawą ulgi. Krajowa Administracja Skarbowa (KAS) weryfikuje kwalifikowalność kosztów.\\n\\nForma przeniesienia praw autorskich. Przeniesienie praw autorskich do wyników prac wymaga formy pisemnej pod rygorem nieważności (art. 53 pr. aut.). Brak pisemnego postanowienia o przeniesieniu praw oznacza, że prawa pozostają przy Wykonawcy (twórcy), nawet jeżeli Zamawiający zapłacił wynagrodzenie za stworzenie dzieła.\\n\\nZgłoszenie patentowe w UPRP. Jeżeli wyniki prac mogą stanowić wynalazek, strony powinny uzgodnić termin złożenia wniosku patentowego w UPRP lub przez EPO. Zwlekanie z wnioskiem narazi wynalazek na utratę nowości (art. 25 p.w.p.) wskutek publikacji wyników lub korzystania z wynalazku publicznie przez ponad 6 miesięcy przed datą zgłoszenia.\\n\\nUmowy o prace badawczo-rozwojowe w Polsce są często sporządzane z błędami skutkującymi utratą praw do wyników lub nieefektywnym zarządzaniem projektem.\\n\\nBrak pisemnego przeniesienia praw autorskich. Zamawiający, który nie zawarł wyraźnego postanowienia o przeniesieniu autorskich praw majątkowych do wyników prac na piśmie, nie nabywa tych praw — nawet jeżeli zapłacił pełne wynagrodzenie. Art. 53 pr. aut. wymaga formy pisemnej pod rygorem nieważności. Sąd Okręgowy nie zasądzi transferu praw bez pisemnej umowy.\\n\\nNiedookreślone kamienie milowe. Kamienie milowe opisane zbyt ogólnie (np. \\\"przeprowadzenie badań w pierwszym kwartale\\\") nie pozwalają jednoznacznie ocenić, czy etap został zakończony, i utrudniają rozliczenie płatności. Precyzyjne deliverables z kryteriami akceptacji chronią Zamawiającego przed płaceniem za niezadowalające wyniki.\\n\\nBrak klauzuli o wynalazkach pracowniczych. Wynalazek dokonany przez pracownika Wykonawcy w ramach prac R&D należy do pracodawcy–Wykonawcy (art. 11 p.w.p.), a nie automatycznie do Zamawiającego. Umowa musi wyraźnie przenosić prawo do ubiegania się o patent na Zamawiającego, aby ten mógł chronić wyniki w UPRP.\\n\\nPominięcie zasad projektów dofinansowanych ze środków UE. Projekty finansowane przez NCBR lub w ramach Horyzontu Europa mają obowiązkowe zasady dotyczące własności IP, dostępu do wyników i publikacji naukowych (open access). Naruszenie tych zasad przez niezgodne z regulaminem postanowienia umowne może skutkować żądaniem zwrotu dotacji przez Komisję Europejską lub NCBR.\\n\\nBrak ograniczenia odpowiedzialności przy badaniach podstawowych. Wyniki badań naukowych nie są gwarantowane — Wykonawca może nie osiągnąć zamierzonego celu mimo dołożenia należytej staranności (art. 355 KC). Bez klauzuli ograniczającej odpowiedzialność Wykonawcy do strat wynikłych z rażącego niedbalstwa Zamawiający może żądać zwrotu pełnego wynagrodzenia, co zniechęca jednostki naukowe do podejmowania ambitnych projektów.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-prace-badawczo-rozwojowe (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-159abd78-81b3-49c5-92f6-c582de113f51",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The template returned is for \"Umowa o prace badawczo-rozwojowe (R&D)\" - an R&D services agreement, not a licensing agreement with R&D rights. I need to search for licensing agreements that include R&D rights or research/development provisions. Let me search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-600ecd04-ec26-4d1e-a74b-bd78f42f5c4b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"licencja z prawem do badań i rozwoju R&D na utworze licencja badawcza\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_66\", \"source_id\": \"sejm_eli_du_2025_24_art_66\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 66. 1.29) Umowa licencyjna uprawnia do korzystania z utworu w okresie pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę albo miejsce zamieszkania, chyba że w umowie postanowiono inaczej. 2. Po upływie terminu, o którym mowa w ust. 1, prawo uzyskane na podstawie umowy licencyjnej wygasa.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_57\", \"source_id\": \"sejm_eli_du_2025_24_art_57\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 57. 28) 1. Jeżeli nabywca autorskich praw majątkowych lub licencjobiorca, któremu udzielono licencji wyłącznej, o której mowa w art. 67 ust. 2, zobowiązany do rozpowszechnienia utworu nie przystąpi do jego rozpowszechnienia w uzgodnionym terminie, twórca może wyznaczyć mu dodatkowy termin na rozpowszechnienie utworu, nie krótszy niż sześć miesięcy, z zastrzeżeniem że w razie bezskutecznego upł ywu tego terminu będzie uprawniony do odstąpienia od umowy lub jej wypowiedzenia. 2. Niezależnie od terminu uzgodnionego w umow ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_471\", \"source_id\": \"sejm_eli_du_2025_24_art_471\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 471. 27) 1. Twórca ma prawo do regularnego otrzymywania od osoby, na którą przeniósł autorskie prawa majątkowe, lub od osoby, której udzielił licencji, aktualnej informacji o przychodach z korzystania ze swojego utworu oraz o wynagrodzeniu należnym w związku z tym korzystaniem, odrębnie dla każdego ze sposobów korzystania. Informacja może być wykorzystana przez twórcę wyłącznie w celu ustalenia wartości majątkowej praw przeniesionych albo stanowiących przedmiot licencji. 2. Informacja, o której mowa w ust. 1, jest prze ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_262\", \"source_id\": \"sejm_eli_du_2025_24_art_262\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 262. 15) 1. Instytucje dziedzictwa kulturowego, a także podmioty, o których mowa w art. 7 ust. 1 pkt 1, 2 i 4–8 ustawy z dnia 20 lipca 2018 r. – Prawo o szkolnictwie wyższym i nauce, mogą zwielokrotniać utwory w celu eksploracji tekstów i danych do celów badań naukowych, jeżeli czynności te nie są dokonywane w celu osiągnięcia bezpośredniej lub pośredniej korzyści majątkowej. 2. Utwory zwielokrotnione zgodnie z ust. 1 mogą być przechowywane do celów badań naukowych, w tym weryfikacji wyników tych badań. Przechowywanie  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_28\", \"source_id\": \"sejm_eli_du_2025_24_art_28\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 28. 1.17) Instytucje oświatowe, uczelnie, federacje pod miotów systemu szkolnictwa wyższego i nauki, instytuty badawcze prowadzące działalność, o której mowa w art. 2 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o instytutach badawczych (Dz. U. z 2024 r. poz. 534), instytuty naukowe Polskiej Akademii Nauk prowadząc e działalność, o której mowa w art. 50 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o Polskiej Akademii Nauk (Dz. U. z 2020 r. poz. 1796), Centrum Łukasiewicz i instytuty Sieci Badawczej Łukasiewicz prowadzące dział ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_43\", \"source_id\": \"sejm_eli_du_2025_24_art_43\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 43. 1. Jeżeli z umowy nie wynika, że przeniesienie autorskich praw majątkowych lub udzielenie licencji nastąpiło nieodpłatnie, twórcy przysługuje prawo do wynagrodzenia. 2.23) Wynagrodzenie musi być godziwe i odpowiednie do zakresu udzielonego prawa, charakteru i zakresu korzystania oraz korzyści wynikających z korzystania z utworu. 3.24) Domniemywa się, że wynagrodzenie proporcjonalne do przychodów z korzystania z utworu spełnia wymogi, o których mowa w ust. 2. 22) W brzmieniu ustalonym przez art. 1 pkt 13 ustawy, o k ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_14\", \"source_id\": \"sejm_eli_du_2025_24_art_14\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 14. 1. Jeżeli w umowie o pracę nie postanowiono inaczej, instytucji naukowej przysługuje pierwszeństwo opublikowania utworu naukowego pracownika, który stworzył ten utwór w wyniku wykonywania obowiązków ze stosunku pracy. Twórcy przysługuje prawo do wynagrodzenia. Pierwszeństwo opublikowania wygasa, jeżeli w ciągu sześciu miesięcy od dostarczenia utworu nie zawarto z twórcą umowy o wydanie utworu albo jeżeli w okresie dwóch lat od daty jego przyjęcia utwór nie został opublikowany. 2. Instytucja naukowa może, bez odrębn ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_17\", \"source_id\": \"sejm_eli_du_2025_24_art_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 17. Jeżeli ustawa nie stanowi inaczej, twórcy przysługuje wyłączne prawo do korzystania z utworu i rozporządzania nim na wszystkich polach eksploatacji oraz do wynagrodzenia za korzystanie z utworu.\"}]",
+   "tool_call_id": "call-600ecd04-ec26-4d1e-a74b-bd78f42f5c4b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_98b9ed13d1164fb2be9bf644",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"licencja badawcza\", \"badania i rozwój\", \"R&D\", \"pole eksploatacji badania\"], \"top_k\": 10}"
+     }
+    },
+    {
+     "id": "call_bbd8c48ff68b4153a791f586",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"licencja na utwór z prawem do prowadzenia badań naukowych i prac rozwojowych\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_98b9ed13d1164fb2be9bf644",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_262\", \"source_id\": \"sejm_eli_du_2025_24_art_262\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 262. 15) 1. Instytucje dziedzictwa kulturowego, a także podmioty, o których mowa w art. 7 ust. 1 pkt 1, 2 i 4–8 ustawy z dnia 20 lipca 2018 r. – Prawo o szkolnictwie wyższym i nauce, mogą zwielokrotniać utwory w celu eksploracji tekstów i danych do celów badań naukowych, jeżeli czynności te nie są dokonywane w celu osiągnięcia bezpośredniej lub pośredniej korzyści majątkowej. 2. Utwory zwielokrotnione zgodnie z ust. 1 mogą być przechowywane do celów badań naukowych, w tym weryfikacji wyników tych badań. Przechowywanie  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_66\", \"source_id\": \"sejm_eli_du_2025_24_art_66\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 66. 1.29) Umowa licencyjna uprawnia do korzystania z utworu w okresie pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę albo miejsce zamieszkania, chyba że w umowie postanowiono inaczej. 2. Po upływie terminu, o którym mowa w ust. 1, prawo uzyskane na podstawie umowy licencyjnej wygasa.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_57\", \"source_id\": \"sejm_eli_du_2025_24_art_57\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 57. 28) 1. Jeżeli nabywca autorskich praw majątkowych lub licencjobiorca, któremu udzielono licencji wyłącznej, o której mowa w art. 67 ust. 2, zobowiązany do rozpowszechnienia utworu nie przystąpi do jego rozpowszechnienia w uzgodnionym terminie, twórca może wyznaczyć mu dodatkowy termin na rozpowszechnienie utworu, nie krótszy niż sześć miesięcy, z zastrzeżeniem że w razie bezskutecznego upł ywu tego terminu będzie uprawniony do odstąpienia od umowy lub jej wypowiedzenia. 2. Niezależnie od terminu uzgodnionego w umow ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_14\", \"source_id\": \"sejm_eli_du_2025_24_art_14\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 14. 1. Jeżeli w umowie o pracę nie postanowiono inaczej, instytucji naukowej przysługuje pierwszeństwo opublikowania utworu naukowego pracownika, który stworzył ten utwór w wyniku wykonywania obowiązków ze stosunku pracy. Twórcy przysługuje prawo do wynagrodzenia. Pierwszeństwo opublikowania wygasa, jeżeli w ciągu sześciu miesięcy od dostarczenia utworu nie zawarto z twórcą umowy o wydanie utworu albo jeżeli w okresie dwóch lat od daty jego przyjęcia utwór nie został opublikowany. 2. Instytucja naukowa może, bez odrębn ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_471\", \"source_id\": \"sejm_eli_du_2025_24_art_471\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 471. 27) 1. Twórca ma prawo do regularnego otrzymywania od osoby, na którą przeniósł autorskie prawa majątkowe, lub od osoby, której udzielił licencji, aktualnej informacji o przychodach z korzystania ze swojego utworu oraz o wynagrodzeniu należnym w związku z tym korzystaniem, odrębnie dla każdego ze sposobów korzystania. Informacja może być wykorzystana przez twórcę wyłącznie w celu ustalenia wartości majątkowej praw przeniesionych albo stanowiących przedmiot licencji. 2. Informacja, o której mowa w ust. 1, jest prze ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_355\", \"source_id\": \"sejm_eli_du_2025_24_art_355\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 355. 1. Utworami osieroconymi są: 1) utwory opublikowane w książkach, dziennikach, czasopismach lub innych formach publikacji drukiem, 2) utwory audiowizualne, a także utwory zamówione lub włączone do utworów audiowizualnych lub utrwalone na wideo- gramach, w zakresie korzystania z utworu audiowizualnego lub wideogramu jako całości, 3) utwory utrwalone na fonogramach – znajdujące się w zbiorach podmiotów, o których mowa w ust. 2, jeżeli uprawnieni, którym przysługują autorskie prawa majątkowe do tych utworów w zakresie ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_28\", \"source_id\": \"sejm_eli_du_2025_24_art_28\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 28. 1.17) Instytucje oświatowe, uczelnie, federacje pod miotów systemu szkolnictwa wyższego i nauki, instytuty badawcze prowadzące działalność, o której mowa w art. 2 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o instytutach badawczych (Dz. U. z 2024 r. poz. 534), instytuty naukowe Polskiej Akademii Nauk prowadząc e działalność, o której mowa w art. 50 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o Polskiej Akademii Nauk (Dz. U. z 2020 r. poz. 1796), Centrum Łukasiewicz i instytuty Sieci Badawczej Łukasiewicz prowadzące dział ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_214\", \"source_id\": \"sejm_eli_du_2025_24_art_214\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 214. 13) Twórcy utworu literackiego, publicystycznego, naukowego, muzycznego lub słowno-muzycznego, w tym twórcy opracowania takiego utworu, są uprawnieni do stosownego wyna grodzenia z tytułu publicznego udostępniania utworu w taki sposób, aby każdy mógł mieć do niego dostęp w miejscu i czasie przez siebie wybranym.\"}]",
+   "tool_call_id": "call_bbd8c48ff68b4153a791f586",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_e9c6500232cd4533b6202cb4",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2025_24_art_41\", \"sejm_eli_du_2025_24_art_67\", \"sejm_eli_du_2025_24_art_262\", \"sejm_eli_du_2025_24_art_28\"]}"
+     }
+    },
+    {
+     "id": "call_afa44babcc824b539c93c881",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"licencja na utwór z prawem do modyfikacji adaptacji tworzenia utworów zależnych na potrzeby badań\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_41\", \"source_id\": \"sejm_eli_du_2025_24_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 41. 1. Jeżeli ustawa nie stanowi inaczej: 1) autorskie prawa majątkowe mogą przejść na inne osoby w drodze dziedziczenia lub na podstawie umowy; 2) nabywca autorskich praw majątkowych może przenieść je na inne osoby, chyba że umowa stanowi inaczej. 2.22) Umowa o przeniesienie autorskich praw majątkowych lub licencja obejmują pola eksploat acji wyraźnie w nich wymienione. 3. Nieważna jest umowa w części dotyczącej wszystkich utworów lub wszystkich utworów określonego rodzaju tego samego twórcy mających powstać w przyszłości. 4. Umowa może dotyczyć tylko pól eksploatacji, które są znane w chwili jej zawarcia. 5. Twórca utworu wykorzystanego lub włączonego do utworu audiowizualnego oraz utworu wchodzącego w skład utworu zbiorowego, po powstaniu nowych sposobów eksploatacji utworów, nie może bez ważnego powodu odmówić udzielenia zezwolenia na korzystanie z tego utworu w ramach utworu audiowizualnego lub utworu zbiorowego na polach eksploatacji nieznanych w chwili zawarcia umowy.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzystania z utworu w zakresie uzyskanej licencji. 4. Jeżeli umowa nie stanowi inaczej, uprawniony z licencji wyłącznej może dochodzić roszczeń z tytułu naruszenia autorskich praw majątkowych, w zakresie objętym umową licencyjną. 5. Umowa licencyjna wyłączna wymaga zachowania formy pisemnej pod rygorem nieważności.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_262\", \"source_id\": \"sejm_eli_du_2025_24_art_262\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 262. 15) 1. Instytucje dziedzictwa kulturowego, a także podmioty, o których mowa w art. 7 ust. 1 pkt 1, 2 i 4–8 ustawy z dnia 20 lipca 2018 r. – Prawo o szkolnictwie wyższym i nauce, mogą zwielokrotniać utwory w celu eksploracji tekstów i danych do celów badań naukowych, jeżeli czynności te nie są dokonywane w celu osiągnięcia bezpośredniej lub pośredniej korzyści majątkowej. 2. Utwory zwielokrotnione zgodnie z ust. 1 mogą być przechowywane do celów badań naukowych, w tym weryfikacji wyników tych badań. Przechowywanie utworów odbywa się z zachowaniem poziomu bezpieczeństwa zapewniającego dostęp do tych utworów wyłącznie upoważnionym osobom, z uwzględnieniem procedur uwierzytelniających. 3. Uprawniony, w celu zapewnienia bezpieczeństwa i integralności sieci i baz danych, w których utwory są przechowywane, może stosować wyłącznie środki niezbędne do osiągnięcia tego celu.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_28\", \"source_id\": \"sejm_eli_du_2025_24_art_28\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 28. 1.17) Instytucje oświatowe, uczelnie, federacje pod miotów systemu szkolnictwa wyższego i nauki, instytuty badawcze prowadzące działalność, o której mowa w art. 2 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o instytutach badawczych (Dz. U. z 2024 r. poz. 534), instytuty naukowe Polskiej Akademii Nauk prowadząc e działalność, o której mowa w art. 50 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o Polskiej Akademii Nauk (Dz. U. z 2020 r. poz. 1796), Centrum Łukasiewicz i instytuty Sieci Badawczej Łukasiewicz prowadzące działalność, o której mowa w art. 4 pkt 6 ustawy z dnia 21 lutego 2019 r. o Sieci Badawczej Łukasiewicz (Dz. U. z 2024 r. poz. 925 i 1089), oraz instytucje dziedzictwa kulturowego mogą: 1) użyczać, w zakresie swoich zadań statutowych, egzemplarze utworów rozpowszechnionych, 2) zwielokrotniać utwory znajdujące się na stałe we własnych zbiorach, niezależnie od formatu lub nośnika, w celu uzupełnienia, zachowania lub ochrony tych zbiorów, 3) udostępniać zbiory dla celów badawczych lub poznawczych za pośrednictwem końcówek systemu informatycznego (terminali) znajdujących się na terenie tych jednostek – jeżeli czynności te nie są dokonywane w celu osiągnięcia bezpośredniej lub pośredniej korzyści majątkowej. 2. Zwielokrotnianie, o którym mowa w ust. 1 pkt 2, nie może prowadzić do zwiększenia liczby egzemplarzy utworów i powiększenia zbiorów, odpowiednio użyczanych i udostępnianych na podstawie ust. 1 pkt 1 i 3. 3. Przepisu ust. 1 pkt 3 nie stosuje się, jeżeli udostępnianie w określony w nim sposób odbywa się na podstawie uprzednio zawartej umowy z uprawnionym. 4. Z tytułu użyczania egzemplarzy utworów wyrażonych słowem, powstałych lub opublikowanych w języku polskim w formie drukowanej, przez biblioteki publiczne w rozumieniu ustawy z dnia 27 czerwca 1997 r. o bibliotekach (Dz. U. z 2022 r. poz. 2393), zwane dalej „bibliotekami publicznymi”, przysługuje wynagrodzenie określane i wypłacane na zasadach określonych w oddziale 4. 5. Wynagrodzenie, o którym mowa w ust. 4, przysługuje po spełnieniu warunku, o którym mowa w art. 352 ust. 1: 1) twórcy utworu wyrażonego słowem, powstałego i opublikowanego w języku polskim; 2) tłumaczowi na język polski utworu wyrażonego słowem, powstałego w języku obcym i opublikowanego w języku polskim; 3) współtwórcy utworu, o którym mowa w pkt 1, którego wkład jest utworem plastycznym lub fotograficznym; 4) wydawcy utworu wyrażonego słowem i opublikowanego w języku polskim. 6. Wynagrodzenie, o którym mowa w ust. 4, nie przysługuje za użyczenie egzemplarza utworu w celu korzystania z niego wyłącznie na terenie biblioteki publicznej. 7. Przepisu ust. 4 nie stosuje się do użyczania egzemplarzy przez Bibliotekę Narodową.\"}]",
+   "tool_call_id": "call_e9c6500232cd4533b6202cb4",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_262\", \"source_id\": \"sejm_eli_du_2025_24_art_262\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 262. 15) 1. Instytucje dziedzictwa kulturowego, a także podmioty, o których mowa w art. 7 ust. 1 pkt 1, 2 i 4–8 ustawy z dnia 20 lipca 2018 r. – Prawo o szkolnictwie wyższym i nauce, mogą zwielokrotniać utwory w celu eksploracji tekstów i danych do celów badań naukowych, jeżeli czynności te nie są dokonywane w celu osiągnięcia bezpośredniej lub pośredniej korzyści majątkowej. 2. Utwory zwielokrotnione zgodnie z ust. 1 mogą być przechowywane do celów badań naukowych, w tym weryfikacji wyników tych badań. Przechowywanie  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_471\", \"source_id\": \"sejm_eli_du_2025_24_art_471\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 471. 27) 1. Twórca ma prawo do regularnego otrzymywania od osoby, na którą przeniósł autorskie prawa majątkowe, lub od osoby, której udzielił licencji, aktualnej informacji o przychodach z korzystania ze swojego utworu oraz o wynagrodzeniu należnym w związku z tym korzystaniem, odrębnie dla każdego ze sposobów korzystania. Informacja może być wykorzystana przez twórcę wyłącznie w celu ustalenia wartości majątkowej praw przeniesionych albo stanowiących przedmiot licencji. 2. Informacja, o której mowa w ust. 1, jest prze ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_28\", \"source_id\": \"sejm_eli_du_2025_24_art_28\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 28. 1.17) Instytucje oświatowe, uczelnie, federacje pod miotów systemu szkolnictwa wyższego i nauki, instytuty badawcze prowadzące działalność, o której mowa w art. 2 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o instytutach badawczych (Dz. U. z 2024 r. poz. 534), instytuty naukowe Polskiej Akademii Nauk prowadząc e działalność, o której mowa w art. 50 ust. 3 ustawy z dnia 30 kwietnia 2010 r. o Polskiej Akademii Nauk (Dz. U. z 2020 r. poz. 1796), Centrum Łukasiewicz i instytuty Sieci Badawczej Łukasiewicz prowadzące dział ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_57\", \"source_id\": \"sejm_eli_du_2025_24_art_57\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 57. 28) 1. Jeżeli nabywca autorskich praw majątkowych lub licencjobiorca, któremu udzielono licencji wyłącznej, o której mowa w art. 67 ust. 2, zobowiązany do rozpowszechnienia utworu nie przystąpi do jego rozpowszechnienia w uzgodnionym terminie, twórca może wyznaczyć mu dodatkowy termin na rozpowszechnienie utworu, nie krótszy niż sześć miesięcy, z zastrzeżeniem że w razie bezskutecznego upł ywu tego terminu będzie uprawniony do odstąpienia od umowy lub jej wypowiedzenia. 2. Niezależnie od terminu uzgodnionego w umow ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_2\", \"source_id\": \"sejm_eli_du_2025_24_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 2. 1. Opracowanie cudzego utworu, w szczególności tłumaczenie, przeróbka, adaptacja, jest przedmiotem prawa autorskiego bez uszczerbku dla prawa do utworu pierwotnego. 2. Rozporządzanie i korzystanie z opracowania zależy od z ezwolenia twórcy utworu pierwotnego (prawo zależne), chyba że autorskie prawa majątkowe do utworu pierwotnego wygasły. W przypadku baz danych spełniających cechy utworu zezwolenie twórcy jest konieczne także na sporządzenie opracowania. 3. Twórca utworu pierwotnego może cofnąć zezwolenie, jeżeli w ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_355\", \"source_id\": \"sejm_eli_du_2025_24_art_355\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 355. 1. Utworami osieroconymi są: 1) utwory opublikowane w książkach, dziennikach, czasopismach lub innych formach publikacji drukiem, 2) utwory audiowizualne, a także utwory zamówione lub włączone do utworów audiowizualnych lub utrwalone na wideo- gramach, w zakresie korzystania z utworu audiowizualnego lub wideogramu jako całości, 3) utwory utrwalone na fonogramach – znajdujące się w zbiorach podmiotów, o których mowa w ust. 2, jeżeli uprawnieni, którym przysługują autorskie prawa majątkowe do tych utworów w zakresie ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_60\", \"source_id\": \"sejm_eli_du_2025_24_art_60\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 60. 1. Korzystający z utworu jest obowiązany umożliwić twórcy przed rozpowszechnieniem utworu prz eprowadzenie nadzoru autorskiego. Jeżeli wniesione w związku z nadzorem zmiany w utworze są niezbędne i wynikają z okoliczności od twórcy niezależnych, koszty ich wprowadzenia obciążają nabywcę autorskich praw majątkowych lub licencjobiorcę. 2. Jeżeli twórca nie przeprowadzi nadzoru autorskiego w odpowiednim terminie, uważa się, że wyraził zgodę na rozpowszechnianie utworu. 3. Jeżeli ustawa lub umowa nie stanowią inaczej,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_66\", \"source_id\": \"sejm_eli_du_2025_24_art_66\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 66. 1.29) Umowa licencyjna uprawnia do korzystania z utworu w okresie pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę albo miejsce zamieszkania, chyba że w umowie postanowiono inaczej. 2. Po upływie terminu, o którym mowa w ust. 1, prawo uzyskane na podstawie umowy licencyjnej wygasa.\"}]",
+   "tool_call_id": "call_afa44babcc824b539c93c881",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dać komuś licencję na moją piosenkę, żeby mogli na jej podstawie tworzyć nowe wersje, remiksy albo inne utwory – jak to najlepiej zrobić?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam utwór muzyczny, który chciałbym udostępnić producentowi lub studiu do celów badawczych i rozwojowych – chodzi o eksperymenty z nowymi technologiami, AI, remiksowanie czy tworzenie pochodnych wersji. Chcę zachować autorskie prawo do oryginału, ale pozwolić im na swobodne testowanie i rozwój nowych produktów na moim materiale. Ważne, żeby jasno było, kto ma prawo do komercyjnego wykorzystania tego, co powstanie w trakcie tych prac, i jak ja będę w tym uczestniczył finansowo."
+  }
+ ]
+}

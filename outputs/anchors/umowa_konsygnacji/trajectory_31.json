@@ -1,0 +1,291 @@
+{
+ "run": 37,
+ "hint": "Konsygnacja z udziałem podwykonawcy (podprzechowanie) za zgodą",
+ "scenario": "Konsygnacja z udziałem podwykonawcy (podprzechowanie) za zgodą",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_konsygnacji'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consignment agreement (umowa_konsygnacji) that involves a subcontractor (podwykonawca) for sub-storage (podprzechowanie) with consent. Let me start by reading the base template and then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-6d2ddc89-d493-4f03-8b92-7ca6b16ab273",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_konsygnacji\", \"query\": \"konsygnacja z podwykonawcą podprzechowanie\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_konsygnacji\", \"kind\": \"structural_template\", \"text\": \"# Umowa konsygnacji\\nUmowa konsygnacji w Polsce to umowa nienazwana, w której konsygnant (właściciel towaru, dostawca) przekazuje towar konsygnatariuszowi (sprzedawcy, dystrybutorowi) w celu sprzedaży osobom trzecim, przy jednoczesnym zachowaniu przez konsygnanta prawa własności towaru niesprzedanego. Umowa konsygnacji jest umową nienazwaną tworzoną na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i łączy elementy umowy komisu (art. 765-773 KC) i umowy przechowania (art. 835-845 KC). Do umów konsygnacji stosuje się odpowiednio przepisy o komisie i przechowaniu.\\n\\nPodstawową cechą konsygnacji odróżniającą ją od zwykłej sprzedaży lub agencji jest to, że konsygnant nie sprzedaje towaru konsygnatariuszowi — przekazuje go wyłącznie do sprzedaży na własny rachunek. Towar niesprzedany jest własnością konsygnanta i może być przez niego w każdym czasie odwołany. Konsygnatariusz jest wynagradzany prowizją od sprzedanego towaru lub marżą (różnicą między ceną zakupu a ceną sprzedaży), nie zaś z góry zapłaconą ceną.\\n\\nKonsygnacja jest powszechna w handlu książkami, odzieżą, kosmetykami, dziełami sztuki i elektronarzędziami. Producent lub wydawca przekazuje towar do sieci dystrybucji (księgarnie, sklepy, galerie) bez konieczności uiszczania przez dystrybutora zapłaty z góry — płaci on dopiero po sprzedaniu towaru klientowi końcowemu. Niesprze dany towar wraca do konsygnanta. Ta struktura zmniejsza ryzyko dystrybucji dla konsygnatariusza i ułatwia dostęp do kanałów dystrybucji dla konsygnanta.\\n\\nObowiązki podatkowe w umowie konsygnacji są skomplikowane i wymagają staranności. Z perspektywy VAT, zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, obowiązek podatkowy VAT po stronie konsygnanta powstaje zazwyczaj w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej — nie w momencie przekazania towaru do konsygnacji, ponieważ wówczas własność nie przechodzi. Konsygnatariusz wystawia fakturę VAT klientowi końcowemu w swoim imieniu i rozlicza VAT od sprzedaży, a konsygnant wystawia fakturę za towary sprzedane w danym okresie rozliczeniowym. Krajowa Administracja Skarbowa (KAS) i Urząd Skarbowy mogą kontrolować prawidłowość dokumentacji konsygnacyjnej.\\n\\nPrawidłowo sporządzona umowa konsygnacji powinna regulować: szczegółowy opis towaru konsygnacyjnego, zasady przekazywania i zwrotu towaru, protokoły zdawczo-odbiorcze, warunki przechowywania, ceny detaliczne lub marżę konsygnatariusza, termin i formę rozliczenia, prawo konsygnanta do inwentaryzacji, odpowiedzialność za braki i uszkodzenia towaru, zasady zakończenia umowy i zwrotu niesprzedanego towaru.\\n\\nUmowa konsygnacji w Polsce jest potrzebna, gdy producent lub dostawca chce wprowadzić swój towar do dystrybucji bez konieczności ponoszenia kosztów sprzedaży przez dystrybutora z góry.\\n\\nWydawcy i autorzy. Wydawnictwa przekazują książki i podręczniki do sieci księgarń na zasadzie konsygnacji — księgarnia sprzedaje tytuły i rozlicza się z wydawnictwem z faktycznie sprzedanych egzemplarzy, odsyłając niesprzedane.\\n\\nProducenci odzieży i mody. Projektanci i marki modowe przekazują kolekcje do butików lub showroomów na konsygnację — butik nie musi kupować kolekcji z góry, co obniża jego ryzyko finansowe i zachęca do przyjęcia nowych marek.\\n\\nGalerie sztuki i antykwariaty. Artyści i handlarze dziełami sztuki przekazują obrazy, rzeźby lub przedmioty kolekcjonerskie do galerii na konsygnację — galeria pobiera prowizję od każdej sprzedanej pracy, a niesprzedane dzieła wracają do artysty lub kolekcjonera.\\n\\nProducenci elektroniki i narzędzi. Firmy z segmentu elektronarzędzi, sprzętu sportowego lub ogrodniczego przekazują towar na ekspozycję i sprzedaż do sieci detalicznych na konsygnację — detalista nie zamraża kapitału na towar, który może nie zostać sprzedany.\\n\\nFirmy wchodzące na nowe rynki. Producent wchodzący na nowy rynek geograficzny może zainteresować lokalnych dystrybutorów ofertą konsygnacyjną — dystrybutor nie musi kupować towaru z góry, co obniża barierę wejścia dla obu stron.\\n\\nDostawcy do małych firm i sklepów specjalistycznych. Małe sklepy specjalistyczne (sklepy zoologiczne, herbaciarnie, delikatesy) chętnie przyjmują towar na konsygnację od małych producentów i rękodzielników, którzy nie mogą sobie pozwolić na kosztowne kampanie sprzedażowe.\\n\\nImporterzy i dystrybutorzy. Importerzy przyjmujący towar od zagranicznych producentów mogą umówić się z lokalnym dystrybutorem na konsygnację jako formę zarządzania zapasami w magazynach dystrybutora (konsygnacja magazynowa).\\n\\nUmowa konsygnacji w Polsce powinna zawierać następujące elementy, aby skutecznie chronić interesy obu stron i spełniać wymogi podatkowe.\\n\\nOznaczenie stron. Pełne dane konsygnanta i konsygnatariusza: firma, adres siedziby, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG). NIP jest niezbędny dla prawidłowego fakturowania sprzedanego towaru.\\n\\nOpis towaru konsygnacyjnego. Szczegółowy opis asortymentu (rodzaj, kategorie, minimalna ilość), wymagania jakościowe, normy i certyfikaty jeśli dotyczy. Zasady aktualizacji asortymentu (np. prawo konsygnanta do wymiany towaru na nowy sezon). Wskazanie, że towar jest własnością konsygnanta do momentu sprzedaży osobie trzeciej.\\n\\nZastrzeżenie własności. Wyraźne postanowienie, że własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu jego sprzedaży osobie trzeciej przez konsygnatariusza. Zakaz zastawiania, obciążania i innego niż sprzedażowe korzystania z towaru przez konsygnatariusza. Skuteczne zastrzeżenie własności chroni konsygnanta w razie upadłości konsygnatariusza.\\n\\nCeny i wynagrodzenie konsygnatariusza. Cena detaliczna (ustalana przez konsygnanta lub z jego udziałem) oraz prowizja lub marża konsygnatariusza (procent od ceny sprzedaży netto lub różnica między ceną zakupu a ceną detaliczną). forms-legal.com zaleca precyzyjne określenie podstawy prowizji (cena netto bez VAT) i terminu jej naliczania (miesięcznego lub kwartalnego).\\n\\nRaportowanie i rozliczenie. Obowiązek konsygnatariusza prowadzenia ewidencji sprzedanego i pozostałego towaru, miesięcznych raportów sprzedaży i rozliczania się z konsygnantem. Termin rozliczenia (standardowo do 10. dnia miesiąca następnego). Faktura VAT na prowizję lub zestawienie sprzedaży umożliwiające wystawienie faktury przez konsygnanta.\\n\\nPrzechowywanie i odpowiedzialność za towar. Warunki przechowywania, obowiązek ubezpieczenia towaru, odpowiedzialność konsygnatariusza za braki i uszkodzenia z jego winy (art. 471 KC).\\n\\nInwentaryzacja i kontrola. Prawo konsygnanta do przeprowadzania inwentaryzacji towaru w miejscu przechowywania, tryb i częstotliwość inwentaryzacji.\\n\\nZwroty. Zasady i koszty zwrotu niesprzedanego towaru, tryb zwrotu na żądanie konsygnanta lub po zakończeniu umowy.\\n\\nCzas trwania i wypowiedzenie. Czas trwania, termin wypowiedzenia i skutki rozwiązania umowy dla towaru niesprzedanego.\\n\\nUmowa konsygnacji w Polsce jest wypełniana według kolejnych kroków zapewniających kompletność i prawidłowość podatkową dokumentu.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy), adresy siedzib, numery NIP, REGON i KRS lub wpisy do CEIDG. Numery NIP są niezbędne do prawidłowego fakturowania prowizji i sprzedanego towaru.\\n\\nKrok 2 — opisz towar konsygnacyjny. Szczegółowo opisz asortyment przekazywany w konsygnację — rodzaj towaru, kategorie, minimalna ilość, wymagania jakościowe. Im precyzyjniejszy opis, tym mniejsze ryzyko sporu o to, czy towar spełnia wymogi umowy.\\n\\nKrok 3 — ustal cenę detaliczną lub sposób jej określenia. Wskaż, czy cena detaliczna jest ustalana przez konsygnanta (cena sztywna na okładce lub etykiecie) czy konsygnatariusz ma swobodę jej kształtowania. Cena wpływa na wysokość prowizji i obliczenie VAT.\\n\\nKrok 4 — ustal prowizję i termin rozliczenia. Wpisz procent prowizji od ceny netto sprzedanego towaru oraz termin rozliczenia miesięcznego (standardowo do 10. dnia następnego miesiąca). Wskaż formę dokumentacyjną — raport sprzedaży plus faktura VAT na prowizję.\\n\\nKrok 5 — określ warunki przechowywania. Wpisz wymogi dotyczące przechowywania towaru konsygnacyjnego. Wskaż, czy konsygnatariusz jest zobowiązany do ubezpieczenia towaru i od jakiej wartości.\\n\\nKrok 6 — ustal czas trwania i wypowiedzenie. Wskaż czas trwania umowy i termin wypowiedzenia. W umowach konsygnacji standardowy termin wypowiedzenia wynosi 3 miesiące — pozwala to konsygnatariuszowi odsprzedać zapas lub zwrócić towar w sposób zorganizowany.\\n\\nKrok 7 — dopilnuj zastrzeżenia własności. Upewnij się, że umowa wyraźnie stwierdza, że własność towaru konsygnacyjnego pozostaje przy konsygnancie. Bez tej klauzuli w razie upadłości konsygnatariusza towar staje się częścią masy upadłości.\\n\\nKrok 8 — podpisz umowę. Złóż podpisy osób uprawnionych do reprezentacji zgodnie z KRS lub CEIDG. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym.\\n\\nUmowa konsygnacji w Polsce podlega przepisom Kodeksu cywilnego stosowanym odpowiednio (komis, przechowanie) oraz ustawie o podatku od towarów i usług.\\n\\nPodstawa prawna — art. 353[1] KC i art. 765-773 KC (komis odpowiednio). Umowa konsygnacji jest umową nienazwaną opartą na swobodzie umów (art. 353[1] KC). Do konsygnacji stosuje się odpowiednio przepisy o komisie (art. 765-773 KC) — komisant (odpowiednik konsygnatariusza) działa we własnym imieniu na rachunek komitenta (odpowiednik konsygnanta). Do przechowywania towaru stosuje się odpowiednio przepisy o umowie przechowania (art. 835-845 KC) — konsygnatariusz odpowiada za stan towaru jak depozytariusz.\\n\\nZastrzeżenie własności — art. 589 KC. Własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu sprzedaży towaru osobie trzeciej przez konsygnatariusza. Zastrzeżenie własności powinno być wyraźne i pisemne, aby było skuteczne wobec wierzycieli konsygnatariusza (art. 589 KC). W razie ogłoszenia upadłości konsygnatariusza — konsygnant może żądać wyłączenia towaru z masy upadłości na podstawie przepisów ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe (art. 70 ust. 1), jeżeli towar jest wyraźnie oznaczony jako własność konsygnanta i ewidencja konsygnacyjna jest prawidłowo prowadzona.\\n\\nVAT — ustawa z dnia 11 marca 2004 r. Obowiązek podatkowy VAT po stronie konsygnanta co do zasady powstaje w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej (nie w momencie przekazania do konsygnacji, gdy własność nie przechodzi). Konsygnatariusz wystawia fakturę VAT klientowi końcowemu we własnym imieniu, konsygnant wystawia fakturę za towar sprzedany w danym okresie rozliczeniowym. Prowizja konsygnatariusza podlega VAT 23% jako usługa. Prawidłowość dokumentacji konsygnacyjnej może być kontrolowana przez Krajową Administrację Skarbową (KAS).\\n\\nOdpowiedzialność za towar — art. 471 KC. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa. Odpowiedzialność odszkodowawczą obejmuje wartość rynkową brakującego lub zniszczonego towaru.\\n\\nUmowy konsygnacji w Polsce często zawierają błędy prowadzące do sporów o własność towaru, rozliczenia prowizji lub kwestie podatkowe.\\n\\nBłąd 1 — brak wyraźnego zastrzeżenia własności. Umowa konsygnacji bez wyraźnej klauzuli zastrzeżenia własności towaru naraża konsygnanta na utratę towaru w razie upadłości konsygnatariusza. Zalecenie: wskaż wyraźnie, że własność towaru pozostaje przy konsygnancie do momentu sprzedaży osobie trzeciej, i zadbaj o pisemną formę umowy.\\n\\nBłąd 2 — niejasna definicja \\\"sprzedaży\\\" powodującej przeniesienie własności. Brak precyzji co do momentu sprzedaży powodującej przeniesienie własności (faktura? zapłata przez klienta?) rodzi spory podatkowe i cywilne. Zalecenie: wskaż wprost, że własność przechodzi z chwilą zawarcia umowy sprzedaży z klientem końcowym lub, jeśli preferowane, z chwilą zapłaty przez klienta.\\n\\nBłąd 3 — brak obowiązku prowadzenia ewidencji konsygnacyjnej. Konsygnatariusz bez obowiązku prowadzenia ewidencji może nie być w stanie wykazać stanu towaru na żądanie konsygnanta lub Krajowej Administracji Skarbowej (KAS). Zalecenie: wskaż obowiązek prowadzenia ewidencji towarów konsygnacyjnych i dostarczania miesięcznych raportów sprzedaży.\\n\\nBłąd 4 — brak protokołów zdawczo-odbiorczych. Brak dokumentacji przy każdej dostawie towaru do konsygnacji uniemożliwia ustalenie stanu towaru w chwili przekazania i po zwrocie. Zalecenie: wymagaj sporządzania protokołu zdawczo-odbiorczego przy każdej dostawie i zwrocie towaru.\\n\\nBłąd 5 — niejasne zasady prowizji. Podstawa prowizji (cena brutto czy netto?) i moment jej naliczania (faktura wystawiona konsygnatariuszowi czy zapłata klienta?) mają istotny wpływ na wysokość wynagrodzenia. Zalecenie: wpisz jednoznacznie podstawę prowizji (procent od ceny netto sprzedanego towaru bez VAT) i termin jej naliczania.\\n\\nBłąd 6 — brak regulacji kosztów zwrotu. Brak określenia, kto ponosi koszty zwrotu niesprzedanego towaru, prowadzi do sporów przy zakończeniu umowy. Zalecenie: wskaż, że koszty zwrotu ponosi konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie konsygnanta.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-konsygnacji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-6d2ddc89-d493-4f03-8b92-7ca6b16ab273",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_f5944bdf504b426c99c5a952",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"podprzechowanie podwykonawca zgoda konsygnacja art. 841 KC\"}"
+     }
+    },
+    {
+     "id": "call_41c8c34076b64e96b640174f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 841 KC\", \"podprzechowanie\", \"podwykonawca\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_841\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 841. Jeżeli przechowawca, bez zgody składającego i bez koniecznej potrzeby, używa rzeczy albo zmienia miejsce lub sposób jej przechowywania albo jeżeli oddaje rzecz na przechowanie innej osobie, jest on odpowiedzialny także za przypadkową utratę lub uszkodzenie rzeczy, które by w przeciwnym razie nie nastąpiło.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_841\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 841. § 1. Osoba trzecia może w drodze powództwa żądać zwolnienia zajętego przedmiotu od egzekucji, jeżeli skierowanie do niego egzekucji narusza jej prawa. § 2. Jeżeli dłużnik zaprzecza prawu powoda, należy oprócz wierzyciela pozwać również dłużnika. § 3. Powództwo można wnieść w terminie miesiąca od dnia dowiedzenia się o naruszeniu prawa, chyba że inny termin jest przewidziany w przepisach odrębnych.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_840\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 840. § 1. Przechowawca nie może oddać rzeczy na przechowanie innej osobie, chyba że jest do tego zmuszony przez okoliczności. W wypadku takim obowiązany jest zawiadomić niezwłocznie składającego, gdzie i u kogo rzecz złożył, i w razie zawiadomienia odpowiedzialny jest tylko za brak należytej staranności w wyborze zastępcy. § 2. Zastępca odpowiedzialny jest także względem składającego. Jeżeli przechowawca ponosi odpowiedzialność za czynności sweg ...\"}, {\"chunk_id\": \"uokik_items:uokik_b2f651b7d4b8649d\", \"source_id\": \"uokik_rejestr_klauzul_2177\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"e. Zleceniobiorcy przysługuje prawo podzlecenia montażu osobom trzecim i nie wymaga to zgody zleceniodawcy.\"}, {\"chunk_id\": \"extractor_v9:filtered_0214_statute_688cf58933d22de1\", \"source_id\": \"sejm_eli_du_2024_1061_art_647\", \"source_type\": \"statute\", \"top_category\": \"liability\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Inwestor ponosi odpowiedzialność za zapłatę podwykonawcy wynagrodzenia w wysokości ustalonej w umowie między podwykonawcą a wykonawcą, chyba że ta wysokość przekracza wysokość wynagrodzenia należnego wykonawcy za roboty budowlane, których szczegółowy przedmiot wynika odpowiednio ze zgłoszenia albo z umowy, o których mowa w § 1 albo 2. W takim przypadku odpowiedzialność inwestora za zapłatę podwykonawcy wynagrodzenia jest ograniczona do wysokości wynagrodzenia należnego wykonawcy za roboty budowlane, których szczegółowy przedmiot wynika odpowiednio ze zgłoszenia albo z umowy, o których mowa w § ...\"}]",
+   "tool_call_id": "call_f5944bdf504b426c99c5a952",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_649\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 649 5 . Przepisy art. 649 1 -649 4 stosuje się do umów zawartych między wykonawcą (generalnym wykonawcą) a dalszymi wykonawcami (podwykonawcami).\"}, {\"chunk_id\": \"uokik_items:uokik_180953b2c64d3596\", \"source_id\": \"uokik_rejestr_klauzul_3586\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Operator nie ponosi odpowiedzialności za usprawnienia sprzętowe oraz programowe w posiadanym przez Abonenta sprzęcie komputerowym, jeśli takich usprawnień i/lub zmian dokonał podwykonawca Operatora, któremu zlecona została instalacja\"}]",
+   "tool_call_id": "call_41c8c34076b64e96b640174f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_de0042635755493296de0b5d",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_840\", \"sejm_eli_du_2024_1061_art_841\"]}"
+     }
+    },
+    {
+     "id": "call_7ccf1d0e58e8451885f399f9",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"przechowanie oddanie rzeczy innej osobie podwykonawca zgoda składającego art. 840 KC\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_840\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 840. § 1. Przechowawca nie może oddać rzeczy na przechowanie innej osobie, chyba że jest do tego zmuszony przez okoliczności. W wypadku takim obowiązany jest zawiadomić niezwłocznie składającego, gdzie i u kogo rzecz złożył, i w razie zawiadomienia odpowiedzialny jest tylko za brak należytej staranności w wyborze zastępcy. § 2. Zastępca odpowiedzialny jest także względem składającego. Jeżeli przechowawca ponosi odpowiedzialność za czynności swego zastępcy jak za swoje własne czynności, ich odpowiedzialność jest solidarna.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_841\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 841. Jeżeli przechowawca, bez zgody składającego i bez koniecznej potrzeby, używa rzeczy albo zmienia miejsce lub sposób jej przechowywania albo jeżeli oddaje rzecz na przechowanie innej osobie, jest on odpowiedzialny także za przypadkową utratę lub uszkodzenie rzeczy, które by w przeciwnym razie nie nastąpiło.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call_de0042635755493296de0b5d",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_840\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 840. § 1. Przechowawca nie może oddać rzeczy na przechowanie innej osobie, chyba że jest do tego zmuszony przez okoliczności. W wypadku takim obowiązany jest zawiadomić niezwłocznie składającego, gdzie i u kogo rzecz złożył, i w razie zawiadomienia odpowiedzialny jest tylko za brak należytej staranności w wyborze zastępcy. § 2. Zastępca odpowiedzialny jest także względem składającego. Jeżeli przechowawca ponosi odpowiedzialność za czynności sweg ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_841\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 841. Jeżeli przechowawca, bez zgody składającego i bez koniecznej potrzeby, używa rzeczy albo zmienia miejsce lub sposób jej przechowywania albo jeżeli oddaje rzecz na przechowanie innej osobie, jest on odpowiedzialny także za przypadkową utratę lub uszkodzenie rzeczy, które by w przeciwnym razie nie nastąpiło.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_839\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 839. Przechowawcy nie wolno używać rzeczy bez zgody składającego, chyba że jest to konieczne do jej zachowania w stanie niepogorszonym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_838\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 838. Przechowawca jest uprawniony, a nawet obowiązany zmienić określone w umowie miejsce i sposób przechowania rzeczy, jeżeli okaże się to konieczne dla jej ochrony przed utratą lub uszkodzeniem. Jeżeli uprzednie uzyskanie zgody składającego jest możliwe, przechowawca powinien ją uzyskać przed dokonaniem zmiany.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_844\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 844. § 1. Składający może w każdym czasie żądać zwrotu rzeczy oddanej na przechowanie. § 2. Przechowawca może żądać odebrania rzeczy przed upływem terminu oznaczonego w umowie, jeżeli wskutek okoliczności, których nie mógł przewidzieć, nie może bez własnego uszczerbku lub bez zagrożenia rzeczy przechowywać jej w taki sposób, do jakiego jest zobowiązany. Jeżeli czas przechowania nie był oznaczony albo jeżeli rzecz była przyjęta na przechowanie be ...\"}]",
+   "tool_call_id": "call_7ccf1d0e58e8451885f399f9",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA KONSYGNACJI Z UDZIAŁEM PODWYKONAWCY (PODPRZECHOWANIE) ZA ZGODĄ KONSYGNANTA\n\nzawarta w dniu ______________ w ________________________\n\npomiędzy:\n\n**Konsygnantem:**\n_________________________________________________ (nazwa firmy)\nz siedzibą w: ____________________________________\nadres: __________________________________________\nNIP: __________________  REGON: _________________\nKRS/CEIDG: ______________________________________\nreprezentowanym przez: __________________________\n\na\n\n**Konsygnatariuszem:**\n_________________________________________________ (nazwa firmy)\nz siedzibą w: ____________________________________\nadres: __________________________________________\nNIP: __________________  REGON: _________________\nKRS/CEIDG: ______________________________________\nreprezentowanym przez: __________________________\n\n## § 1. Przedmiot umowy\n\n1. Konsygnant przekazuje Konsygnatariuszowi towar na zasadach konsygnacji w rozumieniu art. 353[1] Kodeksu cywilnego (Dz.U. 2024 poz. 1061) w celu sprzedaży osobom trzecim na rachunek Konsygnanta.\n\n2. Towar konsygnacyjny obejmuje asortyment: _________________________________\n________________________________________________________________________\n\n3. Szczegółowy opis towaru, w tym ilości, ceny detaliczne i numery katalogowe, określa Załącznik nr 1 do niniejszej umowy, stanowiący jej integralną część.\n\n## § 2. Własność towaru\n\n1. Własność towaru konsygnacyjnego pozostaje przy Konsygnancie do momentu zawarcia umowy sprzedaży z klientem końcowym (art. 589 KC).\n\n2. Konsygnatariusz nie jest uprawniony do zastawiania, obciążania, przekazywania w zastaw ani innego niż wynikające z umowy korzystania z towaru.\n\n3. Zastrzeżenie własności jest skuteczne wobec wierzycieli Konsygnatariusza, w tym w razie upadłości, pod warunkiem prawidłowej ewidencji konsygnacyjnej.\n\n## § 3. Czas trwania umowy\n\n1. Umowa zostaje zawarta na czas oznaczony / nieoznaczony* w okresie od ______________ do ______________.\n\n2. Wypowiedzenie umowy wymaga zachowania formy pisemnej i 3-miesięcznego terminu wypowiedzenia, chyba że strony uzgodnią inny termin.\n\n3. Po zakończeniu umowy Konsygnatariusz jest zobowiązany do zwrotu niesprzedanego towaru w terminie 14 dni od zakończenia umowy, chyba że strony uzgodnią inaczej.\n\n## § 4. Prawa i obowiązki Konsygnanta\n\n1. Konsygnant jest zobowiązany do:\n   a) przekazania towaru konsygnacyjnego w stanie zgodnym z umową,\n   b) wystawiania faktur VAT za towary sprzedane w danym okresie rozliczeniowym,\n   c) informowania o zmianach w asortymencie i cenach detalicznych.\n\n2. Konsygnant jest uprawniony do:\n   a) ustalania cen detalicznych lub ich maksymalnego poziomu,\n   b) przeprowadzania inwentaryzacji towaru w miejscu przechowywania,\n   c) odwołania towaru w każdym czasie z zachowaniem terminu wypowiedzenia,\n   d) kontroli warunków przechowywania towaru.\n\n## § 5. Prawa i obowiązki Konsygnatariusza\n\n1. Konsygnatariusz jest zobowiązany do:\n   a) sprzedaży towaru we własnym imieniu na rachunek Konsygnanta (art. 765-767 KC),\n   b) prowadzenia ewidencji towarów konsygnacyjnych zgodnie z wymogami KAS,\n   c) dostarczania miesięcznych raportów sprzedaży do 10. dnia następnego miesiąca,\n   d) przechowywania towaru z należytą starannością (art. 835-845 KC),\n   e) rozliczania się z Konsygnantem za sprzedany towar w terminie do 10. dnia miesiąca następnego po otrzymaniu zapłaty od klienta.\n\n2. Konsygnatariusz jest uprawniony do:\n   a) wynagrodzenia w formie prowizji od ceny netto sprzedanego towaru w wysokości ______%,\n   b) korzystania z towaru wyłącznie w celach związanych z jego sprzedażą i ekspozycją.\n\n## § 6. Przechowywanie towaru i podprzechowanie (powierzenie podwykonawcy)\n\n1. Konsygnatariusz przechowuje towar konsygnacyjny w miejscu: ________________________________________________________________________.\n\n2. Zgodnie z art. 840 § 1 KC, Konsygnatariusz nie może oddać rzeczy na przechowanie innej osobie (podwykonawcy), chyba że jest do tego zmuszony przez okoliczności.\n\n3. **Podprzechowanie za zgodą Konsygnanta:**\n   a) Konsygnatariusz może powierzyć towar konsygnacyjny do przechowania podwykonawcy wyłącznie za uprzednią, wyraźną zgodą Konsygnanta wyrażoną w formie pisemnej (w tym pocztą elektroniczną).\n   b) Zgoda może być udzielona na stałe dla określonego podwykonawcy lub doraźnie dla konkretnej okoliczności.\n   c) W przypadku uzyskania zgody, Konsygnatariusz jest obowiązany niezwłocznie zawiadomić Konsygnanta, gdzie i u kogo rzecz złożył (art. 840 § 1 KC).\n\n4. **Odpowiedzialność przy podprzechowaniu:**\n   a) Jeżeli Konsygnatariusz odda towar na przechowanie innej osobie bez zgody Konsygnanta i bez koniecznej potrzeby, odpowiada on także za przypadkową utratę lub uszkodzenie rzeczy, które by w przeciwnym razie nie nastąpiło (art. 841 KC).\n   b) Zastępca (podwykonawca) odpowiada także względem Konsygnanta (art. 840 § 2 KC).\n   c) Jeżeli Konsygnatariusz ponosi odpowiedzialność za czynności swego zastępcy jak za swoje własne czynności, ich odpowiedzialność jest solidarna (art. 840 § 2 KC).\n\n5. **Warunki podprzechowania:**\n   a) Podwykonawca musi zapewnić warunki przechowywania nie gorsze niż określone w niniejszej umowie.\n   b) Konsygnatariusz ponosi odpowiedzialność za wybór podwykonawcy (art. 840 § 1 KC).\n   c) Konsygnant jest uprawniony do weryfikacji warunków przechowywania u podwykonawcy.\n\n6. **Zmiana miejsca przechowywania:**\n   a) Zgodnie z art. 838 KC, Konsygnatariusz może zmienić miejsce i sposób przechowania, jeżeli okaże się to konieczne dla ochrony towaru przed utratą lub uszkodzeniem.\n   b) Jeżeli uprzednie uzyskanie zgody Konsygnanta jest możliwe, Konsygnatariusz powinien ją uzyskać przed dokonaniem zmiany.\n\n7. **Zakaz korzystania z towaru:**\n   a) Zgodnie z art. 839 KC, Konsygnatariuszowi nie wolno używać rzeczy bez zgody Konsygnanta, chyba że jest to konieczne do jej zachowania w stanie niepogorszonym.\n\n## § 7. Wynagrodzenie i rozliczenia\n\n1. Konsygnatariusz otrzymuje wynagrodzenie w wysokości ______% od ceny netto sprzedanego towaru (prowizja).\n\n2. Podstawą naliczania prowizji jest cena netto bez VAT z faktury VAT wystawionej przez Konsygnatariusza klientowi końcowemu.\n\n3. Rozliczenie następuje miesięcznie do 10. dnia miesiąca następnego na podstawie raportu sprzedaży i faktury VAT wystawionej przez Konsygnatariusza.\n\n4. Konsygnant wystawia fakturę VAT za towary sprzedane w danym okresie rozliczeniowym.\n\n## § 8. Ubezpieczenie towaru\n\n1. Konsygnatariusz jest zobowiązany do ubezpieczenia towaru konsygnacyjnego od wszelkich ryzyk (all-risks) na kwotę nie mniejszą niż ______________ PLN.\n\n2. Koszt ubezpieczenia ponosi Konsygnatariusz / Konsygnant*.\n\n3. W przypadku podprzechowania, Konsygnatariusz zapewni, aby ubezpieczenie obejmowało również towar przechowywany u podwykonawcy.\n\n## § 9. Inwentaryzacja i kontrola\n\n1. Konsygnant jest uprawniony do przeprowadzania inwentaryzacji towaru w miejscu przechowywania z 48-godzinnym uprzedzeniem.\n\n2. W przypadku podprzechowania, Konsygnant jest uprawniony do przeprowadzenia inwentaryzacji również u podwykonawcy.\n\n3. Konsygnatariusz jest zobowiązany do prowadzenia bieżącej ewidencji towarów konsygnacyjnych i udostępniania jej Konsygnantowi na żądanie.\n\n## § 10. Odpowiedzialność za towar\n\n1. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa (art. 471 KC).\n\n2. Odpowiedzialność odszkodowawczą obejmuje wartość rynkową brakującego lub zniszczonego towaru.\n\n3. W przypadku podprzechowania bez zgody Konsygnanta, Konsygnatariusz odpowiada również za przypadkową utratę lub uszkodzenie (art. 841 KC).\n\n## § 11. Zwrot towaru\n\n1. Niesprzedany towar podlega zwrotowi na żądanie Konsygnanta lub po zakończeniu umowy.\n\n2. Koszty zwrotu towaru ponosi Konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n3. W przypadku podprzechowania, Konsygnatariusz jest zobowiązany do odwołania towaru od podwykonawcy i jego zwrotu w terminie 7 dni od żądania Konsygnanta.\n\n## § 12. Wypowiedzenie umowy\n\n1. Każda ze stron może wypowiedzieć umowę z zachowaniem 3-miesięcznego terminu wypowiedzenia.\n\n2. W przypadku naruszenia postanowień umowy przez Konsygnatariusza, w tym podprzechowania bez zgody, Konsygnant jest uprawniony do rozwiązania umowy ze skutkiem natychmiastowym.\n\n## § 13. Postanowienia końcowe\n\n1. Wszelkie zmiany umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu cywilnego, w tym art. 765-773 KC (komis) i art. 835-845 KC (przechowanie).\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów są sądy właściwe dla siedziby Konsygnanta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n## Załączniki:\n- Załącznik nr 1: Szczegółowy opis towaru konsygnacyjnego\n- Załącznik nr 2: Cennik detaliczny\n- Załącznik nr 3: Wzór raportu sprzedaży\n\n\n_____________________________                    _____________________________\n(Konsygnant)                                   (Konsygnatariusz)\n\n\n*niepotrzebne skreślić",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA KONSYGNACJI Z UDZIAŁEM PODWYKONAWCY (PODPRZECHOWANIE) ZA ZGODĄ KONSYGNANTA\n\nzawarta w dniu ______________ w ________________________\n\npomiędzy:\n\n**Konsygnantem:**\n_________________________________________________ (nazwa firmy)\nz siedzibą w: ____________________________________\nadres: __________________________________________\nNIP: __________________  REGON: _________________\nKRS/CEIDG: ______________________________________\nreprezentowanym przez: __________________________\n\na\n\n**Konsygnatariuszem:**\n_________________________________________________ (nazwa firmy)\nz siedzibą w: ____________________________________\nadres: __________________________________________\nNIP: __________________  REGON: _________________\nKRS/CEIDG: ______________________________________\nreprezentowanym przez: __________________________\n\n## § 1. Przedmiot umowy\n\n1. Konsygnant przekazuje Konsygnatariuszowi towar na zasadach konsygnacji w rozumieniu art. 353[1] Kodeksu cywilnego (Dz.U. 2024 poz. 1061) w celu sprzedaży osobom trzecim na rachunek Konsygnanta.\n\n2. Towar konsygnacyjny obejmuje asortyment: _________________________________\n________________________________________________________________________\n\n3. Szczegółowy opis towaru, w tym ilości, ceny detaliczne i numery katalogowe, określa Załącznik nr 1 do niniejszej umowy, stanowiący jej integralną część.\n\n## § 2. Własność towaru\n\n1. Własność towaru konsygnacyjnego pozostaje przy Konsygnancie do momentu zawarcia umowy sprzedaży z klientem końcowym (art. 589 KC).\n\n2. Konsygnatariusz nie jest uprawniony do zastawiania, obciążania, przekazywania w zastaw ani innego niż wynikające z umowy korzystania z towaru.\n\n3. Zastrzeżenie własności jest skuteczne wobec wierzycieli Konsygnatariusza, w tym w razie upadłości, pod warunkiem prawidłowej ewidencji konsygnacyjnej.\n\n## § 3. Czas trwania umowy\n\n1. Umowa zostaje zawarta na czas oznaczony / nieoznaczony* w okresie od ______________ do ______________.\n\n2. Wypowiedzenie umowy wymaga zachowania formy pisemnej i 3-miesięcznego terminu wypowiedzenia, chyba że strony uzgodnią inny termin.\n\n3. Po zakończeniu umowy Konsygnatariusz jest zobowiązany do zwrotu niesprzedanego towaru w terminie 14 dni od zakończenia umowy, chyba że strony uzgodnią inaczej.\n\n## § 4. Prawa i obowiązki Konsygnanta\n\n1. Konsygnant jest zobowiązany do:\n   a) przekazania towaru konsygnacyjnego w stanie zgodnym z umową,\n   b) wystawiania faktur VAT za towary sprzedane w danym okresie rozliczeniowym,\n   c) informowania o zmianach w asortymencie i cenach detalicznych.\n\n2. Konsygnant jest uprawniony do:\n   a) ustalania cen detalicznych lub ich maksymalnego poziomu,\n   b) przeprowadzania inwentaryzacji towaru w miejscu przechowywania,\n   c) odwołania towaru w każdym czasie z zachowaniem terminu wypowiedzenia,\n   d) kontroli warunków przechowywania towaru.\n\n## § 5. Prawa i obowiązki Konsygnatariusza\n\n1. Konsygnatariusz jest zobowiązany do:\n   a) sprzedaży towaru we własnym imieniu na rachunek Konsygnanta (art. 765-767 KC),\n   b) prowadzenia ewidencji towarów konsygnacyjnych zgodnie z wymogami KAS,\n   c) dostarczania miesięcznych raportów sprzedaży do 10. dnia następnego miesiąca,\n   d) przechowywania towaru z należytą starannością (art. 835-845 KC),\n   e) rozliczania się z Konsygnantem za sprzedany towar w terminie do 10. dnia miesiąca następnego po otrzymaniu zapłaty od klienta.\n\n2. Konsygnatariusz jest uprawniony do:\n   a) wynagrodzenia w formie prowizji od ceny netto sprzedanego towaru w wysokości ______%,\n   b) korzystania z towaru wyłącznie w celach związanych z jego sprzedażą i ekspozycją.\n\n## § 6. Przechowywanie towaru i podprzechowanie (powierzenie podwykonawcy)\n\n1. Konsygnatariusz przechowuje towar konsygnacyjny w miejscu: ________________________________________________________________________.\n\n2. Zgodnie z art. 840 § 1 KC, Konsygnatariusz nie może oddać rzeczy na przechowanie innej osobie (podwykonawcy), chyba że jest do tego zmuszony przez okoliczności.\n\n3. **Podprzechowanie za zgodą Konsygnanta:**\n   a) Konsygnatariusz może powierzyć towar konsygnacyjny do przechowania podwykonawcy wyłącznie za uprzednią, wyraźną zgodą Konsygnanta wyrażoną w formie pisemnej (w tym pocztą elektroniczną).\n   b) Zgoda może być udzielona na stałe dla określonego podwykonawcy lub doraźnie dla konkretnej okoliczności.\n   c) W przypadku uzyskania zgody, Konsygnatariusz jest obowiązany niezwłocznie zawiadomić Konsygnanta, gdzie i u kogo rzecz złożył (art. 840 § 1 KC).\n\n4. **Odpowiedzialność przy podprzechowaniu:**\n   a) Jeżeli Konsygnatariusz odda towar na przechowanie innej osobie bez zgody Konsygnanta i bez koniecznej potrzeby, odpowiada on także za przypadkową utratę lub uszkodzenie rzeczy, które by w przeciwnym razie nie nastąpiło (art. 841 KC).\n   b) Zastępca (podwykonawca) odpowiada także względem Konsygnanta (art. 840 § 2 KC).\n   c) Jeżeli Konsygnatariusz ponosi odpowiedzialność za czynności swego zastępcy jak za swoje własne czynności, ich odpowiedzialność jest solidarna (art. 840 § 2 KC).\n\n5. **Warunki podprzechowania:**\n   a) Podwykonawca musi zapewnić warunki przechowywania nie gorsze niż określone w niniejszej umowie.\n   b) Konsygnatariusz ponosi odpowiedzialność za wybór podwykonawcy (art. 840 § 1 KC).\n   c) Konsygnant jest uprawniony do weryfikacji warunków przechowywania u podwykonawcy.\n\n6. **Zmiana miejsca przechowywania:**\n   a) Zgodnie z art. 838 KC, Konsygnatariusz może zmienić miejsce i sposób przechowania, jeżeli okaże się to konieczne dla ochrony towaru przed utratą lub uszkodzeniem.\n   b) Jeżeli uprzednie uzyskanie zgody Konsygnanta jest możliwe, Konsygnatariusz powinien ją uzyskać przed dokonaniem zmiany.\n\n7. **Zakaz korzystania z towaru:**\n   a) Zgodnie z art. 839 KC, Konsygnatariuszowi nie wolno używać rzeczy bez zgody Konsygnanta, chyba że jest to konieczne do jej zachowania w stanie niepogorszonym.\n\n## § 7. Wynagrodzenie i rozliczenia\n\n1. Konsygnatariusz otrzymuje wynagrodzenie w wysokości ______% od ceny netto sprzedanego towaru (prowizja).\n\n2. Podstawą naliczania prowizji jest cena netto bez VAT z faktury VAT wystawionej przez Konsygnatariusza klientowi końcowemu.\n\n3. Rozliczenie następuje miesięcznie do 10. dnia miesiąca następnego na podstawie raportu sprzedaży i faktury VAT wystawionej przez Konsygnatariusza.\n\n4. Konsygnant wystawia fakturę VAT za towary sprzedane w danym okresie rozliczeniowym.\n\n## § 8. Ubezpieczenie towaru\n\n1. Konsygnatariusz jest zobowiązany do ubezpieczenia towaru konsygnacyjnego od wszelkich ryzyk (all-risks) na kwotę nie mniejszą niż ______________ PLN.\n\n2. Koszt ubezpieczenia ponosi Konsygnatariusz / Konsygnant*.\n\n3. W przypadku podprzechowania, Konsygnatariusz zapewni, aby ubezpieczenie obejmowało również towar przechowywany u podwykonawcy.\n\n## § 9. Inwentaryzacja i kontrola\n\n1. Konsygnant jest uprawniony do przeprowadzania inwentaryzacji towaru w miejscu przechowywania z 48-godzinnym uprzedzeniem.\n\n2. W przypadku podprzechowania, Konsygnant jest uprawniony do przeprowadzenia inwentaryzacji również u podwykonawcy.\n\n3. Konsygnatariusz jest zobowiązany do prowadzenia bieżącej ewidencji towarów konsygnacyjnych i udostępniania jej Konsygnantowi na żądanie.\n\n## § 10. Odpowiedzialność za towar\n\n1. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa (art. 471 KC).\n\n2. Odpowiedzialność odszkodowawczą obejmuje wartość rynkową brakującego lub zniszczonego towaru.\n\n3. W przypadku podprzechowania bez zgody Konsygnanta, Konsygnatariusz odpowiada również za przypadkową utratę lub uszkodzenie (art. 841 KC).\n\n## § 11. Zwrot towaru\n\n1. Niesprzedany towar podlega zwrotowi na żądanie Konsygnanta lub po zakończeniu umowy.\n\n2. Koszty zwrotu towaru ponosi Konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n3. W przypadku podprzechowania, Konsygnatariusz jest zobowiązany do odwołania towaru od podwykonawcy i jego zwrotu w terminie 7 dni od żądania Konsygnanta.\n\n## § 12. Wypowiedzenie umowy\n\n1. Każda ze stron może wypowiedzieć umowę z zachowaniem 3-miesięcznego terminu wypowiedzenia.\n\n2. W przypadku naruszenia postanowień umowy przez Konsygnatariusza, w tym podprzechowania bez zgody, Konsygnant jest uprawniony do rozwiązania umowy ze skutkiem natychmiastowym.\n\n## § 13. Postanowienia końcowe\n\n1. Wszelkie zmiany umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu cywilnego, w tym art. 765-773 KC (komis) i art. 835-845 KC (przechowanie).\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów są sądy właściwe dla siedziby Konsygnanta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n## Załączniki:\n- Załącznik nr 1: Szczegółowy opis towaru konsygnacyjnego\n- Załącznik nr 2: Cennik detaliczny\n- Załącznik nr 3: Wzór raportu sprzedaży\n\n\n_____________________________                    _____________________________\n(Konsygnant)                                   (Konsygnatariusz)\n\n\n*niepotrzebne skreślić",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę sprzedawać towar klienta w swoim sklepie na zasadach konsygnacji, ale nie mam własnego magazynu. Czy mogę przechowywać jego towar u podwykonawcy, jeśli on się na to zgodzi na piśmie?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam sklep internetowy i chcę wprowadzić sprzedaż na konsygnacji od jednego z dostawców. Nie mam jednak własnego magazynu, więc planuję składować towar u firmy logistycznej, z którą już współpracuję. Dostawca musi wyrazić na to zgodę. Chcę, żeby w umowie było jasne, że odpowiadam za towar u podwykonawcy tak samo jak gdyby był u mnie, i że dostawca może w każdej chwili przeprowadzić inwentaryzację u tego podwykonawcy. Jak powinna wyglądać taka umowa?"
+  }
+ ]
+}

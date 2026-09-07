@@ -1,0 +1,327 @@
+{
+ "run": 8,
+ "hint": "Umowa o pracę z prowizją od sprzedaży (składniki zmienne)",
+ "scenario": "Umowa o pracę z prowizją od sprzedaży (składniki zmienne)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_prace'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of an employment contract (umowa o pracę) that includes commission from sales (prowizja od sprzedaży) with variable components. I need to:\n\n1. First read the base template for umowa_o_prace\n2. Then search for provisions relevant to commission-based pay, variable remuneration components, sales commissions, etc.\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-bb654fc9-bc7b-44da-b3e3-6c74aa2914c7",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_o_prace\", \"query\": \"z prowizją od sprzedaży składniki zmienne wynagrodzenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_prace\", \"kind\": \"structural_template\", \"text\": \"# Umowa marketplace\\nUmowa marketplace w Polsce to kontrakt między operatorem platformy sprzedażowej a sprzedawcą (merchantem), który reguluje warunki korzystania z platformy do oferowania i sprzedaży towarów lub usług klientom końcowym. Umowa tego rodzaju jest umową nienazwaną opartą na zasadzie swobody umów (art. 353¹ Kodeksu cywilnego, ustawa z dnia 23 kwietnia 1964 r.), łącząca elementy umowy o świadczenie usług (art. 750 KC) i umowy agencyjnej (art. 758 KC), choć operator nie działa jako agent sprzedawcy — strona umowy z konsumentem.\\n\\nSpecyfika platformy marketplace polega na tym, że operator tworzy środowisko technologiczne, w którym wielu sprzedawców oferuje swoje towary, natomiast umowy sprzedaży zawierane są bezpośrednio między sprzedawcą a kupującym. Operator pobiera prowizję od każdej transakcji, zapewnia infrastrukturę płatności, logistyki i obsługi klienta, ale co do zasady nie jest stroną umowy sprzedaży. Takie rozróżnienie ról ma kluczowe znaczenie dla odpowiedzialności wobec konsumentów: to sprzedawca — nie operator — odpowiada za niezgodność towaru z umową na podstawie rozdziału 5a ustawy z dnia 30 maja 2014 r. o prawach konsumenta i za realizację 14-dniowego prawa odstąpienia z art. 27 tej ustawy.\\n\\nUmowa marketplace musi precyzyjnie uregulować kwestie podatkowe, ponieważ platforma internetowa rozlicza prowizję jako usługę B2B opodatkowaną VAT 23%. Operator wystawia sprzedawcy fakturę VAT z tytułu prowizji; sprzedawca samodzielnie rozlicza VAT od sprzedaży do konsumentów. Od 2021 r. obowiązuje w UE pakiet VAT e-commerce, który nałożył na platformy marketplace szczególne obowiązki w zakresie poboru VAT przy sprzedaży transgranicznej, uregulowane w ustawie z dnia 11 marca 2004 r. o podatku od towarów i usług.\\n\\nOchrona danych osobowych to istotny element umowy marketplace. Operator przetwarza dane kupujących w imieniu sprzedawcy jako podmiot przetwarzający (procesor) w rozumieniu art. 28 rozporządzenia (UE) 2016/679 (RODO), co wymaga zawarcia odrębnej umowy powierzenia przetwarzania danych. Sprzedawca jest administratorem danych nabywców i odpowiada za prawidłowość podstaw przetwarzania. Nadzór nad ochroną danych w Polsce sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nOd 2023 r. platformy marketplace funkcjonujące w UE podlegają rozporządzeniu (UE) 2022/2065 o usługach cyfrowych (Digital Services Act, DSA), które nakłada na duże platformy obowiązki w zakresie moderacji treści, przejrzystości reklam i ochrony użytkowników. Dla małych platform DSA nie zmienia gruntownie dotychczasowych zasad, jednak każdy operator musi dostosować regulamin i umowy z merchantami do jego wymogów. Obowiązki wynikające z DSA dotyczą też weryfikacji tożsamości handlowych sprzedawców (zasada \\\"know your business customer\\\").\\n\\nUmowa marketplace powinna być powiązana z regulaminem platformy, który stanowi wzorzec umowny udostępniany sprzedawcy, a zmiany regulaminu powinny być wprowadzane z odpowiednim wyprzedzeniem umożliwiającym sprzedawcy dostosowanie się do nowych warunków lub rozwiązanie umowy. Kodeks cywilny w art. 384[1] reguluje zmianę wzorca dla umów ciągłych — wypowiedzenie możliwe w terminie wypowiedzenia podanym przy zmianie.\\n\\nUmowa marketplace w Polsce jest potrzebna w każdym przypadku, gdy przedsiębiorca uruchamia platformę sprzedażową i rejestruje nowych sprzedawców lub sam chce sprzedawać za pośrednictwem istniejącej platformy.\\n\\nUruchomienie własnej platformy marketplace. Gdy przedsiębiorca tworzy platformę sprzedażową, na której osoby trzecie oferują swoje towary lub usługi, niezbędna jest umowa z każdym sprzedawcą regulująca zasady współpracy, prowizję i podział odpowiedzialności wobec konsumentów.\\n\\nRejestracja jako sprzedawca na cudzej platformie. Merchant przystępujący do platformy sprzedażowej zawiera umowę z operatorem — jej warunki regulują, jakie dane musi podać, jakie są stawki prowizji, jak przebiega wypłata środków i jak działa procedura sporów.\\n\\nWdrożenie modelu wielosprzedawcowego w istniejącym sklepie. Sklep internetowy rozszerzający działalność o model marketplace (umożliwiający sprzedaż przez zewnętrznych vendorów) potrzebuje umów z nowymi sprzedawcami oraz aktualizacji regulaminu platformy i polityki prywatności.\\n\\nWymogi compliance VAT e-commerce. Od 2021 r. operatorzy marketplace mogą być odpowiedzialni za pobór VAT od sprzedaży towarów przez sprzedawców spoza UE do konsumentów w UE. Umowa marketplace powinna precyzować obowiązki podatkowe obu stron zgodnie z przepisami ustawy o podatku od towarów i usług.\\n\\nDostosowanie do DSA. Rozporządzenie (UE) 2022/2065 o usługach cyfrowych (DSA) nakłada na duże platformy nowe obowiązki wobec merchantów, w tym wymóg weryfikacji danych sprzedawców i przejrzystości rankingów. Umowa marketplace musi odzwierciedlać te wymagania.\\n\\nZabezpieczenie operatora przed odpowiedzialnością za działania sprzedawców. Precyzyjne postanowienia umowy rozgraniczające odpowiedzialność operatora i sprzedawcy ograniczają ryzyko odpowiedzialności operatora za wady towarów sprzedawcy lub jego naruszenia prawa konsumenckiego.\\n\\nUmowa marketplace w Polsce powinna zawierać następujące elementy, aby prawidłowo regulować stosunki między operatorem platformy a sprzedawcą.\\n\\nStrony umowy i ich identyfikacja. Pełne dane rejestrowe operatora i sprzedawcy (firma, adres, NIP, REGON, numer KRS lub CEIDG) niezbędne do wystawienia faktur VAT z tytułu prowizji oraz do identyfikacji stron w sporach. Operator powinien przed zawarciem umowy zweryfikować dane sprzedawcy w Krajowym Rejestrze Sądowym (KRS) lub Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG).\\n\\nPrzedmiot umowy i opis platformy. Jasny opis usług świadczonych przez operatora — infrastruktury technicznej, systemów płatności, narzędzi do zarządzania ofertami — oraz kategorii produktów dopuszczonych do sprzedaży. Określenie, że umowy sprzedaży zawierane są między sprzedawcą a kupującym, a nie z operatorem.\\n\\nObowiązki sprzedawcy. Wymóg prowadzenia aktualnych i rzetelnych ofert, terminowej realizacji zamówień, obsługi reklamacji i zwrotów, przestrzegania polityki cenowej platformy, zakaz sprzedaży produktów zakazanych prawem lub regulaminem. Obowiązek posiadania wszelkich wymaganych zezwoleń i certyfikatów dla oferowanych towarów.\\n\\nProwizja i model rozliczeń. Precyzyjna stawka prowizji (procent lub kwota stała) i podstawa jej obliczania (wartość netto czy brutto zamówienia), termin i sposób wypłaty środków, harmonogram wystawiania faktur VAT przez operatora. Do prowizji doliczany jest VAT 23%. forms-legal.com rekomenduje precyzyjne opisanie momentu wymagalności prowizji i zasad rozliczeń spornych transakcji.\\n\\nOchrona konsumentów i podział odpowiedzialności. Wskazanie, że sprzedawca jest stroną umowy z konsumentem i odpowiada za realizację 14-dniowego prawa odstąpienia (art. 27 u.p.k.) i niezgodność towaru z umową (rozdział 5a u.p.k.). Określenie roli operatora jako podmiotu przetwarzającego dane nabywców (art. 28 RODO).\\n\\nOchrona danych osobowych. Umowa powierzenia przetwarzania danych w rozumieniu art. 28 rozporządzenia (UE) 2016/679 (RODO) lub odesłanie do odrębnej umowy DPA, określającej przedmiot, czas, charakter i cel przetwarzania danych kupujących przez operatora w imieniu sprzedawcy. Nadzór Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nCzas trwania i wypowiedzenie. Czas obowiązywania umowy (najczęściej nieokreślony), termin i warunki wypowiedzenia, przesłanki natychmiastowego zawieszenia lub zamknięcia konta sprzedawcy (naruszenia prawa, powtarzające się reklamacje, niezapłacona prowizja).\\n\\nZmiana warunków. Zasady zmiany regulaminu platformy i umowy z merchantem — minimalny termin wyprzedzenia, sposób poinformowania i prawo do rozwiązania umowy bez konsekwencji przy braku akceptacji zmian (art. 384[1] KC dla umów ciągłych).\\n\\nUmowa marketplace w Polsce wypełniana jest według kolejnych kroków zapewniających prawidłowe uregulowanie stosunków operatora z merchantem.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne dane rejestrowe operatora — firmę, adres, NIP, REGON, KRS. Wpisz dane sprzedawcy — firmę lub imię i nazwisko, adres, NIP, REGON i numer KRS lub CEIDG. Przed zawarciem umowy sprawdź wiarygodność sprzedawcy w rejestrze KRS lub CEIDG.\\n\\nKrok 2 — opisz platformę i zakres usług. Wyjaśnij, co platforma oferuje sprzedawcy — infrastrukturę techniczną, płatności, narzędzia do zarządzania ofertami. Wskaż kategorie produktów i usług, które mogą być oferowane na platformie.\\n\\nKrok 3 — określ obowiązki sprzedawcy. Wymień konkretne wymagania — aktywne prowadzenie konta, terminowa realizacja zamówień, obsługa reklamacji, przestrzeganie polityki zwrotów, zakaz sprzedaży produktów zabronionych. Precyzyjne obowiązki ograniczają ryzyko operatora.\\n\\nKrok 4 — wpisz prowizję i zasady rozliczeń. Podaj stawkę prowizji (procent lub kwotę) i podstawę obliczania, harmonogram wypłat, sposób potrącania prowizji i tryb reklamacji rozliczeń. Zaznacz, że do prowizji doliczany jest VAT 23%.\\n\\nKrok 5 — ureguluj ochronę konsumentów. Wskaż, że sprzedawca bezpośrednio odpowiada wobec konsumenta za prawo odstąpienia i reklamacje. Określ rolę operatora jako podmiotu przetwarzającego dane (art. 28 RODO) i zadbaj o zawarcie umowy powierzenia przetwarzania danych.\\n\\nKrok 6 — określ czas trwania i wypowiedzenie. Wpisz, czy umowa jest zawarta na czas określony czy nieokreślony, termin wypowiedzenia i przesłanki wcześniejszego rozwiązania (blokady konta). Określ konsekwencje naruszenia regulaminu.\\n\\nKrok 7 — podaj datę zawarcia i złóż podpisy. Wpisz datę zawarcia umowy i zadbaj o podpisy osób uprawnionych do reprezentacji obu stron. Dla spółek sprawdź, kto jest uprawniony do reprezentacji zgodnie z wpisem w KRS.\\n\\nUmowa marketplace w Polsce podlega przepisom Kodeksu cywilnego, ustawy o świadczeniu usług drogą elektroniczną, ustawy o prawach konsumenta, RODO i przepisów podatkowych.\\n\\nSwoboda umów i prawo cywilne. Umowa marketplace jest umową nienazwaną opartą na art. 353¹ Kodeksu cywilnego. Operator i sprzedawca kształtują treść umowy według swego uznania, z zastrzeżeniem właściwości stosunku, przepisów ustawy i zasad współżycia społecznego. Obowiązki i odpowiedzialność z tytułu niewykonania lub nienależytego wykonania umowy reguluje art. 471 KC.\\n\\nObowiązki usługodawcy elektronicznego. Ustawa z dnia 18 lipca 2002 r. o świadczeniu usług drogą elektroniczną nakłada na operatora obowiązek nieodpłatnego udostępnienia regulaminu świadczenia usług, usuwania treści bezprawnych na żądanie (notice and takedown) oraz określenia warunków korzystania z platformy.\\n\\nOchrona konsumentów. Sprzedawca jako strona umowy z konsumentem odpowiada za niezgodność towaru z umową (rozdział 5a ustawy z dnia 30 maja 2014 r. o prawach konsumenta) i realizację 14-dniowego prawa odstąpienia (art. 27 u.p.k.). Operator może być solidarnie odpowiedzialny, jeżeli aktywnie uczestniczy w transakcji lub prezentuje się konsumentowi jako sprzedawca.\\n\\nOchrona danych osobowych. Art. 28 rozporządzenia (UE) 2016/679 (RODO) wymaga, aby administrator (sprzedawca) i podmiot przetwarzający (operator) zawarli pisemną umowę powierzenia przetwarzania danych, precyzującą cel, czas i zakres przetwarzania. Brak umowy DPA stanowi naruszenie RODO, za które Prezes Urzędu Ochrony Danych Osobowych (PUODO) może nałożyć karę administracyjną.\\n\\nVAT i rachunkowość. Prowizja operatora jest opodatkowana VAT 23% na podstawie ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług. Od 2021 r. stosuje się unijny pakiet VAT e-commerce, który przy sprzedaży transgranicznej może przenosić obowiązek poboru VAT na operatora marketplace jako tzw. uznanego dostawcy (deemed supplier). Rozliczenia powinny być dokumentowane fakturami VAT.\\n\\nDigital Services Act (DSA). Rozporządzenie (UE) 2022/2065 o usługach cyfrowych nakłada na duże platformy obowiązki weryfikacji danych sprzedawców, przejrzystości rankingów i mechanizmów reklamacyjnych. Operatorzy muszą dostosować umowy z merchantami do wymagań DSA.\\n\\nUmowa marketplace w Polsce zawiera typowe błędy, które mogą prowadzić do sporów między operatorem a merchantem lub roszczeń konsumenckich.\\n\\nBłąd 1 — brak precyzyjnego podziału odpowiedzialności wobec konsumentów. Niejednoznaczne określenie, kto jest stroną umowy z konsumentem i kto odpowiada za reklamacje, prowadzi do sytuacji, w której konsument nie wie, do kogo kierować roszczenia. Zalecenie: wprost wskaż, że sprzedawca jest stroną umowy i odpowiada za prawa konsumenta z u.p.k.\\n\\nBłąd 2 — brak umowy powierzenia przetwarzania danych (DPA). Pominięcie umowy powierzenia w rozumieniu art. 28 RODO narusza przepisy o ochronie danych i może skutkować karą Prezesa PUODO. Zalecenie: zawrzyj odrębną umowę DPA lub uwzględnij jej elementy w umowie marketplace.\\n\\nBłąd 3 — niejasne zasady pobierania prowizji. Ogólnikowe określenie prowizji bez wskazania podstawy obliczania (netto/brutto), momentu wymagalności i terminu wypłaty powoduje spory. Zalecenie: precyzyjnie opisz wszystkie parametry rozliczeń.\\n\\nBłąd 4 — brak postanowień o wypowiedzeniu i blokadzie konta. Umowy bez jasnych zasad zawieszenia konta lub wypowiedzenia ze skutkiem natychmiastowym narażają operatora w przypadku naruszeń przez sprzedawcę. Zalecenie: opisz przesłanki zawieszenia i rozwiązania umowy.\\n\\nBłąd 5 — pominięcie wymogów DSA i VAT e-commerce. Nieuwzględnienie obowiązków wynikających z rozporządzenia DSA i przepisów VAT e-commerce (pakiet 2021) naraża operatora na sankcje administracyjne. Zalecenie: zaktualizuj umowę i regulamin platformy o wymogi DSA i VAT e-commerce.\\n\\nBłąd 6 — brak zasad weryfikacji sprzedawców. Niedopełnienie obowiązku weryfikacji tożsamości i danych sprzedawców wymaganego przez DSA narusza obowiązki platformy jako pośrednika. Zalecenie: opisz procedurę weryfikacji przed dopuszczeniem sprzedawcy do platformy.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-marketplace (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-bb654fc9-bc7b-44da-b3e3-6c74aa2914c7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_24084a804399478b941a1103",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa o pracę prowizja od sprzedaży składniki zmienne wynagrodzenia kodeks pracy\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_424b17dc777743ebaa37a29b",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"prowizja od sprzedaży\", \"wynagrodzenie zmienne\", \"art. 80 KP\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_758\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 758 1 . § 1. Jeżeli sposób wynagrodzenia nie został w umowie określony, agentowi należy się prowizja. § 2. Prowizją jest wynagrodzenie, którego wysokość zależy od liczby lub wartości zawartych umów. § 3. Jeżeli wysokość prowizji nie została w umowie określona, należy się ona w wysokości zwyczajowo przyjętej w stosunkach danego rodzaju, w miejscu działalności prowadzonej przez agenta, a w razie niemożności ustalenia prowizji w ten sposób, agentow ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_761\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 761 6 . Przepisy art. 761-761 5 stosuje się w razie gdy prowizja stanowi całość lub część wynagrodzenia, chyba że strony uzgodniły stosowanie tych przepisów do innego rodzaju wynagrodzenia.\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29. § 1 11) W brzmieniu ustalonym przez art. 1 pkt 6 lit. a ustawy, o której mowa w odnośniku 2. . Umowa o pracę określa strony umowy, adres siedziby pracodawcy, a w przypadku pracodawcy będącego osobą fizyczną nieposiadającego siedziby - adres zamieszkania, a także rodzaj umowy, datę jej zawarcia oraz warunki pracy i płacy, w szczególności: 1) rodzaj pracy; 2) miejsce lub miejsca wykonywania pracy; 3) wynagrodzenie za pracę odpowiadające rodzajow ...\"}, {\"chunk_id\": \"uokik_items:uokik_78ed2e0df2e10615\", \"source_id\": \"uokik_rejestr_klauzul_5693\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wynagrodzenie prowizyjne będzie wyższe o 3% w przypadku gdy sprawa z powodów niezależnych od Zleceniobiorcy, będzie trwała dłużej niż jeden rok, od dnia podpisania niniejszej umowy. Powyższa prowizja zwiększy się o taki procent za każdy następny rok\"}, {\"chunk_id\": \"uokik_items:uokik_2cf140962004d9a2\", \"source_id\": \"uokik_rejestr_klauzul_5124\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zamawiający zobowiązuje się zapłacić Przedsiębiorcy prowizję w przypadku sprzedaży oferowanego przedmiotu osobie, która bezpośrednio lub pośrednio skojarzona została z Zamawiającym przez Przedsiębiorcę, a także gdy Zamawiający w inny sposób znalazł kontrahenta\"}]",
+   "tool_call_id": "call_24084a804399478b941a1103",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_424b17dc777743ebaa37a29b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results show some relevant material. Let me search more specifically for employment contract provisions related to commission-based pay, variable remuneration components, and the Labor Code (Kodeks pracy) articles.",
+   "tool_calls": [
+    {
+     "id": "call-76103602-ca52-4e8e-a4dc-096396cadc1b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"Kodeks pracy art. 78 wynagrodzenie prowizyjne składniki zmienne premia prowizja od sprzedaży\"}"
+     }
+    },
+    {
+     "id": "call-9ce7b34c-1ca8-46e1-b709-cac337223305",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"art. 78 KP\", \"wynagrodzenie prowizyjne\", \"składniki wynagrodzenia\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_78\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 78. § 1. Wynagrodzenie za pracę powinno być tak ustalone, aby odpowiadało w szczególności rodzajowi wykonywanej pracy i kwalifikacjom wymaganym przy jej wykonywaniu, a także uwzględniało ilość i jakość świadczonej pracy. § 2. W celu określenia wynagrodzenia za pracę ustala się, w trybie przewidzianym w art. 77 1 -77 3 , wysokość oraz zasady przyznawania pracownikom stawek wynagrodzenia za pracę określonego rodzaju lub na określonym stanowisku, a t ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_87\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 87. § 1. Z wynagrodzenia za pracę - po odliczeniu składek na ubezpieczenia społeczne, zaliczki na podatek dochodowy od osób fizycznych oraz wpłat dokonywanych do pracowniczego planu kapitałowego, w rozumieniu ustawy z dnia 4 października 2018 r. o pracowniczych planach kapitałowych ( Dz. U. z 2023 r. poz. 46 ) , jeżeli pracownik nie zrezygnował z ich dokonywania - podlegają potrąceniu tylko następujące należności: 1) sumy egzekwowane na mocy tytuł ...\"}, {\"chunk_id\": \"uokik_items:uokik_2cf140962004d9a2\", \"source_id\": \"uokik_rejestr_klauzul_5124\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zamawiający zobowiązuje się zapłacić Przedsiębiorcy prowizję w przypadku sprzedaży oferowanego przedmiotu osobie, która bezpośrednio lub pośrednio skojarzona została z Zamawiającym przez Przedsiębiorcę, a także gdy Zamawiający w inny sposób znalazł kontrahenta\"}, {\"chunk_id\": \"uokik_items:uokik_78ed2e0df2e10615\", \"source_id\": \"uokik_rejestr_klauzul_5693\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wynagrodzenie prowizyjne będzie wyższe o 3% w przypadku gdy sprawa z powodów niezależnych od Zleceniobiorcy, będzie trwała dłużej niż jeden rok, od dnia podpisania niniejszej umowy. Powyższa prowizja zwiększy się o taki procent za każdy następny rok\"}, {\"chunk_id\": \"uokik_items:uokik_e9b65a27bcaa1ed4\", \"source_id\": \"uokik_rejestr_klauzul_5286\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Komisant po dokonaniu sprzedaży potrąci od ceny określonej w ust. 1 prowizję w wysokości negocjowanej. Prowizja zawiera opłatę parkingową, koszty reklamy i zryczałtowaną opłatę za paliwo\"}]",
+   "tool_call_id": "call-76103602-ca52-4e8e-a4dc-096396cadc1b",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1773_art_8d\", \"source_id\": \"sejm_eli_du_2024_1773_art_8d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 8d. 1. Przepisów art. 8a-8c nie stosuje się do: 1) umów, o których mowa w art. 734 i art. 750 Kodeksu cywilnego , jeżeli o miejscu i czasie wykonania zlecenia lub świadczenia usług decyduje przyjmujący zlecenie lub świadczący usługi i przysługuje mu wyłącznie wynagrodzenie prowizyjne; 2) umów dotyczących usług opiekuńczych i bytowych realizowanych poprzez prowadzenie rodzinnego domu pomocy na podstawie art. 52 ustawy z dnia 12 marca 2004 r. o pomocy społecznej ( Dz. U. z 2024 r. poz. 1283 i 1572 ) ; 3) umów: a) o pe ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0064_statute_d293ff3aa276ec37\", \"source_id\": \"sejm_eli_du_2023_1465_art_87\", \"source_type\": \"statute\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Z wynagrodzenia za pracę odlicza się, w pełnej wysokości, kwoty wypłacone w poprzednim terminie płatności za okres nieobecności w pracy, za który pracownik nie zachowuje prawa do wynagrodzenia. § 8. Potrąceń należności z wynagrodzenia pracownika w miesiącu, w którym są wypłacane składniki wynagrodzenia za okresy dłuższe niż 1 miesiąc, dokonuje się od łącznej kwoty wynagrodzenia uwzględniającej te składniki wynagrodzenia.\"}, {\"chunk_id\": \"uokik_items:uokik_78ed2e0df2e10615\", \"source_id\": \"uokik_rejestr_klauzul_5693\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wynagrodzenie prowizyjne będzie wyższe o 3% w przypadku gdy sprawa z powodów niezależnych od Zleceniobiorcy, będzie trwała dłużej niż jeden rok, od dnia podpisania niniejszej umowy. Powyższa prowizja zwiększy się o taki procent za każdy następny rok\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_18\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 18 3 c . § 1. Pracownicy mają prawo do jednakowego wynagrodzenia za jednakową pracę lub za pracę o jednakowej wartości. § 2. Wynagrodzenie, o którym mowa w § 1, obejmuje wszystkie składniki wynagrodzenia, bez względu na ich nazwę i charakter, a także inne świadczenia związane z pracą, przyznawane pracownikom w formie pieniężnej lub w innej formie niż pieniężna. § 3. Pracami o jednakowej wartości są prace, których wykonywanie wymaga od pracowników  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_85\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 85. § 1. Wypłaty wynagrodzenia za pracę dokonuje się co najmniej raz w miesiącu, w stałym i ustalonym z góry terminie. § 2. Wynagrodzenie za pracę płatne raz w miesiącu wypłaca się z dołu, niezwłocznie po ustaleniu jego pełnej wysokości, nie później jednak niż w ciągu pierwszych 10 dni następnego miesiąca kalendarzowego. § 3. Jeżeli ustalony dzień wypłaty wynagrodzenia za pracę jest dniem wolnym od pracy, wynagrodzenie wypłaca się w dniu poprzedza ...\"}]",
+   "tool_call_id": "call-9ce7b34c-1ca8-46e1-b709-cac337223305",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about commission-based pay in employment contracts, minimum wage requirements for commission-based employees, and how variable components are handled.",
+   "tool_calls": [
+    {
+     "id": "call-1886a77c-a6a7-4004-a060-1c143e4aff5e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"minimalne wynagrodzenie prowizja od sprzedaży pracownik handlowy art. 78 KP stawki prowizji\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-1b3de579-fd69-4d33-98f5-ca35bfddb731",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"art. 80 KP\", \"wynagrodzenie minimalne prowizja\", \"pracownik handlowy\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_78\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 78. § 1. Wynagrodzenie za pracę powinno być tak ustalone, aby odpowiadało w szczególności rodzajowi wykonywanej pracy i kwalifikacjom wymaganym przy jej wykonywaniu, a także uwzględniało ilość i jakość świadczonej pracy. § 2. W celu określenia wynagrodzenia za pracę ustala się, w trybie przewidzianym w art. 77 1 -77 3 , wysokość oraz zasady przyznawania pracownikom stawek wynagrodzenia za pracę określonego rodzaju lub na określonym stanowisku, a t ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_8d\", \"source_id\": \"sejm_eli_du_2024_1773_art_8d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 8d. 1. Przepisów art. 8a-8c nie stosuje się do: 1) umów, o których mowa w art. 734 i art. 750 Kodeksu cywilnego , jeżeli o miejscu i czasie wykonania zlecenia lub świadczenia usług decyduje przyjmujący zlecenie lub świadczący usługi i przysługuje mu wyłącznie wynagrodzenie prowizyjne; 2) umów dotyczących usług opiekuńczych i bytowych realizowanych poprzez prowadzenie rodzinnego domu pomocy na podstawie art. 52 ustawy z dnia 12 marca 2004 r. o pomocy społecznej ( Dz. U. z 2024 r. poz. 1283 i 1572 ) ; 3) umów: a) o pe ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_758\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 758 1 . § 1. Jeżeli sposób wynagrodzenia nie został w umowie określony, agentowi należy się prowizja. § 2. Prowizją jest wynagrodzenie, którego wysokość zależy od liczby lub wartości zawartych umów. § 3. Jeżeli wysokość prowizji nie została w umowie określona, należy się ona w wysokości zwyczajowo przyjętej w stosunkach danego rodzaju, w miejscu działalności prowadzonej przez agenta, a w razie niemożności ustalenia prowizji w ten sposób, agentow ...\"}, {\"chunk_id\": \"uokik_items:uokik_78ed2e0df2e10615\", \"source_id\": \"uokik_rejestr_klauzul_5693\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wynagrodzenie prowizyjne będzie wyższe o 3% w przypadku gdy sprawa z powodów niezależnych od Zleceniobiorcy, będzie trwała dłużej niż jeden rok, od dnia podpisania niniejszej umowy. Powyższa prowizja zwiększy się o taki procent za każdy następny rok\"}, {\"chunk_id\": \"uokik_items:uokik_e9b65a27bcaa1ed4\", \"source_id\": \"uokik_rejestr_klauzul_5286\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Komisant po dokonaniu sprzedaży potrąci od ceny określonej w ust. 1 prowizję w wysokości negocjowanej. Prowizja zawiera opłatę parkingową, koszty reklamy i zryczałtowaną opłatę za paliwo\"}]",
+   "tool_call_id": "call-1886a77c-a6a7-4004-a060-1c143e4aff5e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-1b3de579-fd69-4d33-98f5-ca35bfddb731",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam pracy na umowie o pracę, gdzie część wynagrodzenia zależy od moich wyników w sprzedaży. Chcę wiedzieć, jak wygląda taka umowa i co dokładnie w niej powinno być."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję przejść do firmy handlowej na stanowisko przedstawiciela handlowego. Oferują mi umowę o pracę z podstawą i prowizją od sprzedaży, ale nie wiem, jak ustalić cele sprzedażowe, jak często będzie naliczana prowizja i co się stanie, jeśli nie osiągnę planu. Chciałbym też wiedzieć, czy prowizja dotyczy tylko nowych klientów, czy też odnowień, i jak wygląda rozliczanie delegacji i kosztów samochodu."
+  }
+ ]
+}

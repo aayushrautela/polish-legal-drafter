@@ -1,0 +1,328 @@
+{
+ "run": 11,
+ "hint": "Najem powierzchni biurowej w modelu coworkingu (pokoje i biurka)",
+ "scenario": "Najem powierzchni biurowej w modelu coworkingu (pokoje i biurka)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_najmu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an office lease contract (umowa_najmu) specifically for a coworking model (rooms and desks). I need to:\n1. First read the base template for umowa_najmu\n2. Then search for provisions relevant to coworking model - shared spaces, flexible terms, desk/room rentals, service charges, etc.\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-9ca6213f-f76b-4ef1-ad95-0c8eeb76eed5",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_najmu\", \"query\": \"coworking biurowe pokoje biurka model elastyczny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_najmu\", \"kind\": \"structural_template\", \"text\": \"# Umowa najmu lokalu dla firmy (użytkowego)\\nUmowa najmu lokalu dla firmy (użytkowego) w Polsce to umowa, przez którą wynajmujący oddaje najemcy lokal niebędący lokalem mieszkalnym do używania na potrzeby prowadzenia działalności gospodarczej w zamian za czynsz, zgodnie z art. 659 § 1 Kodeksu cywilnego z dnia 23 kwietnia 1964 r. Najem lokalu użytkowego podlega przepisom ogólnym o najmie (art. 659-679 KC) i przepisom szczególnym o najmie lokalu (art. 680-692 KC), bez stosowania ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, ponieważ ta ustawa dotyczy wyłącznie lokali mieszkalnych.\\n\\nBrak reżimu ochrony lokatorów przy najmie lokali użytkowych daje stronom znacznie większą swobodę kontraktową wynikającą z art. 353¹ KC. Strony mogą swobodnie ustalać wysokość i tryb waloryzacji czynszu, warunki wypowiedzenia umowy, zakres prac adaptacyjnych i wysokość kaucji bez ograniczeń ustawowych. Właśnie ta swoboda sprawia, że umowy najmu lokali użytkowych dla firm są zazwyczaj bardziej rozbudowane i szczegółowe niż umowy mieszkaniowe.\\n\\nCzynsz za najem lokalu użytkowego co do zasady podlega VAT. Zgodnie z art. 43 ust. 1 pkt 36 ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług najem lokali mieszkalnych na własne cele mieszkaniowe jest zwolniony z VAT, natomiast najem lokali użytkowych podlega stawce 23% VAT. Czynsz netto powiększa się o VAT, a wynajmujący wystawia najemcy fakturę VAT umożliwiającą odliczenie podatku naliczonego. Firmy korzystające z lokalu na potrzeby swojej działalności opodatkowanej mogą odliczać VAT od czynszu w deklaracji składanej do Krajowej Administracji Skarbowej.\\n\\nKlauzula indeksacyjna jest charakterystycznym elementem komercyjnych umów najmu. Strony najczęściej uzgadniają roczną waloryzację czynszu o wskaźnik inflacji (CPI) ogłaszany przez Główny Urząd Statystyczny (GUS) lub o ustalony procent. Klauzula ta zabezpiecza wartość czynszu w długoterminowych umowach i jest standardem w wynajmie biur, sklepów i powierzchni usługowych.\\n\\nAdaptacje i prace remontowe są istotnym zagadnieniem przy najmie lokali użytkowych dla firm. Firmy często chcą dostosować lokal do swoich potrzeb: przeprowadzić prace wykończeniowe, zamontować instalacje, przearanżować układ pomieszczeń. Umowa powinna precyzyjnie regulować zakres dozwolonych prac, tryb uzyskania zgody wynajmującego i rozliczenie nakładów po zakończeniu najmu na zasadach art. 676 KC.\\n\\nKaucja przy najmie lokalu użytkowego nie jest ograniczona ustawowo, ponieważ ustawa o ochronie lokatorów nie ma tu zastosowania. Zazwyczaj wynosi od dwóch do sześciu miesięcznych czynszów netto, w zależności od wartości wyposażenia lokalu i ryzyka szkód. Przy dużych powierzchniach biurowych lub handlowych stosuje się gwarancje bankowe jako elastyczniejszą formę zabezpieczenia.\\n\\nStrony sporów wynikających z najmu lokalu użytkowego dla firm są przedsiębiorcami, dlatego właściwy jest sąd rejonowy — sąd gospodarczy lub sąd okręgowy — sąd gospodarczy w zależności od wartości przedmiotu sporu, w trybie postępowania procesowego w sprawach gospodarczych. Kary umowne za zwłokę w zwrocie lokalu lub naruszenie zakazu podnajmu są powszechnie stosowanym narzędziem egzekwowania zobowiązań bez konieczności długotrwałego procesu.\\n\\nUmowa najmu lokalu użytkowego dla firmy w Polsce jest potrzebna w każdej sytuacji, gdy firma lub przedsiębiorca zajmuje lokal na potrzeby prowadzenia działalności gospodarczej.\\n\\nRejestracja siedziby spółki w lokalu. Spółka z ograniczoną odpowiedzialnością wpisana do KRS prowadzonego przez sąd rejonowy — sąd gospodarczy, musi mieć siedzibę w lokalu, do którego ma tytuł prawny. Umowa najmu lokalu użytkowego jest podstawowym dokumentem potwierdzającym ten tytuł. Przy spółkach wymagany jest czynsz, bowiem nieodpłatne używanie lokalu przez spółkę — przy braku umowy użyczenia — może być traktowane przez organy podatkowe jako nieodpłatne świadczenie generujące przychód.\\n\\nOtwieranie biura, kancelarii lub gabinetu. Firmy doradcze, kancelarie prawne, biura rachunkowe i gabinety medyczne wynajmują lokale użytkowe na potrzeby przyjmowania klientów i prowadzenia działalności. Umowa reguluje czas trwania najmu dopasowany do horyzontu biznesowego, klauzulę opcji przedłużenia i zasady dostosowania lokalu do potrzeb firmy.\\n\\nWynajem lokalu handlowego lub gastronomicznego. Sklepy, restauracje, kawiarnie i salony usługowe wynajmują lokale na parterach budynków lub w galeriach handlowych. Długoterminowe umowy 3-10-letnie są standardem; zawierają klauzule indeksacyjne, zakazy konkurencji w obrębie budynku i rozbudowane regulacje dotyczące nakładów i kaucji.\\n\\nSkalowanie biznesu i najem powierzchni magazynowej. Firmy dynamicznie rozwijające produkcję lub handel wynajmują dodatkowe powierzchnie magazynowe lub produkcyjne na czas określony. Umowy na czas oznaczony z opcją przedłużenia dają elastyczność przy planowaniu zasobów.\\n\\nRelokacja siedziby przedsiębiorstwa. Firma przenosząca biuro do innego budynku lub miasta zawiera nową umowę najmu i wypowiada lub ceduje dotychczasową. Klauzula wypowiedzenia w razie zbycia lokalu przez wynajmującego lub upadłości jest ważnym zabezpieczeniem przy zmianach właścicielskich nieruchomości.\\n\\nNajem przez JDG (jednoosobową działalność gospodarczą). Przedsiębiorca prowadzący JDG wpisaną do CEIDG prowadzonej przez Ministra właściwego do spraw gospodarki zawiera umowę we własnym imieniu. Lokal może być jednocześnie siedzibą firmy i adresem do doręczeń korespondencji z organami podatkowymi i Zakładem Ubezpieczeń Społecznych (ZUS).\\n\\nNajem lokalu na placówkę dydaktyczną lub centrum szkoleniowe. Szkoły, uczelnie prywatne, centra szkoleniowe i coworkingowe wynajmują lokale użytkowe dostosowane do potrzeb edukacyjnych. Umowa powinna regulować godziny dostępu, nośność podłóg, instalację sieci i klimatyzacji.\\n\\nUmowa najmu lokalu użytkowego dla firmy w Polsce powinna zawierać rozbudowane elementy charakterystyczne dla obrotu komercyjnego, wykraczające poza standard umowy mieszkaniowej.\\n\\nPełna identyfikacja stron jako podmiotów gospodarczych. Wynajmujący i najemca muszą być opisani przez firmę, NIP, REGON i numer KRS (jeżeli dotyczy) oraz organ reprezentacji. Przy spółkach niezbędne jest wskazanie osoby uprawnionej do podpisania umowy zgodnie z odpisem z KRS lub udzielonym pełnomocnictwem. Umowa zawarta przez osobę nieuprawnioną do reprezentacji spółki może być bezskuteczna, co Sąd Najwyższy potwierdzał w orzecznictwie dotyczącym art. 103 KC.\\n\\nPrecyzyjny opis lokalu użytkowego. Lokal opisuje się przez adres, powierzchnię, opis pomieszczeń i ich przeznaczenie, numer KW oraz, jeżeli dotyczy, miejsce na parkingu lub w garażu. Przeznaczenie lokalu powinno być zgodne z MPZP urzędu gminy lub decyzją WZ; zmiana przeznaczenia bez stosownej decyzji jest naruszeniem prawa budowlanego.\\n\\nCzynsz netto, VAT i klauzula indeksacyjna. Czynsz określa się netto (bez VAT), a VAT 23% doliczany jest zgodnie z art. 43 ust. 1 pkt 36 ustawy o VAT. Wynajmujący wystawia fakturę VAT. Klauzula waloryzacyjna oparta na wskaźniku CPI GUS lub stałym procencie rocznie chroni wartość czynszów w długoterminowych umowach.\\n\\nOpłaty eksploatacyjne i rozliczenie mediów. Przy najnie komercyjnym opłaty za media, ogrzewanie, wywóz odpadów i koszty zarządu budynkiem są zazwyczaj osobne od czynszu. Zaliczki rozliczane są raz lub dwa razy w roku na podstawie faktycznego zużycia. Jasne rozdzielenie czynszu od opłat eksploatacyjnych upraszcza fakturowanie VAT.\\n\\nKaucja i inne zabezpieczenia. Brak ustawowego limitu kaucji przy najmie lokalu użytkowego umożliwia wynajmującemu żądanie wielomiesięcznej kaucji lub gwarancji bankowej wystawianej przez bank najemcy. Gwarancja bankowa jest elastyczniejsza i nie zamraża gotówki najemcy. Termin zwrotu kaucji lub wygaśnięcia gwarancji powinien być jasno określony.\\n\\nAdaptacje, nakłady i zwrot lokalu. Umowa musi precyzyjnie opisywać zakres prac, do których najemca jest uprawniony, tryb uzyskania zgody wynajmującego (pisemna) i formę rozliczenia nakładów po zakończeniu najmu: przywrócenie stanu pierwotnego lub zatrzymanie ulepszeń przez wynajmującego za wynagrodzeniem na zasadach art. 676 KC.\\n\\nKary umowne i ochrona interesów wynajmującego. Kary umowne za zwłokę w zwrocie lokalu, naruszenie zakazu podnajmu i zmianę przeznaczenia bez zgody są standardem w umowach komercyjnych. Naliczane dziennie, motywują najemcę do terminowego zdania lokalu i przestrzegania warunków umowy. Wzory uzupełniające, takie jak protokół zdawczo-odbiorczy i aneks do umowy najmu, dostępne są na platformie forms-legal.com.\\n\\nWypełnienie umowy najmu lokalu użytkowego dla firmy w Polsce wymaga precyzyjnego opisania podmiotów, lokalu i warunków finansowych.\\n\\nKrok 1 — zidentyfikuj strony. Pobierz aktualny odpis z KRS dla obu spółek lub wydruk z CEIDG dla przedsiębiorców. Sprawdź, kto jest uprawniony do podpisania umowy w imieniu spółki: zarząd jednoosobowy, zarząd łącznie czy pełnomocnik. Wpisz firmę, NIP, REGON, KRS i adres siedziby.\\n\\nKrok 2 — opisz lokal. Pobierz odpis z KW lokalu w systemie Elektronicznych Ksiąg Wieczystych. Sprawdź Dział II (własność), Dział III (roszczenia) i Dział IV (hipoteki). Wpisz adres, powierzchnię, opis pomieszczeń i numer KW. Opisz przeznaczenie lokalu i rodzaj dozwolonej działalności.\\n\\nKrok 3 — ustal czas trwania. Wybierz najem na czas oznaczony (zalecane przy firmach — daje stabilność) lub nieoznaczony. Przy czasie oznaczonym wpisz datę zakończenia i zdecyduj, czy najemca ma opcję przedłużenia.\\n\\nKrok 4 — określ czynsz i VAT. Wpisz czynsz netto. Zaznacz stawkę VAT (standard 23%) lub zwolnienie, jeżeli wynajmujący nie jest podatnikiem VAT. Wpisz opłaty eksploatacyjne jako zaliczkę rozliczaną rocznie. Ustal klauzulę indeksacyjną (GUS CPI lub stały %).\\n\\nKrok 5 — ustal kaucję. Wpisz kwotę kaucji (zazwyczaj 2-3 czynsze netto) i termin jej zwrotu po zdaniu lokalu. Rozważ gwarancję bankową jako alternatywę.\\n\\nKrok 6 — ureguluj adaptacje. Wybierz jedną z opcji: zakaz wszelkich prac, prace za zgodą pisemną lub dozwolone prace wykończeniowe. Przy dopuszczeniu prac precyzuj obowiązki przy zwrocie lokalu: przywrócenie stanu lub zatrzymanie ulepszeń.\\n\\nKrok 7 — dodaj zakaz podnajmu. Przy braku postanowienia podnajem jest dopuszczalny (art. 668 KC). Przy najmie komercyjnym zakaz podnajmu i cesji umowy bez zgody wynajmującego jest standardem.\\n\\nKrok 8 — ustal kary umowne. Wpisz karę za zwłokę w zwrocie lokalu (np. dwukrotny dzienny czynsz za każdy dzień opóźnienia). Zastrzeż prawo do dochodzenia odszkodowania ponad wartość kary.\\n\\nKrok 9 — sporządź protokół zdawczo-odbiorczy. Przy przekazaniu lokalu sporządź szczegółowy protokół: opis pomieszczeń, stan instalacji, wyposażenie i stany liczników. Strony potwierdzają odbiór lokalu podpisami.\\n\\nKrok 10 — podpisz umowę przez właściwe organy. Upewnij się, że umowę podpisują osoby uprawnione do reprezentacji obu podmiotów. Sporządź dwa egzemplarze. Rozważ notarialne poświadczenie podpisów lub potwierdzenie przez radcę prawnego.\\n\\nUmowa najmu lokalu użytkowego dla firmy w Polsce podlega kilku grupom przepisów prawnych, których znajomość jest niezbędna do prawidłowego zawarcia i wykonania umowy.\\n\\nPodstawa kodeksowa. Najem lokalu użytkowego reguluje Kodeks cywilny: art. 659-679 (przepisy ogólne) i art. 680-692 (przepisy szczególne o najmie lokalu). Artykuł 353¹ KC pozwala stronom na swobodne kształtowanie treści umowy, byleby nie naruszała ona przepisów bezwzględnie obowiązujących, natury stosunku ani zasad współżycia społecznego. Brak zastosowania ustawy o ochronie lokatorów z 2001 r. oznacza pełną swobodę w zakresie kaucji, trybu wypowiedzenia i indeksacji czynszu.\\n\\nVAT od najmu lokalu użytkowego. Ustawa z dnia 11 marca 2004 r. o podatku od towarów i usług przewiduje zwolnienie z VAT wyłącznie dla najmu lokali mieszkalnych na własne cele mieszkaniowe (art. 43 ust. 1 pkt 36 ustawy). Najem lokali użytkowych jest świadczeniem opodatkowanym stawką 23% VAT. Wynajmujący zarejestrowany jako podatnik VAT wystawia faktury VAT, a najemca ma prawo do odliczenia VAT naliczonego, jeżeli wykorzystuje lokal do działalności opodatkowanej.\\n\\nPodatek od nieruchomości. Właściciel lokalu użytkowego ponosi podatek od nieruchomości na rzecz gminy. Przy najem lokalu przez firmę podatek od nieruchomości może być wyższy niż przy użytkowaniu mieszkalnym, ponieważ stawki dla budynków i powierzchni związanych z prowadzeniem działalności gospodarczej są wyższe. Postanowienie o obciążeniu najemcy częścią podatku jest dopuszczalne, lecz wymaga wyraźnego wskazania w umowie.\\n\\nPrawo budowlane przy adaptacjach. Prace adaptacyjne w lokalu użytkowym mogą wymagać pozwolenia na budowę (art. 28 prawa budowlanego z 7 lipca 1994 r.) lub zgłoszenia robót do starosty (art. 29-30). Zmiana sposobu użytkowania obiektu budowlanego lub jego części wymaga zgłoszenia do organu architektoniczno-budowlanego na podstawie art. 71 prawa budowlanego.\\n\\nKRS i uprawnienia do reprezentacji. Przy spółkach z ograniczoną odpowiedzialnością wpisanych do KRS zarząd jest uprawniony do składania oświadczeń woli zgodnie z zasadami reprezentacji w umowie spółki (art. 205 KSH). Umowa podpisana przez osobę nieuprawnioną lub z przekroczeniem zasad reprezentacji wymaga potwierdzenia na podstawie art. 103 KC, a do potwierdzenia można wezwać spółkę w wyznaczonym terminie.\\n\\nKPA przy wynajmie lokali od podmiotów publicznych. Jeżeli wynajmującym jest gmina lub starostwo, zawarcie umowy może wymagać przetargu lub ogłoszenia o naborze na podstawie ustawy o gospodarce nieruchomościami z 1997 r. Decyzje administracyjne wydawane na podstawie Kodeksu postępowania administracyjnego (KPA z 14 czerwca 1960 r.) dotyczą zmian przeznaczenia lokalu i adaptacji.\\n\\nOchrona danych osobowych. Strony przetwarzają dane osobowe reprezentantów i pracowników zawarte w umowie, co podlega RODO i ustawie z dnia 10 maja 2018 r. o ochronie danych osobowych. Klauzula informacyjna powinna być przekazana wszystkim osobom, których dane są zawarte w umowie.\\n\\nUmowa najmu lokalu użytkowego dla firmy w Polsce jest źródłem wielu poważnych błędów, które mogą skutkować utratą praw lub kosztownymi sporami sądowymi.\\n\\nBłąd 1 — podpisanie umowy przez osobę nieuprawnioną do reprezentacji spółki. Umowa najmu podpisana przez pracownika lub prokurenta bez odpowiednich pełnomocnictw może być bezskuteczna. Przed podpisaniem należy sprawdzić aktualny odpis z KRS i zasady reprezentacji spółki, a przy pełnomocnikach — weryfikować pełnomocnictwo.\\n\\nBłąd 2 — brak klauzuli indeksacyjnej. Przy wieloletnich umowach brak waloryzacji czynszu powoduje, że jego realna wartość spada wraz z inflacją. Na rynku nieruchomości komercyjnych inflacja CPI ogłaszana przez GUS jest standardową podstawą indeksacji.\\n\\nBłąd 3 — niejasne postanowienia o adaptacjach i rozliczeniu nakładów. Brak precyzyjnego opisu dozwolonych prac i trybu uzyskania zgody prowadzi do sporów po zakończeniu najmu: czy najemca musi przywrócić stan pierwotny, czy wynajmujący musi zapłacić za ulepszenia. Artykuł 676 KC daje wynajmującemu wybór, lecz bez regulacji umownej decyzja należy tylko do niego.\\n\\nBłąd 4 — pominięcie podatku VAT przy obliczaniu kosztów. Czynsz netto powiększony o VAT 23% stanowi rzeczywisty koszt dla najemcy, który nie jest podatnikiem VAT (np. lekarz prowadzący gabinet zwolniony z VAT). Brak rozróżnienia czynszu netto i brutto prowadzi do nieporozumień co do wysokości miesięcznych płatności.\\n\\nBłąd 5 — zbyt krótki termin kaucji. Wynajmujący niekiedy zobowiązują się do zwrotu kaucji w 7 dni od zakończenia najmu, zanim zdążą sprawdzić stan lokalu i rozliczyć należności. Standardem jest 30 dni po protokolarnym zdaniu lokalu i rozliczeniu opłat eksploatacyjnych.\\n\\nBłąd 6 — brak zakazu cesji i podnajmu. Przy braku zakazu podnajmu najemca może na podstawie art. 668 KC oddać lokal do używania innej firmie bez zgody wynajmującego. Zakaz podnajmu i cesji praw z umowy jest kluczowym postanowieniem przy najem komercyjnym.\\n\\nBłąd 7 — brak precyzyjnych klauzul wypowiedzenia przy umowie na czas oznaczony. Artykuł 673 § 3 KC stanowi, że najem na czas oznaczony można wypowiedzieć wyłącznie w przypadkach wskazanych w umowie. Brak takich klauzul uniemożliwia wypowiedzenie przed upływem terminu, nawet przy rażącym naruszeniu przez najemcę warunków umowy.\\n\\nBłąd 8 — pominięcie klauzuli co do zbycia lokalu. Przy sprzedaży lokalu nabywca wstępuje w stosunek najmu (art. 678 KC), lecz umowa może zawierać klauzulę umożliwiającą najemcy wypowiedzenie przy zmianie właściciela. Brak tej klauzuli może być niekorzystny dla firmy planującej długoterminowe inwestycje w wyposażenie lokalu.\\n\\nŹródło: https://forms-legal.com/pl/real-estate/commercial/umowa-najmu-lokalu-dla-firmy (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-9ca6213f-f76b-4ef1-ad95-0c8eeb76eed5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. I need to search for provisions relevant to coworking model - shared spaces, flexible terms, desk/room rentals, service charges, access control, community rules, etc. Let me search for relevant materials.",
+   "tool_calls": [
+    {
+     "id": "call-ab65f54a-3e78-4205-9d6c-40acaf0f0982",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"coworking biurowe pokoje biurka model elastyczny najem współdzielone przestrzenie\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_7363006ac063f163\", \"source_id\": \"uokik_rejestr_klauzul_272\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W wyjątkowych przypadkach biuro rezerwuje sobie możliwość i prawo do zmiany programu lub zakwaterowania w innych obiektach o tym samym standardzie\"}, {\"chunk_id\": \"extractor_v9:filtered_0086_statute_7d1e46366ab99ca5\", \"source_id\": \"sejm_eli_du_2023_725_art_2\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"w lokalu dotychczas używanym; warunek ten uznaje się za spełniony, jeżeli na członka gospodarstwa domowego przypada 10 m 2 powierzchni łącznej pokoi, a w wypadku gospodarstwa jednoosobowego - 20 m 2 tej powierzchni; 7) powierzchni użytkowej lokalu - należy przez to rozumieć powierzchnię wszystkich pomieszczeń znajdujących się w lokalu, a w szczególności pokoi, kuchni, spiżarni, przedpokoi, alków, holi, korytarzy, łazienek oraz innych pomieszczeń służących mieszkalnym i gospodarczym potrzebom lokatora, bez względu na ich przeznaczenie i sposób używania; za powierzchnię użytkową lokalu nie uważa ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_2\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 2. 1. Ilekroć w ustawie jest mowa o: 1) lokatorze - należy przez to rozumieć najemcę lokalu lub osobę używającą lokal na podstawie innego tytułu prawnego niż prawo własności; 2) właścicielu - należy przez to rozumieć wynajmującego lub inną osobę, z którą wiąże lokatora stosunek prawny uprawniający go do używania lokalu; 3) współlokatorze - należy przez to rozumieć lokatora, którem ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_688\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 688. Jeżeli czas trwania najmu lokalu nie jest oznaczony, a czynsz jest płatny miesięcznie, najem można wypowiedzieć najpóźniej na trzy miesiące naprzód na koniec miesiąca kalendarzowego.\"}, {\"chunk_id\": \"extractor_v9:broad_0006_statute_e2f3148c384d80be\", \"source_id\": \"sejm_eli_du_2024_1061_art_691\", \"source_type\": \"statute\", \"top_category\": \"termination\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 691. § 1. W razie śmierci najemcy lokalu mieszkalnego w stosunek najmu lokalu wstępują: małżonek niebędący współnajemcą lokalu, dzieci najemcy i jego współmałżonka, inne osoby, wobec których najemca był obowiązany do świadczeń alimentacyjnych, oraz osoba, która pozostawała faktycznie we wspólnym pożyciu z najemcą. § 2. Osoby wymienione w § 1 wstępują w stosunek najmu lokalu mieszkalnego, jeżeli stale zamieszkiwały z najemcą w tym lokalu do chwili jego śmierci. § 3. W razie braku osób wymienionych w § 1 stosunek najmu lokalu mieszkalnego wygasa. § 4. Osoby, które wstąpiły w stosunek najmu  ...\"}, {\"chunk_id\": \"uokik_items:uokik_f3cf08a882ce9428\", \"source_id\": \"uokik_rejestr_klauzul_3533\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Część nieruchomości wspólnej Budynku (Budynku I oraz Budynku II) obejmująca część dachu oraz część elewacji będzie przeznaczona pod reklamę Spółki lub innych wskazanych przez Spółkę podmiotów prawa lub innych użytkowników Lokalu Biurowego. W związku z treścią zdania poprzedniego Strony w Umowie Sprzedaży dokonają podziału do korzystania nieruchomości wspólnej w ten sposób, iż Spółce będzie przysługiwało nieodpłatne prawo do wyłącznego korzystania z określonej powyżej części nieruchomości wspólnej z możliwością jej przekazania do korzystania przez innych użytkowników Lokalu Biurowego, a Nabywca ...\"}, {\"chunk_id\": \"uokik_abusive_clause_276\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie spory wynikające z tytułu realizacji niniejszej umowy będą rozstrzygane polubownie, a w razie porozumienia przez sąd powszechny właściwy dla biura\"}, {\"chunk_id\": \"uokik_items:uokik_d205ad87c945bd9e\", \"source_id\": \"uokik_rejestr_klauzul_812\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Uczestnicy ponoszą koszty w równych częściach, rezygnacja jednego z uczestników powoduje równomierne rozłożenie kosztów na pozostałych uczestników\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_691\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 691. § 1. W razie śmierci najemcy lokalu mieszkalnego w stosunek najmu lokalu wstępują: małżonek niebędący współnajemcą lokalu, dzieci najemcy i jego współmałżonka, inne osoby, wobec których najemca był obowiązany do świadczeń alimentacyjnych, oraz osoba, która pozostawała faktycznie we wspólnym pożyciu z najemcą. § 2. Osoby wymienione w § 1 wstępują w stosunek najmu lokalu mieszkalnego, jeżeli stale zamieszkiwały z najemcą w tym lokalu do chwil ...\"}, {\"chunk_id\": \"uokik_items:uokik_ccb003d22f84cee1\", \"source_id\": \"uokik_rejestr_klauzul_1355\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Nie uważa się za wadę usługi niedociągnięć zawinionych przez uczestnika oraz osoby prawne i fizyczne nie pozostające w stosunku prawnym z naszym biurem albo wynikłych z okoliczności, za które biuro nie odpowiada.\"}]",
+   "tool_call_id": "call-ab65f54a-3e78-4205-9d6c-40acaf0f0982",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results aren't very specific to coworking. Let me try more targeted searches for coworking-specific provisions like flexible terms, shared spaces, service charges, access control, community rules, etc.",
+   "tool_calls": [
+    {
+     "id": "call-8294a3f4-d366-4afc-8e98-429efea7b631",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"coworking\", \"współdzielone biuro\", \"elastyczny najem\", \"hot desk\", \"dedicated desk\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-8294a3f4-d366-4afc-8e98-429efea7b631",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "No results for coworking-specific terms. Let me search for more general commercial lease provisions that would be relevant to coworking - like service charges, shared spaces, flexible terms, access control, etc.",
+   "tool_calls": [
+    {
+     "id": "call-30989084-5075-4309-8daa-a1ee4ca3d862",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"service charge opłaty serwisowe części wspólne biurowe zarządzanie budynkiem czynsz dodatkowy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_725_art_8a\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 8a. 1. Właściciel może podwyższyć czynsz albo inne opłaty za używanie lokalu, wypowiadając jego dotychczasową wysokość, najpóźniej na koniec miesiąca kalendarzowego, z zachowaniem terminów wypowiedzenia. 2. Termin wypowiedzenia wysokości czynszu albo innych opłat za używanie lokalu wynosi 3 miesiące, chyba że strony w umowie ustalą termin dłuższy. 3. Wypowiedzenie wysokości czynsz ...\"}, {\"chunk_id\": \"saos_judgment_3\", \"source_id\": \"saos_judgment_3\", \"source_type\": \"judgment\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"civil_procedure\", \"contracts\", \"risk_checking\"], \"text\": \"Sygn. akt I ACa 362/12 WYROK W IMIENIU RZECZYPOSPOLITEJ POLSKIEJ Dnia 23 października 2012 r. Sąd Apelacyjny w Krakowie – Wydział I Cywilny w składzie: Przewodniczący: SSA Hanna Nowicka de Poraj Sędziowie: SSA Zbigniew Ducki SSA Grzegorz Krężołek Protokolant: st.sekr.sądowy Katarzyna Wilczura po rozpoznaniu w dniu 10 października 2012 r. w Krakowie na rozprawie sprawy z powództwa R. R. (1) przeciwko D. Z. , B. F. , R. R. (2) i M. Z. o zapłatę na skutek apelacji powoda od wyroku Sądu Okręgowego w Krakowie z dnia 5 sierpnia 2011 r. sygn. akt I C 1070/10 1. zmienia zaskarżony wyrok w punktach I,  ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0197_statute_3481603ecbce797d\", \"source_id\": \"sejm_eli_du_2023_725_art_8a\", \"source_type\": \"statute\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"4a-4e, że podwyżka jest niezasadna albo jest zasadna, lecz w innej wysokości; udowodnienie zasadności podwyżki ciąży na właścicielu. 6. (uchylony) 6a. W przypadku: 1) określonym w ust. 5 pkt 1 lokator jest obowiązany uiszczać czynsz albo inne opłaty za używanie lokalu w dotychczasowej wysokości do dnia rozwiązania stosunku prawnego, na podstawie którego lokator zajmuje lokal; 2) określonym w ust. 5 pkt 2 lokator jest obowiązany uiszczać czynsz albo inne opłaty za używanie lokalu w dotychczasowej wysokości do dnia uprawomocnienia się orzeczenia sądu kończącego postępowanie w sprawie, z zastrzeż ...\"}, {\"chunk_id\": \"uokik_items:uokik_cc9493aabf2bbcf0\", \"source_id\": \"uokik_rejestr_klauzul_1643\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący zobowiązuje się ponieść koszty związane z administracją i eksploatacją budynku oraz koszty administracji i utrzymania urządzeń wspólnych budynku i nieruchomości gruntowej (…) w wysokości proporcjonalnej do udziału Kupującego w nieruchomości wspólnej, zgodnie z ustawą o własności lokalu.\"}, {\"chunk_id\": \"extractor_v9:filtered_0133_statute_e2bcee1d14ceb6af\", \"source_id\": \"sejm_eli_du_2024_226_art_11\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Wartość pieniężną innych nieodpłatnych świadczeń ustala się: 1) jeżeli przedmiotem świadczenia są usługi wchodzące w zakres działalności gospodarczej dokonującego świadczenia - według cen stosowanych wobec innych odbiorców; 2) jeżeli przedmiotem świadczeń są usługi zakupione - według cen zakupu; 3) jeżeli przedmiotem świadczeń jest udostępnienie lokalu lub budynku - według równowartości czynszu, jaki przysługiwałby w razie zawarcia umowy najmu tego lokalu lub budynku; 4) w pozostałych przypadkach - na podstawie cen rynkowych stosowanych przy świadczeniu usług lub udostępnianiu rzeczy lub praw  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19h\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19h. 1. Z tytułu najmu instytucjonalnego lokalu, oprócz czynszu, właściciel pobiera jedynie opłaty niezależne od właściciela, chyba że umowa stanowi inaczej. 2. Właściciel może podwyższyć czynsz wyłącznie zgodnie z warunkami określonymi w umowie.\"}, {\"chunk_id\": \"uokik_abusive_clause_314\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Koszty obsługi - jest to opłata wyrażona procentowo w stosunku do wybranego pakietu kwotowego, określona na pierwszej stronie umowy, pobierana przez (...) na obsługę i administrację grupy (nie obejmuje kosztów dochodzenia zadłużenia od pozostałych członków grupy) miesięcznie w postaci tzw. opłaty za obsługę\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19c\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19c. 1. Z tytułu najmu okazjonalnego lokalu, oprócz czynszu, właściciel pobiera jedynie opłaty niezależne od właściciela, chyba że umowa stanowi inaczej. 2. Właściciel może podwyższyć czynsz wyłącznie zgodnie z warunkami określonymi w umowie.\"}, {\"chunk_id\": \"uokik_abusive_clause_239\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Koszty obsługi – jest to opłata wyrażona procentowo w stosunku do wybranego zestawu kwotowego, określona na pierwszej stronie umowy, pobierana przez Gwarancja na obsługę i administrację Funduszu miesięcznie w postaci tzw. należności za usługę\"}, {\"chunk_id\": \"uokik_abusive_clause_95\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Koszty administracyjne – jest to opłata wyrażona procentowo w stosunku zestawu kwotowego, określona na pierwszej stronie umowy, pobierana przez (...) na obsługę i administrację systemu miesięcznie w postaci tzw. opłaty administracyjnej lub w przypadkach zawartych w art. 15 i art. 16 ogólnych warunków umowy jednorazowo w pełnej wysokości.\"}]",
+   "tool_call_id": "call-30989084-5075-4309-8daa-a1ee4ca3d862",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions related to flexible lease terms, access control, shared facilities, and other coworking-specific aspects.",
+   "tool_calls": [
+    {
+     "id": "call-67b40702-9544-4677-a4ad-d549e7703a59",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"elastyczny termin najem krótkoterminowy miesięczny dostęp 24/7 karty zbliżeniowe system kontroli dostępu\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_725_art_32\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 32 18) W brzmieniu ustalonym przez art. 1 ustawy z dnia 24 marca 2022 r. o zmianie ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego oraz ustawy o zapewnianiu dostępności osobom ze szczególnymi potrzebami (Dz. U. poz. 975), która weszła w życie z dniem 11 maja 2022 r., z mocą od dnia 1 stycznia 2022 r. . W razie wypowiedzenia najmu, na pod ...\"}, {\"chunk_id\": \"uokik_items:uokik_f3d2401cc8b742bb\", \"source_id\": \"uokik_rejestr_klauzul_3860\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku poważnej usterki i braku dostępu do sieci przez okres ciągły dłuższy niż 24 godziny, abonament miesięczny jest pomniejszany o 1/30 abonamentu miesięcznego za każdą dobę, licząc od chwili zgłoszenia awarii u Usługodawcy\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_25b\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 25b. Umowę najmu tymczasowego pomieszczenia zawiera się na czas oznaczony, nie krótszy niż miesiąc i nie dłuższy niż 6 miesięcy.\"}, {\"chunk_id\": \"uokik_items:uokik_3a75d3141fa7de56\", \"source_id\": \"uokik_rejestr_klauzul_1030\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Operator zastrzega sobie również prawo do zablokowania użytkownikowi dostępu do sieci Internet na łączny okres miesięcznie nie większy niż 48 godzin, w celu dokonania niezbędnej konserwacji i kontroli swojego sprzętu\"}, {\"chunk_id\": \"uokik_items:uokik_df509103dff70bdd\", \"source_id\": \"uokik_rejestr_klauzul_3475\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli przerwa w dostępie do wszystkich usług trwa dłużej niż 24 godziny, Abonent może żądać kary umownej w wysokości 1/30 miesięcznej opłaty (sumy opłat miesięcznych), za każdy rozpoczęty dzień przerwy\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_188\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 188 1 88) Dodany przez art. 1 pkt 42 ustawy, o której mowa w odnośniku 2. . § 1. Pracownik wychowujący dziecko, do ukończenia przez nie 8 roku życia, może złożyć wniosek w postaci papierowej lub elektronicznej o zastosowanie do niego elastycznej organizacji pracy. Wniosek składa się w terminie nie krótszym niż 21 dni przed planowanym rozpoczęciem korzystania z elastycznej organizacji pracy. § 2. Za elastyczną organizację pracy, o której mowa w § 1 ...\"}, {\"chunk_id\": \"uokik_items:uokik_ea1c34d774a7729d\", \"source_id\": \"uokik_rejestr_klauzul_3864\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za zgłoszony brak dostępu do usług operatora powyżej 24 godzin z winy operatora, nie spowodowany przypadkami wymienionymi w § 6, Abonentowi przysługuje rabat w wysokości 1/30 miesięcznego abonamentu za każdy dzień awarii\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_673\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 673. § 1. Jeżeli czas trwania najmu nie jest oznaczony, zarówno wynajmujący, jak i najemca mogą wypowiedzieć najem z zachowaniem terminów umownych, a w ich braku z zachowaniem terminów ustawowych. § 2. Ustawowe terminy wypowiedzenia najmu są następujące: gdy czynsz jest płatny w odstępach czasu dłuższych niż miesiąc, najem można wypowiedzieć najpóźniej na trzy miesiące naprzód na koniec kwartału kalendarzowego; gdy czynsz jest płatny miesięcznie ...\"}, {\"chunk_id\": \"uokik_items:uokik_a0e76d6c28089a18\", \"source_id\": \"uokik_rejestr_klauzul_674\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku przeterminowania płatności na rzecz (...)powyżej 14 dni nastąpi automatyczne wyłączenie dostępu do Internetu. Ponowne włączenie nastąpi po rozliczeniu wszystkich zobowiązań oraz uiszczenia opłaty manipulacyjnej w wysokości 30.00 zł netto\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_685\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 685. Jeżeli najemca lokalu wykracza w sposób rażący lub uporczywy przeciwko obowiązującemu porządkowi domowemu albo przez swoje niewłaściwe zachowanie czyni korzystanie z innych lokali w budynku uciążliwym, wynajmujący może wypowiedzieć najem bez zachowania terminów wypowiedzenia.\"}]",
+   "tool_call_id": "call-67b40702-9544-4677-a4ad-d549e7703a59",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me search for more specific provisions related to shared spaces, common areas, meeting rooms, phone booths, kitchen facilities, and other coworking-specific amenities",
+   "tool_calls": [
+    {
+     "id": "call-ed2de1e2-85ce-4eba-8be4-f6b687492db4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"części wspólne kuchnia spotkaniowe sale konferencyjne phone booth biurka hot desk dedicated desk regułamin coworking\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_c3ce34fa0f214a4b\", \"source_id\": \"uokik_rejestr_klauzul_3534\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Pełnomocnik Spółki oświadcza ponadto, że do księgi wieczystej KW Nr (…) złożone zostały następujące wnioski: (…) każdoczesnemu właścicielowi lokalu mieszkalnego oznaczonego literą A przysługuje: nieodpłatne prawo do wyłącznego korzystania z części nieruchomości wspólnej, obejmującej elewację części biurowej przedmiotowego budynku, nieodpłatne prawo do wyłącznego korzystania z części nieruchomości wspólnej obejmującej dach części biurowej przedmiotowego budynku, nieodpłatne prawo do wyłącznego korzystania z części nieruchomości wspólnej obejmującej część dachu budynku w części mieszkalnej, nad  ...\"}, {\"chunk_id\": \"uokik_items:uokik_02ce39232bb965db\", \"source_id\": \"uokik_rejestr_klauzul_6328\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący niniejszym zobowiązuje się w pełni respektować zasady podziału nieruchomości wspólnej do użytkowania dokonanego przez Sprzedającego i w szczególności nie będzie rościł sobie praw do współposiadania i współkorzystania z części nieruchomości wspólnej, które w niniejszej umowie nie zostały Kupującemu przekazane do jego wyłącznego posiadania lub korzystania, a które zostały przekazane do wyłącznego posiadania lub korzystania na rzecz innych nabywców, jak również nie będzie wysuwał żadnych roszczeń finansowych z tego tytułu w przyszłości. Kupujący zobowiązuje się do złożenia w notarialnej  ...\"}, {\"chunk_id\": \"uokik_items:uokik_f3cf08a882ce9428\", \"source_id\": \"uokik_rejestr_klauzul_3533\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Część nieruchomości wspólnej Budynku (Budynku I oraz Budynku II) obejmująca część dachu oraz część elewacji będzie przeznaczona pod reklamę Spółki lub innych wskazanych przez Spółkę podmiotów prawa lub innych użytkowników Lokalu Biurowego. W związku z treścią zdania poprzedniego Strony w Umowie Sprzedaży dokonają podziału do korzystania nieruchomości wspólnej w ten sposób, iż Spółce będzie przysługiwało nieodpłatne prawo do wyłącznego korzystania z określonej powyżej części nieruchomości wspólnej z możliwością jej przekazania do korzystania przez innych użytkowników Lokalu Biurowego, a Nabywca ...\"}, {\"chunk_id\": \"uokik_items:uokik_20c3a2970bfb9288\", \"source_id\": \"uokik_rejestr_klauzul_4549\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 5 ust. 20 - Kupujący zobowiązują się od Dnia Odbioru Przedmiotów Umów w tym od wydania zastępczego w przypadku wskazanym powyżej, do ponoszenia kosztów zarządu Nieruchomością Wspólną, przypadającą na części wspólne Budynku, w szczególności: wydatków na remonty i bieżącą konserwację, opłat za dostawę energii elektrycznej i cieplnej, itp. w części dotyczącej Nieruchomości Wspólnej, opłat za windę, ubezpieczenia, opłat z tytułu użytkowania wieczystego, podatków i innych danin publicznoprawnych, wydatków na utrzymanie porządku i czystości, kosztów ochrony budynku i recepcji, kosztów działania za ...\"}, {\"chunk_id\": \"uokik_items:uokik_98293b4aa7f73bfb\", \"source_id\": \"uokik_rejestr_klauzul_7390\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 12.9 &quot; Deweloper może zainstalować na dachu bądź na elewacji budynku opisanego w § 4 ust. 1 niniejszego aktu wybudowanego na Nieruchomości, napisy odzwierciedlające nazwę inwestycji, pełną lub skróconą nazwę Dewelopera, logo Dewelopera lub inne elementy charakteryzujące inwestycję bądź Dewelopera (również z możliwością podświetlenia instalacji), na co Nabywca niniejszym wyraża zgodę. W związku z tym Deweloperowi w przypadku zainstalowania wyżej wymienionych elementów przysługiwać będzie nieodpłatne i na czas nieokreślony prawo użytkowania części Nieruchomości wspólnej tj. dachu bądź ele ...\"}, {\"chunk_id\": \"uokik_items:uokik_d3db6c12bb2e90fd\", \"source_id\": \"uokik_rejestr_klauzul_6331\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strona kupująca oświadcza, że: - w przypadku, gdyby w przyszłości wypowiedziała ona zawartą przez nią lub w jej imieniu umowę o podział do użytkowania dotyczącą nieruchomości wspólnej - zapłaci ona karę umowną w wysokosci 30.000,00 zł (trzydzieści tysięcy złotych) - na rzecz każdego z uprawnionych na podstawie takiej umowy do wyłącznego korzystania, który w wyniku tego wypowiedzenia utraci to uprawnienie, - w przypadku gdyby w przyszłości nie wyraziła ona opisanej wyżej zgody na prowadzenie dowolnej działalności w znajdujących się w Budynku lokalach o przeznaczeniu innym niż mieszkalne, oznacz ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0086_statute_7d1e46366ab99ca5\", \"source_id\": \"sejm_eli_du_2023_725_art_2\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"w lokalu dotychczas używanym; warunek ten uznaje się za spełniony, jeżeli na członka gospodarstwa domowego przypada 10 m 2 powierzchni łącznej pokoi, a w wypadku gospodarstwa jednoosobowego - 20 m 2 tej powierzchni; 7) powierzchni użytkowej lokalu - należy przez to rozumieć powierzchnię wszystkich pomieszczeń znajdujących się w lokalu, a w szczególności pokoi, kuchni, spiżarni, przedpokoi, alków, holi, korytarzy, łazienek oraz innych pomieszczeń służących mieszkalnym i gospodarczym potrzebom lokatora, bez względu na ich przeznaczenie i sposób używania; za powierzchnię użytkową lokalu nie uważa ...\"}, {\"chunk_id\": \"uokik_items:uokik_1e58e54010a382e9\", \"source_id\": \"uokik_rejestr_klauzul_7430\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Właściciele nieruchomości lokalowej objętej tym aktem ponoszą koszty zarządu nieruchomości wspólnej i jej utrzymania proporcjonalnie do nabytego udziału w tej nieruchomości od dnia wydania Lokalu\"}, {\"chunk_id\": \"uokik_items:uokik_93b6a61f2a8f5027\", \"source_id\": \"uokik_rejestr_klauzul_4851\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Integralną częścią w/w regulaminu jest regulamin usług (...) dostępny na ich stronach internetowych (§8 regulaminu)\"}, {\"chunk_id\": \"uokik_items:uokik_83deaaeeb41f386f\", \"source_id\": \"uokik_rejestr_klauzul_1387\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W końcowym rozliczeniu lokalu będzie uwzględniona wartość udziału w pomieszczeniu przeznaczonym dla Wspólnoty Mieszkaniowej. Kwota przypadająca na każdy lokal będzie proporcjonalna do udziału w powierzchni wspólnej budynku.\"}]",
+   "tool_call_id": "call-ed2de1e2-85ce-4eba-8be4-f6b687492db4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Pracuję zdalnie i szukam miejsca w biurze coworkingowym. Chcę wynająć biurko lub mały pokój na kilka miesięcy. Potrzebuję prostej umowy najmu takiej przestrzeni."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Rozwijam mały zespół i potrzebujemy elastycznej przestrzeni biurowej w modelu coworking. Chcemy wynająć jeden zamykany pokój oraz dwa biurka w strefie otwartej z dostępem do wspólnych sal i internetu. Zależy nam na jasnych zasadach opłat, okresie najmu i możliwości wypowiedzenia. Proszę o przygotowanie umowy najmu powierzchni biurowej w takim modelu."
+  }
+ ]
+}

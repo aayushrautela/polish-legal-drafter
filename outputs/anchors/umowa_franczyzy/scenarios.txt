@@ -1,0 +1,61 @@
+Franczyza gastronomiczna (kawiarnia) z opłatą wstępną i royalty miesięczną
+Franczyza sklepu spożywczego z wyłącznością terytorialną
+Franczyza z opłatą wstępną niepodlegającą zwrotowi
+Franczyza z zakazem konkurencji dla franczyzobiorcy
+Franczyza z obowiązkiem zakupu towarów od franczyzodawcy
+Franczyza z terytorium chronionym (wyłączność w mieście)
+Franczyza z czasem trwania określonym na 5 lat
+Franczyza z prawem do używania znaku towarowego sieci
+Franczyza z obowiązkiem szkoleń personelu
+Franczyza z audytami punktu przez franczyzodawcę
+Franczyza z karą umowną za naruszenie standardów
+Franczyza z rozwiązaniem za wypowiedzeniem z przyczyny istotnej
+Franczyza z odszkodowaniem przy bezpodstawnym rozwiązaniu
+Franczyza z poufnością i ochroną know-how
+Franczyza z prawem pierwokupu przy zbyciu punktu
+Franczyza modowa (odzież) z minimalnym wolumenem zakupów
+Franczyza fitness z opłatą marketingową
+Franczyza z obowiązkiem prowadzenia ksiąg według standardu sieci
+Franczyza z dostawami wyłącznymi od franczyzodawcy
+Franczyza z zakazem zbycia bez zgody franczyzodawcy
+Franczyza z opłatą wstępną rozłożoną na raty
+Franczyza z royalty uzależnioną od obrotu
+Franczyza z prawem odnowienia (renewal) na kolejny okres
+Franczyza z obowiązkiem uczestnictwa w kampaniach sieciowych
+Franczyza z ograniczeniem terytorium do konkretnego województwa
+Franczyza z zasadą doboru lokalizacji za zgodą franczyzodawcy
+Franczyza z odpowiedzialnością za długi punktu (franczyzobiorca)
+Franczyza z ubezpieczeniem działalności wskazanym w umowie
+Franczyza z prawem korzystania z systemu rezerwacji sieci
+Franczyza z karą za nieosobiste prowadzenie punktu
+Franczyza z obowiązkiem modernizacji lokalu co 5 lat
+Franczyza z klauzulą force majeure
+Franczyza z prawem franczyzodawcy do kontroli jakości
+Franczyza z opłatą za wstąpienie do sieci (entry fee) zwrotna przy niedotrzymaniu
+Franczyza z zakazem reklamy poza terytorium
+Franczyza z minimalnym czasem otwarcia punktu (np. 6 dni w tygodniu)
+Franczyza z obowiązkiem raportowania sprzedaży
+Franczyza z prawem wykupu punktu przez franczyzodawcę
+Franczyza z rozwiązaniem bez wypowiedzenia przy upadłości
+Franczyza z tajemnicą przedsiębiorstwa (know-how) sankcjonowaną
+Franczyza z obowiązkiem oznakowania lokalu znakiem sieci
+Franczyza z prawem przedłużenia przy braku naruszeń
+Franczyza z opłatą za wsparcie techniczne (hotline)
+Franczyza z zakazem prowadzenia podobnej działalności po ustaniu
+Franczyza z minimalną inwestycją w uruchomienie (fit-out)
+Franczyza z prawem do subfranczyzy (sub-franchising)
+Franczyza z obowiązkiem zakupu surowców od aprobowanych dostawców
+Franczyza z odstąpieniem franczyzobiorcy przy braku szkolenia
+Franczyza z klauzulą mediacji przy sporach
+Franczyza z opłatą wstępną częściowo zwracalną przy wczesnym rozwiązaniu
+Franczyza z prawem do korzystania z oprogramowania sieciowego
+Franczyza z karą za niezgłoszenie reklamacji klienta
+Franczyza z obowiązkiem utrzymania oceny (ratingu) sieci
+Franczyza z zakazem zmiany asortymentu bez zgody
+Franczyza z prawem pierwszeństwa otwarcia kolejnego punktu w regionie
+Franczyza z obowiązkiem uczestnictwa w programie lojalnościowym
+Franczyza z rozliczeniem opłat w walucie obcej (EUR)
+Franczyza z prawem franczyzodawcy do odkupu towaru
+Franczyza z minimalnym okresem wypowiedzenia 3 miesiące
+Franczyza z obowiązkiem zachowania standardów wizualnych (VIS)
+Franczyza z karą za nieosiągnięcie minimalnego obrotu

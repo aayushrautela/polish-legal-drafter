@@ -1,0 +1,17 @@
+{
+ "run": 48,
+ "hint": "Dzierżawa z prawem pierwszeństwa przedłużenia",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć lokal do firmy i chciałbym mieć gwarancję, że będę mógł przedłużyć umowę przed innymi osobami. Czy możecie przygotować taką umowę dzierżawy?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję otworzyć sklep z odzieżą w lokalu ok. 100 metrów kwadratowych na osiedlu. Chcę umowę na 5 lat, ale kluczowe dla mnie jest prawo do przedłużenia na kolejne 3 lata na podobnych warunkach, zanim właściciel zaproponuje to komuś innemu. Czy da się to tak zapisać, żebyśmy ustalili teraz zasady przedłużenia?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"query\": \"dzierżawa z prawem pierwszeństwa przedłużenia\", \"doc_type\": \"umowa_dzierzawy\"})\\nRESULT: [{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa dzierżawy gruntu pod fotowoltaikę\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce to umowa regulowana art. 693–709 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której właściciel gruntu — wydzierżawiający — oddaje inwestorowi energetycznemu — dzierżawcy — określone działki gruntu do używania i pobierania pożytków przez uzgodniony czas, najczęściej 25–30 lat, w zamian za roczny czynsz dzierżawny. Celem dzierżawy jest budowa, eksploatacja i po zakończeniu umowy likwidacja farmy fotowoltaicznej (instalacji OZE) produkującej energię elektryczną ze słońca.\\n\\nPolska fotowoltaika przeżywa dynamiczny rozwój. Zgodnie z danymi Urzędu Regulacji Energetyki (URE) móc zainstalowana fotowoltaiki w Polsce na koniec 2025 roku przekroczyła 20 GW. Zapotrzebowanie na grunty pod farmy słoneczne jest ogromne — farma o mocy 1 MW wymaga ok. 1–2 ha gruntu płaskiego lub lekko nachylonego na południe. Właściciele gruntów rolnych klasy IV–VI, nienadających się do intensywnej produkcji rolniczej, coraz chętniej dzierżawią ziemię inwestorom fotowoltaicznym, otrzymując stabilny, wieloletni czynsz niezależny od pogody, cen zbóż czy dopłat ARiMR.\\n\\nPrzepisy regulujące dzierżawę gruntu pod PV są wielowarstwowe. Podstawę cywilnoprawną stanowi art. 693–709 KC. Aspekty energetyczne reguluje ustawa z dnia 20 maja 2021 r. o odnawialnych źródłach energii (Dz.U. 2021 poz. 610 ze zm.). Lokalizacja farmy PV powyżej 150 kW na gruntach rolnych klas I–III wymaga odrolnienia — wyłączenia gruntu z produkcji rolniczej na podstawie ustawy z dnia 3 lutego 1995 r. o ochro"
+}

@@ -1,0 +1,17 @@
+{
+ "run": 27,
+ "hint": "Pożyczka podlegająca PCC (zgłoszenie PCC-3 przez pożyczkobiorcę)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Potrzebuję pożyczki od znajomego, ale słyszałem, że trzeba coś zgłosić do urzędu skarbowego. Czy to ja muszę to załatwiać i ile to kosztuje?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę wziąć pożyczkę 50 tysięcy złotych od swojego wujka na remont mieszkania. Ktoś mi powiedział, że pożyczka między osobami prywatnymi jest opodatkowana i trzeba złożyć jakiś formularz PCC-3. Czy to ja jako pożyczkobiorca muszę to zgłosić i zapłacić podatek? Ile to dokładnie kosztuje i w jakim terminie to trzeba zrobić?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"pożyczka podlegająca PCC zgłoszenie PCC-3 przez pożyczkobiorcę\", \"doc_type\": \"umowa_pozyczki\"})\\nRESULT: [{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa pożyczki rodzinnej\\nUmowa pożyczki rodzinnej w Polsce to umowa pożyczki pieniężnej zawierana między osobami połączonymi więzami rodzinnymi lub pokrewieństwa, uregulowana w art. 720-724 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przy czym strony korzystają ze szczególnych preferencji podatkowych wynikających z ustawy z dnia 9 września 2000 r. o podatku od czynności cywilnoprawnych (Dz.U. 2023 poz. 170 ze zm.). Przez umowę pożyczki dający pożyczkę zobowiązuje się przenieść na własność biorącego określoną ilość pieniędzy, a biorący zobowiązuje się zwrócić tę samą ilość pieniędzy (art. 720 § 1 KC). Cechą wyróżniającą pożyczkę rodzinną jest podmiotowy charakter transakcji — przynajmniej jedna ze stron należy do bliskiej rodziny drugiej.\\n\\nZgodnie z art. 720 § 2 Kodeksu cywilnego umowa pożyczki, której wartość przekracza tysiąc złotych, wymaga zachowania formy dokumentowej dla celów dowodowych (ad probationem). Jest to forma zastrzeżona jedynie do celów dowodowych — niezachowanie jej nie powoduje nieważności, lecz w razie sporu sądowego istotnie utrudnia wykazanie treści zobowiązania. Forma dokumentowa jest spełniona m.in. przez pisemną umowę podpisaną przez obie strony, ale też przez wiadomość e-mail czy SMS, jeżeli możliwa jest identyfikacja nadawcy i zapoznanie się z treścią.\\n\\nPożyczka rodzinna różni się od pożyczki bankowej i kredytu konsumenckiego. Pożyczka bankowa jest objęta regulacją ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe i może być udzielana wyłącznie przez bank lub instytucję kredytową. Kredyt konsumencki objęty ust"
+}

@@ -1,0 +1,62 @@
+Reklamacja wady fizycznej telefonu komórkowego kupionego online
+Reklamacja wady fabrycznej pralki zakupionej w sklepie stacjonarnym
+Reklamacja butów z pękającym materiałem w ciągu miesiąca
+Reklamacja mebli kuchennych uszkodzonych w transporcie
+Reklamacja samochodu używanego z ukrytą wadą silnika
+Reklamacja laptopa z błędnym systemem operacyjnym
+Reklamacja roweru z wadliwym hamulcem (zagrożenie życia)
+Reklamacja towaru z rękojmi po upływie roku od zakupu
+Reklamacja towaru z rękojmi w ciągu roku od wykrycia wady
+Reklamacja żądająca naprawy (nie wymiany)
+Reklamacja żądająca wymiany na nowy egzemplarz
+Reklamacja żądająca obniżenia ceny
+Reklamacja żądająca odstąpienia od umowy (zwrot pieniędzy)
+Reklamacja usługi remontowej wykonanej nienależycie
+Reklamacja usługi fryzjerskiej (niezgodna z ustaleniem)
+Reklamacja wykonania strony www z błędami
+Reklamacja usługi kurierskiej (zniszczona przesyłka)
+Reklamacja towaru kupionego na portalu aukcyjnym
+Reklamacja towaru z rękojmi przy braku paragonu (tylko faktura)
+Reklamacja towaru z rękojmi przy braku paragonu (tylko przelew)
+Reklamacja towaru używanego kupionego od konsumenta
+Reklamacja towaru przecenionego (z adnotacją o wadzie)
+Reklamacja towaru z wadą prawną (rzecz obciążona prawem osób trzecich)
+Reklamacja żywności z neświeżym terminem przydatności
+Reklamacja zestawu mebli z brakującym elementem
+Reklamacja wady ukrytej wykrytej po 2 latach (przedawnienie rękojmi)
+Reklamacja towaru z rękojmi przy odmowie przyjęcia przez sprzedawcę
+Reklamacja towaru z rękojmi gdy sprzedawca twierdzi o winie kupującego
+Reklamacja towaru z rękojmi gdy sprzedawca twierdzi o uszkodzeniu przez przewoźnika
+Reklamacja towaru z tytułu niezgodności z umową (treść umowy zawarta mailowo)
+Reklamacja towaru dostarczonego w opakowaniu zbiorczym bez instrukcji
+Reklamacja zegarka z wadą mechanizmu
+Reklamacja rolet okiennych zamontowanych krzywo
+Reklamacja kotła gazowego z usterką fabryczną
+Reklamacja towaru z rękojmi przy zakupie przez pośrednika (marketplace)
+Reklamacja usługi szkoleniowej niezgodnej z programem
+Reklamacja towaru z rękojmi z żądaniem zwrotu kosztów wysyłki reklamowanego towaru
+Reklamacja towaru z rękojmi gdy sprzedawca oferuje tylko naprawę a klient chce wymiany
+Reklamacja towaru z rękojmi z żądaniem odszkodowania za szkodę powstałą przez wadę
+Reklamacja towaru z rękojmi po upływie 14 dni od odkrycia wady
+Reklamacja towaru używanego z ukrytą wadą prawną (kradziony)
+Reklamacja usługi turystycznej (wycieczka niezgodna z katalogiem)
+Reklamacja towaru z rękojmi przy zakupie na raty (kredyt konsumencki)
+Reklamacja oprogramowania z błędami uniemożliwiającymi użytkowanie
+Reklamacja towaru z rękojmi przy utracie paragonu z dowodem przelewu
+Reklamacja towaru z rękojmi gdy towar zużyty przez użytkowanie przed reklamacją
+Reklamacja towaru z rękojmi z żądaniem zwrotu kosztów opinii rzeczoznawcy
+Reklamacja towaru z rękojmi przy zakupie prezentu (nie konsument nabywca)
+Reklamacja towaru z rękojmi z powołaniem na niezgodność z publiczną zapowiedzią
+Reklamacja towaru z rękojmi przy zakupie na odległość (prawo do odstąpienia)
+Reklamacja towaru z rękojmi gdy sprzedawca jest przedsiębiorcą zagranicznym
+Reklamacja towaru z rękojmi z żądaniem odsetek za opóźnienie zwrotu ceny
+Reklamacja towaru z rękojmi przy braku możliwości naprawy (trwała wada)
+Reklamacja usługi lekarskiej prywatnej (błąd w sztuce)
+Reklamacja towaru z rękojmi przy zakupie komisu samochodowego
+Reklamacja towaru z rękojmi z żądaniem wymiany na inny model
+Reklamacja towaru z rękojmi z żądaniem zwrotu ceny i odszkodowania za montaż
+Reklamacja towaru z rękojmi przy braku karty gwarancyjnej
+Reklamacja towaru przemysłowego z wadą w dokumentacji technicznej
+Reklamacja towaru z rękojmi z powołaniem się na uznanie wady przez sprzedawcę wcześniej
+Reklamacja towaru z rękojmi z żądaniem zwrotu kosztów przesyłki zwrotnej
+Reklamacja towaru z rękojmi z żądaniem obniżenia ceny o 30 procent

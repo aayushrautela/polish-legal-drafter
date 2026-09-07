@@ -1,0 +1,292 @@
+{
+ "run": 7,
+ "hint": "Odstąpienie od umowy o kredyt konsumencki w 14 dni",
+ "scenario": "Odstąpienie od umowy o kredyt konsumencki w 14 dni",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='odstapienie_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_6ced74b7d08b47d1aa0bec49",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"odstapienie_konsumenta\", \"query\": \"kredyt konsumencki 14 dni\"}"
+     }
+    },
+    {
+     "id": "call_af058ea6bad6494a8b7461fc",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odstąpienie od umowy kredytu konsumenckiego 14 dni prawo konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"odstapienie_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Odstąpienie od umowy kredytu konsumenckiego\\nOdstąpienie od umowy kredytu konsumenckiego w Polsce to jednostronne oświadczenie woli konsumenta, którym rozwiązuje on umowę kredytową bez podania przyczyny, w terminie czternastu dni od jej zawarcia. Uprawnienie to wynika z art. 53 ust. 1 ustawy z dnia 12 maja 2011 r. o kredycie konsumenckim (Dz.U. 2011 nr 126 poz. 715 ze zm., dalej: u.k.k.) i stanowi jeden z fundamentów ochrony konsumenta w polskim prawie finansowym.\\n\\nZgodnie z art. 53 ust. 1 u.k.k. konsument ma prawo, bez podania przyczyny, do odstąpienia od umowy o kredyt konsumencki w terminie czternastu dni od dnia zawarcia umowy. Termin ten jest nieprzekraczalny — jego dochowanie decyduje o skuteczności odstąpienia. Ustawa nie wymaga, aby konsument podawał powody swojej decyzji. Oznacza to, że jest to prawo absolutne, niezależne od tego, czy kredyt był niekorzystny, czy bank spełnił swoje obowiązki, czy też nie — konsument może zrezygnować z kredytu jedynie dlatego, że po przemyśleniu uznał go za zbędny.\\n\\nUstawa o kredycie konsumenckim obejmuje swoim zakresem umowy kredytu zawierane przez konsumenta z kredytodawcami — bankami, spółdzielczymi kasami oszczędnościowo-kredytowymi (SKOK) i instytucjami pożyczkowymi — do kwoty 255 550 zł lub jej równowartości w walucie obcej (art. 3 u.k.k.). Prawo odstąpienia obejmuje pożyczki gotówkowe, kredyty ratalne, limity kredytowe w rachunkach i karty kredytowe. Wyłączone są jedynie kredyty hipoteczne i kredyty przeznaczone na nabycie nieruchomości — te reguluje ustawa z dnia 23 marca 2017 r. o kredycie hipotecznym.\\n\\nSkutki prawne odstąpienia reguluje art. 54 u.k.k. Umowa uważana jest za niezawartą. Konsument nie ponosi kosztów związanych z odstąpieniem, z jednym wyjątkiem: musi zapłacić kredytodawcy odsetki za okres od dnia wypłaty kredytu do dnia jego spłaty. Kwota tych odsetek jest proporcjonalna do długości korzystania z kredytu i ustalona według stopy procentowej wskazanej w umowie. W praktyce przy krótkim czasie korzystania z kredytu kwota odsetek jest nieznaczna.\\n\\nOdstąpienie od umowy kredytu konsumenckiego jest niezależne od prawa odstąpienia od umowy zawartej na odległość lub poza lokalem przedsiębiorcy wynikającego z art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (u.p.k.). Jeżeli umowa kredytu zawarta była na odległość, konsument może skorzystać z obu uprawnień, jednak wystarczające jest złożenie jednego oświadczenia. Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) oraz Rzecznik Finansowy nadzorują przestrzeganie praw konsumentów przez instytucje finansowe i mogą interweniować w przypadku naruszenia obowiązków informacyjnych przez kredytodawcę.\\n\\nOdstąpienie od umowy kredytu konsumenckiego w Polsce jest potrzebne wówczas, gdy konsument — po zawarciu umowy kredytowej — dochodzi do wniosku, że kredyt jest niepotrzebny, zbyt kosztowny, lub gdy warunki umowy nie odpowiadają jego oczekiwaniom. Prawo to przysługuje niezależnie od powodów decyzji.\\n\\nNajczęstsze sytuacje, w których stosuje się to oświadczenie, obejmują: zawarcie umowy kredytu pod wpływem presji w placówce bankowej lub w sklepie, uświadomienie sobie po zawarciu umowy, że całkowity koszt kredytu jest wyższy niż oczekiwano, znalezienie korzystniejszej oferty w innym banku bezpośrednio po podpisaniu umowy, a także zaciągnięcie kredytu ratalnego przy zakupie towaru, z którego konsument ostatecznie rezygnuje.\\n\\nDokument jest pilnie potrzebny, gdy mija czternasty dzień od zawarcia umowy. Termin ten jest zawity — po jego upływie prawo do bezkosztowego odstąpienia wygasa. Konsument powinien zatem działać szybko, niezwłocznie po podjęciu decyzji o rezygnacji z kredytu. Ważne jest, by oświadczenie zostało wysłane lub dostarczone kredytodawcy przed upływem czternastego dnia, choć wystarczy nadanie go w placówce pocztowej lub złożenie w siedzibie kredytodawcy przed upływem terminu.\\n\\nOświadczenie o odstąpieniu jest też właściwe, gdy kredytodawca nie poinformował konsumenta o prawie odstąpienia zgodnie z art. 30 ust. 1 pkt 16 u.k.k. W takim przypadku termin na odstąpienie wydłuża się, a konsument ma dodatkowy rok na skorzystanie z tego prawa. W każdej sytuacji, gdy instytucja finansowa narusza obowiązki informacyjne lub wprowadza konsumenta w błąd co do warunków kredytu, Rzecznik Finansowy i Urząd Ochrony Konkurencji i Konsumentów (UOKiK) stoją do dyspozycji jako organy nadzorcze i pomocowe.\\n\\nDokument jest przydatny także po skorzystaniu przez konsumenta z sankcji kredytu darmowego z art. 45 u.k.k. — gdy kredytodawca naruszył obowiązki informacyjne, a konsument chce rozliczyć kredyt bez odsetek i kosztów. Wówczas oświadczenie o odstąpieniu lub o sankcji kredytu darmowego jest pierwszym krokiem do dochodzenia praw.\\n\\nPrawidłowe oświadczenie o odstąpieniu od umowy kredytu konsumenckiego w Polsce powinno zawierać elementy wymagane przez art. 53-54 ustawy z dnia 12 maja 2011 r. o kredycie konsumenckim oraz zapewniające jednoznaczną identyfikację umowy i konsumenta.\\n\\nOznaczenie kredytobiorcy (konsumenta): imię, nazwisko, adres zamieszkania, PESEL oraz adres e-mail. Numer PESEL jest szczególnie ważny dla jednoznacznej identyfikacji w systemach banku, ponieważ instytucje finansowe weryfikują tożsamość kredytobiorcy przed przyjęciem oświadczenia o odstąpieniu.\\n\\nOznaczenie kredytodawcy: pełna nazwa i adres instytucji finansowej — banku, SKOK lub instytucji pożyczkowej — z którą zawarto umowę. Pismo kieruje się do podmiotu, który jest stroną umowy kredytowej.\\n\\nIdentyfikacja umowy kredytowej: numer umowy kredytowej, data jej zawarcia oraz całkowita kwota kredytu. Dane te umożliwiają kredytodawcy bezbłędną identyfikację umowy i powiązanie oświadczenia z właściwą umową w systemie informatycznym banku.\\n\\nPowołanie podstawy prawnej: wskazanie art. 53 ust. 1 ustawy z dnia 12 maja 2011 r. o kredycie konsumenckim (Dz.U. 2011 nr 126 poz. 715 ze zm.) jako podstawy prawnej odstąpienia. Powołanie przepisu jednoznacznie identyfikuje charakter prawny oświadczenia i uniemożliwia kredytodawcy kwalifikowanie go jako zwykłego wniosku o rozwiązanie umowy.\\n\\nDeklaracja terminowości: wyraźne stwierdzenie, że oświadczenie składane jest w terminie czternastu dni od zawarcia umowy kredytowej. Termin ten wynika z art. 53 ust. 1 u.k.k. i jego dochowanie jest warunkiem skuteczności odstąpienia.\\n\\nZobowiązanie do zwrotu i dyspozycja rozliczenia: na podstawie art. 54 u.k.k. konsument zobowiązuje się do zwrotu kwoty kredytu wraz z odsetkami za czas korzystania z kredytu w terminie trzydziestu dni od złożenia oświadczenia. Warto wskazać numer rachunku bankowego do ewentualnego zwrotu środków przez kredytodawcę. Formularz dostępny na forms-legal.com zawiera wszystkie te elementy w przejrzystej strukturze, ułatwiając poprawne złożenie oświadczenia. Oświadczenie należy wysłać listem poleconym lub złożyć w placówce kredytodawcy za potwierdzeniem odbioru — dowód nadania jest kluczowy dla wykazania zachowania czternastodniowego terminu.\\n\\nWypełnianie oświadczenia o odstąpieniu od umowy kredytu konsumenckiego w Polsce zacznij od wpisania swoich danych jako kredytobiorcy — imienia, nazwiska, adresu zamieszkania, numeru PESEL i adresu e-mail. Numer PESEL jest ważny dla jednoznacznej identyfikacji w systemie banku.\\n\\nW sekcji kredytodawcy wpisz pełną nazwę instytucji finansowej i jej adres — znajdziesz te dane na umowie kredytowej lub w regulaminie, który bank przekazał przy zawarciu umowy.\\n\\nW części dotyczącej umowy wpisz numer umowy kredytowej, datę jej zawarcia oraz całkowitą kwotę kredytu. Wszystkie te dane powinny znajdować się na pierwszej stronie umowy kredytowej lub w tabeli opłat i oprocentowania.\\n\\nSzczególną uwagę zwróć na datę oświadczenia — musi ona przypadać w ciągu czternastu dni od daty zawarcia umowy kredytowej. Jest to termin zawity i nieprzekraczalny zgodnie z art. 53 ust. 1 ustawy o kredycie konsumenckim. W polu rachunku bankowego wpisz numer konta, na które kredytodawca powinien zwrócić ewentualnie wpłacone środki lub prowizje.\\n\\nPo wypełnieniu dokumentu podpisz go i wyślij niezwłocznie: pocztą poleconą za zwrotnym potwierdzeniem odbioru lub złóż osobiście w placówce banku za potwierdzeniem przyjęcia. Możesz też wysłać skan pocztą elektroniczną, jednak warto równolegle wysłać oryginał pocztą — dowód nadania przesyłki poleconej jest najsilniejszym dowodem dochowania terminu. Pamiętaj, że masz trzydzieści dni na zwrot wypłaconej kwoty kredytu wraz z odsetkami za czas korzystania (art. 54 u.k.k.).\\n\\nWymogi prawne odstąpienia od umowy kredytu konsumenckiego w Polsce wynikają przede wszystkim z ustawy z dnia 12 maja 2011 r. o kredycie konsumenckim (Dz.U. 2011 nr 126 poz. 715 ze zm.). Przepis art. 53 ust. 1 u.k.k. przyznaje konsumentowi prawo do odstąpienia od umowy o kredyt konsumencki w terminie czternastu dni od dnia zawarcia umowy, bez podania przyczyny i bez ponoszenia kosztów, z wyjątkiem wskazanych w art. 54 u.k.k.\\n\\nZgodnie z art. 54 u.k.k. konsument, który odstąpił od umowy, zobowiązany jest zwrócić kredytodawcy kwotę kredytu wraz z odsetkami w terminie trzydziestu dni od złożenia oświadczenia o odstąpieniu. Odsetki naliczane są za okres od dnia wypłaty kredytu do dnia jego spłaty według stopy oprocentowania wskazanej w umowie. Kredytodawca nie może żądać od konsumenta żadnych innych opłat w związku z odstąpieniem.\\n\\nJeżeli kredytodawca nie poinformował konsumenta o prawie odstąpienia w sposób wymagany przez art. 30 ust. 1 pkt 16 u.k.k., termin na odstąpienie ulega przedłużeniu o rok. Jest to dodatkowa sankcja za naruszenie obowiązków informacyjnych przez kredytodawcę. Podobna sankcja wynikająca z art. 45 u.k.k. — sankcja kredytu darmowego — pozwala konsumentowi zwrócić kredyt bez odsetek i kosztów, gdy kredytodawca naruszył inne obowiązki informacyjne.\\n\\nZakres podmiotowy ustawy obejmuje umowy o kredyt konsumencki do kwoty 255 550 zł zawierane z bankami, SKOK-ami i instytucjami pożyczkowymi (art. 3 u.k.k.). Wyłączone są kredyty hipoteczne i kredyty na nabycie nieruchomości (art. 4 u.k.k.). Nadzór nad przestrzeganiem ustawy sprawuje Komisja Nadzoru Finansowego (KNF) w odniesieniu do banków i SKOK-ów oraz Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) w odniesieniu do instytucji pożyczkowych. Konsument może zgłosić skargę do Rzecznika Finansowego, jeżeli kredytodawca nie honoruje jego prawa do odstąpienia.\\n\\nNajczęstszym błędem przy odstąpieniu od umowy kredytu konsumenckiego w Polsce jest przekroczenie czternastodniowego terminu. Termin ten liczy się od dnia zawarcia umowy, a nie od dnia wypłaty kredytu. Przekroczenie terminu pozbawia konsumenta prawa do bezkosztowego odstąpienia — po jego upływie można jedynie spłacić kredyt wcześniej zgodnie z art. 48 u.k.k., co wiąże się z innymi warunkami.\\n\\nCzęstym uchybieniem jest brak pisemnej formy oświadczenia lub niedostarczenie go do rąk kredytodawcy przed upływem terminu. Samo napisanie i wysłanie e-mailem bywa ryzykowne, jeżeli kredytodawca kwestionuje datę jego otrzymania. Najskuteczniejsze jest wysłanie oświadczenia listem poleconym za zwrotnym potwierdzeniem odbioru (RPO) lub złożenie go osobiście w placówce za potwierdzeniem przyjęcia z datą.\\n\\nBłędem jest pominięcie numeru umowy kredytowej lub daty jej zawarcia, co może powodować, że bank nie zdoła zidentyfikować właściwej umowy. Instytucje finansowe prowadzą wiele umów z tym samym klientem — precyzyjna identyfikacja jest niezbędna do poprawnego rozliczenia.\\n\\nInnym uchybieniem jest nieświadomość obowiązku zwrotu kwoty kredytu wraz z odsetkami w terminie trzydziestu dni. Konsument, który złożył oświadczenie o odstąpieniu, musi zwrócić kredytodawcy wypłaconą kwotę z odsetkami w terminie wynikającym z art. 54 u.k.k. Niezwrócenie środków w terminie nie niweczy skuteczności odstąpienia, jednak może rodzić odpowiedzialność odszkodowawczą konsumenta.\\n\\nZdarza się też, że konsument składa oświadczenie o odstąpieniu do sprzedawcy towaru zamiast do banku lub instytucji finansowej, gdy kredyt udzielony był przez podmiot inny niż sprzedawca. W przypadku kredytu ratalnego udzielanego przy zakupie towaru stronami umowy kredytowej są konsument i instytucja finansująca — to do tej instytucji kieruje się oświadczenie, a nie do sklepu. Wszelkie wątpliwości co do prawidłowości postępowania kredytodawcy można zgłaszać Rzecznikowi Finansowemu lub Urzędowi Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/odstapienie-od-umowy-kredytu-konsumenckiego (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_6ced74b7d08b47d1aa0bec49",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 27. 1. Konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może w terminie 14 dni odstąpić od niej bez podawania przyczyny i bez ponoszenia kosztów, z wyjątkiem kosztów określonych w art. 33, art. 34 ust. 2 i art. 35. 2. Jeżeli konsument zawarł umowę poza lokalem przedsiębiorstwa podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki, termin do odstąpienia o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_32\", \"source_id\": \"sejm_eli_du_2024_1796_art_32\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 32. 1. Przedsiębiorca ma obowiązek niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania oświadczenia konsumenta o odstąpieniu od umowy, zwrócić konsumentowi wszystkie dokonane przez niego płatności, w tym koszty dostarczenia towaru. 2. Przedsiębiorca dokonuje zwrotu płatności przy użyciu takiego samego sposobu zapłaty, jakiego użył konsument, chyba że konsument wyraźnie zgodził się na inny sposób zwrotu, który nie wiąże się d ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 29. 1. Jeżeli konsument nie został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy, prawo to wygasa po upływie 12 miesięcy od dnia upływu terminu, o którym mowa w art. 27 ust. 1 albo 2. 2. Jeżeli konsument został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy przed wygaśnięciem tego prawa zgodnie z ust. 1, termin do odstąpienia od umowy upływa po 14 dniach, a w przypadku, o którym mowa w art. 27 ust. 2 -  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43o\", \"source_id\": \"sejm_eli_du_2024_1796_art_43o\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43o. 1. Po odstąpieniu od umowy przedsiębiorca nie może wykorzystywać treści innych niż dane osobowe dostarczone lub wytworzone przez konsumenta w trakcie korzystania z treści cyfrowej lub usługi cyfrowej dostarczonych przez przedsiębiorcę, z wyjątkiem treści, które: 1) są użyteczne wyłącznie w związku z treścią cyfrową lub usługą cyfrową, które stanowiły przedmiot umowy; 2) dotyczą wyłącznie aktywności konsumenta w trakcie korzystania z t ...\"}]",
+   "tool_call_id": "call_af058ea6bad6494a8b7461fc",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Now I have the base template and some relevant statutory provisions. Let me search for more specific provisions from the Consumer Credit Act (ustawa o kredycie konsumenckim) - articles 53, 54, 30, 45, 48, etc.",
+   "tool_calls": [
+    {
+     "id": "call-432ae8bf-02d3-4ddc-b5cd-1ef73549c8b1",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 53\", \"art. 54\", \"ustawa o kredycie konsumenckim\"]}"
+     }
+    },
+    {
+     "id": "call-2a90ed6b-d46e-41ce-a87f-d17abc028f76",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 30\", \"art. 45\", \"art. 48\", \"kredyt konsumencki\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_538\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 538 1 . § 1. Jeżeli wszyscy wspólnicy każdej ze spółek uczestniczących w podziale wyrazili zgodę, nie jest wymagane: 1) sporządzenie oświadczenia, o którym mowa w art. 534 § 2 pkt 4, lub 2) udzielenie informacji, o których mowa w art. 536 § 4, lub 3) badanie planu podziału przez biegłego i jego opinia. § 2. Sporządzenie dokumentów, o których mowa w art. 534 § 2 pkt 4 oraz w art. 536 § 1, a także badanie planu podziału przez biegłego i j ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_539f\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 539f. Przepisy art. 425 § 3 i 4, art. 428 § 1, art. 431, art. 432, art. 435, art. 436, art. 442 § 1 i 3, art. 457 § 1 i 3, art. 525 § 1, art. 526, art. 527 § 1-4, art. 528 § 1, art. 530 § 2 i 3, art. 531, art. 534 § 1 i art. 536, a także przepisy wydane na podstawie art. 527 § 5 stosuje się odpowiednio. Rozdział 56 Wznowienie postępowania\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_529\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 529. § 1 83) W brzmieniu ustalonym przez art. 1 pkt 32 ustawy, o której mowa w odnośniku 3. . Podział może być dokonany: 1) przez przeniesienie całego majątku spółki dzielonej na inne spółki za udziały albo akcje spółki przejmującej, które obejmują wspólnicy spółki dzielonej (podział przez przejęcie); 2) przez zawiązanie nowych spółek, na które przechodzi cały majątek spółki dzielonej za udziały lub akcje nowych spółek, które obejmują w ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_535\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 535. § 1. Plan podziału powinien być zgłoszony do sądu rejestrowego spółki dzielonej lub spółki przejmującej, łącznie z wnioskiem, o którym mowa w art. 537 § 2. § 2. W przypadku podziału przez zawiązanie nowej spółki plan podziału wraz z wnioskiem, o którym mowa w art. 537 § 2, podlega zgłoszeniu do sądu rejestrowego spółki dzielonej. § 3. Plan podziału należy ogłosić nie później niż na sześć tygodni przed dniem powzięcia pierwszej uchw ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_550\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 550 19 . § 1. Po dniu, o którym mowa w art. 530, niedopuszczalne jest uchylenie albo stwierdzenie nieważności uchwały o podziale transgranicznym. Przepisów art. 21, art. 532 § 3, art. 544 i art. 545 nie stosuje się. § 2. Po dniu, o którym mowa w art. 530, postępowanie w przedmiocie zaskarżenia uchwały o podziale transgranicznym umarza się. § 3. Spółka odpowiada wobec skarżącego za szkodę wyrządzoną uchwałą o podziale transgranicznym spr ...\"}]",
+   "tool_call_id": "call-432ae8bf-02d3-4ddc-b5cd-1ef73549c8b1",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_30h\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30h. 1. Osoby fizyczne są obowiązane do zapłaty daniny solidarnościowej w wysokości 4% podstawy obliczenia tej daniny. 2. Podstawę obliczenia daniny solidarnościowej stanowi nadwyżka ponad 1 000 000 zł sumy dochodów podlegających opodatkowaniu na zasadach określonych w art. 27 ust. 1, 9 i 9a, art. 30b, art. 30c oraz art. 30f po ich pomniejszeniu o: 1) kwoty składek, o których mowa w art. 26 ust. 1 pkt 2 i 2a, oraz składek, o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_45b\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 45b. 1. Minister właściwy do spraw finansów publicznych udostępni w Biuletynie Informacji Publicznej na stronie podmiotowej obsługującego go urzędu ustalone wzory: 1) deklaracji, o których mowa w art. 30da ust. 14, art. 30h ust. 4, art. 38 ust. 1a, art. 42 ust. 1a, art. 42e ust. 5 oraz art. 43 ust. 1; 2) informacji, o których mowa w art. 21 ust. 46, art. 26ha ust. 10, art. 30dg ust. 1, art. 35 ust. 6, art. 39 ust. 1 i 3, art ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_9\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 9. 1. Opodatkowaniu podatkiem dochodowym podlegają wszelkiego rodzaju dochody, z wyjątkiem dochodów wymienionych w art. 21, 52, 52a i 52c oraz dochodów, od których na podstawie przepisów Ordynacji podatkowej zaniechano poboru podatku. 1a. Jeżeli podatnik uzyskuje dochody z więcej niż jednego źródła, przedmiotem opodatkowania w danym roku podatkowym jest, z zastrzeżeniem art. 25e, art. 29-30cb, art. 30da-30dh, art. 30e-30g, a ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52v\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52v. 1. Kwotę na rzecz organizacji pożytku publicznego, o której mowa w art. 45c, naczelnik urzędu skarbowego przekazuje również na podstawie wniosku wypełnionego w: 1) zeznaniu podatkowym złożonym do dnia 1 czerwca 2020 r. albo w korekcie tego zeznania złożonej do dnia 30 czerwca 2020 r.; 2) oświadczeniu, o którym mowa w art. 45c ust. 3a, złożonym do dnia 1 czerwca 2020 r. 2. W zakresie nieuregulowanym w ust. 1, do kwoty na ...\"}]",
+   "tool_call_id": "call-2a90ed6b-d46e-41ce-a87f-d17abc028f76",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The keyword search didn't find the specific articles from the Consumer Credit Act (ustawa o kredycie konsumenckim). Let me try a semantic search for the specific act.",
+   "tool_calls": [
+    {
+     "id": "call-49bd3f70-f11f-4875-b7c6-f7b9993b3cf1",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ustawa o kredycie konsumenckim art 53 art 54 art 30 art 45 art 48 odstąpienie 14 dni\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 27. 1. Konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może w terminie 14 dni odstąpić od niej bez podawania przyczyny i bez ponoszenia kosztów, z wyjątkiem kosztów określonych w art. 33, art. 34 ust. 2 i art. 35. 2. Jeżeli konsument zawarł umowę poza lokalem przedsiębiorstwa podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki, termin do odstąpienia o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 29. 1. Jeżeli konsument nie został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy, prawo to wygasa po upływie 12 miesięcy od dnia upływu terminu, o którym mowa w art. 27 ust. 1 albo 2. 2. Jeżeli konsument został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy przed wygaśnięciem tego prawa zgodnie z ust. 1, termin do odstąpienia od umowy upływa po 14 dniach, a w przypadku, o którym mowa w art. 27 ust. 2 -  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_34\", \"source_id\": \"sejm_eli_du_2024_1796_art_34\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 34. 1. Konsument ma obowiązek zwrócić towar przedsiębiorcy lub przekazać go osobie upoważnionej przez przedsiębiorcę do odbioru niezwłocznie, jednak nie później niż 14 dni od dnia, w którym odstąpił od umowy, chyba że przedsiębiorca zaproponował, że sam odbierze towar. Do zachowania terminu wystarczy odesłanie towaru przed jego upływem. 1a. W przypadku odstąpienia od umowy o dostarczanie treści cyfrowej lub usługi cyfrowej, konsument jest  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_32\", \"source_id\": \"sejm_eli_du_2024_1796_art_32\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 32. 1. Przedsiębiorca ma obowiązek niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania oświadczenia konsumenta o odstąpieniu od umowy, zwrócić konsumentowi wszystkie dokonane przez niego płatności, w tym koszty dostarczenia towaru. 2. Przedsiębiorca dokonuje zwrotu płatności przy użyciu takiego samego sposobu zapłaty, jakiego użył konsument, chyba że konsument wyraźnie zgodził się na inny sposób zwrotu, który nie wiąże się d ...\"}]",
+   "tool_call_id": "call-49bd3f70-f11f-4875-b7c6-f7b9993b3cf1",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "OŚWIADCZENIE O ODSTĄPIENIU OD UMOWY KREDYTU KONSUMENCKIEGO\n\nMiejscowość, data: ________________________\n\nI. DANE KREDYTOBIORCY (KONSUMENTA):\nImię i nazwisko: ________________________\nAdres zamieszkania: ________________________\nPESEL: ________________________\nAdres e-mail: ________________________\nTelefon kontaktowy: ________________________\n\nII. DANE KREDYTODAWCY:\nPełna nazwa instytucji finansowej: ________________________\nAdres siedziby: ________________________\n\nIII. IDENTYFIKACJA UMOWY KREDYTOWEJ:\nNumer umowy kredytowej: ________________________\nData zawarcia umowy: ________________________\nCałkowita kwota kredytu: ________________________\nRodzaj kredytu (pożyczka gotówkowa/kredyt ratalny/karta kredytowa/limit kredytowy): ________________________\n\nIV. PODSTAWA PRAWNA:\nNa podstawie art. 53 ust. 1 ustawy z dnia 12 maja 2011 r. o kredycie konsumenckim (Dz.U. 2011 nr 126 poz. 715 ze zm., dalej: u.k.k.) niniejszym oświadczam, że odstępuję od umowy o kredyt konsumencki zawartej w dniu ________________________.\n\nPrawo to jest bezwzględne i nie wymaga podania przyczyny. Konsument może odstąpić od umowy niezależnie od tego, czy kredyt był niekorzystny, czy bank spełnił swoje obowiązki.\n\nV. OŚWIADCZENIE O TERMINOWOŚCI:\nOświadczenie składam w terminie czternastu dni od dnia zawarcia umowy, zgodnie z art. 53 ust. 1 u.k.k. Termin ten jest nieprzekraczalny i jego dochowanie decyduje o skuteczności odstąpienia. Oświadczenie zostało wysłane/złożone przed upływem terminu.\n\nVI. ZOBOWIĄZANIE DO ZWROTU KREDYTU:\nZgodnie z art. 54 u.k.k. zobowiązuję się zwrócić kredytodawcy kwotę kredytu wraz z odsetkami za okres od dnia wypłaty kredytu do dnia jego spłaty, ustalonymi według stopy procentowanej wskazanej w umowie, w terminie trzydziestu dni od dnia złożenia niniejszego oświadczenia.\n\nKwota odsetek jest proporcjonalna do długości korzystania z kredytu. Kredytodawca nie może żądać od konsumenta żadnych innych opłat w związku z odstąpieniem.\n\nNumer rachunku bankowego do zwrotu środków: ________________________\n\nVII. INFORMACJA O PRAWIE ODSTĄPIENIA OD UMÓW NA ODLEGŁOŚĆ:\nJeżeli umowa kredytu została zawarta na odległość lub poza lokalem przedsiębiorstwa, prawo odstąpienia przysługuje również na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm., dalej: u.p.k.). W takim przypadku termin do odstąpienia wynosi 14 dni i biegnie od dnia zawarcia umowy lub od dnia potwierdzenia informacji, jeżeli jest to termin późniejszy (art. 40 u.p.k.).\n\nVIII. INFORMACJA O PRZEDŁUŻENIU TERMINU:\nJeżeli kredytodawca nie poinformował mnie o prawie odstąpienia od umowy w sposób wymagany przez art. 30 ust. 1 pkt 16 u.k.k., termin na odstąpienie ulega przedłużeniu o rok, zgodnie z art. 30 ust. 1 pkt 16 u.k.k. Analogicznie, na podstawie art. 29 u.p.k., jeżeli konsument nie został poinformowany o prawie odstąpienia, prawo to wygasa po upływie 12 miesięcy od dnia upływu terminu.\n\nIX. INFORMACJA O SANKCJI KREDYTU DARMOWEGO:\nInformuję, że jeżeli kredytodawca naruszył obowiązki informacyjne, przysługuje mi prawo do sankcji kredytu darmowego na podstawie art. 45 u.k.k., co oznacza możliwość zwrotu kredytu bez odsetek i kosztów.\n\nX. OBOWIĄZKOWE INFORMACJE:\n1. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjątkiem odsetek za okres korzystania z kredytu (art. 54 u.k.k.).\n2. Kredytodawca nie może żądać od konsumenta żadnych innych opłat w związku z odstąpieniem.\n3. Zgodnie z art. 32 u.p.k., przedsiębiorca ma obowiązek niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania oświadczenia o odstąpieniu, zwrócić konsumentowi wszystkie dokonane przez niego płatności.\n4. Umowa uważana jest za niezawartą (art. 54 u.k.k.).\n\nXI. SPOSÓB DOSTARCZENIA:\nOświadczenie należy wysłać listem poleconym za zwrotnym potwierdzeniem odbioru lub złożyć osobiście w placówce kredytodawcy za potwierdzeniem przyjęcia z datą. Dowód nadania przesyłki poleconej jest najsilniejszym dowodem dochowania terminu.\n\nXII. ORGANY NADZORCZE:\nW przypadku naruszenia praw konsumenta, w tym prawa do odstąpienia od umowy, konsument może zgłosić się do:\n- Rzecznika Finansowego\n- Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK)\n- Komisji Nadzoru Finansowego (KNF) - w przypadku banków i SKOK-ów\n\n.........................................................\n(podpis konsumenta)\n\nPotwierdzenie odbioru przez kredytodawcę:\n.........................................................\n(data i podpis osoby upoważnionej)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "OŚWIADCZENIE O ODSTĄPIENIU OD UMOWY KREDYTU KONSUMENCKIEGO\n\nMiejscowość, data: ________________________\n\nI. DANE KREDYTOBIORCY (KONSUMENTA):\nImię i nazwisko: ________________________\nAdres zamieszkania: ________________________\nPESEL: ________________________\nAdres e-mail: ________________________\nTelefon kontaktowy: ________________________\n\nII. DANE KREDYTODAWCY:\nPełna nazwa instytucji finansowej: ________________________\nAdres siedziby: ________________________\n\nIII. IDENTYFIKACJA UMOWY KREDYTOWEJ:\nNumer umowy kredytowej: ________________________\nData zawarcia umowy: ________________________\nCałkowita kwota kredytu: ________________________\nRodzaj kredytu (pożyczka gotówkowa/kredyt ratalny/karta kredytowa/limit kredytowy): ________________________\n\nIV. PODSTAWA PRAWNA:\nNa podstawie art. 53 ust. 1 ustawy z dnia 12 maja 2011 r. o kredycie konsumenckim (Dz.U. 2011 nr 126 poz. 715 ze zm., dalej: u.k.k.) niniejszym oświadczam, że odstępuję od umowy o kredyt konsumencki zawartej w dniu ________________________.\n\nPrawo to jest bezwzględne i nie wymaga podania przyczyny. Konsument może odstąpić od umowy niezależnie od tego, czy kredyt był niekorzystny, czy bank spełnił swoje obowiązki.\n\nV. OŚWIADCZENIE O TERMINOWOŚCI:\nOświadczenie składam w terminie czternastu dni od dnia zawarcia umowy, zgodnie z art. 53 ust. 1 u.k.k. Termin ten jest nieprzekraczalny i jego dochowanie decyduje o skuteczności odstąpienia. Oświadczenie zostało wysłane/złożone przed upływem terminu.\n\nVI. ZOBOWIĄZANIE DO ZWROTU KREDYTU:\nZgodnie z art. 54 u.k.k. zobowiązuję się zwrócić kredytodawcy kwotę kredytu wraz z odsetkami za okres od dnia wypłaty kredytu do dnia jego spłaty, ustalonymi według stopy procentowanej wskazanej w umowie, w terminie trzydziestu dni od dnia złożenia niniejszego oświadczenia.\n\nKwota odsetek jest proporcjonalna do długości korzystania z kredytu. Kredytodawca nie może żądać od konsumenta żadnych innych opłat w związku z odstąpieniem.\n\nNumer rachunku bankowego do zwrotu środków: ________________________\n\nVII. INFORMACJA O PRAWIE ODSTĄPIENIA OD UMÓW NA ODLEGŁOŚĆ:\nJeżeli umowa kredytu została zawarta na odległość lub poza lokalem przedsiębiorstwa, prawo odstąpienia przysługuje również na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm., dalej: u.p.k.). W takim przypadku termin do odstąpienia wynosi 14 dni i biegnie od dnia zawarcia umowy lub od dnia potwierdzenia informacji, jeżeli jest to termin późniejszy (art. 40 u.p.k.).\n\nVIII. INFORMACJA O PRZEDŁUŻENIU TERMINU:\nJeżeli kredytodawca nie poinformował mnie o prawie odstąpienia od umowy w sposób wymagany przez art. 30 ust. 1 pkt 16 u.k.k., termin na odstąpienie ulega przedłużeniu o rok, zgodnie z art. 30 ust. 1 pkt 16 u.k.k. Analogicznie, na podstawie art. 29 u.p.k., jeżeli konsument nie został poinformowany o prawie odstąpienia, prawo to wygasa po upływie 12 miesięcy od dnia upływu terminu.\n\nIX. INFORMACJA O SANKCJI KREDYTU DARMOWEGO:\nInformuję, że jeżeli kredytodawca naruszył obowiązki informacyjne, przysługuje mi prawo do sankcji kredytu darmowego na podstawie art. 45 u.k.k., co oznacza możliwość zwrotu kredytu bez odsetek i kosztów.\n\nX. OBOWIĄZKOWE INFORMACJE:\n1. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjątkiem odsetek za okres korzystania z kredytu (art. 54 u.k.k.).\n2. Kredytodawca nie może żądać od konsumenta żadnych innych opłat w związku z odstąpieniem.\n3. Zgodnie z art. 32 u.p.k., przedsiębiorca ma obowiązek niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania oświadczenia o odstąpieniu, zwrócić konsumentowi wszystkie dokonane przez niego płatności.\n4. Umowa uważana jest za niezawartą (art. 54 u.k.k.).\n\nXI. SPOSÓB DOSTARCZENIA:\nOświadczenie należy wysłać listem poleconym za zwrotnym potwierdzeniem odbioru lub złożyć osobiście w placówce kredytodawcy za potwierdzeniem przyjęcia z datą. Dowód nadania przesyłki poleconej jest najsilniejszym dowodem dochowania terminu.\n\nXII. ORGANY NADZORCZE:\nW przypadku naruszenia praw konsumenta, w tym prawa do odstąpienia od umowy, konsument może zgłosić się do:\n- Rzecznika Finansowego\n- Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK)\n- Komisji Nadzoru Finansowego (KNF) - w przypadku banków i SKOK-ów\n\n.........................................................\n(podpis konsumenta)\n\nPotwierdzenie odbioru przez kredytodawcę:\n.........................................................\n(data i podpis osoby upoważnionej)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę odstąpić od umowy kredytu, którą podpisałem dwa tygodnie temu, i nie wiem, jak to zrobić formalnie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Podpisałem umowę kredytową w banku 10 dni temu, ale zmieniłem zdanie i chcę z niej wyjść. Słyszałem, że mam 14 dni na odstąpienie bez podawania przyczyny. Potrzebuję gotowego wzoru pisma, które wystarczy wypełnić moimi danymi, numerem umowy i wysłać do banku listem poleconym, żeby mieć dowód, że zrobiłem to na czas. Chcę też wiedzieć, ile dokładnie muszę im oddać – czy tylko kwotę kredytu plus odsetki za te kilka dni, czy bank może doliczać jakieś dodatkowe opłaty."
+  }
+ ]
+}

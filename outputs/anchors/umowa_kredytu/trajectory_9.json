@@ -1,0 +1,306 @@
+{
+ "run": 10,
+ "hint": "Kredyt nieodnawialny z jednorazową wypłatą",
+ "scenario": "Kredyt nieodnawialny z jednorazową wypłatą",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_kredytu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a loan agreement (umowa_kredytu) with the scenario direction: \"Kredyt nieodnawialny z jednorazową wypłatą\" (non-revolving loan with single disbursement).\n\nLet me start by reading the base template for umowa_kredytu, then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-f25a293e-7bfb-46c0-9c99-351ba1e2581c",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_kredytu\", \"query\": \"kredyt nieodnawialny jednorazowa wypłata\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_kredytu\", \"kind\": \"structural_template\", \"text\": \"# Umowa o linię kredytową\\nUmowa o linię kredytową w Polsce to kontrakt zawarty między bankiem a kredytobiorcą (przedsiębiorcą lub spółką), na podstawie którego bank zobowiązuje się udostępnić środki do określonego limitu w zamian za odsetki i prowizję. Podstawę prawną stanowi art. 69 ustawy z dnia 29 sierpnia 1997 r. Prawo bankowe (Dz.U. 1997 nr 140 poz. 939 ze zm.), który definiuje umowę kredytu jako zobowiązanie banku do oddania do dyspozycji kredytobiorcy na czas oznaczony w umowie kwoty środków pieniężnych z przeznaczeniem na ustalony cel.\\n\\nLinia kredytowa różni się od klasycznego kredytu terminowego sposobem korzystania ze środków — kredytobiorca może wielokrotnie wypłacać i spłacać kwoty w ramach przyznanego limitu przez cały okres trwania umowy. W przypadku linii odnawialnej (revolving credit facility) każda spłata odtwarza dostępny limit, co sprawia, że instrument ten jest elastycznym narzędziem zarządzania płynnością finansową. Linia nieodnawialna zmniejsza limit wraz z każdą wypłatą aż do jego wyczerpania.\\n\\nOprocentowanie linii kredytowej w Polsce opiera się na zmiennym wskaźniku referencyjnym — historycznie WIBOR 3M lub WIBOR 1M, a od 2025 r. stopniowo zastępowanym przez WIRON (Warsaw Interest Rate Overnight) — powiększonym o stałą marżę banku. Komisja Nadzoru Finansowego (KNF) sprawuje nadzór ostrożnościowy nad bankami udzielającymi kredytów i wydaje rekomendacje dotyczące polityki kredytowej, w szczególności Rekomendację S (kredyty hipoteczne) i Rekomendację T (kredyty detaliczne).\\n\\nW obrocie korporacyjnym wyróżnia się kilka podstawowych typów linii kredytowych: kredyt obrotowy (finansowanie bieżącej działalności — zapasy, należności, zobowiązania wobec dostawców), kredyt inwestycyjny (nabycie środków trwałych, nieruchomości), wielocelowa linia kredytowa (mixed facility) oraz specjalistyczne instrumenty takie jak akredytywa dokumentowa, gwarancja bankowa lub linia dla transakcji faktoringowych. Każdy typ linii różni się profilem ryzyka i wymogami zabezpieczeń weryfikowanymi przez departament ryzyka bankowego.\\n\\nZawierając umowę o linię kredytową, Sąd Rejonowy lub Sąd Okręgowy może być właściwy do rozstrzygania sporów w zależności od wartości przedmiotu sporu — powyżej 100 000 zł właściwy jest Sąd Okręgowy (art. 17 pkt 4 Kodeksu postępowania cywilnego). Banki często stosują klauzule o sądzie arbitrażowym lub jurysdykcji sądu właściwego dla siedziby banku, co jest dopuszczalne przy umowach z przedsiębiorcami na mocy art. 46 Kodeksu postępowania cywilnego.\\n\\nWielkość linii kredytowej ustalana jest na podstawie analizy zdolności kredytowej kredytobiorcy zgodnie z art. 70 Prawa bankowego, który zobowiązuje bank do oceny ryzyka spłaty. Analiza obejmuje sprawozdania finansowe, wyciągi z rachunków bankowych, strukturę zobowiązań, jakość portfela należności oraz prognozy przepływów pieniężnych. Negatywna historia kredytowa w Biurze Informacji Kredytowej (BIK) lub rejestrach prowadzonych przez Biuro Informacji Gospodarczej (BIG) może skutkować odmową udzielenia kredytu lub obniżeniem przyznanego limitu.\\n\\nUmowa o linię kredytową w Polsce jest potrzebna w sytuacjach, gdy przedsiębiorca lub spółka potrzebuje elastycznego instrumentu finansowania operacyjnego lub inwestycyjnego.\\n\\nFinansowanie bieżącej działalności operacyjnej. Przedsiębiorstwa handlowe i produkcyjne, które muszą finansować zapasy i należności przed otrzymaniem zapłaty od kontrahentów, sięgają po linię kredytową jako stałe buforowe źródło finansowania obrotowego, bez konieczności każdorazowego wnioskowania o oddzielny kredyt.\\n\\nZarządzanie sezonowymi wahaniami przychodów. Branże turystyczna, budowlana czy rolna — cechujące się silną sezonowością — potrzebują linii kredytowej dostępnej w miesiącach niskich przychodów, spłacanej w szczycie sezonu. Linia odnawialna doskonale spełnia tę rolę.\\n\\nFinansowanie przejęć i transakcji M&A. Przy nabyciu udziałów lub akcji spółki w trybie pilnym (np. aukcja), gdy czas na pozyskanie długoterminowego finansowania jest ograniczony, linia kredytowa (bridge facility) umożliwia szybkie sfinansowanie transakcji.\\n\\nZabezpieczenie płatności celnych i akcyzowych. Importerzy regularnie korzystający z kredytu kupieckiego potrzebują linii gwarancyjnej w banku, aby wystawione przez bank gwarancje celne i akcyzowe zastępowały depozyt gotówkowy w Urzędzie Celnym.\\n\\nWydatki inwestycyjne o nieregularnym harmonogramie. Przy realizacji projektów budowlanych lub wdrożeniowych, gdzie płatności dla wykonawców następują etapami, linia kredytowa (draw-down facility) zapewnia dostęp do środków dokładnie wtedy, gdy jest to potrzebne.\\n\\nOchrona przed niespodziewanymi zdarzeniami płynnościowymi. Linia kredytowa jako instrument zapasowy (standby credit facility) zapewnia spokój zarządowi spółki — nawet jeśli nie jest regularnie wykorzystywana, stanowi zabezpieczenie na wypadek opóźnień płatności od kluczowych kontrahentów lub nagłych konieczności płatniczych wobec ZUS lub KAS.\\n\\nUmowa o linię kredytową w Polsce powinna zawierać kompleksowy zestaw postanowień zgodnych z art. 69 ust. 2 Prawa bankowego, który wskazuje obligatoryjne elementy każdej umowy kredytu bankowego.\\n\\nOznaczenie stron z danymi rejestracyjnymi. Pełna firma banku, numer zezwolenia Komisji Nadzoru Finansowego (KNF), adres siedziby zarządu, numer KRS oraz numer SWIFT/BIC dla płatności zagranicznych. Pełna firma kredytobiorcy, NIP, REGON, numer KRS lub wpis do CEIDG, organ uprawniony do reprezentacji zgodnie z aktualnym odpisem z Krajowego Rejestru Sądowego.\\n\\nKwota i waluta linii kredytowej. Limit kredytu wyrażony cyfrowo i słownie w złotych polskich (PLN). W przypadku linii walutowej — kurs przeliczeniowy lub odniesienie do tabeli kursów NBP lub tabeli banku. Kwota cyfrowo i słownie jest wymogiem wynikającym ze standardowej praktyki bankowej i dokumentacji kredytowej.\\n\\nCel kredytowania. Wyraźne wskazanie celu zgodnie z art. 69 ust. 2 pkt 3 Prawa bankowego — kredyt obrotowy, inwestycyjny lub wielocelowy. Bank monitoruje wykorzystanie środków zgodnie z zadeklarowanym celem, a odstępstwo od celu może skutkować wypowiedzeniem umowy.\\n\\nOprocentowanie i wskaźnik referencyjny. Stopa zmienna oparta na WIBOR 3M lub WIRON powiększona o marżę banku. Zasady aktualizacji stopy (np. kwartalnie w dniu fixingu). Marża banku powinna być wyraźnie oznaczona jako stały składnik wynagrodzenia banku przez cały okres kredytowania.\\n\\nProwizje i opłaty. Prowizja przygotowawcza (za uruchomienie linii), prowizja za gotowość (commitment fee — procent od niewykorzystanej części limitu, pobierany kwartalnie), prowizja za wcześniejszą spłatę (prepayment fee) przy liniach nieodnawialnych.\\n\\nZabezpieczenia. Hipoteka kaucyjna na nieruchomości (wpis do działu IV księgi wieczystej prowadzonej przez właściwy sąd rejonowy — wydział ksiąg wieczystych), zastaw rejestrowy na aktywach przedsiębiorstwa (wpis do rejestru zastawów prowadzonego przez Sąd Rejonowy), weksel własny in blanco z deklaracją wekslową, cesja polisy ubezpieczenia majątkowego. forms-legal.com zaleca przechowywanie kopii wszystkich dokumentów zabezpieczeń wraz z dowodem rejestracji.\\n\\nWarunki uruchomienia (conditions precedent). Dokumenty wymagane przed pierwszą wypłatą: odpis z KRS, zaświadczenia z ZUS, KAS i BIK o braku zaległości, aktualne sprawozdanie finansowe, uchwała organu spółki o zaciągnięciu kredytu (wymagana gdy przekracza umocowanie zarządu), potwierdzenie ustanowienia zabezpieczeń.\\n\\nKlauzule informacyjne i RODO. Obowiązek informacyjny zgodnie z art. 69 ust. 2 pkt 8 Prawa bankowego. Przetwarzanie danych osobowych osób fizycznych (wspólników, poręczycieli) w oparciu o rozporządzenie (UE) 2016/679 (RODO) pod nadzorem Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nWypowiedzenie umowy. Przesłanki natychmiastowego wypowiedzenia przez bank: pogorszenie sytuacji finansowej kredytobiorcy zagrażające spłacie (art. 75 Prawa bankowego), ustanowienie zabezpieczeń na rzecz osoby trzeciej bez zgody banku, naruszenie covenantów finansowych (wskaźniki zadłużenia, pokrycia odsetek), złożenie wniosku o restrukturyzację lub upadłość, zajęcie rachunków przez komornika sądowego.\\n\\nUmowa o linię kredytową w Polsce wymaga precyzyjnego wypełnienia poszczególnych rubryk, aby dokument był kompletny prawnie i operacyjnie.\\n\\nKrok 1 — zidentyfikuj strony umowy. Wpisz pełną firmę banku wraz z numerem zezwolenia KNF — możesz go zweryfikować w publicznym rejestrze podmiotów nadzorowanych na stronie KNF. Dla kredytobiorcy wpisz dane z aktualnego odpisu z KRS lub CEIDG: firmę, NIP, REGON i adres siedziby zarządu.\\n\\nKrok 2 — określ parametry linii. Podaj limit kredytu cyfrowo i słownie w PLN. Wskaż cel kredytowania — bank ma prawo do kontroli wykorzystania środków. Wybierz typ linii: odnawialna (każda spłata odtwarza limit) lub nieodnawialna (limit zmniejsza się). Wskaż datę końcową linii — standardowo 12 miesięcy dla kredytów obrotowych, do 5 lat dla linii inwestycyjnych.\\n\\nKrok 3 — ustal oprocentowanie. Wskaż wskaźnik referencyjny (WIBOR 3M lub WIRON) i marżę banku. Banki zobowiązane są na mocy art. 69 ust. 2 Prawa bankowego do wyraźnego wskazania sposobu zmiany stopy procentowej. Sprawdź, czy oprocentowanie nie przekracza odsetek maksymalnych z art. 359 § 2¹ Kodeksu cywilnego.\\n\\nKrok 4 — wymień zabezpieczenia. Dla każdego zabezpieczenia wskaż precyzyjnie przedmiot: dla hipoteki — numer księgi wieczystej (format SądKW/nrKW/cyfra kontrolna), numer działki i adres nieruchomości; dla zastawu — opis aktywów; dla weksla — oświadczenie o wystawieniu weksla in blanco z deklaracją wekslową. Pamiętaj, że hipoteka wymaga formy aktu notarialnego przy obciążaniu nieruchomości osoby fizycznej.\\n\\nKrok 5 — wpisz rachunek kredytowy i harmonogram spłat. Podaj IBAN rachunku prowadzonego przez bank. Wskaż daty spłaty odsetek (standardowo ostatni dzień miesiąca) i datę spłaty całości kapitału. Przy linii obrotowej zazwyczaj nie ma miesięcznych rat kapitałowych — tylko odsetki, z całą spłatą kapitału w dniu końcowym.\\n\\nKrok 6 — dołącz wymagane dokumenty. Przed podpisaniem przygotuj: odpis z KRS (aktualny, nie starszy niż 3 miesiące), zaświadczenie z ZUS o niezaleganiu ze składkami (ważne 30 dni), zaświadczenie z KAS o niezaleganiu z podatkami, sprawozdanie finansowe za ostatni zamknięty rok obrotowy, ewentualnie prognozę cash flow. Dla spółek — uchwałę odpowiedniego organu o zaciągnięciu kredytu.\\n\\nKrok 7 — podpisz umowę. Podpisy składają osoby uprawnione do reprezentacji zgodnie z KRS. Przy kwalifikowanym podpisie elektronicznym zastosowanie ma art. 78¹ KC. Umowa zawierana jest w miejscowości i dniu wskazanym w nagłówku — pamiętaj o zgodności z datą w dokumentach zabezpieczeń.\\n\\nUmowa o linię kredytową w Polsce podlega szczegółowym wymogom wynikającym z Prawa bankowego i powiązanych aktów prawnych.\\n\\nPrawo bankowe — art. 69–75. Ustawa z dnia 29 sierpnia 1997 r. Prawo bankowe (Dz.U. 1997 nr 140 poz. 939 ze zm.) jest centralnym aktem regulującym działalność kredytową banków. Art. 69 ust. 2 wskazuje obligatoryjne elementy umowy kredytu: strony, kwotę i walutę kredytu, cel kredytu, zasady i termin spłaty, wysokość oprocentowania i warunki jego zmiany, sposób zabezpieczenia spłaty, zakres uprawnień banku kontrolnych oraz terminy i sposób postawienia do dyspozycji kredytobiorcy środków. Art. 75 Prawa bankowego uprawnia bank do wypowiedzenia umowy w razie pogorszenia się sytuacji majątkowej kredytobiorcy.\\n\\nKodeks cywilny — art. 353¹, 359, 481. Zasada swobody umów (art. 353¹ KC) pozwala stronom kształtować treść umowy w granicach wyznaczonych przez naturę stosunku, ustawę i zasady współżycia społecznego. Oprocentowanie kredytu ograniczone jest przepisami o odsetkach maksymalnych (art. 359 § 2¹ KC — dwukrotność odsetek ustawowych) i odsetkach maksymalnych za opóźnienie (art. 481 § 2¹ KC).\\n\\nRekomendacje KNF. Komisja Nadzoru Finansowego wydaje rekomendacje dla banków dotyczące polityki kredytowej: Rekomendacja T (zarządzanie ryzykiem detalicznych ekspozycji kredytowych), Rekomendacja S (kredyty hipoteczne), Rekomendacja B (ryzyko koncentracji). Choć rekomendacje nie mają mocy wiążącej przepisów prawa, banki są zobowiązane do ich stosowania lub wyjaśnienia odchyleń (zasada comply-or-explain).\\n\\nZastaw rejestrowy. Ustawa z dnia 6 grudnia 1996 r. o zastawie rejestrowym i rejestrze zastawów (Dz.U. 1997 nr 149 poz. 703 ze zm.) reguluje ustanawianie zastawu na ruchomościach i prawach majątkowych jako zabezpieczenia kredytów. Wpis do rejestru zastawów prowadzonego przez Sąd Rejonowy nadaje zastawowi skuteczność wobec osób trzecich.\\n\\nHipoteka jako zabezpieczenie. Ustawa z dnia 6 lipca 1982 r. o księgach wieczystych i hipotece (Dz.U. 1982 nr 19 poz. 147 ze zm.) reguluje ustanawianie hipoteki, która wymaga formy aktu notarialnego (przy osobach fizycznych) i wpisu do księgi wieczystej prowadzonej przez właściwy sąd rejonowy — wydział ksiąg wieczystych.\\n\\nPrzetwarzanie danych przez banki. Banki i kredytobiorcy przetwarzają dane osobowe osób reprezentujących strony i poręczycieli na podstawie art. 6 ust. 1 lit. b i f rozporządzenia (UE) 2016/679 (RODO). Nadzór nad przetwarzaniem danych sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nUmowa o linię kredytową w Polsce często zawiera błędy, które skutkują nieważnością postanowień lub sporami z bankiem.\\n\\nBłąd 1 — brak precyzyjnego celu kredytowania. Niewyraźne wskazanie celu (np. \\\"bieżąca działalność\\\" bez doprecyzowania) utrudnia bankowi kontrolę i może być podstawą wypowiedzenia umowy przy zarzucie naruszenia warunków. Zalecenie: wskaż konkretny cel zgodnie z art. 69 ust. 2 pkt 3 Prawa bankowego.\\n\\nBłąd 2 — pominięcie uchwały korporacyjnej. W spółkach z o.o. i akcyjnych zaciągnięcie kredytu przekraczającego uprawnienia zarządu wymaga uchwały zgromadzenia wspólników lub rady nadzorczej. Brak uchwały skutkuje bezskutecznością zawieszoną umowy (art. 103 KC). Zalecenie: sprawdź statut i umowę spółki pod kątem progów wymagających uchwały.\\n\\nBłąd 3 — zapis zmiennej stopy procentowej bez jasnych zasad aktualizacji. Klauzula \\\"oprocentowanie zmienne\\\" bez wskazania wskaźnika referencyjnego i terminu aktualizacji jest nieprecyzyjna i może naruszać art. 69 ust. 2 Prawa bankowego. Zalecenie: wskaż WIBOR/WIRON, datę fixingu i tryb informowania kredytobiorcy o zmianie stopy.\\n\\nBłąd 4 — niekompletna dokumentacja zabezpieczeń. Hipoteka bez aktu notarialnego (przy osobach fizycznych) lub bez wpisu do księgi wieczystej nie jest skuteczna wobec osób trzecich. Zalecenie: upewnij się, że wszelkie formalności rejestrowe zostały dopełnione przed uruchomieniem pierwszej wypłaty.\\n\\nBłąd 5 — ignorowanie prowizji za gotowość. Wiele umów z bankami zawiera ukrytą prowizję za gotowość (commitment fee) od niewykorzystanej części limitu, o której kredytobiorcy zapominają. Zalecenie: przeanalizuj tabelę opłat i prowizji banku przed podpisaniem i uwzględnij prowizję za gotowość w kalkulacji całkowitego kosztu finansowania.\\n\\nŹródło: https://forms-legal.com/pl/financial/loans/umowa-o-linie-kredytowa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-f25a293e-7bfb-46c0-9c99-351ba1e2581c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The base template is for a credit line (linia kredytowa), which is different from a simple non-revolving loan with single disbursement. The template mentions both revolving and non-revolving lines. I need to search for more specific provisions about non-revolving loans with single disbursement (kredyt nieodnawialny z jednorazową wypłatą). Let me search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-1a6b5880-a9f7-4235-bbb3-a34f0618ff4e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"kredyt nieodnawialny jednorazowa wypłata terminowy spłata jednorazowa\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_7f265b0389bf6d1d\", \"source_id\": \"uokik_rejestr_klauzul_7773\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy Kredytobiorca/Pożyczkobiorca dokona wyboru spłaty Kredytu/Pożyczki w złotych albo złoży dyspozycję spłaty Kredytu/Pożyczki w złotych po uprzednim złożeniu dyspozycji spłaty Kredytu/Pożyczki w walucie waloryzacji (powrót do spłaty w złotych), obowiązują następujące zasady: 1) w całym okresie obowiązywania Umowy począwszy od pierwszego dnia spłaty albo od dnia dokonania zmiany waluty spłaty na złote, spłata rat dokonywana jest w złotych po uprzednim przeliczeniu (pomnożeniu) rat kapitałowo-odsetkowych, jeśli kredyt został wypłacony w całości lub rat odsetkowych, jeśli kredyt jes ...\"}, {\"chunk_id\": \"uokik_items:uokik_8faf1393dd865084\", \"source_id\": \"uokik_rejestr_klauzul_5622\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kredytobiorca zobowiązuje się dokonywać spłaty kredytu, w wysokościach i terminach podanych w Załączniku nr 1 do Umowy - kalendarzu spłat na rachunek Banku nr: (...)(decyduje data wpływu na rachunek Banku), które będą zaliczane w następującej kolejności: należne opłaty i prowizje, odsetki umowne, kapitał kredytu i odsetki karne. Kwoty wskazane w kalendarzu spłat podane są w walucie kredytu. Spłaty dokonywane będą przez Kredytobiorcę w złotych, po uprzednim przeliczeniu spłaty wg kursu (...)(kursu Banku). Kurs Banku jest to średni kurs złotego w stosunku do waluty kredytu opublikowany w danym d ...\"}, {\"chunk_id\": \"uokik_items:uokik_71b841e3673ce7a6\", \"source_id\": \"uokik_rejestr_klauzul_1144\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wypłata kredytu nastąpi w miesięcznych ratach, pomniejszonych o kwotę prowizji, w formie bezgotówkowej poprzez przelew na rachunek w Banku\"}, {\"chunk_id\": \"uokik_abusive_clause_291\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Niniejsza umowa może zostać wypowiedziana przez Klienta z zachowaniem trzydziestodniowego terminu wypowiedzenia, pod warunkiem opłacenia wszystkich określonych w § 4 należności wobec (...) do dnia upływu okresu wypowiedzenia oraz wniesienia jednorazowej opłaty w wysokości 650 zł w terminie 14 dni od dnia upływu przedmiotowego okresu\"}, {\"chunk_id\": \"uokik_items:uokik_c9df4f0dc8bc17e9\", \"source_id\": \"uokik_rejestr_klauzul_1796\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku niewykonania zobowiązań wynikających z niniejszej umowy Kredytobiorca poniesie koszty związane z monitorowaniem Kredytobiorcy: 1) telefoniczne upomnienie Kredytobiorcy związane z nieterminową spłatą kredytu - 13 PLN; 2) korespondencja kierowana do Kredytobiorcy związana z nieterminową spłatą kredytu (zawiadomienie, upomnienie, prośba o dopłatę, wystawienie Bankowego Tytułu Egzekucyjnego), za każde pismo. Opłata za korespondencję kierowaną do poręczycieli Bank obciąża dodatkowo Kredytobiorców według tych samych stawek - 15 PLN; 3. wyjazd interwencyjny do Kredytobiorcy - 50 PLN\"}]",
+   "tool_call_id": "call-1a6b5880-a9f7-4235-bbb3-a34f0618ff4e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results are mostly about abusive clauses from UOKiK registry. Let me search for more specific provisions about non-revolving loans (kredyt nieodnawialny) and single disbursement terms.",
+   "tool_calls": [
+    {
+     "id": "call-7095e3c1-b6eb-4187-bb0a-a23054064c9e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"kredyt nieodnawialny\", \"jednorazowa wypłata\", \"kredyt terminowy\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_40e\", \"source_id\": \"sejm_eli_du_2025_350_art_40e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 40e. 1. Zwaloryzowane kwoty składek, środków, odsetek za zwłokę i opłaty prolongacyjnej, zewidencjonowane na subkoncie, podlegają podziałowi w razie rozwodu, unieważnienia małżeństwa albo w przypadku śmierci osoby, dla której Zakład prowadzi subkonto, na zasadach określonych w przepisach o organizacji i funkcjonowaniu funduszy emerytalnych, dotyczących podziału środków zgromadzonych na rachunku w otwartym funduszu emerytalnym w razie rozwodu, unieważnienia małżeństwa albo śmierci. Dziennik Ustaw – 42 – Poz. 350 2. Cz ...\"}]",
+   "tool_call_id": "call-7095e3c1-b6eb-4187-bb0a-a23054064c9e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The keyword search didn't return relevant results. Let me try a more targeted search for loan agreement provisions related to non-revolving loans and single disbursement.",
+   "tool_calls": [
+    {
+     "id": "call-90931ec6-cc1e-4b7a-b533-2ed052618842",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa kredytu terminowego nieodnawialny limit nie odnawia się wypłata jednorazowa spłata raty\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_183040bdc4fc5f83\", \"source_id\": \"uokik_rejestr_klauzul_6949\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank może w trakcie obowiązywania Umowy: 1) zwiększyć wysokość przyznanego Limitu, o ile zdolność kredytowa Posiadacza/y rachunku będzie pozwalała na spłatę zwiększonej wysokości Limitu, a Posiadacz/e rachunku rzetelnie wywiązywać się będzie/ będą ze wszystkich postanowień Umowy. Limit ten zostanie podwyższony od dnia wskazanego w piśmie przesłanym przez Bank, jeżeli w terminie 14 dni od daty otrzymania przez Posiadacza/y rachunku pisemnej propozycji podwyższenia Limitu, Posiadacz/e rachunku nie poinformują Banku o odmowie przyjęcia tej propozycji.\"}, {\"chunk_id\": \"uokik_items:uokik_7f265b0389bf6d1d\", \"source_id\": \"uokik_rejestr_klauzul_7773\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy Kredytobiorca/Pożyczkobiorca dokona wyboru spłaty Kredytu/Pożyczki w złotych albo złoży dyspozycję spłaty Kredytu/Pożyczki w złotych po uprzednim złożeniu dyspozycji spłaty Kredytu/Pożyczki w walucie waloryzacji (powrót do spłaty w złotych), obowiązują następujące zasady: 1) w całym okresie obowiązywania Umowy począwszy od pierwszego dnia spłaty albo od dnia dokonania zmiany waluty spłaty na złote, spłata rat dokonywana jest w złotych po uprzednim przeliczeniu (pomnożeniu) rat kapitałowo-odsetkowych, jeśli kredyt został wypłacony w całości lub rat odsetkowych, jeśli kredyt jes ...\"}, {\"chunk_id\": \"uokik_abusive_clause_291\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Niniejsza umowa może zostać wypowiedziana przez Klienta z zachowaniem trzydziestodniowego terminu wypowiedzenia, pod warunkiem opłacenia wszystkich określonych w § 4 należności wobec (...) do dnia upływu okresu wypowiedzenia oraz wniesienia jednorazowej opłaty w wysokości 650 zł w terminie 14 dni od dnia upływu przedmiotowego okresu\"}, {\"chunk_id\": \"uokik_items:uokik_dfa8761fec1e480e\", \"source_id\": \"uokik_rejestr_klauzul_6376\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie prawo do zaprzestania prowadzenia rachunków lokat terminowych określonego rodzaju o czym informuje listem zwykłym posiadaczy tych lokat. W takim przypadku lokaty odnawialne, którym w dacie podjęcia uchwały przez (...) nie upłynął termin, na jaki zostały złożone, nie ulegają odnowieniu. Po upływie okresu umownego środki zgromadzone na rachunku lokaty nie podlegają oprocentowaniu: jeżeli członek posiada rachunek oszczędnościowo-rozliczeniowy, (...) udostępnia te środki poprzez ich przekazanie na rachunek oszczędnościowo-rozliczeniowy\"}, {\"chunk_id\": \"uokik_items:uokik_08e0a23b61beafb5\", \"source_id\": \"uokik_rejestr_klauzul_650\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) ma prawo do odstąpienia od umowy w przypadku nieterminowych wpłat rat. Wpłacone kwoty będą zwrócone po potrąceniu 10% wpłaconych kwot tytułem kosztów zawarcia umowy\"}]",
+   "tool_call_id": "call-90931ec6-cc1e-4b7a-b533-2ed052618842",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_072af6b4550f4e0cafabeb0a",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"kredyt nieodnawialny\", \"wypłata kredytu\", \"umowa kredytu\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_71b841e3673ce7a6\", \"source_id\": \"uokik_rejestr_klauzul_1144\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wypłata kredytu nastąpi w miesięcznych ratach, pomniejszonych o kwotę prowizji, w formie bezgotówkowej poprzez przelew na rachunek w Banku\"}, {\"chunk_id\": \"uokik_items:uokik_312c0d1e4cd884b5\", \"source_id\": \"uokik_rejestr_klauzul_6068\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli z upływem pełnych 36 miesięcy okresu ubezpieczenia nie nastąpi całkowita spłata zadłużenia objętego ubezpieczeniem ani inne zdarzenie kończące okres ubezpieczenia, ubezpieczenie podlega automatycznej kontynuacji, przy czym łączny okres ubezpieczenia nie może przekroczyć 108 miesięcy, licząc od miesiąca, w którym nastąpiła wypłata Kredytu. Kredytobiorca upoważnia mBank do pobrania środków tytułem zwrotu kosztów ubezpieczenia w wysokości 3,50% różnicy pomiędzy wymaganym wkładem własnym Kredytobiorcy, a wkładem wniesionym faktycznie, tj. [...] oraz zwrotu kosztów z tytułu kontynuacji przed ...\"}]",
+   "tool_call_id": "call_072af6b4550f4e0cafabeb0a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA KREDYTU NIEODNAWIALNEGO Z JEDNORAZOWĄ WYPŁATĄ\n\nzawarta w dniu ……………… w ………………, pomiędzy:\n\n**Bankiem — Kredytodawcą:**\nPełna firma: …………………………………………………………………………………\nAdres siedziby: ………………………………………………………………………………\nNumer zezwolenia Komisji Nadzoru Finansowego (KNF): ……………………………\nNumer KRS: …………………………………………………………………………………\nNumer SWIFT/BIC: …………………………………………………………………………\nreprezentowanym przez: ……………………………………………………………………\n\na\n\n**Kredytobiorcą:**\nPełna firma: …………………………………………………………………………………\nAdres siedziby: ………………………………………………………………………………\nNIP: …………………………… REGON: ……………………………\nNumer KRS / wpis do CEIDG: ……………………………………………………………\nreprezentowanym przez: ……………………………………………………………………\n\n§ 1. Przedmiot umowy\n\n1. Kredytodawca zobowiązuje się udostępnić Kredytobiorcy na czas oznaczony w niniejszej umowie kwotę środków pieniężnych w wysokości: ……………… zł (słownie: ………………………………………………………………………………… złotych) z przeznaczeniem na cel określony w § 3.\n\n2. Kredyt udzielany jest jako kredyt nieodnawialny z jednorazową wypłatą. Wypłata całości kwoty kredytu następuje jednorazowo w trybie i na zasadach określonych w § 4. Po dokonaniu wypłaty Kredytobiorcy środków z tytułu kredytu, limit kredytu nie podlega odnawieniu, a spłacone kwoty kapitału nie zwiększają dostępnej do wypłaty kwoty kredytu.\n\n3. Waluta kredytu: złoty polski (PLN).\n\n§ 2. Okres obowiązywania umowy\n\n1. Umowa zostaje zawarta na czas oznaczony i obowiązuje od dnia jej podpisania przez obie Strony do dnia ……………… (data końcowa okresu kredytowania).\n\n2. Z upływem okresu, o którym mowa w ust. 1, umowa ulega rozwiązaniu z chwilą upływu tego terminu, chyba że Strony postanowią inaczej na piśmie.\n\n§ 3. Cel kredytowania\n\n1. Kredytobiorca przeznacza środki z tytułu kredytu wyłącznie na: ………………………………………………………………………………… (np. finansowanie bieżącej działalności operacyjnej, nabycie środków trwałych, finansowanie nieruchomości).\n\n2. Kredytodawca ma prawo do kontroli wykorzystania środków zgodnie z zadeklarowanym celem. Odstępstwo od celu kredytowania stanowi podstawę wypowiedzenia umowy na zasadach określonych w § 12.\n\n§ 4. Wypłata kredytu\n\n1. Wypłata kredytu następuje jednorazowo, w całości, w terminie ……………… dni roboczych od spełnienia łącznie następujących warunków uruchomienia (conditions precedent):\n   a) zawarcia niniejszej umowy i nadania jej formy aktu notarialnego — w przypadku gdy wymóg ten wynika z ustawy lub postanowień niniejszej umowy,\n   b) ustanowienia zabezpieczeń spłaty kredytu określonych w § 8 w sposób i na warunki wymagane przez Kredytodawcę,\n   c) przedłożenia przez Kredytobiorcę dokumentów wymaganych na podstawie art. 69 ust. 2 Prawa bankowego, w tym:\n      — aktualny odpis z KRS lub CEIDG (nie starszy niż 3 miesiące),\n      — zaświadczenie z ZUS o braku zaległości w opłacaniu składek (ważne 30 dni),\n      — zaświadczenie z KAS o braku zaległości podatkowych (ważne 30 dni),\n      — aktualne sprawozdanie finansowe za ostatni zamknięty rok obrotowy,\n      — uchwała organu Kredytobiorcy o zaciągnięciu kredytu — jeżeli wymóg ten wynika ze statutu lub umowy spółki lub przekracza zakres umocowania zarządu,\n   d) braku zdarzeń mogących wpłynąć negatywnie na zdolność kredytową Kredytobiorcy.\n\n2. Wypłata kredytu następuje w formie bezgotówkowej poprzez przelew na rachunek bankowy Kredytobiorcy nr: ……………… (IBAN) prowadzony w ……………….\n\n3. Kredytodawca może wstrzymać wypłatę kredytu, jeżeli:\n   a) sytuacja majątkowa Kredytobiorcy uległa pogorszeniu zagrażającemu spłacie kredytu,\n   b) Kredytobiorca nie spełnił warunków uruchomienia określonych w ust. 1,\n   c) zabezpieczenia nie zostały ustanowione lub nie są w pełni skuteczne.\n\n4. Kredytobiorca nie może żądać ponownej wypłaty środków z tytułu spłaconego kredytu. Kredyt ma charakter nieodnawialny.\n\n§ 5. Oprocentowanie\n\n1. Oprocentowanie kredytu wynosi: ………………% w skali roku i oparte jest na wskaźniku referencyjnym WIBOR 3M (lub WIRON) powiększonym o marżę banku w wysokości ………………% w skali roku.\n\n2. Wskaźnik referencyjny ulega aktualizacji w dniu fixingu, tj. w dniu ……………… każdego miesiąca/kwartału. Nowa stopa procentowa obowiązuje od dnia następnego po dniu fixingu.\n\n3. Marża banku stanowi stały składnik wynagrodzenia Kredytodawcy przez cały okres obowiązywania umowy i nie podlega zmianie.\n\n4. Oprocentowanie nie przekracza odsetek maksymalnych określonych w art. 359 § 2¹ Kodeksu cywilnego.\n\n5. W przypadku opóźnienia w spłacie należności tytułem kredytu, Kredytodawcy przysługują odsetki karne za opóźnienie w wysokości określonej w art. 481 § 2¹ Kodeksu cywilnego, nie wyżej jednak niż odsetki maksymalne za opóźnienie.\n\n§ 6. Prowizje i opłaty\n\n1. Za uruchomienie kredytu Kredytobiorca płaci Kredytodawcy prowizję przygotowawczą w wysokości ……………… zł (słownie: ………………………………………………… złotych), płatną jednorazowo w terminie ……………… dni od dnia podpisania umowy.\n\n2. Za wcześniejszą spłatę kredytu (całości lub części) Kredytobiorca płaci Kredytodawcy prowizję w wysokości ………………% od kwoty wcześniej spłaconego kapitału.\n\n3. Opłaty związane z ustanowieniem i rejestracją zabezpieczeń (opłaty sądowe, opłaty za wpisy do ksiąg wieczystych, rejestru zastawów, opłaty notarialne) ponosi Kredytobiorca.\n\n§ 7. Spłata kredytu\n\n1. Kredytobiorca zobowiązuje się do spłaty kredytu w ratach kapitałowo-odsetkowych według harmonogramu stanowiącego Załącznik nr 1 do niniejszej umowy.\n\n2. Spłata rat kapitałowo-odsetkowych następuje w terminach: ……………… (np. ostatni dzień każdego miesiąca/kwartału).\n\n3. Odsetki od kredytu naliczane są od dnia wypłaty kredytu do dnia dokonania pełnej spłaty kapitału.\n\n4. Spłata kredytu następuje na rachunek Kredytodawcy nr: ……………… (IBAN).\n\n5. W przypadku wystąpienia dnia, w którym przypada termin spłaty, w dzień ustawowo wolny od pracy, termin spłatu przesuwa się na najbliższy dzień roboczy.\n\n6. Kredytobiorca może dokonać wcześniejszej spłaty kredytu w całości lub części, z zachowaniem wymogu powiadomienia Kredytodawcy na piśmie w terminie nie krótszym niż ……………… dni przed planowaną datą wcześniejszej spłaty, oraz z uiszczeniem prowizji określonej w § 6 ust. 2.\n\n7. Wpływające kwoty z tytułu spłaty kredytu zaliczane są w następującej kolejności:\n   a) odsetki karne,\n   b) odsetki umowne,\n   c) kapitał kredytu,\n   d) opłaty i prowizje.\n\n§ 8. Zabezpieczenia\n\n1. W celu zabezpieczenia spłaty kredytu oraz należności z tytułu odsetek, prowizji, opłat i kosztów, Kredytobiorca zobowiązuje się do ustanowienia następujących zabezpieczeń:\n   a) hipoteki kaucyjnej na nieruchomości położonej w ………………, objętej księgą wieczystą nr ………………, prowadzoną przez Sąd Rejonowy w ………………, na rzecz Kredytodawcy, do kwoty ……………… zł,\n   b) zastawu rejestrowego na ruchomościach/prawach majątkowych — wpis do rejestru zastawów prowadzonego przez Sąd Rejonowy w ………………, na rzecz Kredytodawcy, do kwoty ……………… zł,\n   c) weksla własnego in blanco z deklaracją wekslową wystawionego przez Kredytobiorcę,\n   d) cesji polisy ubezpieczenia majątkowego,\n   e) poręczenia ……………… do kwoty ……………… zł.\n\n2. Kredytobiorca zobowiązuje się do dokonania wszelkich formalności rejestracyjnych i uzyskania wpisów w księgach wieczystych oraz rejestrach publicznych w terminie ……………… dni przed dniem wypłaty kredytu.\n\n3. Koszty związane z ustanowieniem i utrzymaniem zabezpieczeń ponosi Kredytobiorca.\n\n4. Kredytodawca ma prawo żądać ustanowienia dodatkowych zabezpieczeń w przypadku pogorszenia się sytuacji majątkowej Kredytobiorcy.\n\n§ 9. Prawa i obowiązki Stron\n\n1. Kredytobiorca zobowiązuje się do:\n   a) wykorzystania kredytu zgodnie z celem określonym w § 3,\n   b) terminowej spłaty kredytu i należności z tytułu odsetek, prowizji i opłat,\n   c) udostępnienia Kredytodawcy, na jego żądanie, dokumentów i informacji niezbędnych do oceny sytuacji finansowej Kredytobiorcy, w tym sprawozdań finansowych, wyciągów z rachunków bankowych, informacji o strukturze zobowiązań,\n   d) niezwłocznego poinformowania Kredytodawcy o każdym zdarzeniu mogącym wpłynąć na zdolność kredytową Kredytobiorcy, w tym o zajęciu rachunków bankowych, wniosku o upadłość lub restrukturyzację, ustanowieniu zabezpieczeń na rzecz osób trzecich bez zgody Kredytodawcy,\n   e) przestrzegania wskaźników finansowych (covenantów) określonych w Załączniku nr 2.\n\n2. Kredytodawca ma prawo do:\n   a) kontroli wykorzystania kredytu zgodnie z celem,\n   b) wglądu w dokumentację finansową Kredytobiorcy,\n   c) wypowiedzenia umowy w przypadkach określonych w § 12.\n\n§ 10. Oświadczenia Stron\n\n1. Kredytobiorca oświadcza, że:\n   a) dysponuje pełną zdolnością do czynności prawnych,\n   b) zawarcie umowy nie narusza przepisów prawa, statutu ani umów zawartych z osobami trzecimi,\n   c) wszystkie dokumenty i informacje przedłożone Kredytodawcy są zgodne z prawdą i kompletne,\n   d) nie toczy się postępowanie upadłościowe ani restrukturyzacyjne wobec Kredytobiorcy,\n   e) nie ma zaległości wobec ZUS, KAS ani innych organów.\n\n2. Kredytodawca oświadcza, że:\n   a) posiada wymagane zezwolenie KNF do prowadzenia działalności kredytowej,\n   b) przestrzega przepisów Prawa bankowego oraz rekomendacji KNF.\n\n§ 11. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową zastosowanie mają przepisy Kodeksu cywilnego oraz Prawa bankowego (art. 69–75).\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd właściwy dla siedziby Kredytodawcy / sąd właściwy dla siedziby Kredytobiorcy / sąd arbitrażowy przy ……………… (wybór Stron).\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n§ 12. Wypowiedzenie umowy\n\n1. Kredytodawca może wypowiedzieć umowę ze skutkiem natychmiastowym w przypadku:\n   a) pogorszenia się sytuacji majątkowej Kredytobiorcy zagrażającego spłacie kredytu (art. 75 Prawa bankowego),\n   b) niewykorzystania kredytu zgodnie z celem określonym w § 3,\n   c) naruszenia przez Kredytobiorcę obowiązków informacyjnych lub covenantów finansowych,\n   d) ustanowienia zabezpieczeń na rzecz osób trzecich bez zgody Kredytodawcy,\n   e) złożenia przez Kredytobiorcę wniosku o upadłość lub restrukturyzację,\n   f) zajęcia rachunków bankowych Kredytobiorcy przez komornika sądowego,\n   g) podstawowego naruszenia postanowień umowy przez Kredytobiorcę.\n\n2. Kredytobiorca może wypowiedzieć umowę z zachowaniem ………………-dniowego terminu wypowiedzenia, pod warunkiem spłaty wszystkich należności wobec Kredytodawcy do dnia upływu okresu wypowiedzenia.\n\n§ 13. Ochrona danych osobowych\n\n1. Administratorami danych osobowych osób fizycznych (wspólników, reprezentantów, poręczycieli) są Kredytodawca i Kredytobiorca.\n\n2. Dane osobowe przetwarzane są w celu zawarcia i wykonania umowy, oceny zdolności kredytowej oraz wypełnienia obowiązków prawnych, na podstawie art. 6 ust. 1 lit. b i f rozporządzenia (UE) 2016/679 (RODO).\n\n3. Nadzór nad przetwarzaniem danych sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\n\n§ 14. Załączniki\n\n1. Załącznik nr 1 — Harmonogram spłat kredytu.\n2. Załącznik nr 2 — Wskaźniki finansowe (covenants).\n3. Załącznik nr 3 — Tabela opłat i prowizji.\n\n…………………………………………………\t\t…………………………………………………\n(podpis Kredytodawcy)\t\t\t\t(podpis Kredytobiorcy)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA KREDYTU NIEODNAWIALNEGO Z JEDNORAZOWĄ WYPŁATĄ\n\nzawarta w dniu ……………… w ………………, pomiędzy:\n\n**Bankiem — Kredytodawcą:**\nPełna firma: …………………………………………………………………………………\nAdres siedziby: ………………………………………………………………………………\nNumer zezwolenia Komisji Nadzoru Finansowego (KNF): ……………………………\nNumer KRS: …………………………………………………………………………………\nNumer SWIFT/BIC: …………………………………………………………………………\nreprezentowanym przez: ……………………………………………………………………\n\na\n\n**Kredytobiorcą:**\nPełna firma: …………………………………………………………………………………\nAdres siedziby: ………………………………………………………………………………\nNIP: …………………………… REGON: ……………………………\nNumer KRS / wpis do CEIDG: ……………………………………………………………\nreprezentowanym przez: ……………………………………………………………………\n\n§ 1. Przedmiot umowy\n\n1. Kredytodawca zobowiązuje się udostępnić Kredytobiorcy na czas oznaczony w niniejszej umowie kwotę środków pieniężnych w wysokości: ……………… zł (słownie: ………………………………………………………………………………… złotych) z przeznaczeniem na cel określony w § 3.\n\n2. Kredyt udzielany jest jako kredyt nieodnawialny z jednorazową wypłatą. Wypłata całości kwoty kredytu następuje jednorazowo w trybie i na zasadach określonych w § 4. Po dokonaniu wypłaty Kredytobiorcy środków z tytułu kredytu, limit kredytu nie podlega odnawieniu, a spłacone kwoty kapitału nie zwiększają dostępnej do wypłaty kwoty kredytu.\n\n3. Waluta kredytu: złoty polski (PLN).\n\n§ 2. Okres obowiązywania umowy\n\n1. Umowa zostaje zawarta na czas oznaczony i obowiązuje od dnia jej podpisania przez obie Strony do dnia ……………… (data końcowa okresu kredytowania).\n\n2. Z upływem okresu, o którym mowa w ust. 1, umowa ulega rozwiązaniu z chwilą upływu tego terminu, chyba że Strony postanowią inaczej na piśmie.\n\n§ 3. Cel kredytowania\n\n1. Kredytobiorca przeznacza środki z tytułu kredytu wyłącznie na: ………………………………………………………………………………… (np. finansowanie bieżącej działalności operacyjnej, nabycie środków trwałych, finansowanie nieruchomości).\n\n2. Kredytodawca ma prawo do kontroli wykorzystania środków zgodnie z zadeklarowanym celem. Odstępstwo od celu kredytowania stanowi podstawę wypowiedzenia umowy na zasadach określonych w § 12.\n\n§ 4. Wypłata kredytu\n\n1. Wypłata kredytu następuje jednorazowo, w całości, w terminie ……………… dni roboczych od spełnienia łącznie następujących warunków uruchomienia (conditions precedent):\n   a) zawarcia niniejszej umowy i nadania jej formy aktu notarialnego — w przypadku gdy wymóg ten wynika z ustawy lub postanowień niniejszej umowy,\n   b) ustanowienia zabezpieczeń spłaty kredytu określonych w § 8 w sposób i na warunki wymagane przez Kredytodawcę,\n   c) przedłożenia przez Kredytobiorcę dokumentów wymaganych na podstawie art. 69 ust. 2 Prawa bankowego, w tym:\n      — aktualny odpis z KRS lub CEIDG (nie starszy niż 3 miesiące),\n      — zaświadczenie z ZUS o braku zaległości w opłacaniu składek (ważne 30 dni),\n      — zaświadczenie z KAS o braku zaległości podatkowych (ważne 30 dni),\n      — aktualne sprawozdanie finansowe za ostatni zamknięty rok obrotowy,\n      — uchwała organu Kredytobiorcy o zaciągnięciu kredytu — jeżeli wymóg ten wynika ze statutu lub umowy spółki lub przekracza zakres umocowania zarządu,\n   d) braku zdarzeń mogących wpłynąć negatywnie na zdolność kredytową Kredytobiorcy.\n\n2. Wypłata kredytu następuje w formie bezgotówkowej poprzez przelew na rachunek bankowy Kredytobiorcy nr: ……………… (IBAN) prowadzony w ……………….\n\n3. Kredytodawca może wstrzymać wypłatę kredytu, jeżeli:\n   a) sytuacja majątkowa Kredytobiorcy uległa pogorszeniu zagrażającemu spłacie kredytu,\n   b) Kredytobiorca nie spełnił warunków uruchomienia określonych w ust. 1,\n   c) zabezpieczenia nie zostały ustanowione lub nie są w pełni skuteczne.\n\n4. Kredytobiorca nie może żądać ponownej wypłaty środków z tytułu spłaconego kredytu. Kredyt ma charakter nieodnawialny.\n\n§ 5. Oprocentowanie\n\n1. Oprocentowanie kredytu wynosi: ………………% w skali roku i oparte jest na wskaźniku referencyjnym WIBOR 3M (lub WIRON) powiększonym o marżę banku w wysokości ………………% w skali roku.\n\n2. Wskaźnik referencyjny ulega aktualizacji w dniu fixingu, tj. w dniu ……………… każdego miesiąca/kwartału. Nowa stopa procentowa obowiązuje od dnia następnego po dniu fixingu.\n\n3. Marża banku stanowi stały składnik wynagrodzenia Kredytodawcy przez cały okres obowiązywania umowy i nie podlega zmianie.\n\n4. Oprocentowanie nie przekracza odsetek maksymalnych określonych w art. 359 § 2¹ Kodeksu cywilnego.\n\n5. W przypadku opóźnienia w spłacie należności tytułem kredytu, Kredytodawcy przysługują odsetki karne za opóźnienie w wysokości określonej w art. 481 § 2¹ Kodeksu cywilnego, nie wyżej jednak niż odsetki maksymalne za opóźnienie.\n\n§ 6. Prowizje i opłaty\n\n1. Za uruchomienie kredytu Kredytobiorca płaci Kredytodawcy prowizję przygotowawczą w wysokości ……………… zł (słownie: ………………………………………………… złotych), płatną jednorazowo w terminie ……………… dni od dnia podpisania umowy.\n\n2. Za wcześniejszą spłatę kredytu (całości lub części) Kredytobiorca płaci Kredytodawcy prowizję w wysokości ………………% od kwoty wcześniej spłaconego kapitału.\n\n3. Opłaty związane z ustanowieniem i rejestracją zabezpieczeń (opłaty sądowe, opłaty za wpisy do ksiąg wieczystych, rejestru zastawów, opłaty notarialne) ponosi Kredytobiorca.\n\n§ 7. Spłata kredytu\n\n1. Kredytobiorca zobowiązuje się do spłaty kredytu w ratach kapitałowo-odsetkowych według harmonogramu stanowiącego Załącznik nr 1 do niniejszej umowy.\n\n2. Spłata rat kapitałowo-odsetkowych następuje w terminach: ……………… (np. ostatni dzień każdego miesiąca/kwartału).\n\n3. Odsetki od kredytu naliczane są od dnia wypłaty kredytu do dnia dokonania pełnej spłaty kapitału.\n\n4. Spłata kredytu następuje na rachunek Kredytodawcy nr: ……………… (IBAN).\n\n5. W przypadku wystąpienia dnia, w którym przypada termin spłaty, w dzień ustawowo wolny od pracy, termin spłatu przesuwa się na najbliższy dzień roboczy.\n\n6. Kredytobiorca może dokonać wcześniejszej spłaty kredytu w całości lub części, z zachowaniem wymogu powiadomienia Kredytodawcy na piśmie w terminie nie krótszym niż ……………… dni przed planowaną datą wcześniejszej spłaty, oraz z uiszczeniem prowizji określonej w § 6 ust. 2.\n\n7. Wpływające kwoty z tytułu spłaty kredytu zaliczane są w następującej kolejności:\n   a) odsetki karne,\n   b) odsetki umowne,\n   c) kapitał kredytu,\n   d) opłaty i prowizje.\n\n§ 8. Zabezpieczenia\n\n1. W celu zabezpieczenia spłaty kredytu oraz należności z tytułu odsetek, prowizji, opłat i kosztów, Kredytobiorca zobowiązuje się do ustanowienia następujących zabezpieczeń:\n   a) hipoteki kaucyjnej na nieruchomości położonej w ………………, objętej księgą wieczystą nr ………………, prowadzoną przez Sąd Rejonowy w ………………, na rzecz Kredytodawcy, do kwoty ……………… zł,\n   b) zastawu rejestrowego na ruchomościach/prawach majątkowych — wpis do rejestru zastawów prowadzonego przez Sąd Rejonowy w ………………, na rzecz Kredytodawcy, do kwoty ……………… zł,\n   c) weksla własnego in blanco z deklaracją wekslową wystawionego przez Kredytobiorcę,\n   d) cesji polisy ubezpieczenia majątkowego,\n   e) poręczenia ……………… do kwoty ……………… zł.\n\n2. Kredytobiorca zobowiązuje się do dokonania wszelkich formalności rejestracyjnych i uzyskania wpisów w księgach wieczystych oraz rejestrach publicznych w terminie ……………… dni przed dniem wypłaty kredytu.\n\n3. Koszty związane z ustanowieniem i utrzymaniem zabezpieczeń ponosi Kredytobiorca.\n\n4. Kredytodawca ma prawo żądać ustanowienia dodatkowych zabezpieczeń w przypadku pogorszenia się sytuacji majątkowej Kredytobiorcy.\n\n§ 9. Prawa i obowiązki Stron\n\n1. Kredytobiorca zobowiązuje się do:\n   a) wykorzystania kredytu zgodnie z celem określonym w § 3,\n   b) terminowej spłaty kredytu i należności z tytułu odsetek, prowizji i opłat,\n   c) udostępnienia Kredytodawcy, na jego żądanie, dokumentów i informacji niezbędnych do oceny sytuacji finansowej Kredytobiorcy, w tym sprawozdań finansowych, wyciągów z rachunków bankowych, informacji o strukturze zobowiązań,\n   d) niezwłocznego poinformowania Kredytodawcy o każdym zdarzeniu mogącym wpłynąć na zdolność kredytową Kredytobiorcy, w tym o zajęciu rachunków bankowych, wniosku o upadłość lub restrukturyzację, ustanowieniu zabezpieczeń na rzecz osób trzecich bez zgody Kredytodawcy,\n   e) przestrzegania wskaźników finansowych (covenantów) określonych w Załączniku nr 2.\n\n2. Kredytodawca ma prawo do:\n   a) kontroli wykorzystania kredytu zgodnie z celem,\n   b) wglądu w dokumentację finansową Kredytobiorcy,\n   c) wypowiedzenia umowy w przypadkach określonych w § 12.\n\n§ 10. Oświadczenia Stron\n\n1. Kredytobiorca oświadcza, że:\n   a) dysponuje pełną zdolnością do czynności prawnych,\n   b) zawarcie umowy nie narusza przepisów prawa, statutu ani umów zawartych z osobami trzecimi,\n   c) wszystkie dokumenty i informacje przedłożone Kredytodawcy są zgodne z prawdą i kompletne,\n   d) nie toczy się postępowanie upadłościowe ani restrukturyzacyjne wobec Kredytobiorcy,\n   e) nie ma zaległości wobec ZUS, KAS ani innych organów.\n\n2. Kredytodawca oświadcza, że:\n   a) posiada wymagane zezwolenie KNF do prowadzenia działalności kredytowej,\n   b) przestrzega przepisów Prawa bankowego oraz rekomendacji KNF.\n\n§ 11. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową zastosowanie mają przepisy Kodeksu cywilnego oraz Prawa bankowego (art. 69–75).\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd właściwy dla siedziby Kredytodawcy / sąd właściwy dla siedziby Kredytobiorcy / sąd arbitrażowy przy ……………… (wybór Stron).\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n§ 12. Wypowiedzenie umowy\n\n1. Kredytodawca może wypowiedzieć umowę ze skutkiem natychmiastowym w przypadku:\n   a) pogorszenia się sytuacji majątkowej Kredytobiorcy zagrażającego spłacie kredytu (art. 75 Prawa bankowego),\n   b) niewykorzystania kredytu zgodnie z celem określonym w § 3,\n   c) naruszenia przez Kredytobiorcę obowiązków informacyjnych lub covenantów finansowych,\n   d) ustanowienia zabezpieczeń na rzecz osób trzecich bez zgody Kredytodawcy,\n   e) złożenia przez Kredytobiorcę wniosku o upadłość lub restrukturyzację,\n   f) zajęcia rachunków bankowych Kredytobiorcy przez komornika sądowego,\n   g) podstawowego naruszenia postanowień umowy przez Kredytobiorcę.\n\n2. Kredytobiorca może wypowiedzieć umowę z zachowaniem ………………-dniowego terminu wypowiedzenia, pod warunkiem spłaty wszystkich należności wobec Kredytodawcy do dnia upływu okresu wypowiedzenia.\n\n§ 13. Ochrona danych osobowych\n\n1. Administratorami danych osobowych osób fizycznych (wspólników, reprezentantów, poręczycieli) są Kredytodawca i Kredytobiorca.\n\n2. Dane osobowe przetwarzane są w celu zawarcia i wykonania umowy, oceny zdolności kredytowej oraz wypełnienia obowiązków prawnych, na podstawie art. 6 ust. 1 lit. b i f rozporządzenia (UE) 2016/679 (RODO).\n\n3. Nadzór nad przetwarzaniem danych sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\n\n§ 14. Załączniki\n\n1. Załącznik nr 1 — Harmonogram spłat kredytu.\n2. Załącznik nr 2 — Wskaźniki finansowe (covenants).\n3. Załącznik nr 3 — Tabela opłat i prowizji.\n\n…………………………………………………\t\t…………………………………………………\n(podpis Kredytodawcy)\t\t\t\t(podpis Kredytobiorcy)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wziąć kredyt firmowy, który dostanę raz na konto i będę spłacał w ratach przez ustalony czas. Nie chcę, żeby po spłacie mogłem ponownie korzystać z tego limitu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Potrzebuję 800 tysięcy złotych na zakup linii produkcyjnej, wypłaconych jednorazowo po ustaleniu hipoteki na halę produkcyjną. Chcę spłacać kredyt w ratach kwartalnych przez 6 lat przy oprocentowaniu WIBOR 3M plus stała marża banku. Interesuje mnie, jakie papiery (aktualny KRS, zaświadczenia ZUS i urzędu skarbowego, sprawozdanie finansowe) muszę złożyć przed wypłatą i ile wynosi prowizja za ewentualną wcześniejszą spłatę całości kredytu."
+  }
+ ]
+}

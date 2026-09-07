@@ -1,0 +1,17 @@
+{
+ "run": 44,
+ "hint": "Mycie okien, elewacji i rynien",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam firmy do mycia okien, elewacji i rynien w moim domu. Czy możecie przyjechać i zrobić wycenę?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam dom jednorodzinny z dwoma piętrami i potrzebuję kompleksowego sprzątania. Chciałbym umyć okna z obu stron, oczyścić elewację z zabrudzeń po zimie oraz wyczyścić rynienie, które zapchły się liśćmi. Elewacja jest pokryta tynkiem silikonowym, więc potrzebuję delikatnego mycia. Czy macie możliwość przyjechać w maju i zrobić dokładną wycenę?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"mycie okien elewacji rynien usługi sprzątania\", \"doc_type\": \"umowa_zlecenia\"})\\nRESULT: [{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa z firmą sprzątającą\\nUmowa z firmą sprzątającą w Polsce to umowa o świadczenie usług zawierana na podstawie art. 750 w związku z art. 734 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na mocy której firma sprzątająca (Wykonawca) zobowiązuje się do regularnego lub jednorazowego sprzątania i utrzymywania czystości w obiektach zamawiającego — hotelach, restauracjach, biurach, centrach handlowych, szpitalach, obiektach przemysłowych — a zamawiający do zapłaty umówionego wynagrodzenia. Umowa ma charakter umowy starannego działania (art. 355 § 2 KC), co oznacza, że Wykonawca odpowiada za dołożenie należytej staranności wymaganej przy zawodowym charakterze działalności, nie zaś za osiągnięcie konkretnego rezultatu estetycznego.\\n\\nRynek usług sprzątania i utrzymania czystości w Polsce jest jednym z największych rynków outsourcingu usługowego. Szacunkowa wartość rynku to ponad 10 mld zł rocznie. Dominują cztery segmenty: sprzątanie biurowe i komercyjne (galerie handlowe, biurowce, centrum outsourcingowe); sprzątanie hotelowe (housekeeping, pokoje, części wspólne, spa); sprzątanie i dezynfekcja w obiektach gastronomicznych (restauracje, stołówki, zakłady produkcji żywności) oraz sprzątanie przemysłowe i specjalistyczne (czyszczenie hal produkcyjnych, czyszczenie wysokościowe, dezynfekcja pomieszczeń). Rynek zdominowany jest przez duże sieci (ISS Facility Services, Sodexo, Impel, Rentokil) oraz tysiące małych i średnich firm sprzątających działających regionalnie.\\n\\nKluczowym aspektem prawnym umowy z firmą sprzątającą jest odpowiedzialność za szkody wyrządzone"
+}

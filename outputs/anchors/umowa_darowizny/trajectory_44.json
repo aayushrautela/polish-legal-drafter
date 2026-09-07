@@ -1,0 +1,306 @@
+{
+ "run": 51,
+ "hint": "Darowizna pieniędzy z zachowaniem prawa darczyńcy do odwołania przed wykonaniem",
+ "scenario": "Darowizna pieniędzy z zachowaniem prawa darczyńcy do odwołania przed wykonaniem",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_darowizny'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a donation contract (umowa_darowizny) where the scenario is: \"Darowizna pieniędzy z zachowaniem prawa darczyńcy do odwołania przed wykonaniem\" (Donation of money with the donor's right to revoke before execution).\n\nLet me start by reading the base template for umowa_darowizny, then search for relevant provisions about revocation of donation before execution (art. 896 KC).",
+   "tool_calls": [
+    {
+     "id": "call-2792134c-d043-4818-9551-297ed0a9062d",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_darowizny\", \"query\": \"darowizna pieniędzy z prawem odwołania przed wykonaniem\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_darowizny\", \"kind\": \"structural_template\", \"text\": \"# Umowa darowizny pieniędzy\\nUmowa darowizny pieniędzy w Polsce to umowa nazwana uregulowana w art. 888-902 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swojego majątku. Darowizna pieniędzy polega na nieodpłatnym przekazaniu określonej kwoty, bez obowiązku jej zwrotu przez obdarowanego — co odróżnia ją od pożyczki (art. 720 Kodeksu cywilnego) i od pożyczki nieoprocentowanej. Darowizna jest czynnością jednostronnie zobowiązującą: darczyńca jest zobowiązany, obdarowany jest uprawniony do żądania wykonania.\\n\\nZgodnie z art. 888 § 1 Kodeksu cywilnego przez umowę darowizny darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swego majątku. Pieniądze — zarówno gotówkowe, jak i zdematerializowane środki na rachunku bankowym — są typowym przedmiotem darowizny. Kwota darowizny może być dowolna, jednak w zależności od wysokości i stopnia pokrewieństwa między stronami mogą mieć zastosowanie przepisy ustawy z dnia 28 lipca 1983 r. o podatku od spadków i darowizn (Dz.U. 2023 poz. 1774 ze zm.), co ma kluczowe znaczenie dla obowiązków podatkowych obdarowanego.\\n\\nForma umowy darowizny pieniędzy jest uregulowana w art. 890 § 1 Kodeksu cywilnego: oświadczenie darczyńcy powinno być złożone w formie aktu notarialnego. Jednak zgodnie z art. 890 § 1 zdanie drugie Kodeksu cywilnego umowa darowizny zawarta bez zachowania tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione — czyli jeżeli pieniądze faktycznie zostały przekazane. Oznacza to, że w praktyce pisemna umowa darowizny pieniędzy (bez formy notarialnej) jest powszechnie stosowana i jest ważna, o ile darowizna została rzeczywiście wykonana przez przelew lub wręczenie gotówki.\\n\\nDarowizna pieniędzy ma szczególne znaczenie w kontekście prawa spadkowego. Darowizna dokonana przez darczyńcę za jego życia na rzecz spadkobiercy podlega zaliczeniu na poczet zachowku lub masy spadkowej, chyba że darczyńca wyraźnie zastrzegł inaczej lub upłynął dziesięcioletni termin (art. 994 Kodeksu cywilnego). Wartość darowizny jest doliczana do masy spadkowej przy obliczaniu zachowku, co może wpływać na prawa innych spadkobierców.\\n\\nPodatkowo darowizna pieniędzy rodzi obowiązek zapłaty podatku od spadków i darowizn przez obdarowanego, chyba że zastosowanie ma jedno z ustawowych zwolnień. Osoby zaliczone do I grupy podatkowej (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha, zięć, synowa) korzystają ze zwolnienia podatkowego bez limitu kwotowego, pod warunkiem zgłoszenia darowizny do właściwego urzędu skarbowego (Krajowa Administracja Skarbowa, KAS) w terminie 6 miesięcy od dnia jej otrzymania na formularzu SD-Z2 oraz udokumentowania przekazania przelewem bankowym. Gotówkowe darowizny w I grupie powyżej progu wolnego (36 120 zł dla I grupy — stan na 2026 r.) wymagają zapłaty podatku według skali podatkowej.\\n\\nDarczyńca zachowuje prawo do odwołania darowizny przed jej wykonaniem, jeżeli jego stan majątkowy zmienił się w stopniu uniemożliwiającym wykonanie bez nadmiernego uszczerbku (art. 896 Kodeksu cywilnego). Już wykonaną darowiznę można odwołać wyłącznie, gdy obdarowany dopuścił się rażącej niewdzięczności wobec darczyńcy (art. 898 Kodeksu cywilnego). Odwołanie następuje przez oświadczenie złożone obdarowanemu na piśmie.\\n\\nUmowa darowizny pieniędzy w Polsce jest potrzebna za każdym razem, gdy jedna osoba przekazuje drugiej kwotę pieniędzy bez oczekiwania zapłaty ani zwrotu, a strony chcą udokumentować ten fakt na potrzeby prawa podatkowego, spadkowego lub na wypadek późniejszych sporów.\\n\\nDokument jest niezbędny przy darowiznach w gronie rodziny korzystających ze zwolnienia podatkowego. Organy Krajowej Administracji Skarbowej (KAS) wymagają, aby darowizna przekazana przelewem bankowym była udokumentowana — potwierdzenie przelewu z tytułem zawierającym słowo \\\"darowizna\\\" lub \\\"darowizna dla córki\\\" i zgłoszenie SD-Z2 w terminie 6 miesięcy to warunki skorzystania z pełnego zwolnienia podatkowego dla I grupy podatkowej bez limitu kwotowego.\\n\\nDokument jest konieczny przy darowiznach na zakup nieruchomości. Notariusz dokonujący aktu notarialnego przeniesienia własności nieruchomości może wymagać przedstawienia dokumentu potwierdzającego źródło środków kupującego, zwłaszcza gdy kupujący finansuje zakup darowizną od rodziców lub dziadków. Urząd skarbowy KAS może też żądać wyjaśnienia źródła środków przy analizie podatku dochodowego kupującego.\\n\\nDokument jest potrzebny przy planowaniu majątku i sukcesji. Pisemna umowa darowizny pozwala darczyńcy wyraźnie zastrzec, czy darowizna ma być zaliczona na poczet zachowku przyszłego spadkobiercy, czy stanowi wyłącznie przysporzenie majątkowe nieobciążające masy spadkowej. Sąd Okręgowy orzekający w sprawach o zachowek będzie badał wartość darowizn dokonanych przez spadkodawcę w ciągu ostatnich dziesięciu lat (art. 994 Kodeksu cywilnego).\\n\\nDokument jest niezbędny przy darowiznach w obrocie B2B lub darowiznach przez osoby prawne (fundacje, stowarzyszenia). Fundacja przekazująca grant pieniężny lub stowarzyszenie wspierające finansowo beneficjenta potrzebuje pisemnej umowy darowizny, która jest dokumentem księgowym i podstawą rozliczenia w sprawozdaniu finansowym składanym do Krajowego Rejestru Sądowego (KRS) lub właściwego urzędu skarbowego.\\n\\nDokument jest konieczny przy darowiznach o znacznej wysokości, gdzie istnieje ryzyko zakwestionowania przez urząd skarbowy KAS tytułu środków. Przy transferach powyżej kilkudziesięciu tysięcy złotych brak udokumentowanego tytułu może skutkować wszczęciem postępowania podatkowego i koniecznością zapłaty podatku według sankcyjnej stawki 20 procent od wartości nieujawnionych dochodów.\\n\\nPrawidłowa umowa darowizny pieniędzy w Polsce, oparta na art. 888-902 Kodeksu cywilnego, powinna zawierać elementy pozwalające na jednoznaczne określenie stron, kwoty, sposobu wykonania i skutków podatkowych.\\n\\nOznaczenie stron: pełne imię i nazwisko darczyńcy i obdarowanego, numery PESEL obu stron, adresy zamieszkania. PESEL jest wymagany przy zgłoszeniu darowizny na formularzu SD-Z2 lub SD-3 do urzędu skarbowego (KAS). Warto wskazać stopień pokrewieństwa między stronami — określenie grupy podatkowej (I, II lub III) decyduje o zakresie zwolnienia podatkowego i zastosowaniu odpowiedniego progu kwotowego.\\n\\nKwota darowizny: kwota cyfrowo i słownie (np. \\\"100 000 zł, słownie: sto tysięcy złotych\\\"), waluta PLN. Zapis słowny zapobiega sporom co do wysokości zobowiązania darczyńcy i jest wymagany przy zgłoszeniu do urzędu skarbowego.\\n\\nSposób przekazania: przelew bankowy (zalecany — jest warunkiem pełnego zwolnienia podatkowego dla I grupy bez limitu kwotowego) lub gotówka (przy wysokich kwotach wymaga oddzielnego zgłoszenia). Przy przelewie należy wskazać numer rachunku bankowego obdarowanego. Tytuł przelewu powinien zawierać słowo \\\"darowizna\\\" — np. \\\"Darowizna dla córki Anny Nowak\\\".\\n\\nCel lub przeznaczenie darowizny: wskazanie celu nie jest wymogiem prawnym, jednak przy darowiznach warunkowych (np. na zakup konkretnej nieruchomości) warto go opisać. Darowizna z poleceniem (art. 893 Kodeksu cywilnego) nakłada na obdarowanego obowiązek określonego działania kosztem otrzymanego przysporzenia.\\n\\nObowiązki podatkowe: wzmianka o ciążącym na obdarowanym obowiązku zgłoszenia darowizny do właściwego urzędu skarbowego (KAS) w terminie 6 miesięcy (I grupa: formularz SD-Z2; II i III grupa: formularz SD-3 i zapłata podatku). Przelew bankowy i terminowe zgłoszenie SD-Z2 są warunkami pełnego zwolnienia z podatku dla I grupy podatkowej.\\n\\nPostanowienia końcowe: zastrzeżenie formy pisemnej dla zmian, właściwość sądu (Sąd Rejonowy lub Sąd Okręgowy zależnie od wartości sporu), informacja o prawie odwołania darowizny niewykonanej (art. 896 KC) i wykonanej z powodu rażącej niewdzięczności (art. 898 KC), liczba egzemplarzy i podpisy. Serwis forms-legal.com udostępnia gotowy wzór umowy darowizny pieniędzy — przy darowiznach powyżej 100 000 zł warto skonsultować umowę z doradcą podatkowym lub notariuszem.\\n\\nWypełnianie umowy darowizny pieniędzy w Polsce należy zacząć od wpisania pełnych danych darczyńcy: imię i nazwisko, PESEL, adres zamieszkania. Następnie wpisz analogiczne dane obdarowanego. Z listy wybierz stopień pokrewieństwa — określa on grupę podatkową i decyduje o zakresie zwolnienia z podatku od darowizn.\\n\\nW sekcji kwoty darowizny podaj sumę cyfrowo i słownie. Kwota słowna jest obowiązkowa przy zgłoszeniu do urzędu skarbowego KAS na formularzach SD-Z2 lub SD-3 i zapobiega ewentualnym sporom co do wysokości darowizny. Przy kwotach przekraczających 36 120 zł (I grupa) lub niższe progi dla II i III grupy obowiązek podatkowy jest szczególnie ważny.\\n\\nWybierz sposób przekazania darowizny. Przelew bankowy jest zdecydowanie zalecany, gdyż jest warunkiem pełnego zwolnienia z podatku dla I grupy podatkowej bez limitu kwotowego. Wpisz numer rachunku bankowego obdarowanego (IBAN). Tytuł przelewu bankowego powinien wyraźnie wskazywać, że jest to darowizna, np. \\\"Darowizna dla córki — umowa darowizny z dnia [data]\\\".\\n\\nW polu celu wpisz, na co darowizna ma być przeznaczona, lub pozostaw to pole puste (darowizna bez wskazanego celu jest w pełni swobodna). Wpisz datę i miejscowość zawarcia umowy — data jest istotna dla biegu terminu na zgłoszenie SD-Z2 (6 miesięcy).\\n\\nPodpisz umowę w dwóch egzemplarzach — po jednym dla każdej ze stron. Zachowaj potwierdzenie przelewu bankowego razem z umową — urząd skarbowy KAS może żądać obydwu dokumentów. Obdarowany powinien złożyć zgłoszenie SD-Z2 do właściwego urzędu skarbowego w terminie 6 miesięcy od daty zawarcia umowy lub daty przelewu — niezłożenie zgłoszenia w terminie pozbawia prawa do pełnego zwolnienia.\\n\\nWymogi prawne darowizny pieniędzy w Polsce wynikają z Kodeksu cywilnego i ustawy podatkowej.\\n\\nForma darowizny: art. 890 § 1 Kodeksu cywilnego wymaga formy aktu notarialnego dla oświadczenia darczyńcy, lecz art. 890 § 1 zdanie drugie stanowi, że umowa zawarta bez tej formy jest ważna, jeżeli przyrzeczone świadczenie zostało spełnione. Oznacza to, że pisemna umowa darowizny bez notariusza jest ważna i wystarczająca, o ile pieniądze faktycznie zostały przekazane.\\n\\nOdwołanie darowizny: darczyńca może odwołać jeszcze niewykonaną darowiznę, jeżeli jego sytuacja majątkowa zmieniła się w stopniu uniemożliwiającym spełnienie świadczenia bez nadmiernego uszczerbku (art. 896 Kodeksu cywilnego). Już wykonaną darowiznę można odwołać, jeżeli obdarowany dopuścił się rażącej niewdzięczności wobec darczyńcy (art. 898 KC). Odwołanie następuje pisemnie. Roszczenie o zwrot przedmiotu darowizny odwołanej z powodu rażącej niewdzięczności przedawnia się z upływem roku od dnia, w którym darczyńca dowiedział się o rażącej niewdzięczności (art. 899 KC).\\n\\nPodatek od darowizn: ustawa z dnia 28 lipca 1983 r. o podatku od spadków i darowizn reguluje opodatkowanie darowizn. Obdarowany z I grupy podatkowej (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha, zięć, synowa) korzysta ze zwolnienia od podatku bez limitu kwotowego, pod warunkiem: (1) udokumentowania przelewem bankowym i (2) zgłoszenia darowizny do urzędu skarbowego (KAS) na formularzu SD-Z2 w terminie 6 miesięcy od daty nabycia. Niezłożenie SD-Z2 w terminie skutkuje utratą pełnego zwolnienia i obowiązkiem zapłaty podatku według skali (art. 4a ustawy o podatku od spadków i darowizn). Obdarowani z II i III grupy podatkowej składają formularz SD-3 i płacą podatek według tabel kwotowych.\\n\\nOrgan podatkowy: właściwym organem podatkowym jest naczelnik urzędu skarbowego właściwego dla miejsca zamieszkania obdarowanego (KAS). Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) ani Prezes Urzędu Ochrony Danych Osobowych (PUODO) nie ingerują w darowizny pieniędzy między osobami fizycznymi.\\n\\nNajczęstsze błędy przy umowie darowizny pieniędzy w Polsce zaczynają się od niezłożenia zgłoszenia SD-Z2 w terminie 6 miesięcy przez obdarowanego z I grupy podatkowej. Przeoczenie tego terminu pozbawia prawa do pełnego zwolnienia z podatku od darowizn i naraża obdarowanego na konieczność zapłaty podatku od całej kwoty darowizny według skali podatkowej — nawet jeżeli przekazanie nastąpiło przelewem bankowym.\\n\\nKolejnym błędem jest przekazanie darowizny gotówką i brak jej udokumentowania. Organy KAS mogą zakwestionować gotówkową darowiznę w I grupie powyżej progu wolnego (36 120 zł) jako nieudokumentowaną i żądać zapłaty podatku. Przelew bankowy z tytułem zawierającym słowo \\\"darowizna\\\" jest najpewniejszym dowodem dla urzędu skarbowego.\\n\\nMylenie darowizny z pożyczką to powszechna pomyłka — szczególnie w sytuacjach rodzinnych, gdy rodzic przekazuje dziecku środki z zamiarem zwrotu (pożyczka) lub bez takiego zamiaru (darowizna). Urząd skarbowy KAS może zakwestionować niespłaconą \\\"pożyczkę\\\" i potraktować ją jako darowiznę, naliczając podatek od jej wartości.\\n\\nBrak wskazania stopnia pokrewieństwa w umowie lub zgłoszeniu SD-Z2 może skutkować zaklasyfikowaniem obdarowanego do wyższej grupy podatkowej przez urząd skarbowy, co oznacza wyższy podatek lub utratę zwolnienia. Zawsze wpisuj stopień pokrewieństwa zarówno w umowie, jak i w formularzu SD-Z2.\\n\\nPrzy darowiznach połączonych z poleceniem (art. 893 Kodeksu cywilnego) strony często zapominają, że polecenie jest wiążące dla obdarowanego — jeżeli obdarowany nie wykonuje polecenia, darczyńca lub osoby trzecie wskazane jako beneficjenci polecenia mogą żądać jego wykonania na drodze sądowej przed Sądem Rejonowym lub Sądem Okręgowym.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-darowizny-pieniedzy (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-2792134c-d043-4818-9551-297ed0a9062d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_160315cf0e3b4fe497402c05",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 896 KC\", \"odwołanie darowizny\", \"pogorszenie sytuacji majątkowej\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_cb684e0e28804bb18fcb7abb",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 898 KC\", \"rażąca niewdzięczność\", \"odwołanie\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_145b63b52bcd4e71ab541b0c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 899 KC\", \"przedawnienie\", \"zwrot przedmiotu darowizny\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_900\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 900. Odwołanie darowizny następuje przez oświadczenie złożone obdarowanemu na piśmie.\"}]",
+   "tool_call_id": "call_160315cf0e3b4fe497402c05",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_83\", \"source_id\": \"sejm_eli_du_2025_350_art_83\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 83. 1. Zakład wydaje decyzje w zakresie indywidualnych spraw dotyczących w szczególności: 1) zgłaszania do ubezpieczeń społecznych; 1a) ustalania płatnika składek; 2) przebiegu ubezpieczeń; 3) ustalania wymiaru składek i ich poboru, a także umarzania należności z tytułu składek; 3a) ustalania wymiaru składek na Fundusz Emerytur Pomostowych i ich poboru, a także umarzania należności z tytułu tych składek; 4) ustalania uprawnień do świadczeń z ubezpieczeń społecznych; 5) wymiaru świadczeń z ubezpieczeń społecznych. 1a. ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_70\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 70. § 1. Pracownik zatrudniony na podstawie powołania może być w każdym czasie - niezwłocznie lub w określonym terminie - odwołany ze stanowiska przez organ, który go powołał. Dotyczy to również pracownika, który na podstawie przepisów szczególnych został powołany na stanowisko na czas określony. § 1 1 . Odwołanie powinno być dokonane na piśmie. § 1 2 . Stosunek pracy z pracownikiem odwołanym ze stanowiska rozwiązuje się na zasadach określonych w  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_477\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 477 9 . § 1 56) W brzmieniu ustalonym przez art. 33 pkt 4 lit. a ustawy, o której mowa w odnośniku 51. . Odwołania od decyzji organów rentowych lub orzeczeń wojewódzkich zespołów do spraw orzekania o niepełnosprawności lub decyzji wydanych przez ten zespół, wnosi się na piśmie do organu lub zespołu, który wydał decyzję lub orzeczenie, lub do protokołu sporządzonego przez ten organ lub zespół, w terminie miesiąca od dnia doręc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_477\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 477 14 . § 1. Sąd oddala odwołanie, jeżeli nie ma podstaw do jego uwzględnienia. § 2 61) W brzmieniu ustalonym przez art. 33 pkt 8 lit. a ustawy, o której mowa w odnośniku 51. . W przypadku uwzględnienia odwołania sąd zmienia w całości lub w części zaskarżoną decyzję organu rentowego lub zaskarżone orzeczenie wojewódzkiego zespołu do spraw orzekania o niepełnosprawności lub decyzję tego zespołu i orzeka co do istoty sprawy. § ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 48 . § 1. Prezes Urzędu przekazuje niezwłocznie odwołanie wraz z aktami sprawy do sądu. § 2. Jeżeli Prezes Urzędu uzna odwołanie za słuszne, może - nie przekazując akt sądowi - uchylić albo zmienić swoją decyzję w całości lub w części, o czym bezzwłocznie powiadamia stronę, przesyłając jej nową decyzję, od której stronie służy odwołanie.\"}]",
+   "tool_call_id": "call_cb684e0e28804bb18fcb7abb",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_442\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 442 1 . § 1. Roszczenie o naprawienie szkody wyrządzonej czynem niedozwolonym ulega przedawnieniu z upływem lat trzech od dnia, w którym poszkodowany dowiedział się albo przy zachowaniu należytej staranności mógł się dowiedzieć o szkodzie i o osobie obowiązanej do jej naprawienia. Jednakże termin ten nie może być dłuższy niż dziesięć lat od dnia, w którym nastąpiło zdarzenie wywołujące szkodę. § 2. Jeżeli szkoda wynikła ze zbrodni lub występku,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_621\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 621. Do roszczeń powstałych przed dniem wejścia w życie ustawy, a według przepisów Kodeksu handlowego w tym dniu jeszcze nieprzedawnionych, stosuje się przepisy ustawy dotyczące przedawnienia z następującymi ograniczeniami: 1) początek, zawieszenie i przerwanie biegu przedawnienia ocenia się według przepisów Kodeksu handlowego , za okres przed dniem wejścia w życie ustawy; 2) jeżeli termin przedawnienia według przepisów ustawy jest krót ...\"}, {\"chunk_id\": \"uokik_items:uokik_b7ccb68a588513d4\", \"source_id\": \"uokik_rejestr_klauzul_1864\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli roszczenia są w trakcie rozpatrywania, przedawnienie jest wstrzymane aż do czasu, gdy jedna ze stron złoży rezygnację z dalszego rozpatrywania roszczeń. Przedawnienie następuje najwcześniej po trzech miesiącach od rezygnacji z rozpatrywania roszczeń\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_116\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 116. § 1. Jeżeli skutki czynności prawnej mają powstać w oznaczonym terminie, stosuje się odpowiednio przepisy o warunku zawieszającym. § 2. Jeżeli skutki czynności prawnej mają ustać w oznaczonym terminie, stosuje się odpowiednio przepisy o warunku rozwiązującym. Tytuł VI Przedawnienie roszczeń\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_122\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 122. § 1. Przedawnienie względem osoby, która nie ma pełnej zdolności do czynności prawnych, nie może skończyć się wcześniej niż z upływem lat dwóch od ustanowienia dla niej przedstawiciela ustawowego albo od ustania przyczyny jego ustanowienia. § 2. Jeżeli termin przedawnienia jest krótszy niż dwa lata, jego bieg liczy się od dnia ustanowienia przedstawiciela ustawowego albo od dnia, w którym ustała przyczyna jego ustanowienia. § 3. Przepisy po ...\"}]",
+   "tool_call_id": "call_145b63b52bcd4e71ab541b0c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The keyword search didn't find the specific articles I need (art. 896, 898, 899 KC). Let me try semantic search for these specific provisions.",
+   "tool_calls": [
+    {
+     "id": "call-ac7621a1-8e65-4201-82de-597d7334ac5b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"art. 896 Kodeks cywilny odwołanie darowizny przed wykonaniem pogorszenie sytuacji majątkowej darczyńcy\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-6aff4a94-7a60-4b29-b7a8-b9f7f26ff7a0",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"art. 898 Kodeks cywilny rażąca niewdzięczność odwołanie wykonanej darowizny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_896\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 896. Darczyńca może odwołać darowiznę jeszcze niewykonaną, jeżeli po zawarciu umowy jego stan majątkowy uległ takiej zmianie, że wykonanie darowizny nie może nastąpić bez uszczerbku dla jego własnego utrzymania odpowiednio do jego usprawiedliwionych potrzeb albo bez uszczerbku dla ciążących na nim ustawowych obowiązków alimentacyjnych.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_898\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 898. § 1. Darczyńca może odwołać darowiznę nawet już wykonaną, jeżeli obdarowany dopuścił się względem niego rażącej niewdzięczności. § 2. Zwrot przedmiotu odwołanej darowizny powinien nastąpić stosownie do przepisów o bezpodstawnym wzbogaceniu. Od chwili zdarzenia uzasadniającego odwołanie obdarowany ponosi odpowiedzialność na równi z bezpodstawnie wzbogaconym, który powinien się liczyć z obowiązkiem zwrotu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_899\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 899. § 1. Darowizna nie może być odwołana z powodu niewdzięczności, jeżeli darczyńca obdarowanemu przebaczył. Jeżeli w chwili przebaczenia darczyńca nie miał zdolności do czynności prawnych, przebaczenie jest skuteczne, gdy nastąpiło z dostatecznym rozeznaniem. § 2. Spadkobiercy darczyńcy mogą odwołać darowiznę z powodu niewdzięczności tylko wtedy, gdy darczyńca w chwili śmierci był uprawniony do odwołania albo gdy obdarowany umyślnie pozbawił d ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_896\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 896. § 1. Do egzekucji z wierzytelności komornik przystępuje przez jej zajęcie. W celu zajęcia komornik: 1) zawiadomi dłużnika, że nie wolno mu odbierać żadnego świadczenia ani rozporządzać zajętą wierzytelnością i ustanowionym dla niej zabezpieczeniem; 1 1 ) zawiadomi dłużnika wierzytelności o charakterze egzekwowanych świadczeń, jeżeli egzekucja dotyczy świadczeń, o których mowa w art. 773 § 2 1 ; 2) wezwie dłużnika wierzyt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_897\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 897. Jeżeli po wykonaniu darowizny darczyńca popadnie w niedostatek, obdarowany ma obowiązek, w granicach istniejącego jeszcze wzbogacenia, dostarczać darczyńcy środków, których mu brak do utrzymania odpowiadającego jego usprawiedliwionym potrzebom albo do wypełnienia ciążących na nim ustawowych obowiązków alimentacyjnych. Obdarowany może jednak zwolnić się od tego obowiązku zwracając darczyńcy wartość wzbogacenia.\"}]",
+   "tool_call_id": "call-ac7621a1-8e65-4201-82de-597d7334ac5b",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_898\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 898. § 1. Darczyńca może odwołać darowiznę nawet już wykonaną, jeżeli obdarowany dopuścił się względem niego rażącej niewdzięczności. § 2. Zwrot przedmiotu odwołanej darowizny powinien nastąpić stosownie do przepisów o bezpodstawnym wzbogaceniu. Od chwili zdarzenia uzasadniającego odwołanie obdarowany ponosi odpowiedzialność na równi z bezpodstawnie wzbogaconym, który powinien się liczyć z obowiązkiem zwrotu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_899\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 899. § 1. Darowizna nie może być odwołana z powodu niewdzięczności, jeżeli darczyńca obdarowanemu przebaczył. Jeżeli w chwili przebaczenia darczyńca nie miał zdolności do czynności prawnych, przebaczenie jest skuteczne, gdy nastąpiło z dostatecznym rozeznaniem. § 2. Spadkobiercy darczyńcy mogą odwołać darowiznę z powodu niewdzięczności tylko wtedy, gdy darczyńca w chwili śmierci był uprawniony do odwołania albo gdy obdarowany umyślnie pozbawił d ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_896\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 896. Darczyńca może odwołać darowiznę jeszcze niewykonaną, jeżeli po zawarciu umowy jego stan majątkowy uległ takiej zmianie, że wykonanie darowizny nie może nastąpić bez uszczerbku dla jego własnego utrzymania odpowiednio do jego usprawiedliwionych potrzeb albo bez uszczerbku dla ciążących na nim ustawowych obowiązków alimentacyjnych.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_900\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 900. Odwołanie darowizny następuje przez oświadczenie złożone obdarowanemu na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_902\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 902. Przepisów o odwołaniu darowizny nie stosuje się, gdy darowizna czyni zadość obowiązkowi wynikającemu z zasad współżycia społecznego. Tytuł XXXIII 1 Przekazanie nieruchomości\"}]",
+   "tool_call_id": "call-6aff4a94-7a60-4b29-b7a8-b9f7f26ff7a0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Umowa darowizny pieniędzy z zastrzeżeniem prawa odwołania przed wykonaniem\n\nzawartej w dniu **[data]** r. w **[miejscowość]** między:\n\n**Darczyńcą:**\nImię i nazwisko: **[imię i nazwisko darczyńcy]**\nPESEL: **[numer PESEL darczyńcy]**\nAdres zamieszkania: **[adres zamieszkania darczyńcy]**\n\n– zwanym dalej **„Darczyńcą”** –\n\na\n\n**Obdarowanym:**\nImię i nazwisko: **[imię i nazwisko obdarowanego]**\nPESEL: **[numer PESEL obdarowanego]**\nAdres zamieszkania: **[adres zamieszkania obdarowanego]**\n\n– zwanym dalej **„Obdarowanym”** –\n\nrazem zwanymi **„Stronami”**.\n\n§ 1\n**Przedmiot darowizny**\n\n1. Darczyńca zobowiązuje się do bezpłatnego przekazania Obdarowanemu, a Obdarowany przyjmuje darowiznę pieniężną w kwocie **[kwota cyfrowo] PLN (słownie: **[kwota słownie]** złotych)**.\n2. Darowizna dotyczy środków pieniężnych w walucie polskim złotym (PLN).\n\n§ 2\n**Sposób i termin wykonania darowizny**\n\n1. Darczyńca wykona darowiznę poprzez przelew bankowy na rachunek Obdarowanego:\n   Numer rachunku (IBAN): **[numer IBAN obdarowanego]**\n   Nazwa banku: **[nazwa banku]**\n2. Tytuł przelewu powinien brzmieć: „Darowizna – umowa z dnia [data] r.”.\n3. Termin wykonania darowizny: **[data lub termin, np. „w ciągu 14 dni od dnia zawarcia niniejszej umowy”]**.\n4. Darczyńca zobowiązuje się poinformować Obdarowanego o zleceniu przelewu bankowego w dniu jego złożenia.\n\n§ 3\n**Prawo darczyńcy do odwołania darowizny przed wykonaniem (art. 896 K.C.)**\n\n1. Strony ustalają, że Darczyńca zachowuje prawo do odwołania niniejszej darowizny przed jej wykonaniem, jeżeli po zawarciu umowy jego stan majątkowy ulegnie takiej zmianie, że wykonanie darowizny nie może nastąpić bez uszczerbku dla jego własnego utrzymania odpowiednio do jego usprawiedliwionych potrzeb albo bez uszczerbku dla ciążących na nim ustawowych obowiązków alimentacyjnych, zgodnie z art. 896 Kodeksu cywilnego.\n2. Odwołanie darowizny przed wykonaniem następuje przez oświadczenie złożone Obdarowanemu na piśmie, zgodnie z art. 900 Kodeksu cywilnego.\n3. Oświadczenie o odwołaniu darowizny powinno zawierać wskazanie przesłanek odwołania (zmiana stanu majątkowego uniemożliwiająca wykonanie bez nadmiernego uszczerbku) oraz datę złożenia oświadczenia.\n4. Odwołanie darowizny przed wykonaniem uwolnienie Darczyńcę od zobowiązania do przekazania kwoty darowizny od momentu doręczenia oświadczenia Obdarowanemu.\n5. Strony potwierdzają, że do momentu wykonania darowizny (przekazania środków) Darczyńca może skorzystać z prawa do odwołania na zasadach art. 896 K.C.\n\n§ 4\n**Odwołanie wykonanej darowizny (art. 898–899 K.C.)**\n\n1. Już wykonaną darowiznę Darczyńca może odwołać wyłącznie w przypadku, gdy Obdarowany dopuścił się wobec niego rażącej niewdzięczności, na zasadach art. 898 § 1 Kodeksu cywilnego.\n2. W przypadku odwołania wykonanej darowizny z powodu rażącej niewdzięczności, zwrot przedmiotu darowizny powinien nastąpić stosownie do przepisów o bezpodstawnym wzbogaceniu (art. 898 § 2 K.C.).\n3. Darowizna nie może zostać odwołana z powodu niewdzięczności, jeżeli Darczyńca Obdarowanemu przebaczył (art. 899 § 1 K.C.).\n4. Spadkobiercy Darczyńcy mogą odwołać darowiznę z powodu niewdzięczności tylko w przypadkach określonych w art. 899 § 2 K.C.\n\n§ 5\n**Obowiązki podatkowe Obdarowanego**\n\n1. Obdarowany zobowiązuje się zgłosić darowiznę do właściwego naczelnika urzędu skarbowego (KAS) w terminie 6 miesięcy od dnia nabycia (dnia otrzymania przelewu lub zawarcia umowy) na formularzu:\n   – SD-Z2 – jeżeli Obdarowany należy do I grupy podatkowej (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha, zięć, synowa),\n   – SD-3 – jeżeli Obdarowany należy do II lub III grupy podatkowej.\n2. Warunkiem skorzystania z pełnego zwolnienia z podatku od spadków i darowizn dla I grupy podatkowej jest:\n   a) udokumentowanie przekazania darowizny przelewem bankowym,\n   b) terminowe złożenie zgłoszenia SD-Z2.\n3. Strony potwierdzają, że stopień pokrewieństwa między Darczyńcą a Obdarowanym wynosi: **[stopień pokrewieństwa, np. „rodzic – dziecko” / „brak pokrewieństwa”]**.\n4. Obdarowany ponosi pełną odpowiedzialność za terminowe i prawidłowe złożenie zgłoszenia podatkowego oraz za ewentualne konsekwencje jego niespełnienia.\n\n§ 6\n**Cel darowizny**\n\n1. Darowizna jest bezcelowa / przeznaczona na: **[cel, np. „zakup nieruchomości” / „dowolny cel” / „bez wskazanego celu”]**.\n2. W przypadku darowizny z poleceniem (art. 893 K.C.), Obdarowany zobowiązuje się do wykonania polecenia w terminie i sposobie określonym w załączniku do niniejszej umowy.\n\n§ 7\n**Zastrzeżenie co do zachowku i masy spadkowej**\n\n1. Strony ustalają, że niniejsza darowizna: **[ma / nie ma] zostać zaliczona na poczet zachowku przyszłych spadkobierców Darczyńcy**.\n2. Wartość darowizny **[będzie / nie będzie] doliczana do masy spadkowej** przy obliczaniu zachowku (art. 994 K.C.).\n\n§ 8\n**Postanowienia końcowe**\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n2. Spory wynikające z niniejszej umowy będą rozstrzygane przez sąd właściwy dla siedziby Obdarowanego (Sąd Rejonowy lub Sąd Okręgowy w zależności od wartości przedmiotu sporu).\n3. Przepisy o odwołaniu darowizny nie stosują się, gdy darowizna czyni zadość obowiązkowi wynikającemu z zasad współżycia społecznego (art. 902 K.C.).\n4. Umowa sporządzona została w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n5. Strony oświadczają, że przeczytały treść umowy, zrozumiały ją i podpisują ją wolnie, bez nacisku.\n\n**Podpisy:**\n\n............................................................\n**Darczyńca**\n\n............................................................\n**Obdarowany**\n\n---\n\n**Załącznik: Informacja prawna dla Stron**\n\n1. **Forma umowy:** Zgodnie z art. 890 § 1 K.C. oświadczenie darczyńcy powinno zostać złożone w formie aktu notarialnego, jednak art. 890 § 1 zd. 2 K.C. stanowi, że umowa zawarta bez tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione (pieniądze przekazane). Niniejsza umowa w formie pisemnej jest ważna i wystarczająca po wykonaniu przelewu.\n\n2. **Prawo odwołania przed wykonaniem (art. 896 K.C.):** Darczyńca może odwołać darowiznę jeszcze niewykonaną, jeżeli jego stan majątkowy ulegnie pogorszeniu takim, że wykonanie darowizny zagroziłoby jego utrzymaniu lub obowiązkom alimentacyjnym. Odwołanie musi nastąpić na piśmie (art. 900 K.C.).\n\n3. **Prawo odwołania po wykonaniu (art. 898–899 K.C.):** Wykonaną darowiznę można odwołać tylko za rażącą niewdzięczność. Przedawnienie roszczenia o zwrot wynosi 1 rok od dnia dowiedzenia się o niewdzięczności.\n\n4. **Podatek od darowizn:** Obdarowany z I grupy podatkowej ma prawo do zwolnienia bez limitu kwotowego przy warunku przelewu bankowego i zgłoszenia SD-Z2 w 6 miesięcy. Przekroczenie terminu pozbawia prawa do zwolnienia.\n\n5. **Dowody:** Obdarowany powinien zachować: niniejszą umowę, potwierdzenie przelewu bankowego, kopię zgłoszenia SD-Z2/SD-3 z pieczątką urzędu skarbowego.\n\n6. **Konsultacja:** Przy darowiznach powyżej 100 000 zł zaleca się konsultację z doradcą podatkowym lub notariuszem.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Umowa darowizny pieniędzy z zastrzeżeniem prawa odwołania przed wykonaniem\n\nzawartej w dniu **[data]** r. w **[miejscowość]** między:\n\n**Darczyńcą:**\nImię i nazwisko: **[imię i nazwisko darczyńcy]**\nPESEL: **[numer PESEL darczyńcy]**\nAdres zamieszkania: **[adres zamieszkania darczyńcy]**\n\n– zwanym dalej **„Darczyńcą”** –\n\na\n\n**Obdarowanym:**\nImię i nazwisko: **[imię i nazwisko obdarowanego]**\nPESEL: **[numer PESEL obdarowanego]**\nAdres zamieszkania: **[adres zamieszkania obdarowanego]**\n\n– zwanym dalej **„Obdarowanym”** –\n\nrazem zwanymi **„Stronami”**.\n\n§ 1\n**Przedmiot darowizny**\n\n1. Darczyńca zobowiązuje się do bezpłatnego przekazania Obdarowanemu, a Obdarowany przyjmuje darowiznę pieniężną w kwocie **[kwota cyfrowo] PLN (słownie: **[kwota słownie]** złotych)**.\n2. Darowizna dotyczy środków pieniężnych w walucie polskim złotym (PLN).\n\n§ 2\n**Sposób i termin wykonania darowizny**\n\n1. Darczyńca wykona darowiznę poprzez przelew bankowy na rachunek Obdarowanego:\n   Numer rachunku (IBAN): **[numer IBAN obdarowanego]**\n   Nazwa banku: **[nazwa banku]**\n2. Tytuł przelewu powinien brzmieć: „Darowizna – umowa z dnia [data] r.”.\n3. Termin wykonania darowizny: **[data lub termin, np. „w ciągu 14 dni od dnia zawarcia niniejszej umowy”]**.\n4. Darczyńca zobowiązuje się poinformować Obdarowanego o zleceniu przelewu bankowego w dniu jego złożenia.\n\n§ 3\n**Prawo darczyńcy do odwołania darowizny przed wykonaniem (art. 896 K.C.)**\n\n1. Strony ustalają, że Darczyńca zachowuje prawo do odwołania niniejszej darowizny przed jej wykonaniem, jeżeli po zawarciu umowy jego stan majątkowy ulegnie takiej zmianie, że wykonanie darowizny nie może nastąpić bez uszczerbku dla jego własnego utrzymania odpowiednio do jego usprawiedliwionych potrzeb albo bez uszczerbku dla ciążących na nim ustawowych obowiązków alimentacyjnych, zgodnie z art. 896 Kodeksu cywilnego.\n2. Odwołanie darowizny przed wykonaniem następuje przez oświadczenie złożone Obdarowanemu na piśmie, zgodnie z art. 900 Kodeksu cywilnego.\n3. Oświadczenie o odwołaniu darowizny powinno zawierać wskazanie przesłanek odwołania (zmiana stanu majątkowego uniemożliwiająca wykonanie bez nadmiernego uszczerbku) oraz datę złożenia oświadczenia.\n4. Odwołanie darowizny przed wykonaniem uwolnienie Darczyńcę od zobowiązania do przekazania kwoty darowizny od momentu doręczenia oświadczenia Obdarowanemu.\n5. Strony potwierdzają, że do momentu wykonania darowizny (przekazania środków) Darczyńca może skorzystać z prawa do odwołania na zasadach art. 896 K.C.\n\n§ 4\n**Odwołanie wykonanej darowizny (art. 898–899 K.C.)**\n\n1. Już wykonaną darowiznę Darczyńca może odwołać wyłącznie w przypadku, gdy Obdarowany dopuścił się wobec niego rażącej niewdzięczności, na zasadach art. 898 § 1 Kodeksu cywilnego.\n2. W przypadku odwołania wykonanej darowizny z powodu rażącej niewdzięczności, zwrot przedmiotu darowizny powinien nastąpić stosownie do przepisów o bezpodstawnym wzbogaceniu (art. 898 § 2 K.C.).\n3. Darowizna nie może zostać odwołana z powodu niewdzięczności, jeżeli Darczyńca Obdarowanemu przebaczył (art. 899 § 1 K.C.).\n4. Spadkobiercy Darczyńcy mogą odwołać darowiznę z powodu niewdzięczności tylko w przypadkach określonych w art. 899 § 2 K.C.\n\n§ 5\n**Obowiązki podatkowe Obdarowanego**\n\n1. Obdarowany zobowiązuje się zgłosić darowiznę do właściwego naczelnika urzędu skarbowego (KAS) w terminie 6 miesięcy od dnia nabycia (dnia otrzymania przelewu lub zawarcia umowy) na formularzu:\n   – SD-Z2 – jeżeli Obdarowany należy do I grupy podatkowej (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha, zięć, synowa),\n   – SD-3 – jeżeli Obdarowany należy do II lub III grupy podatkowej.\n2. Warunkiem skorzystania z pełnego zwolnienia z podatku od spadków i darowizn dla I grupy podatkowej jest:\n   a) udokumentowanie przekazania darowizny przelewem bankowym,\n   b) terminowe złożenie zgłoszenia SD-Z2.\n3. Strony potwierdzają, że stopień pokrewieństwa między Darczyńcą a Obdarowanym wynosi: **[stopień pokrewieństwa, np. „rodzic – dziecko” / „brak pokrewieństwa”]**.\n4. Obdarowany ponosi pełną odpowiedzialność za terminowe i prawidłowe złożenie zgłoszenia podatkowego oraz za ewentualne konsekwencje jego niespełnienia.\n\n§ 6\n**Cel darowizny**\n\n1. Darowizna jest bezcelowa / przeznaczona na: **[cel, np. „zakup nieruchomości” / „dowolny cel” / „bez wskazanego celu”]**.\n2. W przypadku darowizny z poleceniem (art. 893 K.C.), Obdarowany zobowiązuje się do wykonania polecenia w terminie i sposobie określonym w załączniku do niniejszej umowy.\n\n§ 7\n**Zastrzeżenie co do zachowku i masy spadkowej**\n\n1. Strony ustalają, że niniejsza darowizna: **[ma / nie ma] zostać zaliczona na poczet zachowku przyszłych spadkobierców Darczyńcy**.\n2. Wartość darowizny **[będzie / nie będzie] doliczana do masy spadkowej** przy obliczaniu zachowku (art. 994 K.C.).\n\n§ 8\n**Postanowienia końcowe**\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n2. Spory wynikające z niniejszej umowy będą rozstrzygane przez sąd właściwy dla siedziby Obdarowanego (Sąd Rejonowy lub Sąd Okręgowy w zależności od wartości przedmiotu sporu).\n3. Przepisy o odwołaniu darowizny nie stosują się, gdy darowizna czyni zadość obowiązkowi wynikającemu z zasad współżycia społecznego (art. 902 K.C.).\n4. Umowa sporządzona została w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n5. Strony oświadczają, że przeczytały treść umowy, zrozumiały ją i podpisują ją wolnie, bez nacisku.\n\n**Podpisy:**\n\n............................................................\n**Darczyńca**\n\n............................................................\n**Obdarowany**\n\n---\n\n**Załącznik: Informacja prawna dla Stron**\n\n1. **Forma umowy:** Zgodnie z art. 890 § 1 K.C. oświadczenie darczyńcy powinno zostać złożone w formie aktu notarialnego, jednak art. 890 § 1 zd. 2 K.C. stanowi, że umowa zawarta bez tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione (pieniądze przekazane). Niniejsza umowa w formie pisemnej jest ważna i wystarczająca po wykonaniu przelewu.\n\n2. **Prawo odwołania przed wykonaniem (art. 896 K.C.):** Darczyńca może odwołać darowiznę jeszcze niewykonaną, jeżeli jego stan majątkowy ulegnie pogorszeniu takim, że wykonanie darowizny zagroziłoby jego utrzymaniu lub obowiązkom alimentacyjnym. Odwołanie musi nastąpić na piśmie (art. 900 K.C.).\n\n3. **Prawo odwołania po wykonaniu (art. 898–899 K.C.):** Wykonaną darowiznę można odwołać tylko za rażącą niewdzięczność. Przedawnienie roszczenia o zwrot wynosi 1 rok od dnia dowiedzenia się o niewdzięczności.\n\n4. **Podatek od darowizn:** Obdarowany z I grupy podatkowej ma prawo do zwolnienia bez limitu kwotowego przy warunku przelewu bankowego i zgłoszenia SD-Z2 w 6 miesięcy. Przekroczenie terminu pozbawia prawa do zwolnienia.\n\n5. **Dowody:** Obdarowany powinien zachować: niniejszą umowę, potwierdzenie przelewu bankowego, kopię zgłoszenia SD-Z2/SD-3 z pieczątką urzędu skarbowego.\n\n6. **Konsultacja:** Przy darowiznach powyżej 100 000 zł zaleca się konsultację z doradcą podatkowym lub notariuszem.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dać mojemu dziecku większą kwotę pieniędzy, ale chcę mieć pewność, że jeśli moja sytuacja finansowa gwałtownie się pogorszy, będę mógł się z tej decyzji wycofać przed przelewem. Jak to zabezpieczyć?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję przelać 80 tysięcy złotych synowi na wkład własny pod kredyt mieszkaniowy, ale jestem blisko emerytury i boję się, że moje dochody drastycznie spadną. Chcemy podpisać papier, który pozwoli mi odwołać darowiznę, jeśli nie będę stać mnie na codzienne życie albo leki, ale tylko do momentu, aż pieniądze trafią na jego konto. Syn musi też wiedzieć, że ma to zgłosić do urzędu skarbowego w pół roku, żeby nie płacił podatku."
+  }
+ ]
+}

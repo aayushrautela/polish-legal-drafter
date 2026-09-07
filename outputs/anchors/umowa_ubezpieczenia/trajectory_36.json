@@ -1,0 +1,291 @@
+{
+ "run": 42,
+ "hint": "Ubezpieczenie dobrowolne uzupełniające do NFZ",
+ "scenario": "Ubezpieczenie dobrowolne uzupełniające do NFZ",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_ubezpieczenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an insurance contract (umowa_ubezpieczenia) for \"Ubezpieczenie dobrowolne uzupełniające do NFZ\" - which means voluntary supplementary insurance to the National Health Fund (NFZ) in Poland. This would be a private health insurance policy that supplements the public healthcare system.\n\nLet me start by reading the base template for umowa_ubezpieczenia, then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-99931776-9fcf-46c5-bbee-ab98476696c2",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"dobrowolne uzupełniające do NFZ ubezpieczenie zdrowotne prywatne\", \"doc_type\": \"umowa_ubezpieczenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa o udzielanie świadczeń zdrowotnych\\nUmowa o udzielanie świadczeń zdrowotnych w Polsce to umowa cywilnoprawna, o której mowa w art. 26-27 ustawy z dnia 15 kwietnia 2011 r. o działalności leczniczej (Dz.U. 2011 nr 112 poz. 654 ze zm.), zawierana między podmiotem leczniczym jako zamawiającym a przyjmującym zamówienie — innym podmiotem leczniczym, lekarzem prowadzącym praktykę zawodową lub innym świadczeniodawcą — który zobowiązuje się do udzielania określonych świadczeń zdrowotnych na rzecz pacjentów zamawiającego.\\n\\nInstytucja ta odgrywa kluczową rolę w polskim systemie ochrony zdrowia, umożliwiając podmiotom leczniczym elastyczne korzystanie ze specjalistycznych usług medycznych i uzupełnianie braków kadrowych. Szpitale wielospecjalistyczne, Samodzielne Publiczne Zakłady Opieki Zdrowotnej (SPZOZ), Niepubliczne Zakłady Opieki Zdrowotnej (NZOZ) oraz prywatne kliniki regularnie stosują takie umowy do zamawiania świadczeń kardiologicznych, ortopedycznych, anestezjologicznych, diagnostycznych i laboratoryjnych od wyspecjalizowanych podmiotów zewnętrznych.\\n\\nArt. 26 ustawy o działalności leczniczej stanowi, że podmiot leczniczy będący przedsiębiorcą lub podmiot leczniczy niebędący przedsiębiorcą może udzielać zamówień na świadczenia zdrowotne. Zamówienie może być udzielane w trybie bezprzetargowym (swobodny wybór przyjmującego zamówienie) lub — w przypadku podmiotów publicznych (SPZOZ) udzielających zamówień ze środków publicznych — z uwzględnieniem zasad równego traktowania podmiotów ubiegających się o zamówienie. Przyjmującym zamówienie może być wyłącznie podmiot posiadający wpis do rejestru podmiotów wykonujących działalność leczniczą (RPWDL).\\n\\nUmowa o udzielanie świadczeń zdrowotnych różni się od kontraktu B2B przede wszystkim tym, że obie strony mogą być podmiotami leczniczymi — np. szpital rejonowy może zlecić udzielanie świadczeń ambulatoryjnych prywatnej poradni. W przypadku finansowania ze środków Narodowego Funduszu Zdrowia (NFZ) zamawiający musi zapewnić, że umowa z NFZ (kontrakt NFZ) obejmuje zakres świadczeń zlecanych podmiotowi zewnętrznemu. Umowa nie może przekraczać zakresu posiadanego kontraktu z NFZ ani kompetencji RPWDL przyjmującego zamówienie.\\n\\nKluczowe elementy tej umowy to: precyzyjne określenie zakresu świadczeń zgodne z profilem RPWDL przyjmującego zamówienie, wynagrodzenie i zasady rozliczenia (ryczałt, stawka za świadczenie lub dyżur), standardy jakości, prowadzenie dokumentacji medycznej, klauzule RODO, tajemnica lekarska oraz warunki rozwiązania umowy. Wzorce umowy dostępne na platformie forms-legal.com uwzględniają zarówno świadczenia finansowane przez NFZ, jak i świadczenia komercyjne.\\n\\nUmowa o udzielanie świadczeń zdrowotnych w Polsce jest niezbędna w każdej sytuacji, gdy podmiot leczniczy potrzebuje zapewnić pacjentom świadczenia wykonywane przez zewnętrzny podmiot.\\n\\nSzpitale i SPZOZ uzupełniające kadrę. Samodzielne Publiczne Zakłady Opieki Zdrowotnej regularnie zawierają umowy z prywatnymi podmiotami lub lekarzami specjalistami na obsadę oddziałów, izby przyjęć i pracowni diagnostycznych — szczególnie w specjalnościach deficytowych, jak anestezjologia, radiologia i chirurgia naczyniowa.\\n\\nZlecanie badań diagnostycznych i laboratoryjnych. Podmioty lecznicze bez własnego laboratorium lub pracowni tomografii komputerowej zawierają umowy z akredytowanymi laboratoriami i zakładami radiologii na realizację badań diagnostycznych dla swoich pacjentów.\\n\\nSubkontrakt świadczeń specjalistycznych. Przychodnie i poradnie podstawowej opieki zdrowotnej (POZ) posiadające kontrakty NFZ mogą podzlecać poradnictwo specjalistyczne — kardiologiczne, ginekologiczne, neurologiczne — wyspecjalizowanym podmiotom posiadającym odpowiednie umowy z Funduszem.\\n\\nDziałalność ponadkontraktowa. Podmioty lecznicze realizujące świadczenia ponadlimitowe (ponad wartość kontraktu z NFZ) w trybie komercyjnym mogą współpracować z zewnętrznymi świadczeniodawcami na zasadach rynkowych, bez ograniczeń prawa zamówień publicznych.\\n\\nIntegracja sieci medycznych. Grupy kapitałowe skupiające wiele podmiotów leczniczych formalizują wewnętrzne przepływy usług między podmiotami sieci (np. szpital zleca ambulatoryjną opiekę specjalistyczną córce spółce) za pomocą umów o udzielanie świadczeń zdrowotnych.\\n\\nRatownictwo i opieka nocna. Podmioty lecznicze zapewniające całodobową dostępność świadczeń — pogotowia, nocne i świąteczne punkty opieki — korzystają z umów z podmiotami zewnętrznymi na uzupełnianie obsady dyżurowej, gdy etatowy personel jest niewystarczający.\\n\\nUmowa o udzielanie świadczeń zdrowotnych w Polsce, sporządzona zgodnie z wymogami art. 26-27 ustawy o działalności leczniczej, powinna zawierać następujące kluczowe elementy.\\n\\nOznaczenie stron z numerami RPWDL. Pełna firma i dane zamawiającego podmiotu leczniczego — nazwa, adres, NIP, numer KRS lub CEIDG, numer RPWDL. Analogicznie — dane przyjmującego zamówienie: firma, adres, NIP, numer RPWDL, a jeśli przyjmującym jest lekarz indywidualnie — numer prawa wykonywania zawodu (PWZ). Obowiązkowy jest wpis do RPWDL przyjmującego zamówienie — bez tego umowa nie może być legalnie wykonywana.\\n\\nZakres świadczeń zdrowotnych. Precyzyjny opis świadczeń: rodzaj porad i badań, procedury medyczne, zabiegi ambulatoryjne lub szpitalne, diagnostyka laboratoryjna i obrazowa, telemedycyna. Zakres musi mieścić się w profilu działalności RPWDL przyjmującego zamówienie.\\n\\nMiejsce i czas udzielania świadczeń. Adres podmiotu, oddział lub jednostka organizacyjna, harmonogram dostępności (np. dni tygodnia, godziny pracy lub harmonogram dyżurów). Dla świadczeń finansowanych z NFZ — wymagania Funduszu co do dostępności.\\n\\nWynagrodzenie i rozliczenia. Forma wynagrodzenia: ryczałt miesięczny, stawka za świadczenie (fee-for-service), stawka za dyżur, kapitacja. Termin płatności faktury lub rachunku (art. 7 ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych — maksymalnie 60 dni w transakcjach z podmiotem publicznym lub między przedsiębiorcami).\\n\\nStandardy jakości i dokumentacja medyczna. Obowiązek udzielania świadczeń zgodnie z aktualną wiedzą medyczną, wytycznymi towarzystw naukowych i standardami organizacyjnymi Ministra Zdrowia. Prowadzenie dokumentacji medycznej (art. 24-30 ustawy z dnia 6 listopada 2008 r. o prawach pacjenta i Rzeczniku Praw Pacjenta, Dz.U. 2009 nr 52 poz. 417 ze zm.).\\n\\nOchrona danych osobowych pacjentów. Odesłanie do umowy powierzenia przetwarzania danych (art. 28 RODO), wskazanie ról stron, podstawa prawna przetwarzania danych zdrowotnych (art. 9 ust. 2 lit. h RODO). Nadzór Prezesa Urzędu Ochrony Danych Osobowych (PUODO). Wzory umów na platformie forms-legal.com zawierają kompletne klauzule RODO dostosowane do podmiotów medycznych.\\n\\nUbezpieczenie OC. Obowiązek utrzymania przez przyjmującego zamówienie aktualnego ubezpieczenia odpowiedzialności cywilnej za szkody wyrządzone przy udzielaniu świadczeń zdrowotnych.\\n\\nRozwiązanie i ciągłość opieki. Minimalny okres wypowiedzenia, przesłanki rozwiązania bez zachowania okresu wypowiedzenia, zobowiązanie do zapewnienia ciągłości opieki nad pacjentami w trakcie okresu wypowiedzenia.\\n\\nWłaściwość prawa i sądu. Prawo polskie, właściwość sądu powszechnego lub — opcjonalnie — mediacja.\\n\\nUmowa o udzielanie świadczeń zdrowotnych w Polsce wypełniana jest etapami, zgodnie z wymogami art. 26-27 ustawy o działalności leczniczej.\\n\\nKrok 1 — zidentyfikuj zamawiającego. Wpisz pełną firmę podmiotu leczniczego, adres siedziby, NIP i numer wpisu do RPWDL. Zamawiający musi być podmiotem leczniczym — wpis do RPWDL weryfikuje się na portalu rpwdl.cez.gov.pl.\\n\\nKrok 2 — zidentyfikuj przyjmującego zamówienie. Wpisz firmę lub imię i nazwisko podmiotu przyjmującego zamówienie, adres, NIP oraz numer RPWDL. Dla lekarza prowadzącego praktykę — numer PWZ i numer wpisu do RPWDL dla konkretnej lokalizacji udzielania świadczeń.\\n\\nKrok 3 — opisz zakres świadczeń. Precyzyjnie wymień rodzaje świadczeń zdrowotnych. Zakres musi pokrywać się z profilem RPWDL przyjmującego zamówienie. Dodaj opis miejsca (oddział, gabinet, laboratorium) i harmonogram dostępności.\\n\\nKrok 4 — ustal wynagrodzenie. Wybierz model rozliczenia: ryczałt miesięczny, stawkę za poradę lub procedurę, stawkę za dyżur. Wskaż walutę (PLN), termin płatności faktury i numer rachunku bankowego.\\n\\nKrok 5 — dodaj standardy jakości. Wstaw obowiązek stosowania aktualnej wiedzy medycznej i wskazanych wytycznych. Dodaj postanowienie o prowadzeniu dokumentacji medycznej zgodnie z ustawą o prawach pacjenta i rozporządzeniami Ministra Zdrowia.\\n\\nKrok 6 — dołącz klauzulę RODO. Wskaż umowę powierzenia przetwarzania danych jako obowiązkowy załącznik. Bez umowy powierzenia w rozumieniu art. 28 RODO kontrakt jest niezgodny z przepisami ochrony danych.\\n\\nKrok 7 — podpisz umowę. Data i miejscowość, podpisy upoważnionych reprezentantów obu stron zgodnie z KRS lub CEIDG. Dwa egzemplarze dla każdej ze stron.\\n\\nUmowa o udzielanie świadczeń zdrowotnych w Polsce podlega szczegółowym wymaganiom prawnym określonym w ustawie o działalności leczniczej i przepisach uzupełniających.\\n\\nWymogi art. 26-27 ustawy o działalności leczniczej. Art. 26 ust. 1 ustawy z dnia 15 kwietnia 2011 r. o działalności leczniczej stanowi, że podmiot leczniczy może udzielać zamówień na świadczenia zdrowotne innym podmiotom leczniczym i osobom legitymującym się nabyciem fachowych kwalifikacji do udzielania świadczeń zdrowotnych w określonym zakresie lub w określonej dziedzinie medycyny. Art. 27 reguluje zasadnicze wymogi takiej umowy: zakres świadczeń, miejsce udzielania, czas trwania umowy, wynagrodzenie.\\n\\nWpis do RPWDL przyjmującego zamówienie. Warunek bezwzględny — przyjmujący zamówienie musi posiadać wpis do rejestru podmiotów wykonujących działalność leczniczą (RPWDL) dla zakresu świadczeń i miejsca wskazanego w umowie. Weryfikacja wpisu na rpwdl.cez.gov.pl.\\n\\nObowiązkowe ubezpieczenie OC. Rozporządzenie Ministra Finansów z dnia 29 kwietnia 2019 r. nakłada na podmioty wykonujące działalność leczniczą obowiązek posiadania ubezpieczenia OC. Minimalne sumy gwarancyjne: dla szpitali — 1 000 000 EUR na zdarzenie i 5 000 000 EUR na wszystkie zdarzenia; dla innych podmiotów — 100 000 EUR na zdarzenie i 500 000 EUR na rok.\\n\\nOchrona danych zdrowotnych (RODO). Dane zdrowotne pacjentów podlegają szczególnej ochronie na mocy art. 9 ust. 1 RODO. Umowa powierzenia przetwarzania danych (art. 28 RODO) jest obligatoryjna. Administrator danych (zamawiający) odpowiada za naruszenia RODO wobec Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nDocumentation medyczna. Umowa musi regulować prowadzenie i przechowywanie dokumentacji medycznej zgodnie z art. 24-30 ustawy o prawach pacjenta. Dokumentacja medyczna przechowywana jest przez 20 lat (art. 29 ust. 1 u.p.p.).\\n\\nPrzepisy o zamówieniach publicznych. Jeśli zamawiającym jest SPZOZ lub podmiot objęty zakresem ustawy z dnia 11 września 2019 r. Prawo zamówień publicznych (p.z.p.) i wartość zamówienia przekracza progi unijne lub krajowe, umowa musi być poprzedzona stosownym postępowaniem zamówieniowym lub skorzystać z wyjątku dla zamówień usług zdrowotnych (art. 7 pkt 36 p.z.p. i art. 359 pkt 3 p.z.p.).\\n\\nUmowy o udzielanie świadczeń zdrowotnych w Polsce często zawierają błędy, które mogą skutkować nieważnością umowy lub sankcjami administracyjnymi.\\n\\nBłąd 1 — brak weryfikacji RPWDL przyjmującego zamówienie. Zawarcie umowy z podmiotem nieposiadającym właściwego wpisu do RPWDL jest niezgodne z art. 100 ustawy o działalności leczniczej. Zalecenie: przed podpisaniem sprawdź aktualność wpisu na portalu rpwdl.cez.gov.pl.\\n\\nBłąd 2 — zakres świadczeń szerszy niż kompetencje RPWDL. Zlecanie świadczeń wykraczających poza zakres wpisany do RPWDL przyjmującego zamówienie stanowi naruszenie prawa. Zalecenie: porównaj zakres umowy z zakresem RPWDL przyjmującego.\\n\\nBłąd 3 — brak umowy powierzenia przetwarzania danych osobowych (RODO). Każda umowa, w ramach której przyjmujący zamówienie przetwarza dane pacjentów w imieniu zamawiającego, wymaga zawarcia umowy powierzenia na podstawie art. 28 RODO. Jej brak to naruszenie przepisów ochrony danych osobowych.\\n\\nBłąd 4 — przekroczenie terminów płatności w transakcjach publicznych. SPZOZ jako podmiot publiczny jest zobowiązany do zapłaty wynagrodzenia w ciągu 30 dni od wystawienia faktury (art. 8 ustawy o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych). Wpisanie dłuższego terminu jest nieważne z mocy prawa.\\n\\nBłąd 5 — brak klauzuli o ciągłości opieki. Nagłe zakończenie umowy bez planu przekazania pacjentów może naruszać prawa pacjenta (art. 6 u.p.p.) i rodzić odpowiedzialność cywilną. Zalecenie: dodaj obowiązek kontynuowania świadczeń przez 30 dni po rozwiązaniu umowy lub do przejęcia przez inny podmiot.\\n\\nBłąd 6 — brak postanowień dotyczących dokumentacji medycznej. Umowa bez regulacji o prowadzeniu, przechowywaniu i przekazaniu dokumentacji medycznej po wygaśnięciu współpracy narusza art. 24-29 ustawy o prawach pacjenta. Zalecenie: dodaj postanowienie o tym, że dokumentacja medyczna jest własnością zamawiającego i podlega przekazaniu po zakończeniu umowy.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-udzielanie-swiadczen-zdrowotnych (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-99931776-9fcf-46c5-bbee-ab98476696c2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_42dd09bea7cd411b8444cede",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ubezpieczenie dobrowolne uzupełniające NFZ ubezpieczenie zdrowotne prywatne składki świadczenia\"}"
+     }
+    },
+    {
+     "id": "call_4c46c59d4470486b8feb4df5",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ubezpieczenie zdrowotne\", \"dobrowolne NFZ\", \"art. 829 KC\", \"art. 830 KC\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_4\", \"source_id\": \"sejm_eli_du_2025_350_art_4\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 4. Użyte w ustawie określenia oznaczają: 1) ubezpieczeni – osoby fizyczne podlegające chociaż jednemu z ubezpieczeń społecznych, o których mowa w art. 1; 2) płatnik składek: a) pracodawca – w stosunku do pracowników i osób odbywających służbę zastępczą oraz jednostka organizacyjna lub osoba fizyczna pozostająca z inną osobą fizyczną w stosunku prawnym uzasadniającym objęcie tej osoby ubezpieczeniami społecznymi, w tym z tytułu przebywania na urlopie wychowawczym albo pobierania zasiłku macierzyńskiego, z wyłączeniem  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_14\", \"source_id\": \"sejm_eli_du_2025_350_art_14\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 14. 1. Objęcie dobrowolnie ubezpieczeniami emerytalnym i rentowymi albo chorobowym następuje od dnia wskazanego odpowiednio w zgłoszeniu, o którym mowa w art. 36 ust. 10 albo 14, nie wcześniej jednak niż od dnia, w którym zgłoszenie zostało złożone w Zakładzie, z zastrzeżeniem ust. 1a. 1a. Objęcie dobrowolnie ubezpieczeniem chorobowym następuje od dnia wskazanego w zgłoszeniu tylko wówczas, gdy zgłoszenie do ubezpieczeń emerytalnego i rentowych zostanie dokonane w terminie określonym w art. 36 ust. 4 albo 4b. Dzienni ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_41\", \"source_id\": \"sejm_eli_du_2025_350_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 41. 1. Płatnik składek przekazuje do Zakładu imienne raporty miesięczne, po upływie każdego miesiąca kalendarzowego, w terminie ustalonym dla rozliczania składek, z zastrzeżeniem art. 48d. 2. Jeżeli obowiązek ubezpieczeń społecznych wygasł w ciągu miesiąca kalendarzowego, płatni k składek przekazuje do Zakładu raport, o którym mowa w ust. 1, za okres ubezpieczenia w danym miesiącu, w terminie i na zasadach określonych w art. 47 ust. 1 i 2. 3. Imienny raport miesięczny zawiera informacje dotyczące płatnika składek okr ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_46\", \"source_id\": \"sejm_eli_du_2025_350_art_46\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 46. 1. Płatnik składek jest obowiązany według zasad wynikających z przepisów ustawy obliczać, potrącać z dochodów ubezpieczonych, rozliczać oraz opłacać należne składki za każdy miesiąc kalendarzowy. 2. Rozliczenie składek, o których mowa w ust. 1, oraz wypłaconych przez płatnika w tym samym miesiącu zasiłków oraz zasiłków rodzinnych i pielęgnacyjnych podlegających rozliczeniu na poczet składek następuje w deklaracji rozliczeniowej według ustalonego wzoru. Nie podlegają rozliczeniu w deklaracji rozliczeniowej zasiłki ...\"}]",
+   "tool_call_id": "call_42dd09bea7cd411b8444cede",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_41\", \"source_id\": \"sejm_eli_du_2025_350_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 41. 1. Płatnik składek przekazuje do Zakładu imienne raporty miesięczne, po upływie każdego miesiąca kalendarzowego, w terminie ustalonym dla rozliczania składek, z zastrzeżeniem art. 48d. 2. Jeżeli obowiązek ubezpieczeń społecznych wygasł w ciągu miesiąca kalendarzowego, płatni k składek przekazuje do Zakładu raport, o którym mowa w ust. 1, za okres ubezpieczenia w danym miesiącu, w terminie i na zasadach określonych w art. 47 ust. 1 i 2. 3. Imienny raport miesięczny zawiera informacje dotyczące płatnika składek okr ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_46\", \"source_id\": \"sejm_eli_du_2025_350_art_46\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 46. 1. Płatnik składek jest obowiązany według zasad wynikających z przepisów ustawy obliczać, potrącać z dochodów ubezpieczonych, rozliczać oraz opłacać należne składki za każdy miesiąc kalendarzowy. 2. Rozliczenie składek, o których mowa w ust. 1, oraz wypłaconych przez płatnika w tym samym miesiącu zasiłków oraz zasiłków rodzinnych i pielęgnacyjnych podlegających rozliczeniu na poczet składek następuje w deklaracji rozliczeniowej według ustalonego wzoru. Nie podlegają rozliczeniu w deklaracji rozliczeniowej zasiłki ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0210_statute_ce706bf729233e17\", \"source_id\": \"sejm_eli_du_2024_226_art_23\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"656 , 614 , 825 , 1723 , 1843 i 1941 ) , jeżeli uprawnionym do otrzymania świadczenia nie jest pracodawca i umowa ubezpieczenia w okresie 5 lat, licząc od końca roku kalendarzowego, w którym ją zawarto lub odnowiono, wyklucza: a) wypłatę kwoty stanowiącej wartość odstąpienia od umowy, b) możliwość zaciągania zobowiązań pod zastaw praw wynikających z umowy, c) wypłatę z tytułu dożycia wieku oznaczonego w umowie; 58) składek na ubezpieczenie zdrowotne, z wyjątkiem składek na ubezpieczenie zdrowotne zapłaconych w roku podatkowym na podstawie ustawy z dnia 27 sierpnia 2004 r. o świadczeniach opiek ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_47\", \"source_id\": \"sejm_eli_du_2025_350_art_47\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 47. 1. Płatnik składek przesyła w tym samym terminie deklarację rozliczeniową, imienne raporty miesięczne oraz opłaca składki za dany miesiąc, z zastrzeżeniem ust. 1a, nie później niż: 1) (uchylony) 2) do 5 dnia następnego miesiąca – dla jednostek budżetowych i samorządowych zakładów budżetowych; 3) do 15 dnia następnego miesiąca – dla płatników składek posiadających osobowość prawną; 4) do 20 dnia następnego miesiąca – dla pozostałych płatników składek. 1a. Twórcy i artyści przesyłają deklaracje rozliczeniowe i imie ...\"}]",
+   "tool_call_id": "call_4c46c59d4470486b8feb4df5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_da8f9e8dc6ff408c98c2f578",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ubezpieczenie zdrowotne prywatne uzupełniające NFZ świadczenia medyczne polisa OWU\"}"
+     }
+    },
+    {
+     "id": "call_c807b58fa8984a29b4f16adb",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 829 KC\", \"art. 830 KC\", \"art. 831 KC\", \"ubezpieczenie osobowe\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_4\", \"source_id\": \"sejm_eli_du_2025_350_art_4\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 4. Użyte w ustawie określenia oznaczają: 1) ubezpieczeni – osoby fizyczne podlegające chociaż jednemu z ubezpieczeń społecznych, o których mowa w art. 1; 2) płatnik składek: a) pracodawca – w stosunku do pracowników i osób odbywających służbę zastępczą oraz jednostka organizacyjna lub osoba fizyczna pozostająca z inną osobą fizyczną w stosunku prawnym uzasadniającym objęcie tej osoby ubezpieczeniami społecznymi, w tym z tytułu przebywania na urlopie wychowawczym albo pobierania zasiłku macierzyńskiego, z wyłączeniem  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_13\", \"source_id\": \"sejm_eli_du_2025_350_art_13\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 13. Obowiązkowo ubezpieczeniom emerytalnemu, rentowym, chorobowemu i wypadkowemu podlegają osoby fizyczne w następujących okresach: 1) pracownicy – od dnia nawiązania stosunku pracy do dnia ustania tego stosunku; 2) osoby wykonujące pracę nakładczą oraz zlece niobiorcy – od dnia oznaczonego w umowie jako dzień rozpoczęcia jej wykonywania do dnia rozwiązania lub wygaśnięcia tej umowy; 2a) (uchylony) 3) członkowie spółdzielni – od dnia rozpoczęcia wykonywania pracy na rzecz spółdzielni do dnia zakończenia jej wyk onywa ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_46\", \"source_id\": \"sejm_eli_du_2025_350_art_46\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 46. 1. Płatnik składek jest obowiązany według zasad wynikających z przepisów ustawy obliczać, potrącać z dochodów ubezpieczonych, rozliczać oraz opłacać należne składki za każdy miesiąc kalendarzowy. 2. Rozliczenie składek, o których mowa w ust. 1, oraz wypłaconych przez płatnika w tym samym miesiącu zasiłków oraz zasiłków rodzinnych i pielęgnacyjnych podlegających rozliczeniu na poczet składek następuje w deklaracji rozliczeniowej według ustalonego wzoru. Nie podlegają rozliczeniu w deklaracji rozliczeniowej zasiłki ...\"}]",
+   "tool_call_id": "call_da8f9e8dc6ff408c98c2f578",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego d ...\"}]",
+   "tool_call_id": "call_c807b58fa8984a29b4f16adb",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dokupić ubezpieczenie zdrowotne, które pokryje to, czego nie daje NFZ – szybsze wizyty u specjalistów, badania i leczenie bez kolejek."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam 42 lata, pracuję na etacie i chcę polisy, która pozwoli mi bez skierowania i długiego czekania iść do ortopedy, kardiologa i na rezonans magnetyczny. Zależy mi też na pokryciu stomatologii zachowawczej i protetycznej, a także na możliwości hospitalizacji w pokoju jednoosobowym przy ewentualnej operacji. Czy macie taki pakiet i ile by kosztował rocznie?"
+  }
+ ]
+}

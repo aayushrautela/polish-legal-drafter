@@ -1,0 +1,349 @@
+{
+ "run": 2,
+ "hint": "Darowizna gotówkowa na rękę osobie z III grupy podatkowej (zgłoszenie SD-Z2)",
+ "scenario": "Darowizna gotówkowa na rękę osobie z III grupy podatkowej (zgłoszenie SD-Z2)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_darowizny'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a donation contract (umowa_darowizny) specifically for a cash donation to a person from the III tax group (grupa podatkowa III) with SD-Z2 notification. Let me start by reading the base template and then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-b28f4513-c12d-487f-bd7a-8c8330378385",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"darowizna gotówkowa na rękę osobie z III grupy podatkowej zgłoszenie SD-Z2\", \"doc_type\": \"umowa_darowizny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_darowizny\", \"kind\": \"structural_template\", \"text\": \"# Umowa darowizny pieniędzy\\nUmowa darowizny pieniędzy w Polsce to umowa nazwana uregulowana w art. 888-902 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swojego majątku. Darowizna pieniędzy polega na nieodpłatnym przekazaniu określonej kwoty, bez obowiązku jej zwrotu przez obdarowanego — co odróżnia ją od pożyczki (art. 720 Kodeksu cywilnego) i od pożyczki nieoprocentowanej. Darowizna jest czynnością jednostronnie zobowiązującą: darczyńca jest zobowiązany, obdarowany jest uprawniony do żądania wykonania.\\n\\nZgodnie z art. 888 § 1 Kodeksu cywilnego przez umowę darowizny darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swego majątku. Pieniądze — zarówno gotówkowe, jak i zdematerializowane środki na rachunku bankowym — są typowym przedmiotem darowizny. Kwota darowizny może być dowolna, jednak w zależności od wysokości i stopnia pokrewieństwa między stronami mogą mieć zastosowanie przepisy ustawy z dnia 28 lipca 1983 r. o podatku od spadków i darowizn (Dz.U. 2023 poz. 1774 ze zm.), co ma kluczowe znaczenie dla obowiązków podatkowych obdarowanego.\\n\\nForma umowy darowizny pieniędzy jest uregulowana w art. 890 § 1 Kodeksu cywilnego: oświadczenie darczyńcy powinno być złożone w formie aktu notarialnego. Jednak zgodnie z art. 890 § 1 zdanie drugie Kodeksu cywilnego umowa darowizny zawarta bez zachowania tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione — czyli jeżeli pieniądze faktycznie zostały przekazane. Oznacza to, że w praktyce pisemna umowa darowizny pieniędzy (bez formy notarialnej) jest powszechnie stosowana i jest ważna, o ile darowizna została rzeczywiście wykonana przez przelew lub wręczenie gotówki.\\n\\nDarowizna pieniędzy ma szczególne znaczenie w kontekście prawa spadkowego. Darowizna dokonana przez darczyńcę za jego życia na rzecz spadkobiercy podlega zaliczeniu na poczet zachowku lub masy spadkowej, chyba że darczyńca wyraźnie zastrzegł inaczej lub upłynął dziesięcioletni termin (art. 994 Kodeksu cywilnego). Wartość darowizny jest doliczana do masy spadkowej przy obliczaniu zachowku, co może wpływać na prawa innych spadkobierców.\\n\\nPodatkowo darowizna pieniędzy rodzi obowiązek zapłaty podatku od spadków i darowizn przez obdarowanego, chyba że zastosowanie ma jedno z ustawowych zwolnień. Osoby zaliczone do I grupy podatkowej (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha, zięć, synowa) korzystają ze zwolnienia podatkowego bez limitu kwotowego, pod warunkiem zgłoszenia darowizny do właściwego urzędu skarbowego (Krajowa Administracja Skarbowa, KAS) w terminie 6 miesięcy od dnia jej otrzymania na formularzu SD-Z2 oraz udokumentowania przekazania przelewem bankowym. Gotówkowe darowizny w I grupie powyżej progu wolnego (36 120 zł dla I grupy — stan na 2026 r.) wymagają zapłaty podatku według skali podatkowej.\\n\\nDarczyńca zachowuje prawo do odwołania darowizny przed jej wykonaniem, jeżeli jego stan majątkowy zmienił się w stopniu uniemożliwiającym wykonanie bez nadmiernego uszczerbku (art. 896 Kodeksu cywilnego). Już wykonaną darowiznę można odwołać wyłącznie, gdy obdarowany dopuścił się rażącej niewdzięczności wobec darczyńcy (art. 898 Kodeksu cywilnego). Odwołanie następuje przez oświadczenie złożone obdarowanemu na piśmie.\\n\\nUmowa darowizny pieniędzy w Polsce jest potrzebna za każdym razem, gdy jedna osoba przekazuje drugiej kwotę pieniędzy bez oczekiwania zapłaty ani zwrotu, a strony chcą udokumentować ten fakt na potrzeby prawa podatkowego, spadkowego lub na wypadek późniejszych sporów.\\n\\nDokument jest niezbędny przy darowiznach w gronie rodziny korzystających ze zwolnienia podatkowego. Organy Krajowej Administracji Skarbowej (KAS) wymagają, aby darowizna przekazana przelewem bankowym była udokumentowana — potwierdzenie przelewu z tytułem zawierającym słowo \\\"darowizna\\\" lub \\\"darowizna dla córki\\\" i zgłoszenie SD-Z2 w terminie 6 miesięcy to warunki skorzystania z pełnego zwolnienia podatkowego dla I grupy podatkowej bez limitu kwotowego.\\n\\nDokument jest konieczny przy darowiznach na zakup nieruchomości. Notariusz dokonujący aktu notarialnego przeniesienia własności nieruchomości może wymagać przedstawienia dokumentu potwierdzającego źródło środków kupującego, zwłaszcza gdy kupujący finansuje zakup darowizną od rodziców lub dziadków. Urząd skarbowy KAS może też żądać wyjaśnienia źródła środków przy analizie podatku dochodowego kupującego.\\n\\nDokument jest potrzebny przy planowaniu majątku i sukcesji. Pisemna umowa darowizny pozwala darczyńcy wyraźnie zastrzec, czy darowizna ma być zaliczona na poczet zachowku przyszłego spadkobiercy, czy stanowi wyłącznie przysporzenie majątkowe nieobciążające masy spadkowej. Sąd Okręgowy orzekający w sprawach o zachowek będzie badał wartość darowizn dokonanych przez spadkodawcę w ciągu ostatnich dziesięciu lat (art. 994 Kodeksu cywilnego).\\n\\nDokument jest niezbędny przy darowiznach w obrocie B2B lub darowiznach przez osoby prawne (fundacje, stowarzyszenia). Fundacja przekazująca grant pieniężny lub stowarzyszenie wspierające finansowo beneficjenta potrzebuje pisemnej umowy darowizny, która jest dokumentem księgowym i podstawą rozliczenia w sprawozdaniu finansowym składanym do Krajowego Rejestru Sądowego (KRS) lub właściwego urzędu skarbowego.\\n\\nDokument jest konieczny przy darowiznach o znacznej wysokości, gdzie istnieje ryzyko zakwestionowania przez urząd skarbowy KAS tytułu środków. Przy transferach powyżej kilkudziesięciu tysięcy złotych brak udokumentowanego tytułu może skutkować wszczęciem postępowania podatkowego i koniecznością zapłaty podatku według sankcyjnej stawki 20 procent od wartości nieujawnionych dochodów.\\n\\nPrawidłowa umowa darowizny pieniędzy w Polsce, oparta na art. 888-902 Kodeksu cywilnego, powinna zawierać elementy pozwalające na jednoznaczne określenie stron, kwoty, sposobu wykonania i skutków podatkowych.\\n\\nOznaczenie stron: pełne imię i nazwisko darczyńcy i obdarowanego, numery PESEL obu stron, adresy zamieszkania. PESEL jest wymagany przy zgłoszeniu darowizny na formularzu SD-Z2 lub SD-3 do urzędu skarbowego (KAS). Warto wskazać stopień pokrewieństwa między stronami — określenie grupy podatkowej (I, II lub III) decyduje o zakresie zwolnienia podatkowego i zastosowaniu odpowiedniego progu kwotowego.\\n\\nKwota darowizny: kwota cyfrowo i słownie (np. \\\"100 000 zł, słownie: sto tysięcy złotych\\\"), waluta PLN. Zapis słowny zapobiega sporom co do wysokości zobowiązania darczyńcy i jest wymagany przy zgłoszeniu do urzędu skarbowego.\\n\\nSposób przekazania: przelew bankowy (zalecany — jest warunkiem pełnego zwolnienia podatkowego dla I grupy bez limitu kwotowego) lub gotówka (przy wysokich kwotach wymaga oddzielnego zgłoszenia). Przy przelewie należy wskazać numer rachunku bankowego obdarowanego. Tytuł przelewu powinien zawierać słowo \\\"darowizna\\\" — np. \\\"Darowizna dla córki Anny Nowak\\\".\\n\\nCel lub przeznaczenie darowizny: wskazanie celu nie jest wymogiem prawnym, jednak przy darowiznach warunkowych (np. na zakup konkretnej nieruchomości) warto go opisać. Darowizna z poleceniem (art. 893 Kodeksu cywilnego) nakłada na obdarowanego obowiązek określonego działania kosztem otrzymanego przysporzenia.\\n\\nObowiązki podatkowe: wzmianka o ciążącym na obdarowanym obowiązku zgłoszenia darowizny do właściwego urzędu skarbowego (KAS) w terminie 6 miesięcy (I grupa: formularz SD-Z2; II i III grupa: formularz SD-3 i zapłata podatku). Przelew bankowy i terminowe zgłoszenie SD-Z2 są warunkami pełnego zwolnienia z podatku dla I grupy podatkowej.\\n\\nPostanowienia końcowe: zastrzeżenie formy pisemnej dla zmian, właściwość sądu (Sąd Rejonowy lub Sąd Okręgowy zależnie od wartości sporu), informacja o prawie odwołania darowizny niewykonanej (art. 896 KC) i wykonanej z powodu rażącej niewdzięczności (art. 898 KC), liczba egzemplarzy i podpisy. Serwis forms-legal.com udostępnia gotowy wzór umowy darowizny pieniędzy — przy darowiznach powyżej 100 000 zł warto skonsultować umowę z doradcą podatkowym lub notariuszem.\\n\\nWypełnianie umowy darowizny pieniędzy w Polsce należy zacząć od wpisania pełnych danych darczyńcy: imię i nazwisko, PESEL, adres zamieszkania. Następnie wpisz analogiczne dane obdarowanego. Z listy wybierz stopień pokrewieństwa — określa on grupę podatkową i decyduje o zakresie zwolnienia z podatku od darowizn.\\n\\nW sekcji kwoty darowizny podaj sumę cyfrowo i słownie. Kwota słowna jest obowiązkowa przy zgłoszeniu do urzędu skarbowego KAS na formularzach SD-Z2 lub SD-3 i zapobiega ewentualnym sporom co do wysokości darowizny. Przy kwotach przekraczających 36 120 zł (I grupa) lub niższe progi dla II i III grupy obowiązek podatkowy jest szczególnie ważny.\\n\\nWybierz sposób przekazania darowizny. Przelew bankowy jest zdecydowanie zalecany, gdyż jest warunkiem pełnego zwolnienia z podatku dla I grupy podatkowej bez limitu kwotowego. Wpisz numer rachunku bankowego obdarowanego (IBAN). Tytuł przelewu bankowego powinien wyraźnie wskazywać, że jest to darowizna, np. \\\"Darowizna dla córki — umowa darowizny z dnia [data]\\\".\\n\\nW polu celu wpisz, na co darowizna ma być przeznaczona, lub pozostaw to pole puste (darowizna bez wskazanego celu jest w pełni swobodna). Wpisz datę i miejscowość zawarcia umowy — data jest istotna dla biegu terminu na zgłoszenie SD-Z2 (6 miesięcy).\\n\\nPodpisz umowę w dwóch egzemplarzach — po jednym dla każdej ze stron. Zachowaj potwierdzenie przelewu bankowego razem z umową — urząd skarbowy KAS może żądać obydwu dokumentów. Obdarowany powinien złożyć zgłoszenie SD-Z2 do właściwego urzędu skarbowego w terminie 6 miesięcy od daty zawarcia umowy lub daty przelewu — niezłożenie zgłoszenia w terminie pozbawia prawa do pełnego zwolnienia.\\n\\nWymogi prawne darowizny pieniędzy w Polsce wynikają z Kodeksu cywilnego i ustawy podatkowej.\\n\\nForma darowizny: art. 890 § 1 Kodeksu cywilnego wymaga formy aktu notarialnego dla oświadczenia darczyńcy, lecz art. 890 § 1 zdanie drugie stanowi, że umowa zawarta bez tej formy jest ważna, jeżeli przyrzeczone świadczenie zostało spełnione. Oznacza to, że pisemna umowa darowizny bez notariusza jest ważna i wystarczająca, o ile pieniądze faktycznie zostały przekazane.\\n\\nOdwołanie darowizny: darczyńca może odwołać jeszcze niewykonaną darowiznę, jeżeli jego sytuacja majątkowa zmieniła się w stopniu uniemożliwiającym spełnienie świadczenia bez nadmiernego uszczerbku (art. 896 Kodeksu cywilnego). Już wykonaną darowiznę można odwołać, jeżeli obdarowany dopuścił się rażącej niewdzięczności wobec darczyńcy (art. 898 KC). Odwołanie następuje pisemnie. Roszczenie o zwrot przedmiotu darowizny odwołanej z powodu rażącej niewdzięczności przedawnia się z upływem roku od dnia, w którym darczyńca dowiedział się o rażącej niewdzięczności (art. 899 KC).\\n\\nPodatek od darowizn: ustawa z dnia 28 lipca 1983 r. o podatku od spadków i darowizn reguluje opodatkowanie darowizn. Obdarowany z I grupy podatkowej (małżonek, dzieci, rodzice, dziadkowie, wnuki, rodzeństwo, pasierb, ojczym, macocha, zięć, synowa) korzysta ze zwolnienia od podatku bez limitu kwotowego, pod warunkiem: (1) udokumentowania przelewem bankowym i (2) zgłoszenia darowizny do urzędu skarbowego (KAS) na formularzu SD-Z2 w terminie 6 miesięcy od daty nabycia. Niezłożenie SD-Z2 w terminie skutkuje utratą pełnego zwolnienia i obowiązkiem zapłaty podatku według skali (art. 4a ustawy o podatku od spadków i darowizn). Obdarowani z II i III grupy podatkowej składają formularz SD-3 i płacą podatek według tabel kwotowych.\\n\\nOrgan podatkowy: właściwym organem podatkowym jest naczelnik urzędu skarbowego właściwego dla miejsca zamieszkania obdarowanego (KAS). Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) ani Prezes Urzędu Ochrony Danych Osobowych (PUODO) nie ingerują w darowizny pieniędzy między osobami fizycznymi.\\n\\nNajczęstsze błędy przy umowie darowizny pieniędzy w Polsce zaczynają się od niezłożenia zgłoszenia SD-Z2 w terminie 6 miesięcy przez obdarowanego z I grupy podatkowej. Przeoczenie tego terminu pozbawia prawa do pełnego zwolnienia z podatku od darowizn i naraża obdarowanego na konieczność zapłaty podatku od całej kwoty darowizny według skali podatkowej — nawet jeżeli przekazanie nastąpiło przelewem bankowym.\\n\\nKolejnym błędem jest przekazanie darowizny gotówką i brak jej udokumentowania. Organy KAS mogą zakwestionować gotówkową darowiznę w I grupie powyżej progu wolnego (36 120 zł) jako nieudokumentowaną i żądać zapłaty podatku. Przelew bankowy z tytułem zawierającym słowo \\\"darowizna\\\" jest najpewniejszym dowodem dla urzędu skarbowego.\\n\\nMylenie darowizny z pożyczką to powszechna pomyłka — szczególnie w sytuacjach rodzinnych, gdy rodzic przekazuje dziecku środki z zamiarem zwrotu (pożyczka) lub bez takiego zamiaru (darowizna). Urząd skarbowy KAS może zakwestionować niespłaconą \\\"pożyczkę\\\" i potraktować ją jako darowiznę, naliczając podatek od jej wartości.\\n\\nBrak wskazania stopnia pokrewieństwa w umowie lub zgłoszeniu SD-Z2 może skutkować zaklasyfikowaniem obdarowanego do wyższej grupy podatkowej przez urząd skarbowy, co oznacza wyższy podatek lub utratę zwolnienia. Zawsze wpisuj stopień pokrewieństwa zarówno w umowie, jak i w formularzu SD-Z2.\\n\\nPrzy darowiznach połączonych z poleceniem (art. 893 Kodeksu cywilnego) strony często zapominają, że polecenie jest wiążące dla obdarowanego — jeżeli obdarowany nie wykonuje polecenia, darczyńca lub osoby trzecie wskazane jako beneficjenci polecenia mogą żądać jego wykonania na drodze sądowej przed Sądem Rejonowym lub Sądem Okręgowym.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-darowizny-pieniedzy (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-b28f4513-c12d-487f-bd7a-8c8330378385",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. The scenario is about a cash donation (darowizna gotówkowa na rękę) to a person from the III tax group (grupa podatkowa III) with SD-Z2 notification. Let me search for specific provisions relevant to:\n1. III tax group (grupa III podatkowa)\n2. SD-Z2 form (though SD-Z2 is typically for I group, SD-3 for II and III groups)\n3. Cash donations (darowizna gotówkowa)\n4. Tax thresholds for III group\n5. Notification requirements for III group\n\nLet me search for these specific topics.",
+   "tool_calls": [
+    {
+     "id": "call-7f6c1e8a-8be3-4474-976b-fd0587cb033c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 10, \"keywords\": [\"grupa III\", \"grupa podatkowa III\", \"trzecia grupa podatkowa\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-7f6c1e8a-8be3-4474-976b-fd0587cb033c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me try different keywords for the III tax group.",
+   "tool_calls": [
+    {
+     "id": "call-8e4f9188-c3ff-4c8c-af0f-0246f371c1ae",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"grupa podatkowa\", \"I grupa\", \"II grupa\", \"III grupa\", \"prog wolny\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_385\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 385. § 1. Rada nadzorcza składa się co najmniej z trzech, a w spółkach publicznych co najmniej z pięciu członków, powoływanych i odwoływanych przez walne zgromadzenie. § 2. Statut może przewidywać inny sposób powoływania lub odwoływania członków rady nadzorczej. § 3. Na wniosek akcjonariuszy, reprezentujących co najmniej jedną piątą kapitału zakładowego, wybór rady nadzorczej powinien być dokonany przez najbliższe walne zgromadzenie w d ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_258\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 258. § 1 190) Ze zmianą wprowadzoną przez art. 1 pkt 97 lit. a ustawy, o której mowa w odnośniku 2. . Kto bierze udział w zorganizowanej grupie albo związku mających na celu popełnienie przestępstwa lub przestępstwa skarbowego, podlega karze pozbawienia wolności od 6 miesięcy do lat 8. § 2 191) Ze zmianą wprowadzoną przez art. 1 pkt 97 lit. b ustawy, o której mowa w odnośniku 2. . Jeżeli grupa albo związek określone w § 1 mają charakter zbrojny alb ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_390\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 390. § 1. Rada nadzorcza wykonuje swoje obowiązki kolegialnie. § 2. Jeżeli rada nadzorcza została wybrana w drodze głosowania oddzielnymi grupami, każda grupa ma prawo delegować jednego spośród wybranych przez siebie członków rady nadzorczej do stałego indywidualnego wykonywania czynności nadzorczych. Członkowie ci mają prawo uczestniczenia w posiedzeniach zarządu z głosem doradczym. Zarząd jest obowiązany zawiadomić ich uprzednio o każ ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_506\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 506. § 1. Łączenie się spółek wymaga uchwały zgromadzenia wspólników lub walnego zgromadzenia każdej z łączących się spółek, powziętej większością trzech czwartych głosów, reprezentujących co najmniej połowę kapitału zakładowego, chyba że umowa lub statut spółki przewidują surowsze warunki. § 2. Uchwała walnego zgromadzenia spółki publicznej w sprawie połączenia z inną spółką wymaga większości dwóch trzecich głosów, chyba że statut spół ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_522\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 522. § 1. Łączenie się spółek wymaga uchwały zgromadzenia wspólników lub walnego zgromadzenia łączącej się spółki kapitałowej i uchwały wszystkich wspólników łączącej się spółki osobowej. § 2. Uchwała zgromadzenia wspólników lub walnego zgromadzenia łączącej się spółki kapitałowej wymaga większości trzech czwartych głosów, reprezentujących co najmniej połowę kapitału zakładowego, chyba że umowa lub statut spółki przewidują surowsze waru ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_541\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 541. § 1. Podział spółki wymaga uchwały zgromadzenia wspólników albo walnego zgromadzenia spółki dzielonej oraz każdej spółki przejmującej, powziętej większością trzech czwartych głosów, przedstawiających co najmniej połowę kapitału zakładowego, chyba że umowa albo statut spółki przewidują surowsze warunki. § 2. Podział spółki przez zawiązanie nowej spółki wymaga uchwały zgromadzenia wspólników albo walnego zgromadzenia spółki dzielonej ...\"}, {\"chunk_id\": \"uokik_items:uokik_58b6242edadd93b3\", \"source_id\": \"uokik_rejestr_klauzul_750\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"<<(...)>> ma prawo zmienić rodzaj kursu z grupowego na indywidualny, jeśli grupa liczy sobie mniej niż 4 osoby\"}]",
+   "tool_call_id": "call-8e4f9188-c3ff-4c8c-af0f-0246f371c1ae",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The keyword search didn't find the relevant tax law provisions. Let me search for the inheritance and donation tax act (ustawa o podatku od spadków i darowizn) which contains the tax groups and thresholds.",
+   "tool_calls": [
+    {
+     "id": "call-30eabaf1-3ebe-480b-b98d-2888e7368887",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ustawa o podatku od spadków i darowizn grupy podatkowe I II III progi wolne kwotowe SD-Z2 SD-3\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_7a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 7a. 1. Przychody przedsiębiorstwa w spadku uznaje się za przychody ze źródła, o którym mowa w art. 10 ust. 1 pkt 3. 2. Powstanie przedsiębiorstwa w spadku nie jest traktowane jako rozpoczęcie działalności gospodarczej. 3. Równoznaczne z likwidacją działalności gospodarczej jest wygaśnięcie: 1) zarządu sukcesyjnego albo 2) uprawnienia do powołania zarządcy sukcesyjnego - w przypadku gdy zarząd sukcesyjny nie został ustanowion ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_1a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 1a. 1. Ustawa reguluje również opodatkowanie podatkiem dochodowym dochodów przedsiębiorstwa w spadku. 2. Przedsiębiorstwo w spadku, stanowiące jednostkę organizacyjną niemającą osobowości prawnej, jest podatnikiem z tytułu dochodów osiąganych w okresie od otwarcia spadku do dnia wygaśnięcia: 1) zarządu sukcesyjnego albo 2) uprawnienia do powołania zarządcy sukcesyjnego, jeżeli zarząd sukcesyjny nie został ustanowiony i dokon ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_42f\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 42f. 1. W okresie, o którym mowa w art. 1a ust. 2 pkt 1 albo 2, za płatnika, o którym mowa w art. 32, art. 35 ust. 1 pkt 9 i art. 41, uznaje się przedsiębiorstwo w spadku. 2. W okresie, o którym mowa w art. 1a ust. 2 pkt 1 albo 2, na przedsiębiorstwie w spadku ciążą również obowiązki określone w art. 42a. 3. Obowiązki przedsiębiorstwa w spadku wykonuje zarządca sukcesyjny, a w przypadku jego braku - osoby, o których mowa w a ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_54\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 54. 1. Z dniem 1 stycznia 1992 r. tracą moc: 1) ustawa z dnia 4 lutego 1949 r. o podatku od wynagrodzeń ( Dz. U. poz. 41 , z 1956 r. poz. 201 , z 1959 r. poz. 69 oraz z 1963 r. poz. 309 ) ; 2) ustawa z dnia 26 lutego 1982 r. o opodatkowaniu jednostek gospodarki uspołecznionej ( Dz. U. z 1987 r. poz. 77 , z 1989 r. poz. 12 , 192 i 443 , z 1990 r. poz. 126 oraz z 1991 r. poz. 30 ) - w części dotyczącej podatku od płac; 3) usta ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_45cd\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 45cd. 1. Z dniem 15 lutego roku następującego po roku podatkowym organ podatkowy udostępnia podatnikowi, z wyjątkiem podatnika będącego przedsiębiorstwem w spadku, za pośrednictwem konta w e-Urzędzie Skarbowym zeznania, o których mowa w art. 45 ust. 1 oraz ust. 1a pkt 1 i 2, oraz informację, o której mowa w art. 21 ust. 46 pkt 1, uwzględniając w nich dane będące w posiadaniu Szefa Krajowej Administracji Skarbowej, w tym dane ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_21\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 21. 1. Wolne od podatku dochodowego są: 1) (uchylony) 2) renty przyznane na podstawie odrębnych przepisów o zaopatrzeniu inwalidów wojennych i wojskowych oraz ich rodzin; 3) otrzymane odszkodowania lub zadośćuczynienia, jeżeli ich wysokość lub zasady ustalania wynikają wprost z przepisów odrębnych ustaw lub przepisów wykonawczych wydanych na podstawie tych ustaw lub aktów administracyjnych wydanych na podstawie tych przepisó ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_27\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 27. 1. Podatek dochodowy, z zastrzeżeniem art. 29-30f, pobiera się od podstawy jego obliczenia według następującej skali podatkowej: Podstawa obliczenia podatku w złotych Podatek wynosi ponad do 120 000 12% minus kwota zmniejszająca podatek 3600 zł 120 000 10 800 zł + 32% nadwyżki ponad 120 000 zł 1a. (uchylony) 1b. (uchylony) 1c. Wysokość kwoty zmniejszającej podatek określonej w pierwszym przedziale skali podatkowej, o któ ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52a. 1. Zwalnia się od podatku dochodowego: 1) dochody z tytułu odsetek i dyskonta od papierów wartościowych wyemitowanych przez Skarb Państwa oraz obligacji wyemitowanych przez jednostki samorządu terytorialnego - nabytych przez podatnika przed dniem 1 grudnia 2001 r.; 2) dochody (przychody), o których mowa w art. 30a ust. 1 pkt 3, jeżeli są wypłacane albo stawiane do dyspozycji podatnika od środków pieniężnych zgromadzonyc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23w\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23w. 1. Podmioty powiązane są obowiązane do sporządzania w postaci elektronicznej lokalnej dokumentacji cen transferowych, za rok podatkowy, w terminie do końca dziesiątego miesiąca po zakończeniu roku podatkowego, w celu wykazania, że ceny transferowe zostały ustalone na warunkach, które ustaliłyby między sobą podmioty niepowiązane. 2. Lokalna dokumentacja cen transferowych jest sporządzana dla transakcji kontrolowanej o ch ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_3\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 3. 1. Osoby fizyczne, jeżeli mają miejsce zamieszkania na terytorium Rzeczypospolitej Polskiej, podlegają obowiązkowi podatkowemu od całości swoich dochodów (przychodów) bez względu na miejsce położenia źródeł przychodów (nieograniczony obowiązek podatkowy). 1a. Za osobę mającą miejsce zamieszkania na terytorium Rzeczypospolitej Polskiej uważa się osobę fizyczną, która: 1) posiada na terytorium Rzeczypospolitej Polskiej cent ...\"}]",
+   "tool_call_id": "call-30eabaf1-3ebe-480b-b98d-2888e7368887",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search returned the wrong act (PIT act instead of inheritance and donation tax act). Let me search specifically for the inheritance and donation tax act.",
+   "tool_calls": [
+    {
+     "id": "call-ae371d69-eff6-4a63-a038-934a7eac3beb",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 10, \"keywords\": [\"ustawa o podatku od spadków i darowizn\", \"podatek od spadków i darowizn\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-ae371d69-eff6-4a63-a038-934a7eac3beb",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Let me try a different approach - search for the specific act by its common abbreviation or key terms.",
+   "tool_calls": [
+    {
+     "id": "call-eb297fec-a9e5-451d-be1b-898549ea2642",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"ustawa o podatku od spadków i darowizn art 14a grupy podatkowe progi wolne\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_21\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 21. 1. Wolne od podatku dochodowego są: 1) (uchylony) 2) renty przyznane na podstawie odrębnych przepisów o zaopatrzeniu inwalidów wojennych i wojskowych oraz ich rodzin; 3) otrzymane odszkodowania lub zadośćuczynienia, jeżeli ich wysokość lub zasady ustalania wynikają wprost z przepisów odrębnych ustaw lub przepisów wykonawczych wydanych na podstawie tych ustaw lub aktów administracyjnych wydanych na podstawie tych przepisó ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52m\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52m. Wolne od podatku dochodowego są otrzymane lub postawione do dyspozycji podatnika: 1) świadczenia postojowe, o których mowa w art. 15zq ustawy o COVID-19; 1a) dodatkowe świadczenia postojowe, o których mowa w art. 15zs 1 ustawy o COVID-19; 2) świadczenia polegające na zakwaterowaniu i wyżywieniu, o których mowa w art. 15x ust. 3 pkt 1 ustawy o COVID-19; 3) zasiłki otrzymane na podstawie art. 31zy 3 ustawy o COVID-19; 4)  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_44\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 44. 1. Podatnicy osiągający dochody: 1) z działalności gospodarczej, o której mowa w art. 14, 2) (uchylony) - są obowiązani bez wezwania wpłacać w ciągu roku podatkowego zaliczki na podatek dochodowy według zasad określonych w ust. 3, z zastrzeżeniem ust. 3f-3h. 1a. Podatnicy osiągający dochody bez pośrednictwa płatników: 1) ze stosunku pracy z zagranicy, 2) z emerytur i rent z zagranicy, 3) z tytułów określonych w art. 13 p ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_7a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 7a. 1. Przychody przedsiębiorstwa w spadku uznaje się za przychody ze źródła, o którym mowa w art. 10 ust. 1 pkt 3. 2. Powstanie przedsiębiorstwa w spadku nie jest traktowane jako rozpoczęcie działalności gospodarczej. 3. Równoznaczne z likwidacją działalności gospodarczej jest wygaśnięcie: 1) zarządu sukcesyjnego albo 2) uprawnienia do powołania zarządcy sukcesyjnego - w przypadku gdy zarząd sukcesyjny nie został ustanowion ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0052_abusive_clause_9fb15a08bb75ef93\", \"source_id\": \"uokik_abusive_clause_34\", \"source_type\": \"abusive_clause\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"1. W ciągu trzech miesięcy, licząc od terminu zakończenia planu ratalnego, (...) dokona ostatecznej likwidacji grupy. 2. Fundusze jakie ewentualnie pozostaną po likwidacji grupy zostaną przeznaczone na: a) pokrycie strat powstałych w grupie z powodów niezawinionych przez (...)(np. niemożność wyegzekwowania zadłużenia od Uczestników Grupy lub poręczycieli), b) wypłatę rat podstawowych Uczestnikom Grupy, którym nie został przydzielony Towar, a którzy zrezygnowali lub zostali wykluczeni, zgodnie z zasadami określonymi w art. 14 i art. 15. 3. Jeżeli będące w dyspozycji (...)środki finansowe będą n ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_14b\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 14b. 1. Podatnicy ustalają różnice kursowe na podstawie art. 24c, z zastrzeżeniem ust. 2. 2. Podatnicy prowadzący księgi rachunkowe mogą ustalać różnice kursowe na podstawie przepisów o rachunkowości, pod warunkiem że w okresie, o którym mowa w ust. 4, sporządzane przez podatników sprawozdania finansowe będą badane przez firmy audytorskie. 3. Podatnicy, którzy wybrali metodę, o której mowa w ust. 2, zaliczają odpowiednio do  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_42f\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 42f. 1. W okresie, o którym mowa w art. 1a ust. 2 pkt 1 albo 2, za płatnika, o którym mowa w art. 32, art. 35 ust. 1 pkt 9 i art. 41, uznaje się przedsiębiorstwo w spadku. 2. W okresie, o którym mowa w art. 1a ust. 2 pkt 1 albo 2, na przedsiębiorstwie w spadku ciążą również obowiązki określone w art. 42a. 3. Obowiązki przedsiębiorstwa w spadku wykonuje zarządca sukcesyjny, a w przypadku jego braku - osoby, o których mowa w a ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_1a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 1a. 1. Ustawa reguluje również opodatkowanie podatkiem dochodowym dochodów przedsiębiorstwa w spadku. 2. Przedsiębiorstwo w spadku, stanowiące jednostkę organizacyjną niemającą osobowości prawnej, jest podatnikiem z tytułu dochodów osiąganych w okresie od otwarcia spadku do dnia wygaśnięcia: 1) zarządu sukcesyjnego albo 2) uprawnienia do powołania zarządcy sukcesyjnego, jeżeli zarząd sukcesyjny nie został ustanowiony i dokon ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_27g\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 27g. 1. Podatnik podlegający obowiązkowi podatkowemu określonemu w art. 3 ust. 1, rozliczający na zasadach określonych w art. 27 ust. 9 albo 9a uzyskane w roku podatkowym poza terytorium Rzeczypospolitej Polskiej dochody: 1) ze źródeł, o których mowa w art. 12 ust. 1, art. 13, art. 14, lub 2) z praw majątkowych w zakresie praw autorskich i praw pokrewnych w rozumieniu odrębnych przepisów, z wykonywanej poza terytorium Rzeczy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23w\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23w. 1. Podmioty powiązane są obowiązane do sporządzania w postaci elektronicznej lokalnej dokumentacji cen transferowych, za rok podatkowy, w terminie do końca dziesiątego miesiąca po zakończeniu roku podatkowego, w celu wykazania, że ceny transferowe zostały ustalone na warunkach, które ustaliłyby między sobą podmioty niepowiązane. 2. Lokalna dokumentacja cen transferowych jest sporządzana dla transakcji kontrolowanej o ch ...\"}]",
+   "tool_call_id": "call-eb297fec-a9e5-451d-be1b-898549ea2642",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search is returning PIT act results. Let me try searching for \"SD-Z2\" and \"SD-3\" specifically, and also for \"darowizna gotówkowa\" and \"grupa III\" together.",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-bf278688564a6b91",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"SD-Z2\", \"SD-3\", \"darowizna gotówkowa\", \"gotówka\", \"grupa III\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_2809_art_161\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 161. § 1. Sąd opiekuńczy może zobowiązać opiekuna do złożenia do depozytu sądowego kosztowności, papierów wartościowych i innych dokumentów należących do pozostającego pod opieką. Przedmioty te nie mogą być odebrane bez zezwolenia sądu opiekuńczego. § 2. Gotówka pozostającego pod opieką, jeżeli nie jest potrzebna do zaspokajania jego uzasadnionych potrzeb, powinna być złożona przez opiekuna w instytucji bankowej. Opiekun może podejm ...\"}, {\"chunk_id\": \"uokik_items:uokik_be34e3ef75824041\", \"source_id\": \"uokik_rejestr_klauzul_5191\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za rzeczy przewożone poza lukiem bagażowym (bagaż podręczny, dokumenty, biżuteria, gotówka, papiery wartościowe) przewoźnik nie ponosi odpowiedzialności\"}]",
+   "tool_call_id": "chatcmpl-tool-bf278688564a6b91",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA DAROWIZNY PIENIĘDZY (GOTÓWKA — III GRUPA PODATKOWA)\n\nzawarta w dniu _____________ r. w _____________________________ (miejscowość)\n\npomiędzy:\n\n**Darczyńcą:**\nImię i nazwisko: _____________________________________________\nPESEL: _______________________________________________________\nAdres zamieszkania: ___________________________________________\n\nzwanym dalej „Darczyńcą”,\n\na\n\n**Obdarowanym:**\nImię i nazwisko: _____________________________________________\nPESEL: _______________________________________________________\nAdres zamieszkania: ___________________________________________\nStopień pokrewieństwa / stosunek do Darczyńcy: brak pokrewieństwa w I lub II grupie podatkowej — **III grupa podatkowa** zgodnie z ustawą z dnia 28 lipca 1983 r. o podatku od spadków i darowizn (Dz.U. 2023 poz. 1774 ze zm.)\n\nzwanym dalej „Obdarowanym”.\n\nStrony zgodnie oświadczają, co następuje:\n\n---\n\n## § 1. PODSTAWA PRAWNA I PRZEDMIOT UMOWY\n\n1. Umowa zawierana jest na podstawie art. 888–902 ustawy z dnia 23 kwietnia 1964 r. – Kodeks cywilny (Dz.U. 1964 nr 16 poz. 93 ze zm., dalej „KC”).\n2. Przez niniejszą umowę Darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz Obdarowanego kosztem swego majątku, a Obdarowany przyjmuje to świadczenie (art. 888 § 1 KC).\n3. Przedmiotem darowizny jest kwota pieniężna w wysokości:\n\n**____________________ zł** (słownie: _____________________________________________ złotych)\n\nw walucie polskiej (PLN), przekazana w formie **gotówki do rąk własnych Obdarowanego** („darowizna gotówkowa na rękę”).\n\n---\n\n## § 2. WYKONANIE DAROWIZNY I FORMA UMOWY\n\n1. Darczyńca oświadcza, że w dniu zawarcia niniejszej umowy przekazał Obdarowanemu całą kwotę określoną w § 1 ust. 3 w gotówce, a Obdarowany potwierdza jej fizyczne otrzymanie do rąk własnych.\n2. Z uwagi na to, że przyrzeczone świadczenie zostało spełnione (pieniądze faktycznie przekazane), umowa jest ważna mimo niezachowania formy aktu notarialnego dla oświadczenia Darczyńcy, zgodnie z art. 890 § 1 zdanie drugie KC.\n3. Strony potwierdzają, że darowizna ma charakter nieodpłatny i nie rodzi po stronie Obdarowanego obowiązku zwrotu (nie jest pożyczką w rozumieniu art. 720 KC).\n\n---\n\n## § 3. GRUPA PODATKOWA I OBOWIĄZKI PODATKOWE OBdarowanego\n\n1. Obdarowany oświadcza, że w stosunku do Darczyńcy zalicza się do **III grupy podatkowej** w rozumieniu ustawy z dnia 28 lipca 1983 r. o podatku od spadków i darowizn (Dz.U. 2023 poz. 1774 ze zm., dalej „ustawa podatkowa”).\n2. W związku z przynależnością do III grupy podatkowej oraz formą gotówkową darowizny:\n   a) Obdarowany **nie korzysta z pełnego zwolnienia podatkowego** przewidzianego dla I grupy podatkowej (art. 4a ustawy podatkowej);\n   b) Obdarowany jest obowiązany do **złożenia zgłoszenia na formularzu SD-3** do właściwego naczelnika urzędu skarbowego (Krajowa Administracja Skarbowa, KAS) właściwego dla miejsca zamieszkania Obdarowanego oraz do **zapłaty podatku od spadków i darowizn według tabeli kwotowej właściwej dla III grupy podatkowej**, z uwzględnieniem ewentualnego progu wolnego przewidzianego w ustawie podatkowej dla tej grupy;\n   c) Strony przyjmują do wiadomości, że dla I grupy podatkowej właściwym formularzem jest SD-Z2 (z terminem 6 miesięcy i wymogiem udokumentowania przelewem bankowym), natomiast dla II i III grupy podatkowej właściwym formularzem jest **SD-3** i obowiązuje zapłata podatku według skali tabelowej.\n3. Obdarowany zobowiązuje się do dopełnienia obowiązków podatkowych wynikających z ustawy podatkowej w terminach i formie przewidzianych przepisami prawa, w tym do złożenia formularza SD-3 oraz uiszczenia należnego podatku.\n4. Darczyńca nie ponosi odpowiedzialności za niewykonanie przez Obdarowanego obowiązków podatkowych, w tym za niezłożenie zgłoszenia SD-3 lub niezapłacenie podatku.\n\n---\n\n## § 4. OŚWIADCZENIA STRON\n\n1. Darczyńca oświadcza, że:\n   a) jest właścicielem przekazywanej kwoty i ma pełną zdolność do czynności prawnych;\n   b) przekazanie darowizny nie narusza jego sytuacji majątkowej w stopniu uniemożliwiającym wykonanie bez nadmiernego uszczerbku (art. 896 KC);\n   c) nie zastrzega żadnego polecenia (art. 893 KC) ani warunku zawieszającego.\n2. Obdarowany oświadcza, że:\n   a) przyjmuje darowiznę w całości i potwierdza jej otrzymanie w gotówce;\n   b) zna swoje obowiązki podatkowe wynikające z przynależności do III grupy podatkowej i zobowiązuje się je wykonać.\n\n---\n\n## § 5. ODWOŁANIE DAROWIZNY\n\n1. Darczyńca zachowuje prawo do odwołania darowizny przed jej wykonaniem, jeżeli jego stan majątkowy zmienił się w stopniu uniemożliwiającym wykonanie bez nadmiernego uszczerbku (art. 896 KC). Z uwagi na spełnienie świadczenia w dniu zawarcia umowy, odwołanie z tej podstawy jest już niedopuszczalne.\n2. Wykonaną darowiznę można odwołać wyłącznie w przypadku, gdy Obdarowany dopuścił się rażącej niewdzięczności wobec Darczyńcy (art. 898 KC). Odwołanie następuje przez oświadczenie złożone Obdarowanemu na piśmie.\n3. Roszczenie o zwrot przedmiotu darowizny odwołanej z powodu rażącej niewdzięczności przedawnia się z upływem roku od dnia, w którym Darczyńca dowiedział się o rażącej niewdzięczności (art. 899 KC).\n\n---\n\n## § 6. SKUTKI SPADKOWE\n\nStrony przyjmują do wiadomości, że darowizna dokonana za życia Darczyńcy na rzecz Obdarowanego, który nie jest spadkobiercą ustawowym w rozumieniu art. 994 KC (lub jest spadkobiercą, ale strony nie zastrzegają inaczej), podlega zaliczeniu na poczet zachowku lub masy spadkowej zgodnie z art. 994 KC, chyba że Darczyńca wyraźnie zastrzegł inaczej lub upłynął dziesięcioletni termin. W niniejszej umowie Darczyńca **nie zastrzega wyłączenia z masy spadkowej** — darowizna podlega więc ogólnym zasadom zaliczenia.\n\n---\n\n## § 7. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego oraz ustawy o podatku od spadków i darowizn.\n3. Właściwym sądem do rozstrzygania sporów wynikających z niniejszej umowy jest sąd właściwy dla miejsca zamieszkania Darczyńcy (Sąd Rejonowy lub Sąd Okręgowy w zależności od wartości przedmiotu sporu).\n4. Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n5. Strony potwierdzają, że zapoznały się z treścią umowy, rozumieją jej skutki prawne i podatkowe oraz podpisują ją dobrowolnie.\n\n---\n\n**Podpisy:**\n\n______________________________\nDarczyńca\n(imiona i nazwisko, podpis)\n\n______________________________\nObdarowany\n(imiona i nazwisko, podpis)\n\n---\n\n**Załącznik / Potwierdzenie wykonania (opcjonalnie):**\n\nJa, niżej podpisany Obdarowany, potwierdzam fizyczne otrzymanie kwoty _____________ zł w gotówce w dniu zawarcia powyższej umowy.\n\nData i podpis Obdarowanego: _____________________________\n\n---\n\n*Uwaga: Przy darowiznach gotówkowych w III grupie podatkowej brak jest pełnego zwolnienia podatkowego. Obdarowany powinien złożyć formularz SD-3 i uiścić podatek zgodnie z tabelą kwotową właściwą dla III grupy. W przypadku wątpliwości co do wysokości podatku lub terminu zgłoszenia zaleca się konsultację z doradcą podatkowym lub właściwym urzędem skarbowym (KAS).*",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA DAROWIZNY PIENIĘDZY (GOTÓWKA — III GRUPA PODATKOWA)\n\nzawarta w dniu _____________ r. w _____________________________ (miejscowość)\n\npomiędzy:\n\n**Darczyńcą:**\nImię i nazwisko: _____________________________________________\nPESEL: _______________________________________________________\nAdres zamieszkania: ___________________________________________\n\nzwanym dalej „Darczyńcą”,\n\na\n\n**Obdarowanym:**\nImię i nazwisko: _____________________________________________\nPESEL: _______________________________________________________\nAdres zamieszkania: ___________________________________________\nStopień pokrewieństwa / stosunek do Darczyńcy: brak pokrewieństwa w I lub II grupie podatkowej — **III grupa podatkowa** zgodnie z ustawą z dnia 28 lipca 1983 r. o podatku od spadków i darowizn (Dz.U. 2023 poz. 1774 ze zm.)\n\nzwanym dalej „Obdarowanym”.\n\nStrony zgodnie oświadczają, co następuje:\n\n---\n\n## § 1. PODSTAWA PRAWNA I PRZEDMIOT UMOWY\n\n1. Umowa zawierana jest na podstawie art. 888–902 ustawy z dnia 23 kwietnia 1964 r. – Kodeks cywilny (Dz.U. 1964 nr 16 poz. 93 ze zm., dalej „KC”).\n2. Przez niniejszą umowę Darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz Obdarowanego kosztem swego majątku, a Obdarowany przyjmuje to świadczenie (art. 888 § 1 KC).\n3. Przedmiotem darowizny jest kwota pieniężna w wysokości:\n\n**____________________ zł** (słownie: _____________________________________________ złotych)\n\nw walucie polskiej (PLN), przekazana w formie **gotówki do rąk własnych Obdarowanego** („darowizna gotówkowa na rękę”).\n\n---\n\n## § 2. WYKONANIE DAROWIZNY I FORMA UMOWY\n\n1. Darczyńca oświadcza, że w dniu zawarcia niniejszej umowy przekazał Obdarowanemu całą kwotę określoną w § 1 ust. 3 w gotówce, a Obdarowany potwierdza jej fizyczne otrzymanie do rąk własnych.\n2. Z uwagi na to, że przyrzeczone świadczenie zostało spełnione (pieniądze faktycznie przekazane), umowa jest ważna mimo niezachowania formy aktu notarialnego dla oświadczenia Darczyńcy, zgodnie z art. 890 § 1 zdanie drugie KC.\n3. Strony potwierdzają, że darowizna ma charakter nieodpłatny i nie rodzi po stronie Obdarowanego obowiązku zwrotu (nie jest pożyczką w rozumieniu art. 720 KC).\n\n---\n\n## § 3. GRUPA PODATKOWA I OBOWIĄZKI PODATKOWE OBdarowanego\n\n1. Obdarowany oświadcza, że w stosunku do Darczyńcy zalicza się do **III grupy podatkowej** w rozumieniu ustawy z dnia 28 lipca 1983 r. o podatku od spadków i darowizn (Dz.U. 2023 poz. 1774 ze zm., dalej „ustawa podatkowa”).\n2. W związku z przynależnością do III grupy podatkowej oraz formą gotówkową darowizny:\n   a) Obdarowany **nie korzysta z pełnego zwolnienia podatkowego** przewidzianego dla I grupy podatkowej (art. 4a ustawy podatkowej);\n   b) Obdarowany jest obowiązany do **złożenia zgłoszenia na formularzu SD-3** do właściwego naczelnika urzędu skarbowego (Krajowa Administracja Skarbowa, KAS) właściwego dla miejsca zamieszkania Obdarowanego oraz do **zapłaty podatku od spadków i darowizn według tabeli kwotowej właściwej dla III grupy podatkowej**, z uwzględnieniem ewentualnego progu wolnego przewidzianego w ustawie podatkowej dla tej grupy;\n   c) Strony przyjmują do wiadomości, że dla I grupy podatkowej właściwym formularzem jest SD-Z2 (z terminem 6 miesięcy i wymogiem udokumentowania przelewem bankowym), natomiast dla II i III grupy podatkowej właściwym formularzem jest **SD-3** i obowiązuje zapłata podatku według skali tabelowej.\n3. Obdarowany zobowiązuje się do dopełnienia obowiązków podatkowych wynikających z ustawy podatkowej w terminach i formie przewidzianych przepisami prawa, w tym do złożenia formularza SD-3 oraz uiszczenia należnego podatku.\n4. Darczyńca nie ponosi odpowiedzialności za niewykonanie przez Obdarowanego obowiązków podatkowych, w tym za niezłożenie zgłoszenia SD-3 lub niezapłacenie podatku.\n\n---\n\n## § 4. OŚWIADCZENIA STRON\n\n1. Darczyńca oświadcza, że:\n   a) jest właścicielem przekazywanej kwoty i ma pełną zdolność do czynności prawnych;\n   b) przekazanie darowizny nie narusza jego sytuacji majątkowej w stopniu uniemożliwiającym wykonanie bez nadmiernego uszczerbku (art. 896 KC);\n   c) nie zastrzega żadnego polecenia (art. 893 KC) ani warunku zawieszającego.\n2. Obdarowany oświadcza, że:\n   a) przyjmuje darowiznę w całości i potwierdza jej otrzymanie w gotówce;\n   b) zna swoje obowiązki podatkowe wynikające z przynależności do III grupy podatkowej i zobowiązuje się je wykonać.\n\n---\n\n## § 5. ODWOŁANIE DAROWIZNY\n\n1. Darczyńca zachowuje prawo do odwołania darowizny przed jej wykonaniem, jeżeli jego stan majątkowy zmienił się w stopniu uniemożliwiającym wykonanie bez nadmiernego uszczerbku (art. 896 KC). Z uwagi na spełnienie świadczenia w dniu zawarcia umowy, odwołanie z tej podstawy jest już niedopuszczalne.\n2. Wykonaną darowiznę można odwołać wyłącznie w przypadku, gdy Obdarowany dopuścił się rażącej niewdzięczności wobec Darczyńcy (art. 898 KC). Odwołanie następuje przez oświadczenie złożone Obdarowanemu na piśmie.\n3. Roszczenie o zwrot przedmiotu darowizny odwołanej z powodu rażącej niewdzięczności przedawnia się z upływem roku od dnia, w którym Darczyńca dowiedział się o rażącej niewdzięczności (art. 899 KC).\n\n---\n\n## § 6. SKUTKI SPADKOWE\n\nStrony przyjmują do wiadomości, że darowizna dokonana za życia Darczyńcy na rzecz Obdarowanego, który nie jest spadkobiercą ustawowym w rozumieniu art. 994 KC (lub jest spadkobiercą, ale strony nie zastrzegają inaczej), podlega zaliczeniu na poczet zachowku lub masy spadkowej zgodnie z art. 994 KC, chyba że Darczyńca wyraźnie zastrzegł inaczej lub upłynął dziesięcioletni termin. W niniejszej umowie Darczyńca **nie zastrzega wyłączenia z masy spadkowej** — darowizna podlega więc ogólnym zasadom zaliczenia.\n\n---\n\n## § 7. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego oraz ustawy o podatku od spadków i darowizn.\n3. Właściwym sądem do rozstrzygania sporów wynikających z niniejszej umowy jest sąd właściwy dla miejsca zamieszkania Darczyńcy (Sąd Rejonowy lub Sąd Okręgowy w zależności od wartości przedmiotu sporu).\n4. Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n5. Strony potwierdzają, że zapoznały się z treścią umowy, rozumieją jej skutki prawne i podatkowe oraz podpisują ją dobrowolnie.\n\n---\n\n**Podpisy:**\n\n______________________________\nDarczyńca\n(imiona i nazwisko, podpis)\n\n______________________________\nObdarowany\n(imiona i nazwisko, podpis)\n\n---\n\n**Załącznik / Potwierdzenie wykonania (opcjonalnie):**\n\nJa, niżej podpisany Obdarowany, potwierdzam fizyczne otrzymanie kwoty _____________ zł w gotówce w dniu zawarcia powyższej umowy.\n\nData i podpis Obdarowanego: _____________________________\n\n---\n\n*Uwaga: Przy darowiznach gotówkowych w III grupie podatkowej brak jest pełnego zwolnienia podatkowego. Obdarowany powinien złożyć formularz SD-3 i uiścić podatek zgodnie z tabelą kwotową właściwą dla III grupy. W przypadku wątpliwości co do wysokości podatku lub terminu zgłoszenia zaleca się konsultację z doradcą podatkowym lub właściwym urzędem skarbowym (KAS).*",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę przekazać gotówkę osobie, która nie jest moim bliskim krewnym, i potrzebuję umowy, która potwierdzi, że pieniądze zostały odebrane, a obdarowany sam rozliczy podatek."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Przekazuję 15 000 zł w gotówce mojemu szwagrowi – nie jesteśmy w I ani II grupie podatkowej. Chcę, żeby umowa jednoznacznie mówiła, że gotówka została fizycznie przekazana i odebrane, a obdarowany zobowiązał się do samodzielnego złożenia zgłoszenia SD-3 i zapłaty podatku według tabeli dla III grupy. Nie potrzebuję żadnych warunków ani zwrotu – to ma być zwykła darowizna."
+  }
+ ]
+}

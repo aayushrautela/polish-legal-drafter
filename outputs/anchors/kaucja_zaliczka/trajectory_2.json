@@ -1,0 +1,306 @@
+{
+ "run": 3,
+ "hint": "Zaliczka przy zamówieniu mebli na wymiar",
+ "scenario": "Zaliczka przy zamówieniu mebli na wymiar",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a contract template for \"kaucja_zaliczka\" (deposit/advance payment) specifically for \"Zaliczka przy zamówieniu mebli na wymiar\" (advance payment for custom-made furniture order). I need to:\n\n1. First read the base template for kaucja_zaliczka\n2. Then search for provisions relevant to custom-made furniture orders and advance payments\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-b2165d34-005e-4996-92b4-2ac39b1a1c5a",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"kaucja_zaliczka\", \"query\": \"zaliczka przy zamówieniu mebli na wymiar\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Umowa o wykonanie mebli na wymiar\\nUmowa o wykonanie mebli na wymiar w Polsce to kontrakt cywilnoprawny oparty na art. 627 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na mocy którego stolarz lub firma meblarska (przyjmujący zamówienie) zobowiązuje się wykonać i zamontować meble na wymiar jako oznaczone dzieło, a zamawiający — zapłacić wynagrodzenie. Umowa o dzieło jest umową rezultatu — wykonawca odpowiada za osiągnięcie konkretnego efektu w postaci gotowych, zamontowanych mebli o określonych właściwościach, a nie za samo staranne działanie.\\n\\nMeble na wymiar jako dzieło różnią się od zakupu gotowych mebli w sklepie. Przy umowie o dzieło Kodeks cywilny daje zamawiającemu silniejszą ochronę niż przy zwykłej sprzedaży konsumenckiej. Rękojmia za wady dzieła z art. 638 Kodeksu cywilnego stosuje odpowiednio przepisy o rękojmi przy sprzedaży (art. 556 i nast.), w tym art. 568 KC określający 2-letni termin odpowiedzialności za wady fizyczne. Wada fizyczna mebla może polegać na niezgodności z zamówieniem (inne wymiary, kolor, materiał), braku właściwości umówionych lub uszkodzeniu.\\n\\nUmowa o wykonanie mebli na wymiar obejmuje zazwyczaj dwa etapy: produkcję mebli w warsztacie stolarskim oraz montaż u zamawiającego. Każdy z etapów może mieć odrębny termin i protokół odbioru. Zamawiający może też dostarczyć materiały samodzielnie (np. fronty z zewnętrznego dostawcy), co wpływa na podział odpowiedzialności za wady materiałów.\\n\\nJeżeli wykonawca mebli jest osobą fizyczną nieprowadzącą działalności gospodarczej, zamawiający jako płatnik jest zobowiązany zgłosić umowę o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w terminie 7 dni od zawarcia i odprowadzić zaliczkę na podatek dochodowy do właściwego urzędu skarbowego Krajowej Administracji Skarbowej (KAS). Jeżeli wykonawca prowadzi działalność gospodarczą i wystawia fakturę VAT, rozlicza podatki samodzielnie.\\n\\nMeble na wymiar mogą też kwalifikować się jako towar podlegający przepisom ustawy z dnia 30 maja 2014 r. o prawach konsumenta, jeżeli zamawiającym jest konsument, a wykonawcą — przedsiębiorca. W takim przypadku zamawiający korzysta z ochrony konsumenckiej: niezgodności z umową, prawa do naprawy lub wymiany oraz przepisów o niedozwolonych klauzulach umownych kontrolowanych przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nUmowa o wykonanie mebli na wymiar w Polsce jest właściwym dokumentem w wielu sytuacjach zlecenia produkcji stolarskiej.\\n\\nZabudowa kuchenna na wymiar. Kuchnie na wymiar to jeden z najpopularniejszych przedmiotów umów o dzieło w Polsce. Dokładna specyfikacja wymagań — wymiary, materiały frontów i korpusów, blat, kolory RAL lub NCS, mechanizmy i okucia — jest niezbędna do prawidłowej realizacji i umożliwia dochodzenie roszczeń z rękojmi przy niezgodności.\\n\\nSzafy wnękowe i garderoby. Szafy na wymiar dopasowane do kształtu wnęk, skosów lub niestandardowych przestrzeni wymagają szczegółowej dokumentacji wymiarowej. Umowa o dzieło zabezpiecza zamawiającego przed dostarczeniem mebli niepasujących do pomieszczeń.\\n\\nMeble biurowe i komercyjne. Firmy, kancelarie, hotele i restauracje zamawiające meble do swoich lokali zawierają umowy o wykonanie mebli na wymiar z firmami stolarskimi. W tym przypadku umowa obejmuje często kilka partii mebli dostarczanych etapami.\\n\\nProjekty w ramach kompleksowego remontu. W przypadku generalnego remontu mieszkania lub lokalu meble na wymiar są często częścią większego zamówienia obejmującego także projekt wnętrza i roboty budowlane. Umowa o wykonanie mebli na wymiar może być elementem umowy ramowej lub stanowić odrębny dokument.\\n\\nKiedy wystarczy zakup gotowych mebli. Przy zakupie mebli z ekspozycji sklepowej lub z katalogu bez modyfikacji właściwa jest umowa sprzedaży z art. 535 KC. Meble składające się z gotowych, seryjnych elementów montowanych przez pracowników sklepu to sprzedaż z usługą montażu — nie umowa o dzieło w ścisłym sensie.\\n\\nUmowa o wykonanie mebli na wymiar w Polsce musi zawierać precyzyjne elementy chroniące obie strony.\\n\\nSzczegółowy opis mebli jako oznaczonego rezultatu. Rodzaj mebla (kuchnia, szafa, garderoba, komoda), wymiary każdego elementu (wysokość, szerokość, głębokość), materiały (płyta meblowa, lita drewno, MDF, HDF), front (lakierowany, foliowany, okleinowany), blat (laminat HPL, granit, kwarcyt, drewno), kolor (RAL, NCS, RAL Design), mechanizmy (prowadnice soft-close, zawiasy Blum, oświetlenie LED). Im precyzyjniejszy opis, tym łatwiejsza ocena prawidłowości wykonania i skuteczniejsza rękojmia.\\n\\nAdres montażu i dostęp do lokalu. Adres, pod którym meble zostaną zmontowane. Zamawiający zobowiązuje się zapewnić dostęp do lokalu w ustalonym terminie. Brak dostępu może skutkować zwłoką zamawiającego (art. 486 KC).\\n\\nPodział odpowiedzialności za materiały. Wskazanie, kto dostarcza materiały (wykonawca, zamawiający, mieszane). Jeżeli materiały dostarcza zamawiający, wykonawca nie odpowiada za wady wynikające z jakości materiałów — odpowiada jedynie za jakość robocizny.\\n\\nWynagrodzenie ryczałtowe lub kosztorysowe. Wynagrodzenie ryczałtowe (art. 632 KC) jest stałe i nie może być podwyższone po zawarciu umowy, nawet gdy koszty wzrosły. Przy wynagrodzeniu kosztorysowym (art. 629 KC) zmiana zakresu może uzasadniać korektę. Ważne jest wskazanie, czy cena zawiera VAT 23%, materiały i montaż.\\n\\nRękojmia za wady. Odesłanie do art. 638 KC z odpowiednim stosowaniem przepisów o rękojmi przy sprzedaży (art. 556 i nast.). Termin rękojmi 2 lata (art. 568 KC). Wykonawca odpowiada za wady fizyczne: wymiary niezgodne z zamówieniem, wady materiałów, wady wykończenia, nieprawidłowe mechanizmy.\\n\\nProtokół odbioru po montażu. Pisemny protokół odbioru, w którym zamawiający potwierdza zgodność mebli z zamówieniem lub wskazuje wady. Protokół bez zastrzeżeń jest dowodem prawidłowego wykonania i uruchamia bieg terminu rękojmi. Platforma forms-legal.com udostępnia wzory protokołów odbioru.\\n\\nZgłoszenie do ZUS (RUD) i zaliczka podatkowa. Jeżeli wykonawca jest osobą fizyczną, zamawiający zgłasza umowę do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w terminie 7 dni i odprowadza zaliczkę do urzędu skarbowego Krajowej Administracji Skarbowej (KAS).\\n\\nUmowa o wykonanie mebli na wymiar w Polsce wypełniana jest krok po kroku w celu zapewnienia kompletności i ochrony zamawiającego.\\n\\nKrok 1 — oznacz strony umowy. Wpisz pełne dane zamawiającego i wykonawcy: imię i nazwisko lub firmę, adres, NIP, KRS dla spółek lub wpis CEIDG dla jednoosobowej działalności, PESEL dla osób fizycznych.\\n\\nKrok 2 — opisz meble. Podaj rodzaj, wymiary każdego elementu, materiały, front, blat, kolor (numer RAL lub NCS) i mechanizmy. Nie używaj ogólnych sformułowań typu \\\"szafa\\\" — wpisz: \\\"szafa wnękowa 300 cm × 240 cm × 60 cm, korpusy z płyty wiórowej obustronnie laminowanej w kolorze białym, fronty lakierowane połysk RAL 9010, zawiasy Blum Clip Top, system drzwi przesuwnych KEKA Soft-Close\\\".\\n\\nKrok 3 — wskaż adres montażu. Wpisz dokładny adres, pod którym meble zostaną zmontowane. Jeżeli dostęp do lokalu wymaga wcześniejszego umówienia, wskaż to w umowie.\\n\\nKrok 4 — określ materiały. Wskaż, kto dostarcza materiały. Jeżeli zamawiający dostarcza fronty lub blat od zewnętrznego dostawcy, wpisz to wyraźnie i wskaż, w jakim terminie materiały zostaną przekazane wykonawcy.\\n\\nKrok 5 — ustal wynagrodzenie i harmonogram. Wpisz kwotę wynagrodzenia (ryczałt lub kosztorys), wskaż, czy zawiera VAT, i określ harmonogram: zaliczka na materiały (zazwyczaj 40–50%) przy podpisaniu umowy, reszta po montażu i odbiorze.\\n\\nKrok 6 — określ termin i odbiór. Wpisz termin produkcji i termin montażu. Ustal zasady protokołu odbioru. Warto wpisać, że Zamawiający zgłasza wady pisemnie w terminie 7 dni od montażu.\\n\\nKrok 7 — podpisz i zgłoś (jeśli dotyczy). Podpisz umowę w formie pisemnej. Jeżeli wykonawca jest osobą fizyczną, zgłoś umowę do ZUS na formularzu RUD w terminie 7 dni i odprowadź zaliczkę podatkową do KAS.\\n\\nUmowa o wykonanie mebli na wymiar w Polsce podlega regulacjom Kodeksu cywilnego i przepisów publicznoprawnych.\\n\\nKodeks cywilny — art. 627–646 KC. Umowa o dzieło zobowiązuje wykonawcę do osiągnięcia oznaczonego rezultatu. Wynagrodzenie ryczałtowe (art. 632 KC) jest niezmienne po zawarciu umowy, nawet gdy koszty wzrosły ponad oczekiwania. Wynagrodzenie kosztorysowe (art. 629 KC) dopuszcza korekty przy zmianie zakresu. Prawo odstąpienia od umowy przez zamawiającego z zachowaniem wynagrodzenia (art. 644 KC).\\n\\nRękojmia za wady dzieła — art. 638 KC. Odpowiednie stosowanie przepisów o rękojmi przy sprzedaży (art. 556 i nast.) daje zamawiającemu uprawnienia: żądanie naprawy lub wymiany mebla, obniżenie wynagrodzenia, odstąpienie od umowy przy wadzie istotnej. Termin rękojmi: 2 lata od wydania dzieła (art. 568 KC). Zamawiający traci uprawnienia z rękojmi, jeśli nie zbadał rzeczy w czasie i w sposób przyjęty przy rzeczach danego rodzaju i nie zawiadomił niezwłocznie o wadzie.\\n\\nOchrona konsumenta — ustawa o prawach konsumenta. Jeżeli zamawiającym jest konsument (osoba fizyczna niezawierająca umowy w związku z działalnością gospodarczą), a wykonawcą — przedsiębiorca, stosuje się przepisy ustawy z dnia 30 maja 2014 r. o prawach konsumenta. UOKiK (Urząd Ochrony Konkurencji i Konsumentów) kontroluje klauzule abuzywne w umowach z konsumentami.\\n\\nZUS — formularz RUD. Jeżeli wykonawca jest osobą fizyczną nieprowadzącą działalności, zamawiający zgłasza umowę do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w terminie 7 dni.\\n\\nKAS i podatek. Jeżeli wykonawca jest osobą fizyczną, zamawiający odprowadza zaliczkę na podatek dochodowy do Krajowej Administracji Skarbowej (KAS).\\n\\nUmowa o wykonanie mebli na wymiar w Polsce jest podatna na błędy, które mogą prowadzić do sporów o wymiary, jakość lub zapłatę.\\n\\nBłąd 1 — brak wymiarów lub specyfikacji materiałów. Opis \\\"szafa biała na wymiar\\\" bez podania wymiarów, materiałów, frontu i koloru uniemożliwia ocenę zgodności wykonania z zamówieniem. Zamawiający nie może skutecznie dochodzić roszczeń z rękojmi bez udowodnienia, że meble nie spełniają uzgodnionych parametrów.\\n\\nBłąd 2 — brak protokołu odbioru. Brak pisemnego odbioru mebli po montażu komplikuje dochodzenie roszczeń — wykonawca może twierdzić, że zamawiający zaakceptował meble bez zastrzeżeń.\\n\\nBłąd 3 — niejasny podział odpowiedzialności za materiały. Jeżeli zamawiający dostarcza fronty lub blat, a umowa nie wskazuje tego wyraźnie, może dojść do sporu o to, kto odpowiada za wady materiałów.\\n\\nBłąd 4 — wynagrodzenie bez wskazania, czy zawiera VAT. Niejednoznaczność w kwestii VAT 23% prowadzi do sporów o kwotę do zapłaty. Standardem jest wyraźne wskazanie, czy kwota jest netto czy brutto.\\n\\nBłąd 5 — nieustalony harmonogram dostępu do lokalu. Wykonawca nie może zmontować mebli, jeśli zamawiający nie zapewni dostępu do lokalu w uzgodnionym terminie. Brak regulacji tej kwestii prowadzi do opóźnień i wzajemnych oskarżeń o zwłokę.\\n\\nBłąd 6 — brak kary umownej za zwłokę. Umowy o meble na wymiar często nie zawierają kary umownej za opóźnienie w realizacji (art. 483 KC). Bez tej klauzuli zamawiający musi udowadniać faktyczną szkodę z opóźnienia — co jest trudne przy remontach.\\n\\nBłąd 7 — niezgłoszenie umowy do ZUS (RUD) dla osoby fizycznej. Jeżeli wykonawca jest osobą fizyczną, zamawiający jest zobowiązany zgłosić umowę o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w terminie 7 dni od zawarcia.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-wykonanie-mebli-na-wymiar (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-b2165d34-005e-4996-92b4-2ac39b1a1c5a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I have the base template for \"kaucja_zaliczka\" which is actually about \"Umowa o wykonanie mebli na wymiar\" (contract for custom-made furniture). This is very relevant to the scenario. Now I need to search for specific provisions related to advance payments (zaliczka) in the context of custom furniture orders. Let me search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-d6799efe-20d5-4740-9e04-b20dd4020b3a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"zaliczka meble na wymiar umowa o dzieło harmonogram płatności\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_867d84d2761c2826\", \"source_id\": \"uokik_rejestr_klauzul_7424\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Z tytułu wykonania dzieła stanowiącego przedmiot umowy, jego dostarczenia i montażu Zamawiający zapłaci na rzecz Wykonawcy wynagrodzenie w kwocie...zł brutto (słownie:... złotych) płatne w następujący sposób: a) 50% wynagrodzenia płatne w dniu podpisania niniejszej umowy (...zł) b) Pozostała kwota (50%) wynagrodzenia płatne w terminie 3 dni od dnia ustalonego jako dzień wykonania dzieła zgodnie z § 2 ust. 1 lit. a) z tym zastrzeżeniem, że zapłata musi nastąpić najpóźniej na dzień przed terminem ustalonym w § 3 ust.1. Niezwłocznie po dokonanej zapłacie Wykonawca wystawi Zamawiającemu Fakturę, k ...\"}, {\"chunk_id\": \"extractor_v9:broad_0046_statute_b522ee4d1ba32a38\", \"source_id\": \"sejm_eli_du_2023_725_art_19m\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"1, zawiera w szczególności: 1) określenie stron, miejsca i daty podpisania umowy; 2) oznaczenie przedmiotu umowy; 3) czynsz najmu, opłaty niezależne od właściciela oraz inne opłaty związane z korzystaniem z lokalu mieszkalnego; 4) cenę sprzedaży lokalu mieszkalnego; 5) harmonogram określający wysokość i terminy płatności poszczególnych rat ceny sprzedaży; 6) zobowiązanie właściciela do przeniesienia prawa własności lokalu mieszkalnego wraz z prawami niezbędnymi do korzystania z tego lokalu po zapłaceniu całej ceny; 7) zobowiązanie najemcy do zapłaty całej ceny za lokal mieszkalny w sposób okre ...\"}, {\"chunk_id\": \"uokik_items:uokik_47d5daa85b547ee8\", \"source_id\": \"uokik_rejestr_klauzul_4550\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 5 ust. 22 - Kupujący zobowiązują się opłacać zaliczki na poczet kosztów opisanych powyżej w terminie do 10 (dziesiątego) dnia każdego miesiąca z góry, poczynając od Dnia Odbioru Przedmiotów Umów. Spółka ma także prawo żądania zapłaty zaległości z tytułu opłat wskazanych w zdaniu poprzednim przed podpisaniem Umowy Przyrzeczonej i Umowy Sprzedaży. Spółka ma także prawo żądania zapłaty zaliczki na poczet kosztów wskazanych w zdaniu pierwszym przed wydaniem (odbiorem) Przedmiotów Umów w kwocie odpowiadającej okresowi do dnia zawarcia Umowy Przyrzeczonej i Umowy Sprzedaży\"}, {\"chunk_id\": \"uokik_items:uokik_113d63b9504807bb\", \"source_id\": \"uokik_rejestr_klauzul_3207\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli Kupujący popadnie w zwłokę z zapłatą drugiej lub dalszej raty ceny, przekraczającą 45 dni w stosunku do terminów wynikających z harmonogramu płatności, o którym mowa w pkt. 4.5, to Spółka uprawniona będzie do odstąpienia od niniejszej umowy z winy Kupującego oraz do równoczesnego żądania zapłaty przez Kupującego kary umownej w wysokości 10 % ceny określonej w pkt.3.1 niniejszej umowy\"}, {\"chunk_id\": \"uokik_items:uokik_0083de3f4fe1a3d5\", \"source_id\": \"uokik_rejestr_klauzul_941\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Pożyczkobiorca wraz z powiadomieniem o jakim mowa w § 3 ust. 2 otrzyma (…) harmonogram spłaty rat, który z tą chwilą staje się integralną częścią umowy przedwstępnej\"}]",
+   "tool_call_id": "call-d6799efe-20d5-4740-9e04-b20dd4020b3a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The first result is very relevant - it's about a furniture contract with a 50% advance payment upon signing and 50% upon completion. Let me search for more specific provisions about advance payments in custom furniture contracts, and also look at the legal framework for zaliczka vs kaucja.",
+   "tool_calls": [
+    {
+     "id": "call-a29bce72-26da-4063-82f0-964d53d63f2b",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"zaliczka\", \"kaucja\", \"art. 394\", \"umowa o dzieło\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_394\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 394 1 b . Jeżeli zaskarżono postanowienie, o którym mowa w art. 394 § 1 i zarazem w art. 394 1a § 1, zażalenie rozpoznaje sąd drugiej instancji.\"}, {\"chunk_id\": \"curated:tenant_act_article_6_residential_deposit\", \"source_id\": \"curated:tenant_act_article_6_residential_deposit\", \"source_type\": \"statute_summary\", \"top_category\": \"deposit_or_advance\", \"title\": \"Ustawa o ochronie praw lokatorów art. 6 - kaucja mieszkaniowa\", \"display_address\": \"Ustawa o ochronie praw lokatorów art. 6 - kaucja mieszkaniowa\", \"legal_area\": [\"contracts\", \"housing\"], \"text\": \"Ustawa o ochronie praw lokatorów art. 6 - kaucja mieszkaniowa\\nW zwykłym najmie lokalu mieszkalnego kaucja zabezpiecza należności z tytułu najmu istniejące w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal i podlega zwrotowi w ciągu miesiąca od opróżnienia lokalu albo nabycia jego własności przez najemcę, po potrąceniu należności wynajmującego.\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_6\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 6. 1. Zawarcie umowy najmu może być uzależnione od wpłacenia przez najemcę kaucji zabezpieczającej pokrycie należności z tytułu najmu lokalu, przysługujących wynajmującemu w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. 2. Kaucji nie pobiera się ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_394\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 394 1 . § 1. Zażalenie do Sądu Najwyższego przysługuje na postanowienie sądu drugiej instancji odrzucające skargę kasacyjną oraz na postanowienie sądu drugiej lub pierwszej instancji odrzucające skargę o stwierdzenie niezgodności z prawem prawomocnego orzeczenia. § 1 1 . Zażalenie do Sądu Najwyższego przysługuje także w razie uchylenia przez sąd drugiej instancji wyroku sądu pierwszej instancji i przekazania sprawy do ponowne ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_394a\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 394a. Protokoły i dokumenty, o których mowa w art. 389 § 1 i 3, art. 391 § 1 i 2, art. 392 § 1, art. 393, art. 393a i art. 394 § 1, odczytuje przewodniczący lub na jego zarządzenie członek składu orzekającego bądź protokolant.\"}]",
+   "tool_call_id": "call-a29bce72-26da-4063-82f0-964d53d63f2b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_2675304aeec34a148677ff3b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"zaliczka jako część ceny umowy o dzieło meble na wymiar zwrot zaliczki przy niewykonaniu umowy\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_1068b7fdd6cb3aba\", \"source_id\": \"uokik_rejestr_klauzul_912\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie wykonania umowy przez Kupującego wpłacona zaliczka przepada, a jeżeli z winy Sprzedawcy umowa nie zostanie wykonana, zaliczka podlega zwrotowi\"}, {\"chunk_id\": \"uokik_items:uokik_f6f0f4b99d0dd4b7\", \"source_id\": \"uokik_rejestr_klauzul_6083\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W celu uniknięcia wątpliwości strony postanawiają, że obowiązek zwrotu zaliczki przez SPRZEDAJĄCEGO nie dotyczy przypadku niewywiązania się z umowy przez SPRZEDAJĄCEGO jeżeli wynika to z przyczyn leżących po stronie innych podmiotów niż SPRZEDAJĄCY, w szczególności producentów, dostawców, przewoźników oraz działań służb państwowych, w szczególności celnych\"}, {\"chunk_id\": \"uokik_items:uokik_874fbb8ce80cbc9b\", \"source_id\": \"uokik_rejestr_klauzul_4261\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W wypadku rezygnacji z zamówienia przez Kupującego wpłacona zaliczka ulega przepadkowi na rzecz Sprzedawcy\"}, {\"chunk_id\": \"uokik_items:uokik_e8ee1f9e5341fbc8\", \"source_id\": \"uokik_rejestr_klauzul_1162\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Możliwość zwrotu zaliczki lub jej części jest możliwy w następujących przypadkach, jeśli rezygnacja nastąpiła: - w okresie 14-30 dni przed planowanym terminem pobytu - po potrąceniu 50 %; - w okresie krótszym niż 14 dni - zaliczka nie podlega zwrotowi.\"}, {\"chunk_id\": \"uokik_items:uokik_5d33fab2b91b2495\", \"source_id\": \"uokik_rejestr_klauzul_5171\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia od umowy lub niewywiązania się z jej postanowień przez KUPUJĄCEGO, SPRZEDAJĄCY jest uprawniony do bezzwrotnego zatrzymania zaliczki, chyba że SPRZEDAJĄCY, według stanu na chwilę otrzymania oświadczenia o odstąpieniu przez KUPUJĄCEGO od umowy, nie złożył zamówienia lub nie poniósł nakładów, o których mowa w zdaniu drugim\"}]",
+   "tool_call_id": "call_2675304aeec34a148677ff3b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "These are very relevant - they show UOKiK's stance on abusive clauses related to advance payments (zaliczka) in consumer contracts. Let me also search for the legal distinction between zaliczka and kaucja under the Civil Code.",
+   "tool_calls": [
+    {
+     "id": "call-2ea4f994-8ba3-4470-90aa-b1c57ecb6f08",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"art. 394\", \"KC\", \"zaliczka\", \"kaucja\", \"różnica\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_418\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 418. § 1. Walne zgromadzenie może powziąć uchwałę o przymusowym wykupie akcji akcjonariuszy reprezentujących nie więcej niż 5% kapitału zakładowego (akcjonariusze mniejszościowi) przez nie więcej niż pięciu akcjonariuszy, posiadających łącznie nie mniej niż 95% kapitału zakładowego, z których każdy posiada nie mniej niż 5% kapitału zakładowego. Uchwała wymaga większości 95% głosów oddanych. Statut może przewidywać surowsze warunki powzi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_418\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 418 1 . § 1. Akcjonariusz lub akcjonariusze reprezentujący nie więcej niż 5% kapitału zakładowego mogą żądać umieszczenia w porządku obrad najbliższego walnego zgromadzenia sprawę podjęcia uchwały o przymusowym odkupie ich akcji przez nie więcej niż pięciu akcjonariuszy reprezentujących łącznie nie mniej niż 95% kapitału zakładowego, z których każdy posiada nie mniej niż 5% kapitału zakładowego (akcjonariusze większościowi). Przepisy ar ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_300\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 300 47 . § 1. Spółka nie może nabywać wyemitowanych przez nią akcji (akcje własne). Zakaz ten nie dotyczy nabycia akcji: 1) w celu ich umorzenia; 2) na podstawie i w granicach upoważnienia udzielonego w uchwale akcjonariuszy; 3) w drodze egzekucji celem zaspokojenia roszczeń spółki, których nie można zaspokoić z innego majątku akcjonariusza; 4) w drodze sukcesji uniwersalnej; 5) w innych przypadkach przewidzianych w ustawie. § 2. W przy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_362\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 362. § 1. Spółka nie może nabywać wyemitowanych przez nią akcji (akcje własne). Zakaz ten nie dotyczy: 1) nabycia akcji w celu zapobieżenia bezpośrednio zagrażającej spółce poważnej szkodzie; 2) nabycia akcji, które mają być zaoferowane do nabycia pracownikom lub osobom, które były zatrudnione w spółce lub spółce z nią powiązanej przez okres co najmniej trzech lat; 2a) spółki publicznej, nabywającej akcje w celu wypełnienia zobowiązań w ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_300\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 300 42 . § 1. Umowa spółki może przewidywać, że pozostali akcjonariusze mają prawo pierwszeństwa nabycia akcji przeznaczonych do zbycia przez innego akcjonariusza (prawo pierwszeństwa). Jeżeli umowa spółki nie stanowi inaczej, stosuje się przepisy § 2-7. § 2. Prawo pierwszeństwa przysługuje akcjonariuszom proporcjonalnie do liczby posiadanych akcji. § 3. Akcjonariusz zamierzający zbyć akcje na rzecz osoby trzeciej (akcjonariusz zbywając ...\"}]",
+   "tool_call_id": "call-2ea4f994-8ba3-4470-90aa-b1c57ecb6f08",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA O WYKONANIE MEBLI NA WYMIAR\nnr ............./2024\nzawarta w dniu ........................ w ........................................, pomiędzy:\n\n§ 1. STRONY UMOWY\n\n1. Zamawiający:\nImię i nazwisko / Nazwa firmy: ...........................................................................\nAdres zamieszkania / siedziby: ...........................................................................\nPESEL / NIP: ...........................................................................\nKRS / CEIDG (jeśli dotyczy): ...........................................................................\nTelefon: .................................... E-mail: ....................................\n\n2. Wykonawca:\nImię i nazwisko / Nazwa firmy: ...........................................................................\nAdres zamieszkania / siedziby: ...........................................................................\nPESEL / NIP: ...........................................................................\nKRS / CEIDG (jeśli dotyczy): ...........................................................................\nTelefon: .................................... E-mail: ....................................\n\n§ 2. PRZEDMIOT UMOWY\n\n1. Wykonawca zobowiązuje się do wykonania i zamontowania mebli na wymiar jako oznaczone dzieło, a Zamawiający zobowiązuje się do zapłaty wynagrodzenia.\n\n2. Szczegółowy opis przedmiotu umowy (wymiary, materiały, kolory, mechanizmy) stanowi Załącznik nr 1 do niniejszej umowy i jest jej integralną częścią. Każdy element mebla musi zawierać określenie: wysokość × szerokość × głębokość (w cm), rodzaj materiału, kolor (numer RAL lub NCS), typ frontu, typ blatu, okucia i mechanizmy.\n\n3. Adres montażu: ...........................................................................\n\n4. Zamawiający zobowiązuje się zapewnić dostęp do lokalu w dniu montażu. Brak dostępu w terminie skutkuje zwłoką Zamawiającego w rozumieniu art. 486 Kodeksu cywilnego.\n\n§ 3. MATERIAŁY\n\n1. Materiały dostarcza: ☐ Wykonawca ☐ Zamawiający ☐ strony łącznie (mieszane).\n\n2. Jeżeli Zamawiający dostarcza materiały (fronty, blaty, okucia), zobowiązuje się przekazać je Wykonawcy w terminie ........................ nie później niż ........................ dni przed planowanym terminem rozpoczęcia produkcji. Wykonawca nie odpowiada za wady wynikające z jakości materiałów dostarczonych przez Zamawiającego.\n\n3. Wykonawca zobowiązuje się do wykorzystania materiałów zgodnych ze specyfikacją zamówienia w Załączniku nr 1.\n\n§ 4. WYNAGRODZENIE I HARMONOGRAM PŁATNOŚCI\n\n1. Całkowite wynagrodzenie Wykonawcy za wykonanie i zamontowanie mebli wynosi ........................ zł brutto (słownie: ........................................................................ złotych), w tym podatek VAT 23% w kwocie ........................ zł.\n\n2. Strony ustalają następujący harmonogram płatności:\n   a) Zaliczka w wysokości 50% wynagrodzenia, tj. ........................ zł brutto (słownie: ........................................................................ złotych), płatna w dniu podpisania niniejszej umowy;\n   b) Pozostała kwota w wysokości 50% wynagrodzenia, tj. ........................ zł brutto (słownie: ........................................................................ złotych), płatna w terminie 3 dni roboczych od dnia podpisania protokołu odbioru, o którym mowa w § 6.\n\n3. Zamawiający dokonuje przelewu na rachunek bankowy Wykonawcy nr: ...........................................................................\n\n4. Uwaga: Zaliczka stanowi część ceny wynagrodzenia i nie ma charakteru kaucji zabezpieczającej. Zamiana zaliczki w kaucję wymagałaby odrębnego pisemnego porozumienia stron.\n\n§ 5. TERMIN REALIZACJI\n\n1. Termin produkcji mebli: ........................ dni roboczych od dnia wpłaty zaliczki na rachunek Wykonawcy.\n\n2. Termin montażu: ........................ dni roboczych od zakończenia produkcji, po uprzednim uzgodnieniu z Zamawiającym.\n\n3. Wykonawca zobowiązuje się powiadomić Zamawiającego o zakończeniu produkcji i zaproponować termin montażu w terminie ........................ dni przed planowanym montażem.\n\n4. W przypadku opóźnienia w realizacji zamówienia z winy Wykonawcy przekraczającego 14 dni roboczych, Zamawiający ma prawo żądać zapłaty kary umownej w wysokości 0,1% wartości niewykonanej części zamówienia za każdy dzień opóźnienia, lecz nie więcej niż 10% wartości niewykonanej części zamówienia. Przekroczenie terminu o więcej niż 30 dni roboczych uprawnia Zamawiającego do odstąpienia od umowy.\n\n5. W przypadku opóźnienia w realizacji zamówienia z winy Zamawiającego (m.in. brak dostępu do lokalu, brak dostarczenia materiałów w terminie), termin realizacji ulega wydłużeniu o czas trwania opóźnienia.\n\n§ 6. ODBIÓR MEBLI\n\n1. Po zakończeniu montażu strony sporządzają wspólnie pisemny protokół odbioru.\n\n2. Zamawiający ma prawo wskazać w protokole odbioru wady lub niezgodności z zamówieniem. Protokół odbioru zawierający zastrzeżenia jest podstawą do dochodzenia roszczeń z rękojmi.\n\n3. Zamawiający zobowiązuje się do zgłoszenia wad pisemnie w terminie 7 dni od dnia montażu, jeżeli nie wskazał ich w protokole odbioru. Brak zgłoszenia w tym terminie oznacza uznanie mebli za zgodne z zamówieniem.\n\n4. Odbiór mebli bez zastrzeżeń uruchamia bieg terminu rękojmi za wady.\n\n§ 7. RĘKOJMIA ZA WADY\n\n1. Wykonawca odpowiada za wady fizyczne i prawne mebli na zasadach określonych w art. 638 Kodeksu cywilnego z odpowiednim stosowaniem przepisów o rękojmi przy sprzedaży (art. 556 i nast. KC).\n\n2. Termin rękojmi wynosi 2 lata od dnia wydania dzieła (art. 568 KC).\n\n3. Wady fizyczne mogą polegać m.in. na: niezgodności wymiarów z zamówieniem, wadach materiałów, wadach wykończenia, nieprawidłowym działaniu mechanizmów.\n\n4. Zamawiający ma prawo wybrać: żądania naprawy lub wymiany mebla, obniżenia wynagrodzenia, albo odstąpienia od umowy przy wadzie istotnej.\n\n5. Wykonawca traci uprawnienia z rękojmi, jeżeli Zamawiający nie zbadał mebli w czasie i w sposób przyjęty przy rzeczach danego rodzaju i nie zawiadomił niezwłocznie o wadzie.\n\n§ 8. LOSY ZALICZKI PRZY NIEWYKONANIU UMOWY\n\n1. W przypadku niewykonania umowy z winy Zamawiającego (w tym m.in. odstąpienia od umowy przez Zamawiającego bez ważnych przyczyn, braku dostępu do lokalu, niedostarczenia materiałów w terminie), wpłacona zaliczka ulega przepadkowi na rzecz Wykonawcy, chyba że Wykonawca nie złożył jeszcze zamówienia do producenta lub nie poniósł nakładów związanych z realizacją zamówienia.\n\n2. W przypadku niewykonania umowy z winy Wykonawcy, wpłacona zaliczka podlega zwrotowi w terminie 14 dni od dnia doręczenia oświadczenia o niewykonaniu umowy.\n\n3. W przypadku odstąpienia od umowy przez Zamawiającego z przyczyn leżących po stronie Wykonawcy (m.in. opóźnienie przekraczające 30 dni roboczych, wady istotne niepodlegające naprawie), Wykonawca zobowiązany jest do zwrotu zaliczki w terminie 7 dni od dnia doręczenia oświadczenia o odstąpieniu.\n\n4. Strony zgodnie oświadczają, że klauzula przepadku zaliczki, o której mowa w ust. 1, nie ma charakteru niedozwolonej klauzuli umownej w rozumieniu ustawy o niedozwolonych klauzulach umownych, ponieważ stanowi adekwatne zabezpieczenie nakładów poniesionych przez Wykonawcę i nie przekracza 50% wartości zamówienia.\n\n§ 9. PRAWO ODSTĄPIENIA OD UMOWY\n\n1. Zamawiający ma prawo odstąpić od umowy w przypadkach przewidzianych Kodeksem cywilnym, w tym na podstawie art. 644 KC.\n\n2. W przypadku odstąpienia od umowy przez Zamawiającego z przyczyn leżących po stronie Wykonawcy, Wykonawca zobowiązany jest do zwrotu całości otrzymanego wynagrodzenia w terminie 14 dni.\n\n3. W przypadku odstąpienia od umowy przez Zamawiającego z przyczyn leżących po stronie Zamawiającego, Wykonawca ma prawo zatrzymać zaliczkę na poczet odszkodowania za poniesione nakłady.\n\n§ 10. OCHRONA KONSUMENTA\n\n1. Jeżeli Zamawiającym jest konsument w rozumieniu art. 221 Kodeksu cywilnego, stosuje się przepisy ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\n\n2. Konsument ma prawo do odstąpienia od umowy w terminie 14 dni od dnia zawarcia umowy bez podania przyczyny, chyba że wyraźnie zgodził się na wykonanie usługi w tym terminie.\n\n3. W przypadku odstąpienia od umowy przez konsumenta przed rozpoczęciem produkcji, Wykonawca zobowiązany jest do zwrotu zaliczki w terminie 14 dni.\n\n4. W przypadku odstąpienia od umowy przez konsumenta po rozpoczęciu produkcji, Wykonawca ma prawo potrącić z zaliczki koszty już poniesione.\n\n§ 11. ZOBOWIĄZANIA PUBLICZNOPRAWNE\n\n1. Jeżeli Wykonawca jest osobą fizyczną nieprowadzącą działalności gospodarczej, Zamawiający jako płatnik jest zobowiązany zgłosić umowę o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w terminie 7 dni od zawarcia umowy.\n\n2. Zamawiający jest zobowiązany do odprowadzenia zaliczki na podatek dochodowy do właściwego urzędu skarbowego Krajowej Administracji Skarbowej (KAS).\n\n3. Jeżeli Wykonawca prowadzi działalność gospodarczą i wystawia fakturę VAT, rozlicza podatki samodzielnie.\n\n§ 12. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego (art. 627–646 KC).\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd właściwy dla siedziby Zamawiającego.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n5. Integralną część umowy stanowi:\n   — Załącznik nr 1: Szczegółowy opis mebli (wymiary, materiały, kolory, mechanizmy)\n   — Załącznik nr 2: Rysunki techniczne / projekt wizualizacji\n\n\n.........................................................\n     (podpis Zamawiającego)\n\n\n.........................................................\n     (podpis Wykonawcy)\n\n\nZAŁĄCZNIKI:\n\nZałącznik nr 1 — Szczegółowy opis mebli na wymiar\n\n| Lp. | Rodzaj mebla | Wymiary (W×S×G cm) | Materiał korpusu | Front | Kolor (RAL/NCS) | Blat | Mechanizmy/Okucia | Ilość |\n|-----|-------------|---------------------|------------------|-------|-----------------|------|-------------------|-------|\n| 1.  |             |                     |                  |       |                 |      |                   |       |\n| 2.  |             |                     |                  |       |                 |      |                   |       |\n| 3.  |             |                     |                  |       |                 |      |                   |       |\n\n\nZałącznik nr 2 — Rysunki techniczne / wizualizacje\n\n[miejsce na załączenie rysunków technicznych lub wizualizacji mebli]",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA O WYKONANIE MEBLI NA WYMIAR\nnr ............./2024\nzawarta w dniu ........................ w ........................................, pomiędzy:\n\n§ 1. STRONY UMOWY\n\n1. Zamawiający:\nImię i nazwisko / Nazwa firmy: ...........................................................................\nAdres zamieszkania / siedziby: ...........................................................................\nPESEL / NIP: ...........................................................................\nKRS / CEIDG (jeśli dotyczy): ...........................................................................\nTelefon: .................................... E-mail: ....................................\n\n2. Wykonawca:\nImię i nazwisko / Nazwa firmy: ...........................................................................\nAdres zamieszkania / siedziby: ...........................................................................\nPESEL / NIP: ...........................................................................\nKRS / CEIDG (jeśli dotyczy): ...........................................................................\nTelefon: .................................... E-mail: ....................................\n\n§ 2. PRZEDMIOT UMOWY\n\n1. Wykonawca zobowiązuje się do wykonania i zamontowania mebli na wymiar jako oznaczone dzieło, a Zamawiający zobowiązuje się do zapłaty wynagrodzenia.\n\n2. Szczegółowy opis przedmiotu umowy (wymiary, materiały, kolory, mechanizmy) stanowi Załącznik nr 1 do niniejszej umowy i jest jej integralną częścią. Każdy element mebla musi zawierać określenie: wysokość × szerokość × głębokość (w cm), rodzaj materiału, kolor (numer RAL lub NCS), typ frontu, typ blatu, okucia i mechanizmy.\n\n3. Adres montażu: ...........................................................................\n\n4. Zamawiający zobowiązuje się zapewnić dostęp do lokalu w dniu montażu. Brak dostępu w terminie skutkuje zwłoką Zamawiającego w rozumieniu art. 486 Kodeksu cywilnego.\n\n§ 3. MATERIAŁY\n\n1. Materiały dostarcza: ☐ Wykonawca ☐ Zamawiający ☐ strony łącznie (mieszane).\n\n2. Jeżeli Zamawiający dostarcza materiały (fronty, blaty, okucia), zobowiązuje się przekazać je Wykonawcy w terminie ........................ nie później niż ........................ dni przed planowanym terminem rozpoczęcia produkcji. Wykonawca nie odpowiada za wady wynikające z jakości materiałów dostarczonych przez Zamawiającego.\n\n3. Wykonawca zobowiązuje się do wykorzystania materiałów zgodnych ze specyfikacją zamówienia w Załączniku nr 1.\n\n§ 4. WYNAGRODZENIE I HARMONOGRAM PŁATNOŚCI\n\n1. Całkowite wynagrodzenie Wykonawcy za wykonanie i zamontowanie mebli wynosi ........................ zł brutto (słownie: ........................................................................ złotych), w tym podatek VAT 23% w kwocie ........................ zł.\n\n2. Strony ustalają następujący harmonogram płatności:\n   a) Zaliczka w wysokości 50% wynagrodzenia, tj. ........................ zł brutto (słownie: ........................................................................ złotych), płatna w dniu podpisania niniejszej umowy;\n   b) Pozostała kwota w wysokości 50% wynagrodzenia, tj. ........................ zł brutto (słownie: ........................................................................ złotych), płatna w terminie 3 dni roboczych od dnia podpisania protokołu odbioru, o którym mowa w § 6.\n\n3. Zamawiający dokonuje przelewu na rachunek bankowy Wykonawcy nr: ...........................................................................\n\n4. Uwaga: Zaliczka stanowi część ceny wynagrodzenia i nie ma charakteru kaucji zabezpieczającej. Zamiana zaliczki w kaucję wymagałaby odrębnego pisemnego porozumienia stron.\n\n§ 5. TERMIN REALIZACJI\n\n1. Termin produkcji mebli: ........................ dni roboczych od dnia wpłaty zaliczki na rachunek Wykonawcy.\n\n2. Termin montażu: ........................ dni roboczych od zakończenia produkcji, po uprzednim uzgodnieniu z Zamawiającym.\n\n3. Wykonawca zobowiązuje się powiadomić Zamawiającego o zakończeniu produkcji i zaproponować termin montażu w terminie ........................ dni przed planowanym montażem.\n\n4. W przypadku opóźnienia w realizacji zamówienia z winy Wykonawcy przekraczającego 14 dni roboczych, Zamawiający ma prawo żądać zapłaty kary umownej w wysokości 0,1% wartości niewykonanej części zamówienia za każdy dzień opóźnienia, lecz nie więcej niż 10% wartości niewykonanej części zamówienia. Przekroczenie terminu o więcej niż 30 dni roboczych uprawnia Zamawiającego do odstąpienia od umowy.\n\n5. W przypadku opóźnienia w realizacji zamówienia z winy Zamawiającego (m.in. brak dostępu do lokalu, brak dostarczenia materiałów w terminie), termin realizacji ulega wydłużeniu o czas trwania opóźnienia.\n\n§ 6. ODBIÓR MEBLI\n\n1. Po zakończeniu montażu strony sporządzają wspólnie pisemny protokół odbioru.\n\n2. Zamawiający ma prawo wskazać w protokole odbioru wady lub niezgodności z zamówieniem. Protokół odbioru zawierający zastrzeżenia jest podstawą do dochodzenia roszczeń z rękojmi.\n\n3. Zamawiający zobowiązuje się do zgłoszenia wad pisemnie w terminie 7 dni od dnia montażu, jeżeli nie wskazał ich w protokole odbioru. Brak zgłoszenia w tym terminie oznacza uznanie mebli za zgodne z zamówieniem.\n\n4. Odbiór mebli bez zastrzeżeń uruchamia bieg terminu rękojmi za wady.\n\n§ 7. RĘKOJMIA ZA WADY\n\n1. Wykonawca odpowiada za wady fizyczne i prawne mebli na zasadach określonych w art. 638 Kodeksu cywilnego z odpowiednim stosowaniem przepisów o rękojmi przy sprzedaży (art. 556 i nast. KC).\n\n2. Termin rękojmi wynosi 2 lata od dnia wydania dzieła (art. 568 KC).\n\n3. Wady fizyczne mogą polegać m.in. na: niezgodności wymiarów z zamówieniem, wadach materiałów, wadach wykończenia, nieprawidłowym działaniu mechanizmów.\n\n4. Zamawiający ma prawo wybrać: żądania naprawy lub wymiany mebla, obniżenia wynagrodzenia, albo odstąpienia od umowy przy wadzie istotnej.\n\n5. Wykonawca traci uprawnienia z rękojmi, jeżeli Zamawiający nie zbadał mebli w czasie i w sposób przyjęty przy rzeczach danego rodzaju i nie zawiadomił niezwłocznie o wadzie.\n\n§ 8. LOSY ZALICZKI PRZY NIEWYKONANIU UMOWY\n\n1. W przypadku niewykonania umowy z winy Zamawiającego (w tym m.in. odstąpienia od umowy przez Zamawiającego bez ważnych przyczyn, braku dostępu do lokalu, niedostarczenia materiałów w terminie), wpłacona zaliczka ulega przepadkowi na rzecz Wykonawcy, chyba że Wykonawca nie złożył jeszcze zamówienia do producenta lub nie poniósł nakładów związanych z realizacją zamówienia.\n\n2. W przypadku niewykonania umowy z winy Wykonawcy, wpłacona zaliczka podlega zwrotowi w terminie 14 dni od dnia doręczenia oświadczenia o niewykonaniu umowy.\n\n3. W przypadku odstąpienia od umowy przez Zamawiającego z przyczyn leżących po stronie Wykonawcy (m.in. opóźnienie przekraczające 30 dni roboczych, wady istotne niepodlegające naprawie), Wykonawca zobowiązany jest do zwrotu zaliczki w terminie 7 dni od dnia doręczenia oświadczenia o odstąpieniu.\n\n4. Strony zgodnie oświadczają, że klauzula przepadku zaliczki, o której mowa w ust. 1, nie ma charakteru niedozwolonej klauzuli umownej w rozumieniu ustawy o niedozwolonych klauzulach umownych, ponieważ stanowi adekwatne zabezpieczenie nakładów poniesionych przez Wykonawcę i nie przekracza 50% wartości zamówienia.\n\n§ 9. PRAWO ODSTĄPIENIA OD UMOWY\n\n1. Zamawiający ma prawo odstąpić od umowy w przypadkach przewidzianych Kodeksem cywilnym, w tym na podstawie art. 644 KC.\n\n2. W przypadku odstąpienia od umowy przez Zamawiającego z przyczyn leżących po stronie Wykonawcy, Wykonawca zobowiązany jest do zwrotu całości otrzymanego wynagrodzenia w terminie 14 dni.\n\n3. W przypadku odstąpienia od umowy przez Zamawiającego z przyczyn leżących po stronie Zamawiającego, Wykonawca ma prawo zatrzymać zaliczkę na poczet odszkodowania za poniesione nakłady.\n\n§ 10. OCHRONA KONSUMENTA\n\n1. Jeżeli Zamawiającym jest konsument w rozumieniu art. 221 Kodeksu cywilnego, stosuje się przepisy ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\n\n2. Konsument ma prawo do odstąpienia od umowy w terminie 14 dni od dnia zawarcia umowy bez podania przyczyny, chyba że wyraźnie zgodził się na wykonanie usługi w tym terminie.\n\n3. W przypadku odstąpienia od umowy przez konsumenta przed rozpoczęciem produkcji, Wykonawca zobowiązany jest do zwrotu zaliczki w terminie 14 dni.\n\n4. W przypadku odstąpienia od umowy przez konsumenta po rozpoczęciu produkcji, Wykonawca ma prawo potrącić z zaliczki koszty już poniesione.\n\n§ 11. ZOBOWIĄZANIA PUBLICZNOPRAWNE\n\n1. Jeżeli Wykonawca jest osobą fizyczną nieprowadzącą działalności gospodarczej, Zamawiający jako płatnik jest zobowiązany zgłosić umowę o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w terminie 7 dni od zawarcia umowy.\n\n2. Zamawiający jest zobowiązany do odprowadzenia zaliczki na podatek dochodowy do właściwego urzędu skarbowego Krajowej Administracji Skarbowej (KAS).\n\n3. Jeżeli Wykonawca prowadzi działalność gospodarczą i wystawia fakturę VAT, rozlicza podatki samodzielnie.\n\n§ 12. POSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego (art. 627–646 KC).\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd właściwy dla siedziby Zamawiającego.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n5. Integralną część umowy stanowi:\n   — Załącznik nr 1: Szczegółowy opis mebli (wymiary, materiały, kolory, mechanizmy)\n   — Załącznik nr 2: Rysunki techniczne / projekt wizualizacji\n\n\n.........................................................\n     (podpis Zamawiającego)\n\n\n.........................................................\n     (podpis Wykonawcy)\n\n\nZAŁĄCZNIKI:\n\nZałącznik nr 1 — Szczegółowy opis mebli na wymiar\n\n| Lp. | Rodzaj mebla | Wymiary (W×S×G cm) | Materiał korpusu | Front | Kolor (RAL/NCS) | Blat | Mechanizmy/Okucia | Ilość |\n|-----|-------------|---------------------|------------------|-------|-----------------|------|-------------------|-------|\n| 1.  |             |                     |                  |       |                 |      |                   |       |\n| 2.  |             |                     |                  |       |                 |      |                   |       |\n| 3.  |             |                     |                  |       |                 |      |                   |       |\n\n\nZałącznik nr 2 — Rysunki techniczne / wizualizacje\n\n[miejsce na załączenie rysunków technicznych lub wizualizacji mebli]",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zamówić meble na wymiar i potrzebuję umowę, która ustala kwotę zaliczki, termin wykonania i montażu oraz co się dzieje, jeśli któraś ze stron nie dotrzyma terminów."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję zamówić szafki kuchenne i łazienkowe według własnego projektu – mam już wymiary, kolory frontów (RAL 9016), typ blatu i okucia. Potrzebuję umowę, w której jest zapisane, że płacę 50% zaliczki przy podpisie, resztę po odbiorze, że wykonawca ma np. 30 dni na produkcję po wpłacie, a montaż ustalamy później. Chcę też mieć pewność, że jeśli meble przyjdą z wadami lub nie zgodne z projektem, mogę żądać naprawy lub zwrotu pieniędzy, a jeśli wykonawca się spóźni mocno, to mogę odejść od umowy i dostać zaliczkę z powrotem."
+  }
+ ]
+}

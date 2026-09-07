@@ -1,0 +1,17 @@
+{
+ "run": 21,
+ "hint": "Ubezpieczenie odpowiedzialności zawodowej (lekarz, radca prawny)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Jestem lekarzem i chcę się ubezpieczyć na wypadek błędu w leczeniu pacjenta. Szukam polisy na odpowiedzialność zawodową."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Prowadzę kancelarię radcy prawnego i obsługuję głównie firmy. Obawiam się, że jeśli przeoczę ważny termin w sądzie lub źle doradzę, klient może mieć do mnie roszczenie. Chcę wiedzieć, czy ubezpieczenie odpowiedzialności zawodowej pokryje koszty mojej obrony i ewentualnego odszkodowania."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_ubezpieczenia\", \"query\": \"odpowiedzialność zawodowa lekarz radca prawny\"})\\nRESULT: [{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa o usługi masażu\\nUmowa o usługi masażu w Polsce to pisemne porozumienie między masażystą (gabinetem masażu, centrum wellness) a klientem, regulujące zakres sesji masażu, wynagrodzenie, przetwarzanie danych zdrowotnych i odpowiedzialność stron. Podstawą prawną jest art. 750 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) w zw. z art. 734 i następnymi — umowa o usługi masażu jest umową o świadczenie usług, do której stosuje się przepisy o zleceniu.\\n\\nUsługi masażu obejmują różne techniki i style: masaż klasyczny (szwedzki) — relaksacyjny, poprawiający krążenie; masaż tkanek głębokich — pracy na przykurczach i bólach mięśniowych; masaż sportowy — przygotowanie do zawodów, regeneracja; drenaż limfatyczny — redukcja obrzęków, wspomaganie układu limfatycznego; masaż gorącymi kamieniami (hot stone) i masaż aromaterapeutyczny — relaksacyjne zabiegi wellness; masaż prenatalny — dedykowany kobietom ciężarnym. Masaże lecznicze i rehabilitacyjne (np. masaż leczniczy kręgosłupa) stanowią często świadczenia zdrowotne w rozumieniu ustawy z dnia 15 kwietnia 2011 r. o działalności leczniczej i podlegają odrębnym regulacjom.\\n\\nSzczególną cechą umowy o usługi masażu jest konieczność przeprowadzenia wywiadu zdrowotnego przed zabiegiem. Dane o stanie zdrowia klienta (schorzenia, urazy, zakrzepica, choroba nowotworowa, ciąża, stosowane leki) stanowią szczególną kategorię danych osobowych w rozumieniu art. 9 ust. 1 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO). Przetwarzanie wymaga wyraźnej zgody klienta (art. 9 ust. 2 lit. a RODO)"
+}

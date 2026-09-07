@@ -1,0 +1,325 @@
+{
+ "run": 46,
+ "hint": "Umowa ramowa z ekologicznymi wymogami (zrównoważony rozwój)",
+ "scenario": "Umowa ramowa z ekologicznymi wymogami (zrównoważony rozwój)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_ramowa'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a framework agreement (umowa_ramowa) with ecological/sustainable development requirements. I need to:\n\n1. First read the base template for umowa_ramowa\n2. Search for provisions relevant to ecological/sustainable development requirements in B2B contracts\n3. Look for relevant legal provisions (Polish law, EU regulations on sustainability, green procurement, etc.)\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-ceba21d9-4d6c-407e-a161-dc5337d81760",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_ramowa\", \"query\": \"z ekologicznymi wymogami zrównoważony rozwój\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_ramowa\", \"kind\": \"structural_template\", \"text\": \"# Umowa ramowa o współpracy\\nUmowa ramowa o współpracy w Polsce to umowa określająca ogólne zasady i warunki, na jakich strony będą zawierać i realizować w przyszłości poszczególne umowy lub zamówienia jednostkowe. Jest to umowa nienazwana, oparta na zasadzie swobody umów wyrażonej w art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), zgodnie z którą strony mogą ułożyć stosunek prawny według swego uznania, byleby jego treść lub cel nie sprzeciwiały się naturze stosunku, ustawie ani zasadom współżycia społecznego. Umowa ramowa jest fundamentem długoterminowej, powtarzalnej współpracy gospodarczej między przedsiębiorcami.\\n\\nNajważniejszą cechą prawną umowy ramowej jest to, że co do zasady nie tworzy ona samodzielnego obowiązku świadczenia. Jej rolą jest ustalenie warunków brzegowych — cen, rabatów, terminów, zasad jakości, poufności i odpowiedzialności — które będą obowiązywać przy realizacji konkretnych zamówień jednostkowych. Dopiero złożenie i potwierdzenie zamówienia jednostkowego rodzi obowiązek spełnienia świadczenia. Dzięki temu strony nie muszą za każdym razem negocjować całości warunków, lecz odwołują się do uzgodnionych ram, co przyspiesza i upraszcza bieżącą współpracę.\\n\\nUmowa ramowa odróżnia się od pojedynczej umowy sprzedaży czy dostawy tym, że ma charakter porządkujący i wieloletni, podczas gdy poszczególne transakcje realizowane są na jej podstawie. W praktyce stosuje się ją przy stałych dostawach towarów, regularnym świadczeniu usług, współpracy dystrybucyjnej, podwykonawstwie oraz długoterminowych relacjach handlowych. Relacja między umową ramową a zamówieniami jednostkowymi powinna być jednoznacznie określona, w szczególności przez wskazanie, które postanowienia mają pierwszeństwo w razie rozbieżności.\\n\\nWarunki cenowe i płatnicze stanowią istotny element umowy ramowej. Strony ustalają zasady kształtowania cen, rabaty ilościowe, terminy i sposób płatności oraz reguły waloryzacji. Jeżeli strony są czynnymi podatnikami podatku od towarów i usług, do cen netto dolicza się podatek VAT według stawki podstawowej 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług. W obrocie między przedsiębiorcami zastosowanie ma ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, która chroni wierzyciela przed zatorami płatniczymi.\\n\\nUmowy ramowe często zawierają mechanizmy zabezpieczające: kary umowne za zwłokę w realizacji zamówień lub naruszenie obowiązków niepieniężnych (art. 483 Kodeksu cywilnego), klauzule poufności chroniące tajemnicę przedsiębiorstwa oraz zabezpieczenia wykonania, takie jak gwarancje bankowe czy weksle. Kary umowne mogą być miarkowane przez sąd, gdy zobowiązanie zostało w znacznej części wykonane lub gdy kara jest rażąco wygórowana (art. 484 § 2 Kodeksu cywilnego).\\n\\nUmowa ramowa o współpracy ma kluczowe znaczenie dla stabilności i przewidywalności relacji handlowych. Pozwala zaplanować długoterminową współpracę, zabezpieczyć ciągłość dostaw lub usług oraz ograniczyć koszty transakcyjne związane z powtarzaniem negocjacji. Dobrze sporządzona umowa precyzyjnie określa przedmiot współpracy, tryb składania zamówień, warunki cenowe, czas trwania, zasady wypowiedzenia oraz klauzule zabezpieczające, dzięki czemu obie strony mają jasność co do reguł długoterminowej współpracy.\\n\\nUmowa ramowa o współpracy w Polsce jest potrzebna wówczas, gdy strony planują długoterminową, powtarzalną współpracę i chcą z góry ustalić jej ogólne warunki w ramach swobody umów z art. 353[1] Kodeksu cywilnego.\\n\\nStałe dostawy towarów. Przedsiębiorcy zawierają umowę ramową przy regularnych dostawach surowców, towarów handlowych czy komponentów. Umowa porządkuje ceny, rabaty ilościowe, terminy dostaw i zasady jakości, a poszczególne dostawy realizowane są na podstawie zamówień jednostkowych, co zapewnia ciągłość zaopatrzenia.\\n\\nRegularne świadczenie usług. Firmy korzystające z powtarzalnych usług — transportowych, serwisowych, marketingowych, informatycznych — zawierają umowę ramową ustalającą stawki i zasady zlecania prac. Każde zlecenie realizowane jest następnie na uzgodnionych warunkach bez konieczności ponownych negocjacji.\\n\\nWspółpraca dystrybucyjna i handlowa. Producenci i dystrybutorzy zawierają umowę ramową regulującą zasady wprowadzania towarów do obrotu, ceny, rabaty, terytorium i wsparcie sprzedaży. Umowa ramowa stanowi podstawę długoterminowej relacji, w ramach której realizowane są kolejne zamówienia.\\n\\nPodwykonawstwo i współpraca projektowa. Generalni wykonawcy i podwykonawcy oraz firmy realizujące powtarzalne projekty zawierają umowę ramową określającą zasady zlecania prac, stawki i standardy jakości. Konkretne projekty zlecane są na podstawie zamówień lub umów wykonawczych.\\n\\nObsługa korporacyjna i zakupy. Duże przedsiębiorstwa zawierają umowy ramowe z dostawcami w ramach scentralizowanych zakupów, co pozwala ujednolicić warunki współpracy i uzyskać korzystniejsze ceny dzięki wolumenowi. Zamówienia składane są przez poszczególne jednostki organizacyjne na podstawie umowy ramowej.\\n\\nZabezpieczenie ciągłości i przewidywalności. Gdy stronom zależy na pewności co do warunków przyszłej współpracy — cen, dostępności, terminów — umowa ramowa zabezpiecza te elementy na uzgodniony okres, ograniczając ryzyko nagłych zmian i sporów.\\n\\nWspółpraca wymagająca poufności i zabezpieczeń. Przy długoterminowej współpracy obejmującej wymianę informacji handlowych lub know-how umowa ramowa porządkuje obowiązki poufności na podstawie ustawy o zwalczaniu nieuczciwej konkurencji oraz wprowadza zabezpieczenia wykonania, takie jak kary umowne za zwłokę czy gwarancje, co chroni interesy obu stron.\\n\\nUmowa ramowa o współpracy w Polsce powinna zawierać następujące elementy oparte na swobodzie umów z art. 353[1] Kodeksu cywilnego, aby jednoznacznie określić reguły długoterminowej współpracy.\\n\\nOznaczenie stron. Pełne dane obu przedsiębiorców: firma, adres siedziby, NIP, REGON, numer KRS dla spółek z Krajowego Rejestru Sądowego lub wpis do CEIDG dla jednoosobowej działalności. Precyzyjne oznaczenie stron jest podstawą ustalenia zakresu zobowiązań oraz prawidłowego fakturowania w toku współpracy.\\n\\nPrzedmiot współpracy ramowej. Określenie ogólnego zakresu współpracy i rodzaju świadczeń realizowanych na podstawie zamówień. Wskazanie, że umowa ramowa nie tworzy samodzielnego obowiązku świadczenia, lecz określa warunki realizacji zamówień jednostkowych. forms-legal.com zaleca jednoznaczne opisanie przedmiotu współpracy, co ułatwia stosowanie umowy w praktyce.\\n\\nRelacja umowy ramowej do zamówień jednostkowych. Określenie, które postanowienia mają pierwszeństwo w razie rozbieżności między umową ramową a zamówieniem jednostkowym. Jasne uregulowanie tej relacji zapobiega sporom o to, jakie warunki obowiązują przy realizacji konkretnej transakcji.\\n\\nTryb składania i potwierdzania zamówień. Zasady składania zamówień jednostkowych — forma (elektroniczna, pisemna), termin potwierdzenia, minimalna treść zamówienia obejmująca rodzaj, ilość, cenę i termin realizacji. Potwierdzenie zamówienia oznacza zawarcie umowy jednostkowej na warunkach umowy ramowej.\\n\\nWarunki cenowe i płatnicze. Zasady ustalania cen, rabatów ilościowych, terminów i sposobu płatności oraz reguły waloryzacji. Wskazanie, że do cen netto doliczany jest podatek VAT 23%, gdy strony są czynnymi podatnikami. Określenie skutków opóźnienia, w tym odsetek ustawowych za opóźnienie w transakcjach handlowych i rekompensaty za koszty odzyskiwania należności.\\n\\nStandardy jakości i odbioru. Postanowienia dotyczące wymaganej jakości świadczeń, sposobu odbioru oraz zgłaszania i usuwania wad. Element ten ma znaczenie zwłaszcza przy dostawach towarów i usługach wykonawczych, gdzie istotna jest zgodność świadczenia z umową.\\n\\nPoufność i tajemnica przedsiębiorstwa. Wzajemne zobowiązanie do zachowania w poufności informacji handlowych stanowiących tajemnicę przedsiębiorstwa w rozumieniu art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji, wraz z czasem obowiązywania i skutkami naruszenia.\\n\\nKary umowne i zabezpieczenia. Kary umowne za zwłokę w realizacji zamówień lub naruszenie obowiązków niepieniężnych zgodnie z art. 483 Kodeksu cywilnego, z określeniem limitu łącznego. Zabezpieczenia wykonania, takie jak gwarancje bankowe czy weksle. Należy pamiętać, że kary umownej nie zastrzega się za zobowiązania pieniężne, a kara rażąco wygórowana może być miarkowana (art. 484 § 2).\\n\\nCzas trwania i wypowiedzenie. Wskazanie, czy umowa ramowa jest na czas oznaczony czy nieoznaczony, oraz okresu i trybu wypowiedzenia. Określenie skutków wypowiedzenia dla zamówień jednostkowych przyjętych do realizacji przed datą rozwiązania, które zwykle wykonywane są na dotychczasowych warunkach.\\n\\nPostanowienia końcowe i rozstrzyganie sporów. Odesłanie do przepisów Kodeksu cywilnego w sprawach nieuregulowanych, wymóg formy pisemnej dla zmian, liczba egzemplarzy oraz klauzula wskazująca sąd właściwy, w sprawach gospodarczych — sąd gospodarczy właściwy dla siedziby jednej ze stron.\\n\\nUmowa ramowa o współpracy w Polsce wypełniana jest według kolejnych kroków, które zapewniają zgodność z art. 353[1] Kodeksu cywilnego oraz spójność z zamówieniami jednostkowymi.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane obu przedsiębiorców: firmę, adres, NIP, REGON, numer KRS lub wpis do CEIDG. Zweryfikuj status czynnego podatnika VAT na białej liście podatników VAT oraz reprezentację w Krajowym Rejestrze Sądowym (KRS).\\n\\nKrok 2 — opisz przedmiot współpracy. Określ ogólny zakres współpracy i rodzaj świadczeń realizowanych na podstawie zamówień. Wskaż wyraźnie, że umowa ramowa określa warunki realizacji zamówień jednostkowych, a nie tworzy samodzielnego obowiązku świadczenia.\\n\\nKrok 3 — ureguluj relację do zamówień. Wpisz, które postanowienia mają pierwszeństwo w razie rozbieżności między umową ramową a zamówieniem jednostkowym. Jasna hierarchia dokumentów zapobiega sporom o obowiązujące warunki transakcji.\\n\\nKrok 4 — określ tryb składania zamówień. Wpisz formę składania i potwierdzania zamówień, termin potwierdzenia oraz minimalną treść zamówienia obejmującą rodzaj, ilość, cenę i termin realizacji. Wskaż, że potwierdzenie zamówienia oznacza zawarcie umowy jednostkowej.\\n\\nKrok 5 — ustal warunki cenowe i płatnicze. Wpisz zasady kształtowania cen, rabaty ilościowe, terminy i sposób płatności oraz reguły waloryzacji. Wskaż, że do cen netto doliczany jest VAT 23%, gdy strony są czynnymi podatnikami, oraz określ skutki opóźnienia zgodnie z ustawą o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych.\\n\\nKrok 6 — dodaj klauzule zabezpieczające. Wpisz klauzulę poufności chroniącą tajemnicę przedsiębiorstwa oraz kary umowne za zwłokę lub naruszenie obowiązków niepieniężnych zgodnie z art. 483 Kodeksu cywilnego, z określeniem limitu łącznego. Rozważ zabezpieczenia wykonania, takie jak gwarancja bankowa.\\n\\nKrok 7 — ustal czas trwania i wypowiedzenie. Wpisz, czy umowa ramowa jest na czas oznaczony czy nieoznaczony, oraz okres i tryb wypowiedzenia. Określ, że wypowiedzenie nie wpływa na zamówienia jednostkowe przyjęte do realizacji przed datą rozwiązania.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę zawarcia oraz podpisz dokument w dwóch jednobrzmiących egzemplarzach. Dla spółek podpis składa osoba uprawniona do reprezentacji według wpisu w KRS. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego. Dołącz załączniki, na przykład cennik, jako integralną część umowy.\\n\\nUmowa ramowa o współpracy w Polsce podlega regulacji prawa cywilnego, prawa podatkowego oraz przepisów o przeciwdziałaniu zatorom płatniczym i ochronie konkurencji.\\n\\nSwoboda umów (art. 353[1] Kodeksu cywilnego). Umowa ramowa jest umową nienazwaną opartą na zasadzie swobody umów. Strony mogą ułożyć stosunek prawny według swego uznania, byleby jego treść lub cel nie sprzeciwiały się naturze stosunku, ustawie ani zasadom współżycia społecznego. Do poszczególnych umów jednostkowych zawieranych na podstawie umowy ramowej stosuje się przepisy właściwe dla danego typu umowy, na przykład o sprzedaży (art. 535 i nast.) lub o świadczeniu usług (art. 750 Kodeksu cywilnego).\\n\\nForma umowy. Umowa ramowa nie wymaga co do zasady formy szczególnej, jednak forma pisemna ma istotne znaczenie dowodowe i porządkujące, zwłaszcza przy klauzulach o karach umownych, poufności i zabezpieczeniach. Zmiany umowy zaleca się zastrzegać w formie pisemnej pod rygorem nieważności. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego.\\n\\nKary umowne (art. 483–484 Kodeksu cywilnego). Strony mogą zastrzec karę umowną na wypadek niewykonania lub nienależytego wykonania zobowiązania niepieniężnego (art. 483 § 1). Kary umownej nie można zastrzec za zobowiązanie pieniężne, takie jak zapłata ceny — na to służą odsetki. Kara umowna należy się w zastrzeżonej wysokości bez względu na wysokość szkody (art. 484 § 1), jednak gdy zobowiązanie zostało w znacznej części wykonane lub kara jest rażąco wygórowana, dłużnik może żądać jej zmniejszenia (art. 484 § 2 — miarkowanie kary umownej).\\n\\nOdsetki i transakcje handlowe. W razie opóźnienia w zapłacie wierzycielowi przysługują odsetki ustawowe za opóźnienie zgodnie z art. 481 Kodeksu cywilnego, których wysokość odpowiada stopie referencyjnej Narodowego Banku Polskiego (NBP) powiększonej o ustawowy wskaźnik. W obrocie profesjonalnym zastosowanie ma ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, przyznająca odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensatę za koszty odzyskiwania należności w wysokości równowartości 40, 70 lub 100 euro.\\n\\nPodatek od towarów i usług. Świadczenia realizowane na podstawie umowy ramowej przez czynnych podatników podlegają opodatkowaniu podatkiem VAT według stawki podstawowej 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług. Każda transakcja dokumentowana jest fakturą zawierającą obowiązkowe elementy z art. 106a–106q ustawy o VAT. Faktury ustrukturyzowane przekazywane są przez Krajowy System e-Faktur (KSeF).\\n\\nOchrona konkurencji. Umowy między przedsiębiorcami, zwłaszcza zawierające zobowiązania dotyczące cen, terytorium lub wyłączności, podlegają przepisom prawa konkurencji nadzorowanym przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK). Porozumienia ograniczające konkurencję, na przykład ustalanie cen odsprzedaży czy podział rynku, są zakazane i mogą być nieważne. Strony powinny tak ukształtować umowę ramową, aby nie naruszała zakazu porozumień ograniczających konkurencję.\\n\\nTajemnica przedsiębiorstwa. Informacje handlowe ujawniane w toku współpracy podlegają ochronie na podstawie ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Art. 11 tej ustawy uznaje za czyn nieuczciwej konkurencji ujawnienie lub wykorzystanie tajemnicy przedsiębiorstwa. Klauzula poufności w umowie wzmacnia tę ochronę.\\n\\nPrzedawnienie roszczeń. Roszczenia związane z prowadzeniem działalności gospodarczej przedawniają się co do zasady z upływem trzech lat zgodnie z art. 118 Kodeksu cywilnego, przy czym koniec terminu przypada na ostatni dzień roku kalendarzowego. Dla roszczeń z poszczególnych umów jednostkowych mogą obowiązywać terminy szczególne, na przykład dwuletni termin dla roszczeń ze sprzedaży w zakresie działalności przedsiębiorstwa sprzedawcy (art. 554 Kodeksu cywilnego).\\n\\nUmowa ramowa o współpracy w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć przy starannym jej sporządzeniu.\\n\\nBłąd 1 — niejasna relacja do zamówień jednostkowych. Brak określenia, które postanowienia mają pierwszeństwo w razie rozbieżności, rodzi spory o obowiązujące warunki transakcji. Zalecenie: jednoznacznie ustal hierarchię dokumentów i zasadę pierwszeństwa umowy ramowej lub zamówienia jednostkowego.\\n\\nBłąd 2 — traktowanie umowy ramowej jako źródła obowiązku dostaw. Założenie, że sama umowa ramowa zobowiązuje do określonych dostaw bez zamówień, prowadzi do nieporozumień co do zakresu zobowiązań. Zalecenie: wyraźnie wskaż, że umowa ramowa określa warunki realizacji zamówień, a obowiązek świadczenia powstaje po potwierdzeniu zamówienia jednostkowego.\\n\\nBłąd 3 — brak trybu składania i potwierdzania zamówień. Pominięcie zasad składania zamówień utrudnia ustalenie, kiedy dochodzi do zawarcia umowy jednostkowej. Zalecenie: określ formę, termin potwierdzenia i minimalną treść zamówienia obejmującą rodzaj, ilość, cenę i termin realizacji.\\n\\nBłąd 4 — kara umowna za świadczenie pieniężne. Zastrzeżenie kary umownej za opóźnienie w zapłacie jest nieskuteczne, ponieważ kary umownej nie zastrzega się za zobowiązanie pieniężne (art. 483 Kodeksu cywilnego). Zalecenie: kary umowne zastrzegaj za zobowiązania niepieniężne, takie jak zwłoka w dostawie, a na opóźnienie w zapłacie stosuj odsetki za opóźnienie.\\n\\nBłąd 5 — kara umowna bez limitu łącznego. Kara umowna bez górnego limitu może okazać się rażąco wygórowana i podlegać miarkowaniu przez sąd. Zalecenie: określ limit łączny kar umownych oraz pamiętaj o możliwości miarkowania na podstawie art. 484 § 2 Kodeksu cywilnego.\\n\\nBłąd 6 — pominięcie skutków wypowiedzenia dla zamówień w toku. Brak uregulowania losu zamówień przyjętych do realizacji przed wypowiedzeniem rodzi spory o ich wykonanie. Zalecenie: wskaż, że wypowiedzenie umowy ramowej nie wpływa na zamówienia jednostkowe przyjęte do realizacji przed datą rozwiązania.\\n\\nBłąd 7 — postanowienia naruszające prawo konkurencji. Zapisy o sztywnych cenach odsprzedaży, podziale rynku lub bezwzględnej wyłączności mogą naruszać zakaz porozumień ograniczających konkurencję nadzorowany przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK). Zalecenie: ukształtuj warunki cenowe i terytorialne zgodnie z prawem konkurencji, unikając zakazanych porozumień.\\n\\nBłąd 8 — brak załączników jako integralnej części umowy. Powołanie się na cennik lub specyfikację bez ich załączenia osłabia jednoznaczność warunków. Zalecenie: dołącz załączniki, takie jak cennik czy standardy jakości, i wskaż, że stanowią integralną część umowy ramowej.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-ramowa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-ceba21d9-4d6c-407e-a161-dc5337d81760",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_3abbd520d5b64d2fba94aecc",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ekologiczne wymogi zrównoważony rozwój umowa ramowa B2B środowiskowe zasady współpracy\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_f99960a945da43c289dca6d4",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"zrównoważony rozwój\", \"ekologiczne\", \"środowiskowe\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_43l\", \"source_id\": \"sejm_eli_du_2024_1796_art_43l\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43l. 1. Przedsiębiorca ponosi odpowiedzialność za brak zgodności z umową treści cyfrowej lub usługi cyfrowej dostarczanych jednorazowo lub w częściach, który istniał w chwili ich dostarczenia i ujawnił się w ciągu dwóch lat od tej chwili. Domniemywa się, że brak zgodności treści cyfrowej lub usługi cyfrowej z umową, który ujawnił się przed upływem roku od chwili dostarczenia treści cyfrowej lub usługi cyfrowej, istniał w chwili ich dostarc ...\"}, {\"chunk_id\": \"uokik_items:uokik_964db3ecff1a1542\", \"source_id\": \"uokik_rejestr_klauzul_461\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Korzystając z prawa do indywidualnego uzgodnienia warunków umowy wnoszę o zmianę następujących elementów umowy:...............poprzez nadanie im brzmienia jak w załączniku do umowy. Pozostałe nie wymienione wyżej postanowienia umowy uważam za indywidualnie uzgodnione, akceptując je bez zastrzeżeń co potwierdzam własnoręcznym podpisem, znając skutki prawne postanowień umowy\"}, {\"chunk_id\": \"extractor_v9:filtered_0302_statute_132afb432ada27a4\", \"source_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_type\": \"statute\", \"top_category\": \"consumer_rights\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"ową zawierającą oceniane postanowienie; 8) uzależniają spełnienie świadczenia od okoliczności zależnych tylko od woli kontrahenta konsumenta; 9) przyznają kontrahentowi konsumenta uprawnienia do dokonywania wiążącej interpretacji umowy; 10) uprawniają kontrahenta konsumenta do jednostronnej zmiany umowy bez ważnej przyczyny wskazanej w tej umowie; 11) przyznają tylko kontrahentowi konsumenta uprawnienie do stwierdzania zgodności świadczenia z umową; 12) wyłączają obowiązek zwrotu konsumentowi uiszczonej zapłaty za świadczenie niespełnione w całości lub części, jeżeli konsument zrezygnuje z zaw ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0274_statute_ccb9a29869daf7b4\", \"source_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_type\": \"statute\", \"top_category\": \"unilateral_change\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"jej wypowiedzenia; 15) zastrzegają dla kontrahenta konsumenta uprawnienie wypowiedzenia umowy zawartej na czas nieoznaczony, bez wskazania ważnych przyczyn i stosownego terminu wypowiedzenia; 16) nakładają wyłącznie na konsumenta obowiązek zapłaty ustalonej sumy na wypadek rezygnacji z zawarcia lub wykonania umowy; 17) nakładają na konsumenta, który nie wykonał zobowiązania lub odstąpił od umowy, obowiązek zapłaty rażąco wygórowanej kary umownej lub odstępnego; 18) stanowią, że umowa zawarta na czas oznaczony ulega przedłużeniu, o ile konsument, dla którego zastrzeżono rażąco krótki termin, ni ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}]",
+   "tool_call_id": "call_3abbd520d5b64d2fba94aecc",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_37_art_214\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 214. § 1. W razie potrzeby, a w szczególności gdy niezbędne jest ustalenie danych co do właściwości i warunków osobistych oraz dotychczasowego sposobu życia oskarżonego, sąd, a w postępowaniu przygotowawczym prokurator, zarządza w stosunku do oskarżonego przeprowadzenie wywiadu środowiskowego przez kuratora sądowego lub inny podmiot uprawniony na podstawie odrębnych przepisów, a w szczególnie uzasadnionych wypadkach przez Policję. §  ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0230_statute_adec0111d02445bd\", \"source_id\": \"sejm_eli_du_2023_725_art_7\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Właściciel może odstąpić od obniżenia czynszu, jeżeli w wyniku przeprowadzenia wywiadu środowiskowego ustali, że występuje rażąca dysproporcja między niskimi dochodami wykazanymi w złożonej deklaracji a faktycznym stanem majątkowym wnioskodawcy wskazującym, że jest on w stanie uiszczać czynsz nieobniżony, wykorzystując własne środki i posiadane zasoby finansowe. 8. Do sposobu przeprowadzenia wywiadu środowiskowego stosuje się odpowiednio przepisy w sprawie sposobu przeprowadzania wywiadu środowiskowego, wzoru kwestionariusza wywiadu oraz oświadczenia o stanie majątkowym wnioskodawcy i innych c ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_434\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 434. Sąd może zarządzić przeprowadzenie przez wyznaczoną osobę wywiadu środowiskowego w celu ustalenia warunków, w których żyją i wychowują się dzieci stron.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_561\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 561 1 . W sprawach, o których mowa w art. 561, sąd może zarządzić przeprowadzenie przez kuratora sądowego wywiadu środowiskowego w celu ustalenia warunków, w jakich żyją osoby ubiegające się o udzielenie zezwolenia.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_565\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 565 1 . W sprawach, o których mowa w art. 565, sąd może zarządzić przeprowadzenie przez kuratora sądowego wywiadu środowiskowego w celu ustalenia warunków, w jakich żyją małżonkowie.\"}]",
+   "tool_call_id": "call_f99960a945da43c289dca6d4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_9d8894f87c724413b7c72037",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ESG zrównoważony rozwój umowa handlowa B2B wymogi środowiskowe zielone zakupy ekologiczne zobowiązania dostawcy\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_24f5370d6b7940d3af0b0ea2",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ESG\", \"zielone zakupy\", \"ochrona środowiska\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"uokik_items:uokik_6967ebb63488c41f\", \"source_id\": \"uokik_rejestr_klauzul_7779\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ponadto Nabywca: c) przyjmuje do wiadomości, że dla zapewnienia prawidłowego funkcjonowania całego Osiedla, istnieje konieczność wykonywania przez Wspólnotę Mieszkaniową i jej członków wszelkich zobowiązań wynikających z odpowiednich warunków technicznych i umów o przyłączenie zawartych przez Dewelopera z dostawcami mediów, w szczególności nieodpłatnego udostępnienia dostawcom mediów i osobom przez nich wskazanym terenu i pomieszczeń, przez które przebiegają sieci i przyłącza mediów, a także miejsc w pomieszczeniach w celu zainstalowania niezbędnych urządzeń, w tym pomiarowych, regulacyjnych o ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_4\", \"source_id\": \"sejm_eli_du_2023_1790_art_4\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 4. Użyte w ustawie określenia oznaczają: 1) transakcja handlowa - umowę, której przedmiotem jest odpłatna dostawa towaru lub odpłatne świadczenie usługi, jeżeli strony, o których mowa w art. 2, zawierają ją w związku z wykonywaną działalnością; 1a) świadczenie pieniężne - wynagrodzenie za dostawę towaru lub wykonanie usługi w transakcji handlowej; 2) podmiot publiczny - podmioty, o których mowa w art. 4 ustawy z dnia 11 września 2019 r. - Prawo zamówień ...\"}, {\"chunk_id\": \"uokik_items:uokik_3f15e19eb2e99b2c\", \"source_id\": \"uokik_rejestr_klauzul_7436\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ponadto Nabywca przyjmuje do wiadomości, że dla zapewnienia prawidłowego funkcjonowania całego Osiedla (...), istnieje konieczność wykonywania przez Wspólnotę Mieszkaniową i jej członków wszelkich zobowiązań wynikających z warunków technicznych i umów o przyłączenie zawartych przez Dewelopera z dostawcami mediów, w szczególności nieodpłatnego udostępnienia dostawcom mediów i osobom przez nich wskazanym terenu i pomieszczeń, przez które przebiegają sieci i przyłącza mediów, a także miejsc w pomieszczeniach w celu zainstalowania niezbędnych urządzeń, w tym pomiarowych, regulacyjnych oraz stanowi ...\"}]",
+   "tool_call_id": "call_9d8894f87c724413b7c72037",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_24f5370d6b7940d3af0b0ea2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_5992621d3f674e978aa89df5",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa ramowa zrównoważony rozwój ekologiczne zobowiązania środowiskowe dostawca certyfikaty ISO 14001 ekologiczne standardy jakości\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_875df0362795448ea236bba9",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ISO 14001\", \"ekologiczne zobowiązania\", \"zielona umowa\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"uokik_items:uokik_04c6b424d156b49f\", \"source_id\": \"uokik_rejestr_klauzul_1256\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na okres …Roku tj. do dnia…2006 r. Po upływie tego terminu umowa ulega automatycznemu przedłużeniu na czas nieoznaczony (…), chyba, że strony postanowią inaczej\"}, {\"chunk_id\": \"uokik_items:uokik_fa33db9c3120ce67\", \"source_id\": \"uokik_rejestr_klauzul_4621\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Niniejsza umowa obowiązuje od dnia jej zawarcia do dnia końcowego rozliczenia wszystkich wzajemych zobowiązań stron\"}, {\"chunk_id\": \"uokik_items:uokik_6577f11e25fb6801\", \"source_id\": \"uokik_rejestr_klauzul_3711\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dostawca Usług może przenieść prawa i obowiązki wynikające z Umowy i Regulaminu na podmiot powiązany z nim kapitałowo lub organizacyjnie, z zachowaniem przez ten podmiot ciągłości świadczonej Usługi oraz warunków jej wykonania\"}, {\"chunk_id\": \"uokik_items:uokik_903211d81809c014\", \"source_id\": \"uokik_rejestr_klauzul_2832\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ewentualne spory mogące wyniknąć w związku z realizacją Umowy strony poddają właściwemu rzeczowo (...)\"}]",
+   "tool_call_id": "call_5992621d3f674e978aa89df5",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_875df0362795448ea236bba9",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcemy zawrzeć umowę ramową z dostawcą na stałą współpracę, ale musimy mieć pewność, że spełnia on nasze wymogi ekologiczne i cele zrównoważonego rozwoju."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planujemy podpisanie umowy ramowej na 3 lata z producentem opakowań na roczne zamówienia rzędu 500 tys. sztuk. Konieczne jest, by partner raportował ślad węglowy, stosował minimum 60% surowców z recyklingu, posiadał certyfikat FSC lub PEFC oraz zgadzał się na roczne audyty środowiskowe naszego zespołu."
+  }
+ ]
+}

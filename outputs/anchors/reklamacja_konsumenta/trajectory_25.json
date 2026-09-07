@@ -1,0 +1,326 @@
+{
+ "run": 28,
+ "hint": "Reklamacja towaru z rękojmi gdy sprzedawca twierdzi o winie kupującego",
+ "scenario": "Reklamacja towaru z rękojmi gdy sprzedawca twierdzi o winie kupującego",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consumer complaint (reklamacja_konsumenta) where the seller claims the buyer is at fault for the defect. I need to:\n\n1. First read the base template for reklamacja_konsumenta\n2. Search for relevant provisions about seller claiming buyer's fault, burden of proof, consumer rights when seller alleges misuse\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-5044bdae-bfaa-44a3-aba0-29eb69675dd5",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"reklamacja_konsumenta\", \"query\": \"reklamacja towaru z rękojmi gdy sprzedawca twierdzi o winie kupującego\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Reklamacja z tytułu rękojmi\\nReklamacja z tytułu rękojmi w Polsce to pisemne zgłoszenie kupującego skierowane do sprzedawcy, w którym kupujący informuje o wadzie zakupionego towaru i zgłasza jedno z uprawnień przysługujących mu z tytułu rękojmi za wady. Instytucja rękojmi uregulowana jest w art. 556-576 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.). Zgodnie z art. 556 Kodeksu cywilnego sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną. Rękojmia jest odpowiedzialnością ustawową, co oznacza, że przysługuje z mocy prawa i nie wymaga odrębnej umowy ani dodatkowej opłaty.\\n\\nWadą fizyczną, zgodnie z art. 556¹ Kodeksu cywilnego, jest niezgodność rzeczy sprzedanej z umową. Rzecz jest niezgodna z umową w szczególności wtedy, gdy nie ma właściwości, które rzecz tego rodzaju powinna mieć ze względu na cel oznaczony w umowie albo wynikający z okoliczności lub przeznaczenia, nie ma właściwości, o których istnieniu sprzedawca zapewnił kupującego, nie nadaje się do celu, o którym kupujący poinformował sprzedawcę, albo została wydana w stanie niezupełnym. Wada prawna występuje natomiast, gdy rzecz stanowi własność osoby trzeciej albo jest obciążona prawem osoby trzeciej.\\n\\nRękojmia różni się od gwarancji. Gwarancja, uregulowana w art. 577-581 Kodeksu cywilnego, jest dobrowolnym oświadczeniem gwaranta, najczęściej producenta, o jakości rzeczy, podczas gdy rękojmia jest ustawową odpowiedzialnością sprzedawcy. Kupujący może wykonywać uprawnienia z tytułu rękojmi niezależnie od uprawnień wynikających z gwarancji, a wybór między tymi reżimami należy do kupującego. Reklamacja z tytułu rękojmi kierowana jest zawsze do sprzedawcy, a nie do producenta.\\n\\nUprawnienia kupującego z tytułu rękojmi określają art. 560 i art. 561 Kodeksu cywilnego. Kupujący może złożyć oświadczenie o obniżeniu ceny albo o odstąpieniu od umowy, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności wymieni rzecz wadliwą na wolną od wad albo wadę usunie. Kupujący może też żądać wymiany rzeczy na wolną od wad albo usunięcia wady. Od umowy nie można odstąpić, jeżeli wada jest nieistotna. Wybór uprawnienia należy co do zasady do kupującego, z uwzględnieniem ograniczeń przewidzianych w ustawie.\\n\\nTermin odpowiedzialności sprzedawcy z tytułu rękojmi wynosi dwa lata od dnia wydania rzeczy kupującemu zgodnie z art. 568 Kodeksu cywilnego. W obrocie konsumenckim obowiązuje korzystne dla kupującego domniemanie: jeżeli wada fizyczna została stwierdzona przed upływem roku od wydania rzeczy, domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego (art. 556² Kodeksu cywilnego), co przerzuca ciężar dowodu na sprzedawcę. Brak rozpatrzenia reklamacji konsumenta w terminie czternastu dni uważa się za jej uznanie. Praw konsumentów strzeże Urząd Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nReklamacja z tytułu rękojmi wpisze się w szerszy system ochrony nabywcy. Obok rękojmi i gwarancji konsument korzysta z obowiązków informacyjnych przedsiębiorcy wynikających z ustawy z dnia 30 maja 2014 r. o prawach konsumenta, a przy zakupach na odległość — z odrębnego prawa odstąpienia od umowy w terminie czternastu dni bez podania przyczyny (art. 27 tej ustawy). Te uprawnienia są niezależne: kupujący może najpierw odstąpić od umowy zawartej na odległość, a gdyby tego nie zrobił, później reklamować wadliwy towar w ramach rękojmi. Zrozumienie różnicy między reklamacją wady a zwrotem towaru w ramach odstąpienia pozwala kupującemu wybrać ścieżkę najlepiej odpowiadającą jego sytuacji.\\n\\nReklamacja z tytułu rękojmi w Polsce jest potrzebna wtedy, gdy zakupiony towar okazuje się wadliwy lub niezgodny z umową, a kupujący chce skorzystać z ustawowej odpowiedzialności sprzedawcy uregulowanej w art. 556-576 Kodeksu cywilnego. Reklamacja pozwala domagać się naprawy, wymiany, obniżenia ceny albo, przy istotnej wadzie, odstąpienia od umowy.\\n\\nDokument jest stosowany, gdy rzecz nie ma właściwości, które powinna mieć ze względu na swój cel lub przeznaczenie — na przykład sprzęt elektroniczny nie działa prawidłowo, mebel ma ukryte uszkodzenia, samochód ma wadę silnika, a odzież rozpada się przy normalnym użytkowaniu. Wadą jest również brak właściwości, o których sprzedawca zapewniał, niezdatność do celu wskazanego przez kupującego oraz wydanie rzeczy w stanie niezupełnym, na co wskazuje art. 556¹ Kodeksu cywilnego.\\n\\nReklamacja jest potrzebna w terminie odpowiedzialności sprzedawcy, który zgodnie z art. 568 Kodeksu cywilnego wynosi dwa lata od wydania rzeczy. Szczególnie korzystne dla kupującego jest zgłoszenie wady przed upływem roku od wydania rzeczy, ponieważ wówczas działa domniemanie, że wada istniała w chwili przejścia niebezpieczeństwa (art. 556² Kodeksu cywilnego), a ciężar dowodu spoczywa na sprzedawcy.\\n\\nDokument bywa wykorzystywany niezależnie od gwarancji. Jeżeli kupujący otrzymał gwarancję producenta, może wybrać, czy korzysta z rękojmi wobec sprzedawcy, czy z gwarancji wobec gwaranta. Reklamacja z tytułu rękojmi jest często korzystniejsza, ponieważ kieruje się ją do sprzedawcy, u którego dokonano zakupu, i opiera się na ustawowych uprawnieniach, niezależnych od warunków określonych jednostronnie przez gwaranta.\\n\\nReklamacja jest potrzebna także po to, by uruchomić korzystny dla konsumenta mechanizm milczącego uznania. Jeżeli konsument zażądał naprawy, wymiany albo złożył oświadczenie o obniżeniu ceny, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie uznał. Pisemna reklamacja z oznaczoną datą pozwala precyzyjnie ustalić bieg tego terminu. W razie sporu ze sprzedawcą konsument może skorzystać z pomocy miejskiego lub powiatowego rzecznika konsumentów albo zgłosić sprawę do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nDokument bywa potrzebny również w obrocie między przedsiębiorcami, choć wówczas zasady są mniej korzystne dla kupującego. W relacjach profesjonalnych obowiązuje akt staranności z art. 563 Kodeksu cywilnego — kupujący traci uprawnienia z rękojmi, jeżeli nie zbadał rzeczy w czasie i w sposób przyjęty przy rzeczach tego rodzaju i nie zawiadomił sprzedawcy o wadzie niezwłocznie, a w przypadku gdy wada wyszła na jaw dopiero później, jeżeli nie zawiadomił sprzedawcy niezwłocznie po jej stwierdzeniu. Z tego względu przedsiębiorca powinien reklamować wadę bez zwłoki i zachować dowód terminowego zgłoszenia, podczas gdy konsumenta surowy rygor aktu staranności co do zasady nie obciąża.\\n\\nPrawidłowa reklamacja z tytułu rękojmi w Polsce, oparta na art. 556-576 Kodeksu cywilnego, powinna zawierać elementy pozwalające jednoznacznie zidentyfikować strony, towar, wadę oraz zgłaszane żądanie.\\n\\nOznaczenie kupującego: imię, nazwisko i adres kupującego składającego reklamację, a także adres e-mail do kontaktu oraz numer rachunku bankowego na wypadek zwrotu środków przy obniżeniu ceny lub odstąpieniu od umowy. Dane te umożliwiają sprzedawcy kontakt i prawidłowe rozliczenie reklamacji.\\n\\nOznaczenie sprzedawcy: nazwa i adres sprzedawcy, do którego kierowana jest reklamacja. Reklamację z tytułu rękojmi kieruje się do sprzedawcy, u którego dokonano zakupu, a nie do producenta. W przypadku sklepu internetowego dane sprzedawcy znajdują się w regulaminie i w informacjach przedkontraktowych.\\n\\nIdentyfikacja towaru i dowód zakupu: dokładne oznaczenie reklamowanego towaru wraz z numerem paragonu, faktury lub zamówienia oraz datą zakupu lub wydania rzeczy. Data wydania ma istotne znaczenie, ponieważ od niej liczy się dwuletni termin odpowiedzialności z tytułu rękojmi zgodnie z art. 568 Kodeksu cywilnego.\\n\\nOpis wady: szczegółowy opis, na czym polega wada fizyczna lub niezgodność rzeczy z umową w rozumieniu art. 556¹ Kodeksu cywilnego, wraz ze wskazaniem daty wykrycia wady. Dokładny opis ułatwia sprzedawcy ocenę zasadności reklamacji i jest istotny dowodowo.\\n\\nŻądanie z tytułu rękojmi: jednoznaczne wskazanie wybranego uprawnienia spośród przewidzianych w art. 560-561 Kodeksu cywilnego — usunięcia wady (naprawy), wymiany rzeczy na wolną od wad, obniżenia ceny albo odstąpienia od umowy. Przy żądaniu obniżenia ceny należy podać proponowaną kwotę, a od umowy nie można odstąpić, jeżeli wada jest nieistotna.\\n\\nWskazanie podstawy prawnej: choć kupujący nie ma obowiązku powoływania przepisów, wskazanie, że reklamacja składana jest z tytułu rękojmi na podstawie art. 556 i nast. Kodeksu cywilnego, porządkuje sprawę i sygnalizuje sprzedawcy, że kupujący korzysta z rękojmi, a nie z gwarancji. Jest to szczególnie przydatne, gdy towar objęty jest jednocześnie gwarancją producenta, ponieważ pozwala uniknąć błędnego skierowania reklamacji do gwaranta i jednoznacznie określa reżim odpowiedzialności.\\n\\nWezwanie do rozpatrzenia w terminie i postanowienia końcowe: reklamacja powinna zawierać wniosek o rozpatrzenie w terminie czternastu dni, z zaznaczeniem, że brak odpowiedzi w tym terminie przy żądaniu konsumenta oznacza uznanie reklamacji. Należy dołączyć kopię dowodu zakupu i dokumentację wady oraz poprosić o pisemne potwierdzenie przyjęcia reklamacji. Serwis forms-legal.com udostępnia wzór reklamacji z tytułu rękojmi jako praktyczny punkt wyjścia. Dokument powinien zawierać miejscowość, datę złożenia i podpis kupującego, a jego wysyłka listem poleconym lub e-mailem z potwierdzeniem zapewnia dowód daty zgłoszenia.\\n\\nWypełnianie reklamacji z tytułu rękojmi w Polsce zacznij od wpisania swoich danych jako kupującego — imienia, nazwiska, adresu, adresu e-mail oraz numeru rachunku bankowego na wypadek zwrotu środków przy obniżeniu ceny lub odstąpieniu od umowy. Pełne dane ułatwiają sprzedawcy kontakt i rozliczenie.\\n\\nW polu sprzedawcy wpisz nazwę i adres przedsiębiorcy, u którego dokonano zakupu. Pamiętaj, że reklamację z tytułu rękojmi kieruje się do sprzedawcy, a nie do producenta. Dane sprzedawcy znajdziesz na paragonie, fakturze lub w regulaminie sklepu internetowego.\\n\\nW części dotyczącej towaru dokładnie oznacz reklamowany produkt, na przykład \\\"pralka automatyczna, model ABC-123\\\", podaj numer dowodu zakupu, na przykład \\\"faktura nr 45/2025 z dnia 02.02.2025 r.\\\", oraz datę zakupu lub wydania rzeczy. Data wydania jest ważna, ponieważ od niej biegnie dwuletni termin rękojmi zgodnie z art. 568 Kodeksu cywilnego.\\n\\nOpisz wadę możliwie szczegółowo, wskazując, na czym polega niezgodność rzeczy z umową, na przykład \\\"pralka nie wiruje, a podczas pracy wydobywa się dym\\\". Podaj datę wykrycia wady. Im dokładniejszy opis, tym łatwiej sprzedawcy ocenić zasadność reklamacji, a tobie wykazać niezgodność z umową w rozumieniu art. 556¹ Kodeksu cywilnego.\\n\\nW sekcji żądania wybierz jedno z uprawnień przysługujących z art. 560-561 Kodeksu cywilnego: usunięcie wady (naprawę), wymianę rzeczy na wolną od wad, obniżenie ceny albo odstąpienie od umowy przy istotnej wadzie. Jeżeli żądasz obniżenia ceny, wpisz proponowaną kwotę. Na koniec uzupełnij miejscowość i datę złożenia reklamacji oraz złóż podpis. Dołącz kopię dowodu zakupu i dokumentację wady, na przykład zdjęcia, a reklamację wyślij listem poleconym lub e-mailem z potwierdzeniem i zachowaj dowód nadania — pozwoli to ustalić bieg czternastodniowego terminu na rozpatrzenie reklamacji.\\n\\nWymogi prawne reklamacji z tytułu rękojmi w Polsce wynikają z art. 556-576 Kodeksu cywilnego. Zgodnie z art. 556 sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną. Wadą fizyczną jest niezgodność rzeczy z umową, której przykłady wymienia art. 556¹ Kodeksu cywilnego. Odpowiedzialność z tytułu rękojmi jest odpowiedzialnością ustawową i przysługuje z mocy prawa, niezależnie od ewentualnej gwarancji.\\n\\nUprawnienia kupującego określają art. 560 i art. 561 Kodeksu cywilnego. Kupujący może złożyć oświadczenie o obniżeniu ceny albo o odstąpieniu od umowy, chyba że sprzedawca niezwłocznie i bez nadmiernych niedogodności wymieni rzecz wadliwą na wolną od wad albo wadę usunie. Kupujący może także żądać wymiany rzeczy na wolną od wad albo usunięcia wady. Od umowy nie można odstąpić, jeżeli wada jest nieistotna. Sprzedawca, który nie ustosunkował się do żądania konsumenta w terminie czternastu dni, uważany jest za uznającego reklamację.\\n\\nTermin odpowiedzialności z tytułu rękojmi wynosi dwa lata od wydania rzeczy kupującemu zgodnie z art. 568 Kodeksu cywilnego. W obrocie konsumenckim działa domniemanie z art. 556² Kodeksu cywilnego: jeżeli wada fizyczna została stwierdzona przed upływem roku od wydania rzeczy, domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego, co przerzuca ciężar dowodu na sprzedawcę. Rozliczenia związane z obniżeniem ceny lub odstąpieniem od umowy następują zgodnie z przepisami o rękojmi, a w razie zwłoki sprzedawcy kupujący może żądać odsetek za opóźnienie na podstawie art. 481 Kodeksu cywilnego.\\n\\nRękojmię należy odróżnić od gwarancji uregulowanej w art. 577-581 Kodeksu cywilnego, która jest dobrowolnym oświadczeniem gwaranta. Kupujący może wykonywać uprawnienia z tytułu rękojmi niezależnie od gwarancji. W relacjach konsumenckich zastosowanie znajdują również szczególne przepisy konsumenckie wzmacniające ochronę kupującego, a przestrzeganie praw konsumentów nadzoruje Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK). Konsument może skorzystać z bezpłatnej pomocy miejskiego lub powiatowego rzecznika konsumentów.\\n\\nNajczęstsze błędy przy reklamacji z tytułu rękojmi w Polsce zaczynają się od kierowania reklamacji do niewłaściwego podmiotu. Reklamację z tytułu rękojmi składa się do sprzedawcy, u którego dokonano zakupu, a nie do producenta — to do producenta kieruje się roszczenia z gwarancji. Pomylenie tych reżimów może opóźnić rozpatrzenie sprawy i osłabić pozycję kupującego.\\n\\nKolejnym błędem jest zbyt ogólnikowy opis wady. Stwierdzenie \\\"towar jest zepsuty\\\" bez wskazania, na czym dokładnie polega niezgodność z umową, utrudnia sprzedawcy ocenę reklamacji i osłabia jej wartość dowodową. Opis powinien precyzyjnie przedstawiać wadę w rozumieniu art. 556¹ Kodeksu cywilnego, najlepiej wraz z dokumentacją, na przykład zdjęciami lub nagraniem.\\n\\nPowszechnym uchybieniem jest brak jednoznacznego żądania. Kupujący niekiedy jedynie zgłasza wadę, nie wskazując, czy żąda naprawy, wymiany, obniżenia ceny czy odstąpienia od umowy. Tymczasem uprawnienia z art. 560-561 Kodeksu cywilnego wymagają wyraźnego określenia, a brak żądania utrudnia ustalenie biegu czternastodniowego terminu na rozpatrzenie reklamacji konsumenta.\\n\\nBłędem jest przekroczenie terminu rękojmi lub niezachowanie dowodu zakupu. Odpowiedzialność sprzedawcy trwa dwa lata od wydania rzeczy (art. 568 Kodeksu cywilnego), a brak paragonu, faktury lub innego dowodu zakupu utrudnia wykazanie, że to u danego sprzedawcy i kiedy dokonano zakupu. Choć dowód zakupu nie jest jedynym dopuszczalnym środkiem dowodowym, jego brak komplikuje sprawę.\\n\\nWreszcie częstym uchybieniem jest próba odstąpienia od umowy przy wadzie nieistotnej. Zgodnie z art. 560 Kodeksu cywilnego od umowy nie można odstąpić, jeżeli wada jest nieistotna — w takim przypadku kupującemu przysługują inne uprawnienia, na przykład naprawa lub obniżenie ceny. Warto także pamiętać, że brak reakcji sprzedawcy w terminie czternastu dni na żądanie konsumenta oznacza uznanie reklamacji, dlatego należy zachować dowód jej złożenia i daty, a w razie sporu skorzystać z pomocy rzecznika konsumentów lub Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nUchybieniem bywa również zwlekanie ze zgłoszeniem wady przez przedsiębiorcę dokonującego zakupu w obrocie profesjonalnym. W przeciwieństwie do konsumenta przedsiębiorca podlega aktowi staranności z art. 563 Kodeksu cywilnego i traci uprawnienia z rękojmi, jeżeli nie zawiadomi sprzedawcy o wadzie niezwłocznie po jej stwierdzeniu. Innym błędem jest samodzielna naprawa wadliwej rzeczy lub jej przerobienie przed zgłoszeniem reklamacji, co może utrudnić wykazanie pierwotnej wady i dać sprzedawcy argument, że uszkodzenie powstało z winy kupującego. Przed reklamacją warto udokumentować stan rzeczy, na przykład wykonując zdjęcia, i powstrzymać się od ingerencji, która mogłaby zatrzeć ślady wady.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/reklamacja-z-tytulu-rekojmi (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-5044bdae-bfaa-44a3-aba0-29eb69675dd5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. The scenario is about a consumer complaint where the seller claims the buyer is at fault for the defect. I need to search for relevant provisions about:\n1. Burden of proof when seller alleges buyer's fault/misuse\n2. Art. 556² KC - presumption of defect existing at time of delivery (within 1 year)\n3. Consumer protection provisions that shift burden to seller\n4. Relevant case law or provisions about seller's defense of buyer's fault\n\nLet me search for these specific topics.",
+   "tool_calls": [
+    {
+     "id": "call-a386094f-8fbb-4d94-90ed-1a7256cbd86e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedawca twierdzi wina kupującego wada rękojmia ciężar dowodu art. 556² Kodeks cywilny\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_559\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 559. Sprzedawca jest odpowiedzialny z tytułu rękojmi za wady fizyczne, które istniały w chwili przejścia niebezpieczeństwa na kupującego lub wynikły z przyczyny tkwiącej w rzeczy sprzedanej w tej samej chwili.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_557\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 557. § 1. Sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili zawarcia umowy. § 2. Gdy przedmiotem sprzedaży są rzeczy oznaczone tylko co do gatunku albo rzeczy mające powstać w przyszłości, sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili wydania rzeczy. § 3. Sprzedawca nie jest odpowiedzialny względem kupującego będącego konsument ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_558\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 558. § 1. Strony mogą odpowiedzialność z tytułu rękojmi rozszerzyć, ograniczyć lub wyłączyć. Jeżeli kupującym jest konsument, ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych. § 2. Wyłączenie lub ograniczenie odpowiedzialności z tytułu rękojmi jest bezskuteczne, jeżeli sprzedawca zataił podstępnie wadę przed kupującym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}]",
+   "tool_call_id": "call-a386094f-8fbb-4d94-90ed-1a7256cbd86e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I need to find the specific article 556² (art. 5562) which deals with the presumption that the defect existed at the time of delivery when discovered within one year. Let me search for that specifically.",
+   "tool_calls": [
+    {
+     "id": "call-3d1f6374-3a8e-4132-a332-19cf38497587",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 5562\", \"art. 556²\", \"5562\", \"domniemanie wada rok\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-3d1f6374-3a8e-4132-a332-19cf38497587",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_d20ffa35e51f425c9c442d0c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 556\", \"5562\", \"domniemanie\", \"rok od wydania\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_466\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 466. Z pokwitowania zapłaty dłużnej sumy wynika domniemanie zapłaty należności ubocznych. Z pokwitowania świadczenia okresowego wynika domniemanie, że spełnione zostały również świadczenia okresowe wymagalne wcześniej.\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_611fw\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 611fw. § 1. Odmawia się wykonania orzeczenia przepadku korzyści majątkowej albo jej równowartości w części, w której zostało ono wydane w oparciu o domniemanie pochodzenia tej korzyści z przestępstwa, inne niż domniemanie: 1) pochodzenia korzyści majątkowej z przestępstwa innego niż to, za które sprawca został skazany, popełnionego do chwili wydania chociażby nieprawomocnego wyroku; 2) pochodzenia korzyści majątkowej z innego przestę ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_2809_art_72\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 72. § 1. Jeżeli nie zachodzi domniemanie, że ojcem dziecka jest mąż jego matki, albo gdy domniemanie takie zostało obalone, ustalenie ojcostwa może nastąpić albo przez uznanie ojcostwa albo na mocy orzeczenia sądu. § 2. Uznanie ojcostwa nie może nastąpić, jeżeli toczy się sprawa o ustalenie ojcostwa.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_341\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 341. Domniemywa się, że posiadanie jest zgodne ze stanem prawnym. Domniemanie to dotyczy również posiadania przez poprzedniego posiadacza.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_1025\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 1025. § 1. Sąd na wniosek osoby mającej w tym interes stwierdza nabycie spadku przez spadkobiercę. Notariusz na zasadach określonych w przepisach odrębnych sporządza akt poświadczenia dziedziczenia. § 2. Domniemywa się, że osoba, która uzyskała stwierdzenie nabycia spadku albo poświadczenie dziedziczenia, jest spadkobiercą. § 3. Przeciwko domniemaniu wynikającemu ze stwierdzenia nabycia spadku nie można powoływać się na domniemanie wynikające z  ...\"}]",
+   "tool_call_id": "call_d20ffa35e51f425c9c442d0c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_ddc4a532e8444972a1292ae0",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"art. 556² KC domniemanie istnienia wady w chwili przejścia niebezpieczeństwa ciężar dowodu sprzedawca konsument\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 2 . Jeżeli kupującym jest konsument, a wada została stwierdzona przed upływem roku od dnia wydania rzeczy sprzedanej, domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_559\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 559. Sprzedawca jest odpowiedzialny z tytułu rękojmi za wady fizyczne, które istniały w chwili przejścia niebezpieczeństwa na kupującego lub wynikły z przyczyny tkwiącej w rzeczy sprzedanej w tej samej chwili.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_548\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 548. § 1. Z chwilą wydania rzeczy sprzedanej przechodzą na kupującego korzyści i ciężary związane z rzeczą oraz niebezpieczeństwo przypadkowej utraty lub uszkodzenia rzeczy. § 2. Jeżeli strony zastrzegły inną chwilę przejścia korzyści i ciężarów, poczytuje się w razie wątpliwości, że niebezpieczeństwo przypadkowej utraty lub uszkodzenia rzeczy przechodzi na kupującego z tą samą chwilą. § 3. Jeżeli rzecz sprzedana ma zostać przesłana przez sprzed ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561. § 1. Jeżeli rzecz sprzedana ma wadę, kupujący może żądać wymiany rzeczy na wolną od wad albo usunięcia wady. § 2. Sprzedawca jest obowiązany wymienić rzecz wadliwą na wolną od wad lub usunąć wadę w rozsądnym czasie bez nadmiernych niedogodności dla kupującego. § 3. Sprzedawca może odmówić zadośćuczynienia żądaniu kupującego, jeżeli doprowadzenie do zgodności z umową rzeczy wadliwej w sposób wybrany przez kupującego jest niemożliwe albo w po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 1 . § 1. Wada polega na niezgodności rzeczy sprzedanej z umową. W szczególności rzecz sprzedana jest niezgodna z umową, jeżeli: 1) nie ma właściwości, które rzecz tego rodzaju powinna mieć ze względu na cel w umowie oznaczony albo wynikający z okoliczności lub przeznaczenia; 2) nie ma właściwości, o których istnieniu sprzedawca zapewnił kupującego, w tym przedstawiając próbkę lub wzór; 3) nie nadaje się do celu, o którym kupujący poinformowa ...\"}]",
+   "tool_call_id": "call_ddc4a532e8444972a1292ae0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "I found the key article - art. 556² KC. Now let me search for more specific provisions about seller's defense of buyer's fault, and also the consumer rights act provisions about 14-day silent acceptance.",
+   "tool_calls": [
+    {
+     "id": "call-452bcc45-5279-4468-868f-28794b581356",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedawca twierdzi winę kupującego nieprawidłowe użytkowanie obrona rękojmia art. 556 559 Kodeks cywilny\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_559\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 559. Sprzedawca jest odpowiedzialny z tytułu rękojmi za wady fizyczne, które istniały w chwili przejścia niebezpieczeństwa na kupującego lub wynikły z przyczyny tkwiącej w rzeczy sprzedanej w tej samej chwili.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_557\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 557. § 1. Sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili zawarcia umowy. § 2. Gdy przedmiotem sprzedaży są rzeczy oznaczone tylko co do gatunku albo rzeczy mające powstać w przyszłości, sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili wydania rzeczy. § 3. Sprzedawca nie jest odpowiedzialny względem kupującego będącego konsument ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_558\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 558. § 1. Strony mogą odpowiedzialność z tytułu rękojmi rozszerzyć, ograniczyć lub wyłączyć. Jeżeli kupującym jest konsument, ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych. § 2. Wyłączenie lub ograniczenie odpowiedzialności z tytułu rękojmi jest bezskuteczne, jeżeli sprzedawca zataił podstępnie wadę przed kupującym.\"}, {\"chunk_id\": \"uokik_items:uokik_9ca4218d9e0677f0\", \"source_id\": \"uokik_rejestr_klauzul_911\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca udziela gwarancji na sprzedany wyrób na okres 12 miesięcy od daty wydania. W zakresie odpowiedzialności z tytułu reklamacji i rękojmi obowiązują przepisy art. 556-568, 577-581 Kodeksu Cywilnego\"}]",
+   "tool_call_id": "call-452bcc45-5279-4468-868f-28794b581356",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Reklamacja z tytułu rękojmi – odpowiedź na zarzut winy kupującego\n\n**Miejscowość, data:** ................................................\n\n**1. Dane kupującego (reklamującego)**\nImię i nazwisko: ..................................................................\nAdres zamieszkania: ..............................................................\nAdres e-mail: ..................................................................\nNumer telefonu: ..................................................................\nNumer rachunku bankowego (do ewentualnego zwrotu środków): ..................................................................\n\n**2. Dane sprzedawcy**\nNazwa/Nazwa handlowa: ..............................................................\nAdres siedziby/miejsca prowadzenia działalności: ..............................................................\nNIP: ..................................................................\nAdres e-mail do korespondencji reklamacyjnej: ..................................................................\n\n**3. Identyfikacja towaru i dowód zakupu**\nNazwa towaru (model, typ, numer seryjny jeśli dotyczy): ..............................................................\nNumer paragonu / faktury / zamówienia: ..............................................................\nData zakupu / wydania rzeczy: ..............................................................\nMiejsce zakupu (sklep stacjonarny / internetowy – adres URL): ..............................................................\n\n**4. Opis wady (niezgodności z umową w rozumieniu art. 556¹ K.C.)**\nSzczegółowy opis wady fizycznej / niezgodności rzeczy z umową:\n................................................................................................................................................\n................................................................................................................................................\n................................................................................................................................................\nData wykrycia wady: ..............................................................\n\n**5. Podstawa prawna reklamacji**\nNiniejsza reklamacja złożona jest **z tytułu rękojmi** na podstawie **art. 556–576 Kodeksu cywilnego (Dz.U. 2024 poz. 1061)**. Kupujący korzysta z ustawowej odpowiedzialności sprzedawcy za wady fizyczne rzeczy sprzedanej, niezależnie od ewentualnej gwarancji producenta.\n\n**6. Kluczowe argumenty prawne w odniesieniu do zarzutu winy kupującego**\n\n6.1. **Domniemanie istnienia wady w chwili przejścia niebezpieczeństwa (art. 556² K.C.)**\nJako że kupujący ma status konsumenta, a wada została stwierdzona przed upływem **roku od dnia wydania rzeczy** (data wydania: ................................................), z mocy **art. 556² § 1 K.C. domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego**. Ciężar dowodu, że wada powstała po przejściu niebezpieczeństwa (np. z winy kupującego), spoczywa wyłącznie na sprzedawcy.\n\n6.2. **Zakres odpowiedzialności sprzedawcy (art. 559 K.C.)**\nZgodnie z **art. 559 K.C.**, sprzedawca odpowiada za wady fizyczne, które istniały w chwili przejścia niebezpieczeństwa na kupującego **lub wynikły z przyczyny tkwiącej w rzeczy sprzedanej w tej samej chwili**. Oznacza to, że nawet jeśli wada ujawniła się później, sprzedawca ponosi odpowiedzialność, jeśli jej przyczyna tkwiła w towarze już przy wydaniu. Zarzut „nieprawidłowego użytkowania” nie zwalnia sprzedawcy z odpowiedzialności, jeśli towar nie był odporny na normalne, zgodne z przeznaczeniem użytkowanie.\n\n6.3. **Brak zwolnienia z odpowiedzialności (art. 557 K.C.)**\nSprzedawca jest zwolniony z odpowiedzialności z tytułu rękojmi jedynie, jeżeli kupujący **wiedział o wadzie w chwili zawarcia umowy** (art. 557 § 1 K.C.). Nieznajomość wady lub jej przyczyny przez kupującego w momencie zakupu nie stanowi podstawy do odrzucenia reklamacji. Zarzut winy kupującego nie jest równoważny z wiedzą o wadzie przy zawarciu umowy.\n\n6.4. **Bezskuteczność ograniczeń odpowiedzialności (art. 558 K.C.)**\nW relacji z konsumentem każde ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych (art. 558 § 1 K.C.). Regulaminy sklepowe, formularze gwarancyjne czy ustne oświadczenia sprzedawcy nie mogą skutecznie ograniczać praw konsumenta wynikających z rękojmi. Jeżeli sprzedawca zataił wadę podstępnie, wyłączenie odpowiedzialności jest bezskuteczne (art. 558 § 2 K.C.).\n\n**7. Żądanie z tytułu rękojmi (wybór uprawnienia z art. 560–561 K.C.)**\nW oparciu o powyższe, kupujący **jednoznacznie żąda** (należy zaznaczyć jedno):\n\n☐ **Usunięcia wady (naprawy)** – w terminie rozsądnym, bez nadmiernych niedogodności, kosztem sprzedawcy (art. 561 § 1 i 2 K.C.).\n\n☐ **Wymiany rzeczy na wolną od wad** – nowego egzemplarza tego samego modelu lub o parametrach nie mniej korzystnych, w terminie rozsądnym, bez nadmiernych niedogodności, kosztem sprzedawcy (art. 561 § 1 i 2 K.C.).\n\n☐ **Obniżenia ceny** – o kwotę: ...................... PLN, proporcjonalną do relacji wartości rzeczy wadliwej do wartości rzeczy wolnej od wad (art. 560 § 1 K.C.). Numer rachunku do zwrotu: ..................................................................\n\n☐ **Odstąpienia od umowy** – z uwagi na istotność wady (art. 560 § 1 K.C.). Kupujący zwróci rzecz wadliwą na koszt sprzedawcy, a sprzedawca zwróci zapłaconą cenę w terminie 14 dni od otrzymania oświadczenia.\n\n*Uwaga: Sprzedawca może uniknąć odstąpienia od umowy lub obniżenia ceny, jeżeli niezwłocznie i bez nadmiernych niedogodności wymieni rzecz na wolną od wad albo wadę usunie (art. 560 § 1 K.C.). Od umowy nie można odstąpić, jeżeli wada jest nieistotna.*\n\n**8. Wezwanie do rozpatrzenia w terminie 14 dni – milczące uznanie**\nZgodnie z art. 561 § 5 K.C. w związku z art. 560 § 2 K.C. oraz przepisami o ochronie praw konsumentów, **wezwanie do rozpatrzenia niniejszej reklamacji i zadośćuczynienia żądaniu w terminie 14 dni kalendarzowych od daty jej doręczenia**. Brak ustosunkowania się do żądania w tym terminie przy reklamacji konsumenta **oznacza jej uznanie** (milczące uznanie reklamacji).\n\n**9. Zastrzeżenie roszczeń dodatkowych**\nKupujący zastrzega prawo do żądania:\n- odsetek za opóźnienie w zwrocie ceny / obniżonej cenie na podstawie art. 481 K.C.,\n- odszkodowania za inne szkody wynikłe z wady towaru (np. koszty ekspertyzy, transportu, utylizacji),\n- pokrycia kosztów ewentualnego postępowania sądowego lub mediacji.\n\n**10. Załączniki**\n☐ Kopia dowodu zakupu (paragon / faktura / potwierdzenie zamówienia)\n☐ Zdjęcia / nagranie wideo dokumentujące wadę\n☐ Ewentualne protokoły serwisowe, opinie eksperckie, korespondencja ze sprzedawcą\n☐ Inne: ..................................................................\n\n**11. Adres do zwrotu towaru (wymagany przy wymianie, naprawie lub odstąpieniu)**\nProszę o wskazanie adresu, na jaki należy doręczyć rzecz wadliwą (zgodnie z art. 561 § 4 K.C. sprzedawca pokrywa koszty dostawy rzeczy wadliwej do miejsca, w którym może zostać naprawiona lub wymieniona, a w razie odstąpienia – koszty zwrotu):\n................................................................................................................................................\n\n**12. Klauzula końcowa**\nNiniejsza reklamacja nie wyczerpuje uprawnień kupującego wynikających z przepisów o ochronie praw konsumentów, w tym prawa do skorzystania z pomocy miejskiego/powiatowego rzecznika konsumentów oraz zgłoszenia naruszenia interesów zbiorowych konsumentów do Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK). Kupujący zastrzega prawo do dochodzenia roszczeń w drodze sądowej w przypadku nierozpatrzenia reklamacji lub jej odrzucenia.\n\n**Podpis kupującego:**\n................................................................................\n\n---\n\n**Wskazówki do wysyłki:**\n1. Reklamację wysylij **listem poleconym z potwierdzeniem odbioru** lub **e-mailem z potwierdzeniem przeczytania / odbioru** na adres korespondencyjny sprzedawcy (z regulaminu sklepu / faktury).\n2. Zachowaj **dowód nadania i doręczenia** – decyduje on o biegu 14-dniowego terminu na rozpatrzenie.\n3. Jeśli sprzedawca odrzuci reklamację z powodu „winy kupującego”, a wada została zgłoszona w ciągu roku od wydania – **ciężar dowodu leży na sprzedawcy** (art. 556² K.C.). Sprzedawca musi udowodnić, że wada powstała po przejściu niebezpieczeństwa i nie wynika z przyczyny tkwiącej w towarze przy wydaniu.\n4. W razie sporu skontaktuj się z **rzecznikiem konsumentów** (bezpłatna pomoc) lub zgłoś sprawę do **UOKiK**.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Reklamacja z tytułu rękojmi – odpowiedź na zarzut winy kupującego\n\n**Miejscowość, data:** ................................................\n\n**1. Dane kupującego (reklamującego)**\nImię i nazwisko: ..................................................................\nAdres zamieszkania: ..............................................................\nAdres e-mail: ..................................................................\nNumer telefonu: ..................................................................\nNumer rachunku bankowego (do ewentualnego zwrotu środków): ..................................................................\n\n**2. Dane sprzedawcy**\nNazwa/Nazwa handlowa: ..............................................................\nAdres siedziby/miejsca prowadzenia działalności: ..............................................................\nNIP: ..................................................................\nAdres e-mail do korespondencji reklamacyjnej: ..................................................................\n\n**3. Identyfikacja towaru i dowód zakupu**\nNazwa towaru (model, typ, numer seryjny jeśli dotyczy): ..............................................................\nNumer paragonu / faktury / zamówienia: ..............................................................\nData zakupu / wydania rzeczy: ..............................................................\nMiejsce zakupu (sklep stacjonarny / internetowy – adres URL): ..............................................................\n\n**4. Opis wady (niezgodności z umową w rozumieniu art. 556¹ K.C.)**\nSzczegółowy opis wady fizycznej / niezgodności rzeczy z umową:\n................................................................................................................................................\n................................................................................................................................................\n................................................................................................................................................\nData wykrycia wady: ..............................................................\n\n**5. Podstawa prawna reklamacji**\nNiniejsza reklamacja złożona jest **z tytułu rękojmi** na podstawie **art. 556–576 Kodeksu cywilnego (Dz.U. 2024 poz. 1061)**. Kupujący korzysta z ustawowej odpowiedzialności sprzedawcy za wady fizyczne rzeczy sprzedanej, niezależnie od ewentualnej gwarancji producenta.\n\n**6. Kluczowe argumenty prawne w odniesieniu do zarzutu winy kupującego**\n\n6.1. **Domniemanie istnienia wady w chwili przejścia niebezpieczeństwa (art. 556² K.C.)**\nJako że kupujący ma status konsumenta, a wada została stwierdzona przed upływem **roku od dnia wydania rzeczy** (data wydania: ................................................), z mocy **art. 556² § 1 K.C. domniemywa się, że wada lub jej przyczyna istniała w chwili przejścia niebezpieczeństwa na kupującego**. Ciężar dowodu, że wada powstała po przejściu niebezpieczeństwa (np. z winy kupującego), spoczywa wyłącznie na sprzedawcy.\n\n6.2. **Zakres odpowiedzialności sprzedawcy (art. 559 K.C.)**\nZgodnie z **art. 559 K.C.**, sprzedawca odpowiada za wady fizyczne, które istniały w chwili przejścia niebezpieczeństwa na kupującego **lub wynikły z przyczyny tkwiącej w rzeczy sprzedanej w tej samej chwili**. Oznacza to, że nawet jeśli wada ujawniła się później, sprzedawca ponosi odpowiedzialność, jeśli jej przyczyna tkwiła w towarze już przy wydaniu. Zarzut „nieprawidłowego użytkowania” nie zwalnia sprzedawcy z odpowiedzialności, jeśli towar nie był odporny na normalne, zgodne z przeznaczeniem użytkowanie.\n\n6.3. **Brak zwolnienia z odpowiedzialności (art. 557 K.C.)**\nSprzedawca jest zwolniony z odpowiedzialności z tytułu rękojmi jedynie, jeżeli kupujący **wiedział o wadzie w chwili zawarcia umowy** (art. 557 § 1 K.C.). Nieznajomość wady lub jej przyczyny przez kupującego w momencie zakupu nie stanowi podstawy do odrzucenia reklamacji. Zarzut winy kupującego nie jest równoważny z wiedzą o wadzie przy zawarciu umowy.\n\n6.4. **Bezskuteczność ograniczeń odpowiedzialności (art. 558 K.C.)**\nW relacji z konsumentem każde ograniczenie lub wyłączenie odpowiedzialności z tytułu rękojmi jest dopuszczalne tylko w przypadkach określonych w przepisach szczególnych (art. 558 § 1 K.C.). Regulaminy sklepowe, formularze gwarancyjne czy ustne oświadczenia sprzedawcy nie mogą skutecznie ograniczać praw konsumenta wynikających z rękojmi. Jeżeli sprzedawca zataił wadę podstępnie, wyłączenie odpowiedzialności jest bezskuteczne (art. 558 § 2 K.C.).\n\n**7. Żądanie z tytułu rękojmi (wybór uprawnienia z art. 560–561 K.C.)**\nW oparciu o powyższe, kupujący **jednoznacznie żąda** (należy zaznaczyć jedno):\n\n☐ **Usunięcia wady (naprawy)** – w terminie rozsądnym, bez nadmiernych niedogodności, kosztem sprzedawcy (art. 561 § 1 i 2 K.C.).\n\n☐ **Wymiany rzeczy na wolną od wad** – nowego egzemplarza tego samego modelu lub o parametrach nie mniej korzystnych, w terminie rozsądnym, bez nadmiernych niedogodności, kosztem sprzedawcy (art. 561 § 1 i 2 K.C.).\n\n☐ **Obniżenia ceny** – o kwotę: ...................... PLN, proporcjonalną do relacji wartości rzeczy wadliwej do wartości rzeczy wolnej od wad (art. 560 § 1 K.C.). Numer rachunku do zwrotu: ..................................................................\n\n☐ **Odstąpienia od umowy** – z uwagi na istotność wady (art. 560 § 1 K.C.). Kupujący zwróci rzecz wadliwą na koszt sprzedawcy, a sprzedawca zwróci zapłaconą cenę w terminie 14 dni od otrzymania oświadczenia.\n\n*Uwaga: Sprzedawca może uniknąć odstąpienia od umowy lub obniżenia ceny, jeżeli niezwłocznie i bez nadmiernych niedogodności wymieni rzecz na wolną od wad albo wadę usunie (art. 560 § 1 K.C.). Od umowy nie można odstąpić, jeżeli wada jest nieistotna.*\n\n**8. Wezwanie do rozpatrzenia w terminie 14 dni – milczące uznanie**\nZgodnie z art. 561 § 5 K.C. w związku z art. 560 § 2 K.C. oraz przepisami o ochronie praw konsumentów, **wezwanie do rozpatrzenia niniejszej reklamacji i zadośćuczynienia żądaniu w terminie 14 dni kalendarzowych od daty jej doręczenia**. Brak ustosunkowania się do żądania w tym terminie przy reklamacji konsumenta **oznacza jej uznanie** (milczące uznanie reklamacji).\n\n**9. Zastrzeżenie roszczeń dodatkowych**\nKupujący zastrzega prawo do żądania:\n- odsetek za opóźnienie w zwrocie ceny / obniżonej cenie na podstawie art. 481 K.C.,\n- odszkodowania za inne szkody wynikłe z wady towaru (np. koszty ekspertyzy, transportu, utylizacji),\n- pokrycia kosztów ewentualnego postępowania sądowego lub mediacji.\n\n**10. Załączniki**\n☐ Kopia dowodu zakupu (paragon / faktura / potwierdzenie zamówienia)\n☐ Zdjęcia / nagranie wideo dokumentujące wadę\n☐ Ewentualne protokoły serwisowe, opinie eksperckie, korespondencja ze sprzedawcą\n☐ Inne: ..................................................................\n\n**11. Adres do zwrotu towaru (wymagany przy wymianie, naprawie lub odstąpieniu)**\nProszę o wskazanie adresu, na jaki należy doręczyć rzecz wadliwą (zgodnie z art. 561 § 4 K.C. sprzedawca pokrywa koszty dostawy rzeczy wadliwej do miejsca, w którym może zostać naprawiona lub wymieniona, a w razie odstąpienia – koszty zwrotu):\n................................................................................................................................................\n\n**12. Klauzula końcowa**\nNiniejsza reklamacja nie wyczerpuje uprawnień kupującego wynikających z przepisów o ochronie praw konsumentów, w tym prawa do skorzystania z pomocy miejskiego/powiatowego rzecznika konsumentów oraz zgłoszenia naruszenia interesów zbiorowych konsumentów do Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK). Kupujący zastrzega prawo do dochodzenia roszczeń w drodze sądowej w przypadku nierozpatrzenia reklamacji lub jej odrzucenia.\n\n**Podpis kupującego:**\n................................................................................\n\n---\n\n**Wskazówki do wysyłki:**\n1. Reklamację wysylij **listem poleconym z potwierdzeniem odbioru** lub **e-mailem z potwierdzeniem przeczytania / odbioru** na adres korespondencyjny sprzedawcy (z regulaminu sklepu / faktury).\n2. Zachowaj **dowód nadania i doręczenia** – decyduje on o biegu 14-dniowego terminu na rozpatrzenie.\n3. Jeśli sprzedawca odrzuci reklamację z powodu „winy kupującego”, a wada została zgłoszona w ciągu roku od wydania – **ciężar dowodu leży na sprzedawcy** (art. 556² K.C.). Sprzedawca musi udowodnić, że wada powstała po przejściu niebezpieczeństwa i nie wynika z przyczyny tkwiącej w towarze przy wydaniu.\n4. W razie sporu skontaktuj się z **rzecznikiem konsumentów** (bezpłatna pomoc) lub zgłoś sprawę do **UOKiK**.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem towar, który okazał się wadliwy, a sprzedawca twierdzi, że to moja wina. Chcę złożyć reklamację z rękojmi i potrzebuję wzoru pisma."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Kupiłem pralkę miesiąc temu, po kilku praniach zaczeła szarpać i wyłączać się. Sprzedawca odmawia naprawy, mówiąc, że źle ją ustawiłem i przeładowałem bęben, ale ja używałem jej zgodnie z instrukcją. Chcę napisać oficjalną reklamację z rękojmi, żeby wymienili sprzęt lub naprawili na ich koszt, i potrzebuję gotowego wzoru listu z argumentami, że wada istniała przy odbiorze."
+  }
+ ]
+}

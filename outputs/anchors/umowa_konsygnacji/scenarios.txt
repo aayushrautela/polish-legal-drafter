@@ -1,0 +1,59 @@
+Konsygnacja towaru u konsygnatariusza z rozliczeniem po sprzedaży
+Przejście własności towaru na konsygnatariusza dopiero przy sprzedaży klientowi
+Prowizja konsygnacyjna jako procent od ceny sprzedaży
+Wynagrodzenie konsygnatariusza ryczałtowe miesięczne za przechowywanie
+Konsygnacja z obowiązkiem utrzymania minimalnego stanu magazynowego
+Konsygnacja towaru sezonowego (odzież) z okresem rozliczeniowym kwartalnym
+Konsygnacja z przejściem ryzyka przypadkowej utraty na konsygnatariusza
+Odpowiedzialność konsygnatariusza za utratę towaru (art. 835 KC)
+Reklamacja jakości towaru przez konsygnatariusza przed wydaniem klientowi
+Konsygnacja z prawem konsygnatariusza do zwrotu niesprzedanego towaru
+Termin zwrotu niesprzedanych towarów (do końca sezonu)
+Konsygnacja z zaliczką wypłaconą konsygnantowi przed sprzedażą
+Konsygnacja walutowa z rozliczeniem w EUR
+Konsygnacja z obowiązkiem ubezpieczenia towaru przez konsygnatariusza
+Konsygnacja z oznaczaniem towaru (etykiety własne konsygnanta)
+Konsygnacja towaru niebezpiecznego (chemikalia) z wymogami BHP
+Konsygnacja z ekspozycją towaru w salonie konsygnatariusza
+Konsygnacja z zakazem dalszej odsprzedaży poza terytorium (wyłączność terytorialna)
+Konsygnacja z prawem konsygnatariusza do ustalania ceny sprzedaży
+Konsygnacja z ceną minimalną (price floor) narzuconą przez konsygnanta
+Konsygnacja z comiesięcznym raportem ze sprzedaży (statement)
+Konsygnacja z karą umowną za nieterminowe rozliczenie (art. 483 KC)
+Konsygnacja z odstąpieniem przy braku sprzedaży przez 60 dni
+Konsygnacja z prawem konsygnanta do kontroli stanu magazynu
+Konsygnacja z przejęciem towaru przez konsygnatariusza (zakup) po upływie terminu
+Konsygnacja towaru importowanego z odprawą celną przez konsygnatariusza
+Konsygnacja z podatkiem VAT rozliczanym przy sprzedaży końcowej
+Konsygnacja z zabezpieczeniem roszczeń wekslem in blanco
+Konsygnacja z obowiązkiem marketingu towaru przez konsygnatariusza
+Konsygnacja z określeniem miejsca przechowywania (konkretny magazyn)
+Konsygnacja z odpowiedzialnością konsygnatariusza za wady ukryte towaru
+Konsygnacja z prawem konsygnanta do żądania zwrotu w każdym czasie
+Konsygnacja z rozliczeniem netto (potrącenie prowizji) raz na miesiąc
+Konsygnacja z waloryzacją prowizji w zależności od wolumenu
+Konsygnacja towaru używanego (komis) z opisem stanu
+Konsygnacja z zastrzeżeniem własności do zapłaty ceny (zastrzeżenie własności)
+Konsygnacja z udziałem podwykonawcy (podprzechowanie) za zgodą
+Konsygnacja z terminem płatności za sprzedany towar (np. 14 dni)
+Konsygnacja z prawem konsygnatariusza do sięgania po towar w ramach rat
+Konsygnacja z obowiązkiem ewidencji ilościowej i wartościowej
+Konsygnacja z odszkodowaniem za utratę towaru z winy konsygnatariusza
+Konsygnacja z klauzulą siły wyższej (pożar magazynu)
+Konsygnacja z zabezpieczeniem na rachunku powierniczym
+Konsygnacja z prawem konsygnanta do odstąpienia przy zmianie ceny rynkowej
+Konsygnacja z obowiązkiem pakowania i etykietowania przez konsygnatariusza
+Konsygnacja z zakazem konkurencji (nie sprzedaży towarów konkurencji)
+Konsygnacja towaru spożywczego z terminami przydatności (FEFO)
+Konsygnacja z okresem próbnym (test rynku 3 miesiące)
+Konsygnacja z prawem konsygnatariusza do potrącenia własnych kosztów
+Konsygnacja z przelewem wierzytelności od klientów końcowych na konsygnanta
+Konsygnacja z raportowaniem strat (ubytki naturalne) konsygnantowi
+Konsygnacja z obowiązkiem zwrotu opakowań wielokrotnego użytku
+Konsygnacja towaru luksusowego z ubezpieczeniem o wartości rynkowej
+Konsygnacja z prawem konsygnanta do wypowiedzenia bez wypowiedzenia (nagłe)
+Konsygnacja z ustaleniem kursu walut przy rozliczeniu dewizowym
+Konsygnacja z obowiązkiem informowania o reklamacjach klientów końcowych
+Konsygnacja z odpowiedzialnością solidarną za wady towaru
+Konsygnacja z prawem konsygnanta do wstrzymania dostaw przy zaległościach
+Konsygnacja z minimalnym progiem wartości towaru do przyjęcia

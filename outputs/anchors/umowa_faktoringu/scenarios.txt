@@ -1,0 +1,62 @@
+Faktoring pełny wierzytelności z przelewem na faktora bez regresu wobec faktoranta
+Faktoring niepełny (regresowy) z powrotem roszczenia do faktoranta przy braku zapłaty
+Faktoring własny (faktor nabywa wierzytelność we własnym imieniu)
+Faktoring obcy (faktor działa w imieniu faktoranta)
+Przelew wierzytelności przyszłej z tytułu dostaw towarów przez rok
+Faktoring wierzytelności walutowej (EUR) z klauzulą waloryzacyjną
+Faktoring konsumenta (przelew roszczenia konsumenta o zwrot kosztów)
+Faktoring eksportowy z dłużnikiem zagranicznym (Niemcy)
+Faktoring z gwarancją zapłaty (faktoring pełny) a ubezpieczeniem należności
+Wynagrodzenie faktora jako prowizja procentowa od wartości wierzytelności
+Prowizja faktoringowa pobierana z góry (up-front) od każdego przelewu
+Odsetki za opóźnienie w przelewie środków przez faktora
+Termin wypłaty przez faktora (w ciągu 48h od przelewu)
+Zgłoszenie zastrzeżenia dłużnika co do jakości towaru a regres
+Regres faktora wobec faktoranta przy odmowie zapłaty przez dłużnika
+Wypowiedzenie umowy faktoringu przez faktora z zachowaniem 30-dniowego terminu
+Wypowiedzenie umowy przez faktoranta przy naruszeniu terminu wypłat
+Zabezpieczenie wierzytelności wekslem in blanco w umowie faktoringu
+Faktoring z cesją praw z polisy ubezpieczeniowej
+Faktoring z przelewem wierzytelności o zmitrężonym terminie płatności
+Faktoring wielu dłużników (portfel wierzytelności) jednym aktem
+Zakaz dalszego przelewu wierzytelności przez faktora (subfaktoring)
+Faktoring z raportowaniem (daily reconciliation) do faktoranta
+Faktoring z limitem finansowania (linia faktoringowa)
+Przelew części wierzytelności (faktoring częściowy) z podziałem kwoty
+Faktoring a podatek VAT (fakturowanie przez faktoranta)
+Faktoring wierzytelności spornej (w toku postępowania sądowego)
+Faktoring z prawem potrącenia (kompensata) wierzytelności wzajemnych
+Faktoring z udziałem poręczyciela za dłużnika
+Faktoring krótkoterminowy (termin płatności dłużnika do 30 dni)
+Faktoring długoterminowy (termin płatności powyżej 90 dni)
+Faktoring sezonowy (tylko w szczycie sprzedaży)
+Faktoring odnawialny (revolving) dla stałych dostaw
+Faktoring nieodnawialny (one-off) pojedynczej faktury
+Odpowiedzialność faktora za wypłatę mimo niewypłacalności faktoranta
+Odpowiedzialność faktoranta za wady prawne wierzytelności
+Faktoring z klauzulą o najmniejszej kwocie przelewu
+Faktoring z dostępem online do platformy faktora
+Faktoring a zmiana wierzyciela w rejestrze (KRS/księgi)
+Faktoring z przelewem roszczeń o odszkodowanie (nie tylko zapłatę)
+Faktoring dla MŚP z jednym głównym odbiorcą (concentration risk)
+Faktoring z opcją wykupu wierzytelności przed terminem przez faktora
+Faktoring z modyfikacją oprocentowania w zależności od oceny ryzyka
+Faktoring z zastrzeżeniem przejęcia ryzyka walutowego przez faktoranta
+Faktoring a postanowienia umowy dostawy (zakaz cesji bez zgody)
+Faktoring wierzytelności z zabezpieczeniem na zapasie towaru
+Faktoring z informowaniem dłużnika listem poleconym o przelewie
+Faktoring z comiesięcznym zestawieniem należności (statement)
+Faktoring z karą umowną za nieterminowe przekazanie dokumentów
+Faktoring z prawem faktora do bezpośredniej egzekucji od dłużnika
+Faktoring z subrogacją (wstąpienie faktora w prawa ubezpieczyciela)
+Faktoring wierzytelności przyszłych warunkowych (od kontraktu ramowego)
+Faktoring z ograniczeniem odpowiedzialności faktora do kwoty wypłaconej
+Faktoring z obowiązkiem faktoranta do zgłaszania reklamacji dłużnika
+Faktoring z przelewem wierzytelności o zapłatę ratami
+Faktoring z klauzulą nettingu (rozliczenia wielostronnego)
+Faktoring z zastrzeżeniem poufności danych dłużnika (RODO)
+Faktoring z udziałem faktora w negocjacjach ugody z dłużnikiem
+Faktoring z zabezpieczeniem w postaci przelewu z rachunku powierniczego
+Faktoring z przelewem wierzytelności z umowy o dzieło (nie dostawy)
+Faktoring z obowiązkiem faktora do finansowania minimalnej kwoty miesięcznie
+Faktoring z odstąpieniem od umowy przy przekroczeniu limitu windykacji

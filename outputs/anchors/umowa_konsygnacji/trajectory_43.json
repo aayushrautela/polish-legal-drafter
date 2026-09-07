@@ -1,0 +1,305 @@
+{
+ "run": 54,
+ "hint": "Konsygnacja z prawem konsygnanta do wypowiedzenia bez wypowiedzenia (nagłe)",
+ "scenario": "Konsygnacja z prawem konsygnanta do wypowiedzenia bez wypowiedzenia (nagłe)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_konsygnacji'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_7b79414451c94c3b8dc68bd7",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_konsygnacji\"}"
+     }
+    },
+    {
+     "id": "call_405651f9f5be4c8cb2d3886b",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"wypowiedzenie bez wypowiedzenia\", \"rozwiązanie umowy\", \"nagłe\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_konsygnacji\", \"kind\": \"structural_template\", \"text\": \"# Umowa konsygnacji\\nUmowa konsygnacji w Polsce to umowa nienazwana, w której konsygnant (właściciel towaru, dostawca) przekazuje towar konsygnatariuszowi (sprzedawcy, dystrybutorowi) w celu sprzedaży osobom trzecim, przy jednoczesnym zachowaniu przez konsygnanta prawa własności towaru niesprzedanego. Umowa konsygnacji jest umową nienazwaną tworzoną na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i łączy elementy umowy komisu (art. 765-773 KC) i umowy przechowania (art. 835-845 KC). Do umów konsygnacji stosuje się odpowiednio przepisy o komisie i przechowaniu.\\n\\nPodstawową cechą konsygnacji odróżniającą ją od zwykłej sprzedaży lub agencji jest to, że konsygnant nie sprzedaje towaru konsygnatariuszowi — przekazuje go wyłącznie do sprzedaży na własny rachunek. Towar niesprzedany jest własnością konsygnanta i może być przez niego w każdym czasie odwołany. Konsygnatariusz jest wynagradzany prowizją od sprzedanego towaru lub marżą (różnicą między ceną zakupu a ceną sprzedaży), nie zaś z góry zapłaconą ceną.\\n\\nKonsygnacja jest powszechna w handlu książkami, odzieżą, kosmetykami, dziełami sztuki i elektronarzędziami. Producent lub wydawca przekazuje towar do sieci dystrybucji (księgarnie, sklepy, galerie) bez konieczności uiszczania przez dystrybutora zapłaty z góry — płaci on dopiero po sprzedaniu towaru klientowi końcowemu. Niesprze dany towar wraca do konsygnanta. Ta struktura zmniejsza ryzyko dystrybucji dla konsygnatariusza i ułatwia dostęp do kanałów dystrybucji dla konsygnanta.\\n\\nObowiązki podatkowe w umowie konsygnacji są skomplikowane i wymagają staranności. Z perspektywy VAT, zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, obowiązek podatkowy VAT po stronie konsygnanta powstaje zazwyczaj w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej — nie w momencie przekazania towaru do konsygnacji, ponieważ wówczas własność nie przechodzi. Konsygnatariusz wystawia fakturę VAT klientowi końcowemu w swoim imieniu i rozlicza VAT od sprzedaży, a konsygnant wystawia fakturę za towary sprzedane w danym okresie rozliczeniowym. Krajowa Administracja Skarbowa (KAS) i Urząd Skarbowy mogą kontrolować prawidłowość dokumentacji konsygnacyjnej.\\n\\nPrawidłowo sporządzona umowa konsygnacji powinna regulować: szczegółowy opis towaru konsygnacyjnego, zasady przekazywania i zwrotu towaru, protokoły zdawczo-odbiorcze, warunki przechowywania, ceny detaliczne lub marżę konsygnatariusza, termin i formę rozliczenia, prawo konsygnanta do inwentaryzacji, odpowiedzialność za braki i uszkodzenia towaru, zasady zakończenia umowy i zwrotu niesprzedanego towaru.\\n\\nUmowa konsygnacji w Polsce jest potrzebna, gdy producent lub dostawca chce wprowadzić swój towar do dystrybucji bez konieczności ponoszenia kosztów sprzedaży przez dystrybutora z góry.\\n\\nWydawcy i autorzy. Wydawnictwa przekazują książki i podręczniki do sieci księgarń na zasadzie konsygnacji — księgarnia sprzedaje tytuły i rozlicza się z wydawnictwem z faktycznie sprzedanych egzemplarzy, odsyłając niesprzedane.\\n\\nProducenci odzieży i mody. Projektanci i marki modowe przekazują kolekcje do butików lub showroomów na konsygnację — butik nie musi kupować kolekcji z góry, co obniża jego ryzyko finansowe i zachęca do przyjęcia nowych marek.\\n\\nGalerie sztuki i antykwariaty. Artyści i handlarze dziełami sztuki przekazują obrazy, rzeźby lub przedmioty kolekcjonerskie do galerii na konsygnację — galeria pobiera prowizję od każdej sprzedanej pracy, a niesprzedane dzieła wracają do artysty lub kolekcjonera.\\n\\nProducenci elektroniki i narzędzi. Firmy z segmentu elektronarzędzi, sprzętu sportowego lub ogrodniczego przekazują towar na ekspozycję i sprzedaż do sieci detalicznych na konsygnację — detalista nie zamraża kapitału na towar, który może nie zostać sprzedany.\\n\\nFirmy wchodzące na nowe rynki. Producent wchodzący na nowy rynek geograficzny może zainteresować lokalnych dystrybutorów ofertą konsygnacyjną — dystrybutor nie musi kupować towaru z góry, co obniża barierę wejścia dla obu stron.\\n\\nDostawcy do małych firm i sklepów specjalistycznych. Małe sklepy specjalistyczne (sklepy zoologiczne, herbaciarnie, delikatesy) chętnie przyjmują towar na konsygnację od małych producentów i rękodzielników, którzy nie mogą sobie pozwolić na kosztowne kampanie sprzedażowe.\\n\\nImporterzy i dystrybutorzy. Importerzy przyjmujący towar od zagranicznych producentów mogą umówić się z lokalnym dystrybutorem na konsygnację jako formę zarządzania zapasami w magazynach dystrybutora (konsygnacja magazynowa).\\n\\nUmowa konsygnacji w Polsce powinna zawierać następujące elementy, aby skutecznie chronić interesy obu stron i spełniać wymogi podatkowe.\\n\\nOznaczenie stron. Pełne dane konsygnanta i konsygnatariusza: firma, adres siedziby, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG). NIP jest niezbędny dla prawidłowego fakturowania sprzedanego towaru.\\n\\nOpis towaru konsygnacyjnego. Szczegółowy opis asortymentu (rodzaj, kategorie, minimalna ilość), wymagania jakościowe, normy i certyfikaty jeśli dotyczy. Zasady aktualizacji asortymentu (np. prawo konsygnanta do wymiany towaru na nowy sezon). Wskazanie, że towar jest własnością konsygnanta do momentu sprzedaży osobie trzeciej.\\n\\nZastrzeżenie własności. Wyraźne postanowienie, że własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu jego sprzedaży osobie trzeciej przez konsygnatariusza. Zakaz zastawiania, obciążania i innego niż sprzedażowe korzystania z towaru przez konsygnatariusza. Skuteczne zastrzeżenie własności chroni konsygnanta w razie upadłości konsygnatariusza.\\n\\nCeny i wynagrodzenie konsygnatariusza. Cena detaliczna (ustalana przez konsygnanta lub z jego udziałem) oraz prowizja lub marża konsygnatariusza (procent od ceny sprzedaży netto lub różnica między ceną zakupu a ceną detaliczną). forms-legal.com zaleca precyzyjne określenie podstawy prowizji (cena netto bez VAT) i terminu jej naliczania (miesięcznego lub kwartalnego).\\n\\nRaportowanie i rozliczenie. Obowiązek konsygnatariusza prowadzenia ewidencji sprzedanego i pozostałego towaru, miesięcznych raportów sprzedaży i rozliczania się z konsygnantem. Termin rozliczenia (standardowo do 10. dnia miesiąca następnego). Faktura VAT na prowizję lub zestawienie sprzedaży umożliwiające wystawienie faktury przez konsygnanta.\\n\\nPrzechowywanie i odpowiedzialność za towar. Warunki przechowywania, obowiązek ubezpieczenia towaru, odpowiedzialność konsygnatariusza za braki i uszkodzenia z jego winy (art. 471 KC).\\n\\nInwentaryzacja i kontrola. Prawo konsygnanta do przeprowadzania inwentaryzacji towaru w miejscu przechowywania, tryb i częstotliwość inwentaryzacji.\\n\\nZwroty. Zasady i koszty zwrotu niesprzedanego towaru, tryb zwrotu na żądanie konsygnanta lub po zakończeniu umowy.\\n\\nCzas trwania i wypowiedzenie. Czas trwania, termin wypowiedzenia i skutki rozwiązania umowy dla towaru niesprzedanego.\\n\\nUmowa konsygnacji w Polsce jest wypełniana według kolejnych kroków zapewniających kompletność i prawidłowość podatkową dokumentu.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy), adresy siedzib, numery NIP, REGON i KRS lub wpisy do CEIDG. Numery NIP są niezbędne do prawidłowego fakturowania prowizji i sprzedanego towaru.\\n\\nKrok 2 — opisz towar konsygnacyjny. Szczegółowo opisz asortyment przekazywany w konsygnację — rodzaj towaru, kategorie, minimalna ilość, wymagania jakościowe. Im precyzyjniejszy opis, tym mniejsze ryzyko sporu o to, czy towar spełnia wymogi umowy.\\n\\nKrok 3 — ustal cenę detaliczną lub sposób jej określenia. Wskaż, czy cena detaliczna jest ustalana przez konsygnanta (cena sztywna na okładce lub etykiecie) czy konsygnatariusz ma swobodę jej kształtowania. Cena wpływa na wysokość prowizji i obliczenie VAT.\\n\\nKrok 4 — ustal prowizję i termin rozliczenia. Wpisz procent prowizji od ceny netto sprzedanego towaru oraz termin rozliczenia miesięcznego (standardowo do 10. dnia następnego miesiąca). Wskaż formę dokumentacyjną — raport sprzedaży plus faktura VAT na prowizję.\\n\\nKrok 5 — określ warunki przechowywania. Wpisz wymogi dotyczące przechowywania towaru konsygnacyjnego. Wskaż, czy konsygnatariusz jest zobowiązany do ubezpieczenia towaru i od jakiej wartości.\\n\\nKrok 6 — ustal czas trwania i wypowiedzenie. Wskaż czas trwania umowy i termin wypowiedzenia. W umowach konsygnacji standardowy termin wypowiedzenia wynosi 3 miesiące — pozwala to konsygnatariuszowi odsprzedać zapas lub zwrócić towar w sposób zorganizowany.\\n\\nKrok 7 — dopilnuj zastrzeżenia własności. Upewnij się, że umowa wyraźnie stwierdza, że własność towaru konsygnacyjnego pozostaje przy konsygnancie. Bez tej klauzuli w razie upadłości konsygnatariusza towar staje się częścią masy upadłości.\\n\\nKrok 8 — podpisz umowę. Złóż podpisy osób uprawnionych do reprezentacji zgodnie z KRS lub CEIDG. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym.\\n\\nUmowa konsygnacji w Polsce podlega przepisom Kodeksu cywilnego stosowanym odpowiednio (komis, przechowanie) oraz ustawie o podatku od towarów i usług.\\n\\nPodstawa prawna — art. 353[1] KC i art. 765-773 KC (komis odpowiednio). Umowa konsygnacji jest umową nienazwaną opartą na swobodzie umów (art. 353[1] KC). Do konsygnacji stosuje się odpowiednio przepisy o komisie (art. 765-773 KC) — komisant (odpowiednik konsygnatariusza) działa we własnym imieniu na rachunek komitenta (odpowiednik konsygnanta). Do przechowywania towaru stosuje się odpowiednio przepisy o umowie przechowania (art. 835-845 KC) — konsygnatariusz odpowiada za stan towaru jak depozytariusz.\\n\\nZastrzeżenie własności — art. 589 KC. Własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu sprzedaży towaru osobie trzeciej przez konsygnatariusza. Zastrzeżenie własności powinno być wyraźne i pisemne, aby było skuteczne wobec wierzycieli konsygnatariusza (art. 589 KC). W razie ogłoszenia upadłości konsygnatariusza — konsygnant może żądać wyłączenia towaru z masy upadłości na podstawie przepisów ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe (art. 70 ust. 1), jeżeli towar jest wyraźnie oznaczony jako własność konsygnanta i ewidencja konsygnacyjna jest prawidłowo prowadzona.\\n\\nVAT — ustawa z dnia 11 marca 2004 r. Obowiązek podatkowy VAT po stronie konsygnanta co do zasady powstaje w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej (nie w momencie przekazania do konsygnacji, gdy własność nie przechodzi). Konsygnatariusz wystawia fakturę VAT klientowi końcowemu we własnym imieniu, konsygnant wystawia fakturę za towar sprzedany w danym okresie rozliczeniowym. Prowizja konsygnatariusza podlega VAT 23% jako usługa. Prawidłowość dokumentacji konsygnacyjnej może być kontrolowana przez Krajową Administrację Skarbową (KAS).\\n\\nOdpowiedzialność za towar — art. 471 KC. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa. Odpowiedzialność odszkodowawczą obejmuje wartość rynkową brakującego lub zniszczonego towaru.\\n\\nUmowy konsygnacji w Polsce często zawierają błędy prowadzące do sporów o własność towaru, rozliczenia prowizji lub kwestie podatkowe.\\n\\nBłąd 1 — brak wyraźnego zastrzeżenia własności. Umowa konsygnacji bez wyraźnej klauzuli zastrzeżenia własności towaru naraża konsygnanta na utratę towaru w razie upadłości konsygnatariusza. Zalecenie: wskaż wyraźnie, że własność towaru pozostaje przy konsygnancie do momentu sprzedaży osobie trzeciej, i zadbaj o pisemną formę umowy.\\n\\nBłąd 2 — niejasna definicja \\\"sprzedaży\\\" powodującej przeniesienie własności. Brak precyzji co do momentu sprzedaży powodującej przeniesienie własności (faktura? zapłata przez klienta?) rodzi spory podatkowe i cywilne. Zalecenie: wskaż wprost, że własność przechodzi z chwilą zawarcia umowy sprzedaży z klientem końcowym lub, jeśli preferowane, z chwilą zapłaty przez klienta.\\n\\nBłąd 3 — brak obowiązku prowadzenia ewidencji konsygnacyjnej. Konsygnatariusz bez obowiązku prowadzenia ewidencji może nie być w stanie wykazać stanu towaru na żądanie konsygnanta lub Krajowej Administracji Skarbowej (KAS). Zalecenie: wskaż obowiązek prowadzenia ewidencji towarów konsygnacyjnych i dostarczania miesięcznych raportów sprzedaży.\\n\\nBłąd 4 — brak protokołów zdawczo-odbiorczych. Brak dokumentacji przy każdej dostawie towaru do konsygnacji uniemożliwia ustalenie stanu towaru w chwili przekazania i po zwrocie. Zalecenie: wymagaj sporządzania protokołu zdawczo-odbiorczego przy każdej dostawie i zwrocie towaru.\\n\\nBłąd 5 — niejasne zasady prowizji. Podstawa prowizji (cena brutto czy netto?) i moment jej naliczania (faktura wystawiona konsygnatariuszowi czy zapłata klienta?) mają istotny wpływ na wysokość wynagrodzenia. Zalecenie: wpisz jednoznacznie podstawę prowizji (procent od ceny netto sprzedanego towaru bez VAT) i termin jej naliczania.\\n\\nBłąd 6 — brak regulacji kosztów zwrotu. Brak określenia, kto ponosi koszty zwrotu niesprzedanego towaru, prowadzi do sporów przy zakończeniu umowy. Zalecenie: wskaż, że koszty zwrotu ponosi konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie konsygnanta.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-konsygnacji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_7b79414451c94c3b8dc68bd7",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_30\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 30. § 1. Umowa o pracę rozwiązuje się: 1) na mocy porozumienia stron; 2) przez oświadczenie jednej ze stron z zachowaniem okresu wypowiedzenia (rozwiązanie umowy o pracę za wypowiedzeniem); 3) przez oświadczenie jednej ze stron bez zachowania okresu wypowiedzenia (rozwiązanie umowy o pracę bez wypowiedzenia); 4) z upływem czasu, na który była zawarta. 5) (uchylony) § 2. Umowa o pracę na okres próbny rozwiązuje się z upływem tego okresu, a przed je ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_52\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 52. § 1. Pracodawca może rozwiązać umowę o pracę bez wypowiedzenia z winy pracownika w razie: 1) ciężkiego naruszenia przez pracownika podstawowych obowiązków pracowniczych; 2) popełnienia przez pracownika w czasie trwania umowy o pracę przestępstwa, które uniemożliwia dalsze zatrudnianie go na zajmowanym stanowisku, jeżeli przestępstwo jest oczywiste lub zostało stwierdzone prawomocnym wyrokiem; 3) zawinionej przez pracownika utraty uprawnień kon ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_53\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 53. § 1. Pracodawca może rozwiązać umowę o pracę bez wypowiedzenia: 1) jeżeli niezdolność pracownika do pracy wskutek choroby trwa: a) dłużej niż 3 miesiące - gdy pracownik był zatrudniony u danego pracodawcy krócej niż 6 miesięcy, b) dłużej niż łączny okres pobierania z tego tytułu wynagrodzenia i zasiłku oraz pobierania świadczenia rehabilitacyjnego przez pierwsze 3 miesiące - gdy pracownik był zatrudniony u danego pracodawcy co najmniej 6 miesi ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_55\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 55. § 1. Pracownik może rozwiązać umowę o pracę bez wypowiedzenia, jeżeli zostanie wydane orzeczenie lekarskie stwierdzające szkodliwy wpływ wykonywanej pracy na zdrowie pracownika, a pracodawca nie przeniesie go w terminie wskazanym w orzeczeniu lekarskim do innej pracy, odpowiedniej ze względu na stan jego zdrowia i kwalifikacje zawodowe. § 1 1 . Pracownik może rozwiązać umowę o pracę w trybie określonym w § 1 także wtedy, gdy pracodawca dopuści ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_177\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 177. § 1 45) W brzmieniu ustalonym przez art. 1 pkt 23 lit. a ustawy, o której mowa w odnośniku 2. . W okresie ciąży oraz w okresie urlopu macierzyńskiego, a także od dnia złożenia przez pracownika wniosku o udzielenie urlopu macierzyńskiego albo jego części, urlopu na warunkach urlopu macierzyńskiego albo jego części, urlopu ojcowskiego albo jego części, urlopu rodzicielskiego albo jego części - do dnia zakończenia tego urlopu pracodawca nie może ...\"}]",
+   "tool_call_id": "call_405651f9f5be4c8cb2d3886b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_58b4ba414f51426b931f48ee",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 765 KC\", \"art. 766 KC\", \"art. 767 KC\", \"komis wypowiedzenie\"]}"
+     }
+    },
+    {
+     "id": "call_eda0a5cc188c40c08f7fd3eb",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 844 KC\", \"przechowanie wypowiedzenie\", \"rozwiązanie\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_58b4ba414f51426b931f48ee",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_29\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 29 4 20) Dodany przez art. 1 pkt 9 ustawy, o której mowa w odnośniku 2. . § 1. Przyczyny uzasadniającej wypowiedzenie umowy o pracę lub jej rozwiązanie bez wypowiedzenia przez pracodawcę, przyczyny uzasadniającej przygotowanie do wypowiedzenia lub rozwiązania umowy bez wypowiedzenia albo przyczyny zastosowania działania mającego skutek równoważny z rozwiązaniem umowy o pracę nie może stanowić: 1) wystąpienie przez pracownika z wnioskiem, o którym  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_2809_art_125\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 125. § 1. Z ważnych powodów zarówno przysposobiony, jak i przysposabiający mogą żądać rozwiązania stosunku przysposobienia przez sąd. Rozwiązanie stosunku przysposobienia nie jest dopuszczalne, jeżeli wskutek niego miałoby ucierpieć dobro małoletniego dziecka. Orzekając rozwiązanie stosunku przysposobienia, sąd może, stosownie do okoliczności, utrzymać w mocy wynikające z niego obowiązki alimentacyjne. § 2. Po śmierci przysposobione ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_113c\", \"source_id\": \"sejm_eli_du_2025_350_art_113c\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 113c. 1. Stroną stosunków pracy pracowników zatrudnionych w Zakładzie Ubezpieczeń Społecznych działającym na podstawie art. 7 ustawy, o której mowa w art. 122 ust. 1 pkt 1, oraz w jednostkach, o których mowa w art. 117 ust. 1, staje się Zakład, z uwzględnieniem ust. 4 i 5. 2. Pracownikom, o których mowa w ust. 1, nie przysługują odprawy i inne świadczenia pieniężne wypłacane na podstawie przepisów o szczególnych zasadach rozwiązywania z pracownikami stosunków pracy z przyczyn dotyczących zakładu pracy oraz na podstaw ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_994\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 994 1 . § 1. Przy obliczaniu zachowku nie dolicza się do spadku funduszu założycielskiego fundacji rodzinnej wniesionego przed więcej niż dziesięciu laty, licząc wstecz od otwarcia spadku, chyba że fundacja rodzinna jest spadkobiercą. § 2. Przy obliczaniu zachowku nie dolicza się do spadku mienia w związku z rozwiązaniem fundacji rodzinnej otrzymanego przez osoby niebędące spadkobiercami albo uprawnionymi do zachowku przed więcej niż dziesięciu  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_995\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 995. § 1. Wartość przedmiotu darowizny oblicza się według stanu z chwili jej dokonania, a według cen z chwili ustalania zachowku. § 2. Wartość przedmiotu zapisu windykacyjnego oblicza się według stanu z chwili otwarcia spadku, a według cen z chwili ustalania zachowku. § 3. Wartość funduszu założycielskiego fundacji rodzinnej i mienia w związku z rozwiązaniem fundacji rodzinnej oblicza się według stanu z chwili ich przekazania, a według cen z chw ...\"}]",
+   "tool_call_id": "call_eda0a5cc188c40c08f7fd3eb",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results are not giving me the relevant Civil Code articles. Let me search more specifically for the Civil Code articles related to commission (komis) and storage (przechowanie) that are applicable to consignment agreements.",
+   "tool_calls": [
+    {
+     "id": "call-2e5aad5b-ed79-46bf-84e8-1fc8a6435dea",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa konsygnacji wypowiedzenie bez wypowiedzenia nagłe rozwiązanie umowy art. 3531 KC swoboda umów\"}"
+     }
+    },
+    {
+     "id": "call-423d9a8e-80c9-43cf-ba23-bb7d45cdf9c3",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"komis art. 765 766 767 768 769 770 771 772 773 Kodeks cywilny wypowiedzenie rozwiązanie\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_30\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 30. § 1. Umowa o pracę rozwiązuje się: 1) na mocy porozumienia stron; 2) przez oświadczenie jednej ze stron z zachowaniem okresu wypowiedzenia (rozwiązanie umowy o pracę za wypowiedzeniem); 3) przez oświadczenie jednej ze stron bez zachowania okresu wypowiedzenia (rozwiązanie umowy o pracę bez wypowiedzenia); 4) z upływem czasu, na który była zawarta. 5) (uchylony) § 2. Umowa o pracę na okres próbny rozwiązuje się z upływem tego okresu, a przed je ...\"}, {\"chunk_id\": \"uokik_items:uokik_4d91e740dbce9b58\", \"source_id\": \"uokik_rejestr_klauzul_1979\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zleceniobiorcy przysługuje prawo rozwiązania umowy bez wypowiedzenia w przypadku kiedy Zleceniodawca spóźnia się z zapłatą za usługi\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_52\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 52. § 1. Pracodawca może rozwiązać umowę o pracę bez wypowiedzenia z winy pracownika w razie: 1) ciężkiego naruszenia przez pracownika podstawowych obowiązków pracowniczych; 2) popełnienia przez pracownika w czasie trwania umowy o pracę przestępstwa, które uniemożliwia dalsze zatrudnianie go na zajmowanym stanowisku, jeżeli przestępstwo jest oczywiste lub zostało stwierdzone prawomocnym wyrokiem; 3) zawinionej przez pracownika utraty uprawnień kon ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_55\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 55. § 1. Pracownik może rozwiązać umowę o pracę bez wypowiedzenia, jeżeli zostanie wydane orzeczenie lekarskie stwierdzające szkodliwy wpływ wykonywanej pracy na zdrowie pracownika, a pracodawca nie przeniesie go w terminie wskazanym w orzeczeniu lekarskim do innej pracy, odpowiedniej ze względu na stan jego zdrowia i kwalifikacje zawodowe. § 1 1 . Pracownik może rozwiązać umowę o pracę w trybie określonym w § 1 także wtedy, gdy pracodawca dopuści ...\"}, {\"chunk_id\": \"extractor_v9:broad_0059_statute_2e31aa6013ff5017\", \"source_id\": \"sejm_eli_du_2023_1465_art_52\", \"source_type\": \"statute\", \"top_category\": \"termination\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 52. § 1. Pracodawca może rozwiązać umowę o pracę bez wypowiedzenia z winy pracownika w razie: 1) ciężkiego naruszenia przez pracownika podstawowych obowiązków pracowniczych; 2) popełnienia przez pracownika w czasie trwania umowy o pracę przestępstwa, które uniemożliwia dalsze zatrudnianie go na zajmowanym stanowisku, jeżeli przestępstwo jest oczywiste lub zostało stwierdzone prawomocnym wyrokiem; 3) zawinionej przez pracownika utraty uprawnień koniecznych do wykonywania pracy na zajmowanym stanowisku. § 2. Rozwiązanie umowy o pracę bez wypowiedzenia z winy pracownika nie może nastąpić po  ...\"}]",
+   "tool_call_id": "call-2e5aad5b-ed79-46bf-84e8-1fc8a6435dea",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_764\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 764 1 . § 1. Umowa zawarta na czas nieoznaczony może być wypowiedziana na miesiąc naprzód w pierwszym roku, na dwa miesiące naprzód w drugim roku oraz na trzy miesiące naprzód w trzecim i następnych latach trwania umowy. Ustawowe terminy wypowiedzenia nie mogą być skracane. § 2. Ustawowe terminy wypowiedzenia mogą zostać umownie przedłużone, z tym że termin ustalony dla dającego zlecenie nie może być krótszy niż termin ustalony dla agenta. Przed ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_764\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 764 2 . § 1. Umowa agencyjna, chociażby była zawarta na czas oznaczony, może być wypowiedziana bez zachowania terminów wypowiedzenia z powodu niewykonania obowiązków przez jedną ze stron w całości lub znacznej części, a także w przypadku zaistnienia nadzwyczajnych okoliczności. § 2. Jeżeli wypowiedzenia dokonano na skutek okoliczności, za które ponosi odpowiedzialność druga strona, jest ona zobowiązana do naprawienia szkody poniesionej przez wyp ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_77\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 77. § 1. Uzupełnienie lub zmiana umowy wymaga zachowania takiej formy, jaką ustawa lub strony przewidziały w celu jej zawarcia. § 2. Jeżeli umowa została zawarta w formie pisemnej, dokumentowej albo elektronicznej, jej rozwiązanie za zgodą obu stron, jak również odstąpienie od niej albo jej wypowiedzenie wymaga zachowania formy dokumentowej, chyba że ustawa lub umowa zastrzega inną formę. § 3. Jeżeli umowa została zawarta w innej formie szczegól ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_30\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 30. § 1. Umowa o pracę rozwiązuje się: 1) na mocy porozumienia stron; 2) przez oświadczenie jednej ze stron z zachowaniem okresu wypowiedzenia (rozwiązanie umowy o pracę za wypowiedzeniem); 3) przez oświadczenie jednej ze stron bez zachowania okresu wypowiedzenia (rozwiązanie umowy o pracę bez wypowiedzenia); 4) z upływem czasu, na który była zawarta. 5) (uchylony) § 2. Umowa o pracę na okres próbny rozwiązuje się z upływem tego okresu, a przed je ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_755\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 755 5 107) Dodany przez art. 2 pkt 2 ustawy, o której mowa w odnośniku 53; wszedł w życie z dniem 22 września 2023 r. . § 1. W sprawach z zakresu prawa pracy, w których pracownik podlegający szczególnej ochronie przed rozwiązaniem stosunku pracy za wypowiedzeniem lub bez wypowiedzenia dochodzi roszczenia o uznanie wypowiedzenia stosunku pracy za bezskuteczne lub o przywrócenie do pracy, sąd na wniosek uprawnionego na każdym e ...\"}]",
+   "tool_call_id": "call-423d9a8e-80c9-43cf-ba23-bb7d45cdf9c3",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA KONSYGNACJI\n\nz prawem konsygnanta do wypowiedzenia bez wypowiedzenia (nagłego rozwiązania)\n\nzawarta w dniu __________ r. w __________, pomiędzy:\n\n**Konsygnantem:**\n__________\nadres siedziby: __________\nNIP: __________\nREGON: __________\nKRS/CEIDG: __________\nreprezentowanym przez: __________\n\na\n\n**Konsygnatariuszem:**\n__________\nadres siedziby: __________\nNIP: __________\nREGON: __________\nKRS/CEIDG: __________\nreprezentowanym przez: __________\n\nzwymi dalej „Stronami\" lub osobno „Stroną\".\n\n## § 1. Przedmiot umowy\n\n1. Konsygnant przekazuje Konsygnatariuszowi towar konsygnacyjny do sprzedaży osobom trzecim na własny rachunek, a Konsygnatariusz zobowiązuje się do przyjęcia towaru i dokonywania jego sprzedaży na warunkach określonych w niniejszej umowie.\n\n2. Towar konsygnacyjny obejmuje: __________ (szczegółowy opis asortymentu, rodzaj, kategorie, minimalna ilość, wymagania jakościowe).\n\n3. Konsygnatariusz oświadcza, że zapoznał się z wymaganiami jakościowymi towaru i nie wnosi zastrzeżeń co do jego stanu w momencie przekazania.\n\n## § 2. Własność towaru\n\n1. Własność towaru konsygnacyjnego pozostaje przy Konsygnancie do momentu jego sprzedaży osobie trzeciej przez Konsygnatariusza (zastrzeżenie własności na podstawie art. 589 Kodeksu cywilnego).\n\n2. Konsygnatariusz nie jest uprawniony do zastawiania, obciążania, przekazywania do użytkowania osób trzecich ani innego niż sprzedażowe korzystania z towaru konsygnacyjnego.\n\n3. W razie ogłoszenia upadłości Konsygnatariusza, Konsygnant ma prawo żądać wyłączenia towaru konsygnacyjnego z masy upadłości na podstawie przepisów ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe (art. 70 ust. 1), jeżeli towar jest wyraźnie oznaczony jako własność Konsygnanta i ewidencja konsygnacyjna jest prawidłowo prowadzona.\n\n## § 3. Przekazywanie i zwrot towaru\n\n1. Przekazanie towaru konsygnacyjnego następuje na podstawie protokołu zdawczo-odbiorczego podpisywanego przez obie Strony przy każdej dostawie.\n\n2. Protokół zdawczo-odbiorcy powinien zawierać: datę przekazania, opis towaru, ilość, stan towaru w momencie przekazania oraz podpisy uprawnionych przedstawicieli obu Stron.\n\n3. Zwrot niesprzedanego towaru następuje na koszt Konsygnatariusza, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n## § 4. Ceny i wynagrodzenie Konsygnatariusza\n\n1. Cena detaliczna towaru konsygnacyjnego wynosi: __________ (cena ustalana przez Konsygnanta / cena ustalana za zgodą obu Stron / cena wolnie kształtowana przez Konsygnatariusza w zakresie: __________).\n\n2. Wynagrodzenie Konsygnatariusza stanowi prowizja w wysokości __________% od ceny netto sprzedanego towaru (bez VAT) lub marża w wysokości __________.\n\n3. Podstawą naliczania prowizji jest cena netto sprzedaży towaru bez VAT. Prowizja naliczana jest w momencie zawarcia umowy sprzedaży z klientem końcowym.\n\n4. Wynagrodzenie Konsygnatariusza podlega VAT 23% jako usługa.\n\n## § 5. Raportowanie i rozliczenie\n\n1. Konsygnatariusz zobowiązuje się do prowadzenia ewidencji towarów konsygnacyjnych, obejmującej: towar przyjęty, towar sprzedany, towar zwrócony, towar uszkodzony lub brakujący.\n\n2. Konsygnatariusz przekazuje Konsygnantowi miesięczny raport sprzedaży do 10. dnia miesiąca następującego po miesiącu rozliczeniowym.\n\n3. Rozliczenie sprzedaży następuje do 10. dnia miesiąca następującego po miesiącu rozliczeniowym na podstawie raportu sprzedaży i faktury VAT wystawionej przez Konsygnatariusza.\n\n4. Konsygnant wystawia fakturę VAT za towary sprzedane w danym okresie rozliczeniowym.\n\n## § 6. Przechowywanie i odpowiedzialność za towar\n\n1. Konsygnatariusz zobowiązuje się do przechowywania towaru konsygnacyjnego w warunkach odpowiednich dla jego rodzaju, zgodnie z wymaganiami producenta i przepisami prawa.\n\n2. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa (art. 471 KC).\n\n3. Odpowiedzialność odszkodowawcza obejmuje wartość rynkową brakującego lub zniszczonego towaru.\n\n4. Konsygnatariusz ubezpiecza towar konsygnacyjny od wartości __________ zł na rzecz Konsygnanta.\n\n## § 7. Inwentaryzacja i kontrola\n\n1. Konsygnant ma prawo do przeprowadzania inwentaryzacji towaru konsygnacyjnego w miejscu przechowywania z częstotliwością: __________ (np. raz na kwartał / na żądanie Konsygnanta).\n\n2. Konsygnatariusz zobowiązuje się do udostępnienia dokumentacji konsygnacyjnej w celu przeprowadzenia inwentaryzacji.\n\n3. Koszty inwentaryzacji ponosi Konsygnant, chyba że inwentaryzacja wykona rozbieżności powyżej 5% — wówczas koszty ponosi Konsygnatariusz.\n\n## § 8. Czas trwania i wypowiedzenie umowy\n\n1. Umowa zostaje zawarta na czas: __________ (oznaczony: __________ / nieoznaczony).\n\n2. Każda ze Stron może wypowiedzieć umowę z zachowaniem miesięcznego okresu wypowiedzenia, ze skutkiem na koniec miesiąca kalendarzowego.\n\n3. **Konsygnant ma prawo rozwiązać umowę bez zachowania okresu wypowiedzenia (nagłe rozwiązanie) w przypadku:**\n\n   a) niewykonania obowiązków przez Konsygnatariusza w całości lub znacznej części, w szczególności:\n   - braku terminowego rozliczenia się ze sprzedaży,\n   - braku prowadzenia ewidencji konsygnacyjnej,\n   - sprzedaży towaru poniżej ceny minimalnej ustalonej w § 4,\n   - naruszenia zakazu zastawiania lub obciążania towaru,\n   - braku ubezpieczenia towaru zgodnie z § 6 ust. 4,\n\n   b) zaistnienia nadzwyczajnych okoliczności, w szczególności:\n   - ogłoszenia upadłości Konsygnatariusza,\n   - wszęcia egzekucji sądowej lub administracyjnej w majątek Konsygnatariusza zagrażającego prawidłowemu wykonywaniu umowy,\n   - utraty przez Konsygnatariusza uprawnień niezbędnych do prowadzenia działalności gospodarczej,\n   - rażącego naruszenia obowiązków przez Konsygnatariusza uniemożliwiającego dalsze wykonywanie umowy.\n\n4. Prawo do nagłego rozwiązania umowy przez Konsygnanta wynika z art. 764[2] § 1 Kodeksu cywilnego stosownie przez przepisy o komisie (art. 765-773 KC) oraz na podstawie swobody umów (art. 353[1] KC).\n\n5. Rozwiązanie umowy bez wypowiedzenia wymaga formy dokumentowej pod rygorem nieważności (art. 77 § 2 KC).\n\n6. W przypadku nagłego rozwiązania umowy, Konsygnatariusz zobowiązany jest do niezwłocznego zwrotu całego niesprzedanego towaru konsygnacyjnego oraz przekazania pełnej dokumentacji konsygnacyjnej.\n\n## § 9. Skutki rozwiązania umowy\n\n1. Wraz z rozwiązaniem umowy (za wypowiedzeniem lub bez wypowiedzenia) Konsygnatariusz zobowiązany jest do:\n\n   a) niezwłocznego zwrotu całego niesprzedanego towaru konsygnacyjnego w stanie niepogorszonym poza normalnym zużyciem,\n\n   b) przekazania pełnej dokumentacji konsygnacyjnej, w tym ewidencji, protokołów zdawczo-odbiorczych i raportów sprzedaży,\n\n   c) uregulowania wszystkich należności Konsygnantowi w terminie 14 dni od dnia rozwiązania umowy.\n\n2. Konsygnant ma prawo zatrzymania towaru konsygnacyjnego do momentu uregulowania wszystkich należności przez Konsygnatariusza.\n\n3. Koszty zwrotu towaru konsygnacyjnego ponosi Konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n## § 10. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności przepisy o komisie (art. 765-773 KC) i przechowaniu (art. 835-845 KC) stosownie, a także przepisy ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług.\n\n3. Spory wynikające na tle stosowania niniejszej umowy Strony poddają rozstrzygnięciu sądu właściwego dla siedziby Konsygnanta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n\n\n__________________________                              __________________________\n(Konsygnant)                                           (Konsygnatariusz)\n\n\n## ZAŁĄCZNIKI:\n\n1. Protokół zdawczo-odbiorczy (wzór)\n2. Raport sprzedaży (wzór)\n3. Cennik towaru konsygnacyjnego\n4. Ewidencja towarów konsygnacyjnych (wzór)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA KONSYGNACJI\n\nz prawem konsygnanta do wypowiedzenia bez wypowiedzenia (nagłego rozwiązania)\n\nzawarta w dniu __________ r. w __________, pomiędzy:\n\n**Konsygnantem:**\n__________\nadres siedziby: __________\nNIP: __________\nREGON: __________\nKRS/CEIDG: __________\nreprezentowanym przez: __________\n\na\n\n**Konsygnatariuszem:**\n__________\nadres siedziby: __________\nNIP: __________\nREGON: __________\nKRS/CEIDG: __________\nreprezentowanym przez: __________\n\nzwymi dalej „Stronami\" lub osobno „Stroną\".\n\n## § 1. Przedmiot umowy\n\n1. Konsygnant przekazuje Konsygnatariuszowi towar konsygnacyjny do sprzedaży osobom trzecim na własny rachunek, a Konsygnatariusz zobowiązuje się do przyjęcia towaru i dokonywania jego sprzedaży na warunkach określonych w niniejszej umowie.\n\n2. Towar konsygnacyjny obejmuje: __________ (szczegółowy opis asortymentu, rodzaj, kategorie, minimalna ilość, wymagania jakościowe).\n\n3. Konsygnatariusz oświadcza, że zapoznał się z wymaganiami jakościowymi towaru i nie wnosi zastrzeżeń co do jego stanu w momencie przekazania.\n\n## § 2. Własność towaru\n\n1. Własność towaru konsygnacyjnego pozostaje przy Konsygnancie do momentu jego sprzedaży osobie trzeciej przez Konsygnatariusza (zastrzeżenie własności na podstawie art. 589 Kodeksu cywilnego).\n\n2. Konsygnatariusz nie jest uprawniony do zastawiania, obciążania, przekazywania do użytkowania osób trzecich ani innego niż sprzedażowe korzystania z towaru konsygnacyjnego.\n\n3. W razie ogłoszenia upadłości Konsygnatariusza, Konsygnant ma prawo żądać wyłączenia towaru konsygnacyjnego z masy upadłości na podstawie przepisów ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe (art. 70 ust. 1), jeżeli towar jest wyraźnie oznaczony jako własność Konsygnanta i ewidencja konsygnacyjna jest prawidłowo prowadzona.\n\n## § 3. Przekazywanie i zwrot towaru\n\n1. Przekazanie towaru konsygnacyjnego następuje na podstawie protokołu zdawczo-odbiorczego podpisywanego przez obie Strony przy każdej dostawie.\n\n2. Protokół zdawczo-odbiorcy powinien zawierać: datę przekazania, opis towaru, ilość, stan towaru w momencie przekazania oraz podpisy uprawnionych przedstawicieli obu Stron.\n\n3. Zwrot niesprzedanego towaru następuje na koszt Konsygnatariusza, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n## § 4. Ceny i wynagrodzenie Konsygnatariusza\n\n1. Cena detaliczna towaru konsygnacyjnego wynosi: __________ (cena ustalana przez Konsygnanta / cena ustalana za zgodą obu Stron / cena wolnie kształtowana przez Konsygnatariusza w zakresie: __________).\n\n2. Wynagrodzenie Konsygnatariusza stanowi prowizja w wysokości __________% od ceny netto sprzedanego towaru (bez VAT) lub marża w wysokości __________.\n\n3. Podstawą naliczania prowizji jest cena netto sprzedaży towaru bez VAT. Prowizja naliczana jest w momencie zawarcia umowy sprzedaży z klientem końcowym.\n\n4. Wynagrodzenie Konsygnatariusza podlega VAT 23% jako usługa.\n\n## § 5. Raportowanie i rozliczenie\n\n1. Konsygnatariusz zobowiązuje się do prowadzenia ewidencji towarów konsygnacyjnych, obejmującej: towar przyjęty, towar sprzedany, towar zwrócony, towar uszkodzony lub brakujący.\n\n2. Konsygnatariusz przekazuje Konsygnantowi miesięczny raport sprzedaży do 10. dnia miesiąca następującego po miesiącu rozliczeniowym.\n\n3. Rozliczenie sprzedaży następuje do 10. dnia miesiąca następującego po miesiącu rozliczeniowym na podstawie raportu sprzedaży i faktury VAT wystawionej przez Konsygnatariusza.\n\n4. Konsygnant wystawia fakturę VAT za towary sprzedane w danym okresie rozliczeniowym.\n\n## § 6. Przechowywanie i odpowiedzialność za towar\n\n1. Konsygnatariusz zobowiązuje się do przechowywania towaru konsygnacyjnego w warunkach odpowiednich dla jego rodzaju, zgodnie z wymaganiami producenta i przepisami prawa.\n\n2. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa (art. 471 KC).\n\n3. Odpowiedzialność odszkodowawcza obejmuje wartość rynkową brakującego lub zniszczonego towaru.\n\n4. Konsygnatariusz ubezpiecza towar konsygnacyjny od wartości __________ zł na rzecz Konsygnanta.\n\n## § 7. Inwentaryzacja i kontrola\n\n1. Konsygnant ma prawo do przeprowadzania inwentaryzacji towaru konsygnacyjnego w miejscu przechowywania z częstotliwością: __________ (np. raz na kwartał / na żądanie Konsygnanta).\n\n2. Konsygnatariusz zobowiązuje się do udostępnienia dokumentacji konsygnacyjnej w celu przeprowadzenia inwentaryzacji.\n\n3. Koszty inwentaryzacji ponosi Konsygnant, chyba że inwentaryzacja wykona rozbieżności powyżej 5% — wówczas koszty ponosi Konsygnatariusz.\n\n## § 8. Czas trwania i wypowiedzenie umowy\n\n1. Umowa zostaje zawarta na czas: __________ (oznaczony: __________ / nieoznaczony).\n\n2. Każda ze Stron może wypowiedzieć umowę z zachowaniem miesięcznego okresu wypowiedzenia, ze skutkiem na koniec miesiąca kalendarzowego.\n\n3. **Konsygnant ma prawo rozwiązać umowę bez zachowania okresu wypowiedzenia (nagłe rozwiązanie) w przypadku:**\n\n   a) niewykonania obowiązków przez Konsygnatariusza w całości lub znacznej części, w szczególności:\n   - braku terminowego rozliczenia się ze sprzedaży,\n   - braku prowadzenia ewidencji konsygnacyjnej,\n   - sprzedaży towaru poniżej ceny minimalnej ustalonej w § 4,\n   - naruszenia zakazu zastawiania lub obciążania towaru,\n   - braku ubezpieczenia towaru zgodnie z § 6 ust. 4,\n\n   b) zaistnienia nadzwyczajnych okoliczności, w szczególności:\n   - ogłoszenia upadłości Konsygnatariusza,\n   - wszęcia egzekucji sądowej lub administracyjnej w majątek Konsygnatariusza zagrażającego prawidłowemu wykonywaniu umowy,\n   - utraty przez Konsygnatariusza uprawnień niezbędnych do prowadzenia działalności gospodarczej,\n   - rażącego naruszenia obowiązków przez Konsygnatariusza uniemożliwiającego dalsze wykonywanie umowy.\n\n4. Prawo do nagłego rozwiązania umowy przez Konsygnanta wynika z art. 764[2] § 1 Kodeksu cywilnego stosownie przez przepisy o komisie (art. 765-773 KC) oraz na podstawie swobody umów (art. 353[1] KC).\n\n5. Rozwiązanie umowy bez wypowiedzenia wymaga formy dokumentowej pod rygorem nieważności (art. 77 § 2 KC).\n\n6. W przypadku nagłego rozwiązania umowy, Konsygnatariusz zobowiązany jest do niezwłocznego zwrotu całego niesprzedanego towaru konsygnacyjnego oraz przekazania pełnej dokumentacji konsygnacyjnej.\n\n## § 9. Skutki rozwiązania umowy\n\n1. Wraz z rozwiązaniem umowy (za wypowiedzeniem lub bez wypowiedzenia) Konsygnatariusz zobowiązany jest do:\n\n   a) niezwłocznego zwrotu całego niesprzedanego towaru konsygnacyjnego w stanie niepogorszonym poza normalnym zużyciem,\n\n   b) przekazania pełnej dokumentacji konsygnacyjnej, w tym ewidencji, protokołów zdawczo-odbiorczych i raportów sprzedaży,\n\n   c) uregulowania wszystkich należności Konsygnantowi w terminie 14 dni od dnia rozwiązania umowy.\n\n2. Konsygnant ma prawo zatrzymania towaru konsygnacyjnego do momentu uregulowania wszystkich należności przez Konsygnatariusza.\n\n3. Koszty zwrotu towaru konsygnacyjnego ponosi Konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n## § 10. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności przepisy o komisie (art. 765-773 KC) i przechowaniu (art. 835-845 KC) stosownie, a także przepisy ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług.\n\n3. Spory wynikające na tle stosowania niniejszej umowy Strony poddają rozstrzygnięciu sądu właściwego dla siedziby Konsygnanta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n\n\n__________________________                              __________________________\n(Konsygnant)                                           (Konsygnatariusz)\n\n\n## ZAŁĄCZNIKI:\n\n1. Protokół zdawczo-odbiorczy (wzór)\n2. Raport sprzedaży (wzór)\n3. Cennik towaru konsygnacyjnego\n4. Ewidencja towarów konsygnacyjnych (wzór)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę przekazać komuś mój towar do sprzedaży na zasadzie konsygnacji, ale muszę mieć pewność, że mogę go od razu odebrać z powrotem, jeśli konsygnatariusz nie będzie się rozliczał, sprzeda za tanio albo zgłosi upadłość."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję oddać do sprzedazy asortyment o wartości ok. 200 tys. zł – chcę ustalić ceny minimalne, otrzymywać miesięczne raporty sprzedaży do 10. dnia miesiąca, a towar ma być ubezpieczony. Najważniejsze: jeśli konsygnatariusz zwłoknie z płatnością, nie będzie prowadził ewidencji, sprzeda poniżej ustalonego progu, albo na jego majątku zostanie uruchomiona egzekucja, chcę mieć prawo natychmiast rozwiązać umowę i odebrać cały niesprzedany towar bez czekania na okres wypowiedzenia. Koszty zwrotu towaru ma pokryć konsygnatariusz."
+  }
+ ]
+}

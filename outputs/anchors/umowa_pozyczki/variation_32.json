@@ -1,0 +1,17 @@
+{
+ "run": 35,
+ "hint": "Pożyczka w transzach (wypłata wielokrotna)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wziąć pożyczkę, która zostanie wypłacona w kilku częściach w zależności od postępów remontu. Jak to zabezpieczyć?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję remont domu i potrzebuję kredytu, który bank wypłaci w transzach po każdym etapie prac. Chcę mieć pewność, że terminy i kwoty wypłat są jasne, a ja nie muszę spłacać odsetek od całej kwoty od razu. Jak ustalić harmonogram transz i co się stanie, jeśli remont się opóźni?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_pozyczki\", \"query\": \"pożyczka w transzach wypłata wielokrotna\"})\\nRESULT: [{\"doc_type\": \"umowa_pozyczki\", \"kind\": \"structural_template\", \"text\": \"# Umowa pożyczki\\nUmowa pożyczki w Polsce to umowa nazwana uregulowana w art. 720-724 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.), przez którą dający pożyczkę zobowiązuje się przenieść na własność biorącego określoną ilość pieniędzy albo rzeczy oznaczonych co do gatunku, a biorący zobowiązuje się zwrócić tę samą ilość pieniędzy albo tę samą ilość rzeczy tego samego gatunku i tej samej jakości. Definicja ta wynika wprost z art. 720 § 1 Kodeksu cywilnego i odróżnia pożyczkę od użyczenia (które jest nieodpłatne i dotyczy używania rzeczy bez przeniesienia własności) oraz od kredytu bankowego regulowanego prawem bankowym.\\n\\nCechą charakterystyczną pożyczki jest przeniesienie własności przedmiotu pożyczki na pożyczkobiorcę. Biorący pożyczkę staje się właścicielem otrzymanych środków i może nimi swobodnie dysponować, a jego obowiązkiem jest zwrot takiej samej kwoty lub ilości rzeczy, a nie tych konkretnych pieniędzy czy rzeczy, które otrzymał. Pożyczka może być odpłatna (oprocentowana) albo nieodpłatna (nieoprocentowana) — odpłatność nie należy do elementów przedmiotowo istotnych umowy, lecz zależy od woli stron. W obrocie rodzinnym i sąsiedzkim dominują pożyczki nieoprocentowane, natomiast pożyczki udzielane przez przedsiębiorców pożyczkowych są zwykle odpłatne i podlegają dodatkowo ustawie z dnia 12 maja 2011 r. o kredycie konsumenckim, gdy pożyczkobiorcą jest konsument.\\n\\nForma umowy pożyczki została uregulowana w art. 720 § 2 Kodeksu cywilnego: umowa, której wartość przekracza tysiąc złotych, wymaga zachowania formy dokumentowej. Jest to forma zastrzeżona dla celów dowodowych (ad probationem), a "
+}

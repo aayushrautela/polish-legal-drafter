@@ -1,0 +1,325 @@
+{
+ "run": 41,
+ "hint": "Faktoring dla MŚP z jednym głównym odbiorcą (concentration risk)",
+ "scenario": "Faktoring dla MŚP z jednym głównym odbiorcą (concentration risk)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_faktoringu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a factoring contract variation for SMEs with a single main debtor (concentration risk). I need to:\n1. First read the base template for factoring agreements\n2. Search for provisions relevant to concentration risk, single debtor scenarios, SME factoring, etc.\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-507629f1-da66-4687-9584-aa17c56b3ea0",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"faktoring dla MŚP z jednym głównym odbiorcą concentration risk\", \"doc_type\": \"umowa_faktoringu\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_faktoringu\", \"kind\": \"structural_template\", \"text\": \"# Umowa faktoringu odwrotnego\\nUmowa faktoringu odwrotnego w Polsce (reverse factoring, supply chain finance — SCF) to kontrakt regulujący program finansowania łańcucha dostaw, w którym faktor — bank lub spółka faktoringowa — finansuje zobowiązania handlowe nabywcy (dużego odbiorcy) wobec jego dostawców, wypłacając dostawcom należności z wyprzedzeniem, przed oryginalnym terminem płatności. Podstawę prawną cesji wierzytelności dostawcy na faktora stanowi art. 509 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), a działalność instytucji finansowej prowadzącej program reguluje ustawa z dnia 29 sierpnia 1997 r. Prawo bankowe (Dz.U. 1997 nr 140 poz. 939 ze zm.).\\n\\nIstotą faktoringu odwrotnego jest odwrócenie inicjatywy w stosunku do tradycyjnego faktoringu: to nabywca (nie dostawca) inicjuje program i wybiera faktora, zapewniając dostawcom dostęp do taniego finansowania opartego na własnej zdolności kredytowej nabywcy. Dostawca, zwłaszcza mały lub średni przedsiębiorca (MŚP), uzyskuje finansowanie po korzystniejszej stopie niż mógłby samodzielnie uzyskać na rynku, gdyż faktor ocenia ryzyko kredytowe nabywcy — który często jest dużą spółką giełdową lub instytucją publiczną — a nie każdego dostawcy z osobna.\\n\\nMechanizm programu jest następujący: dostawca wystawia fakturę na nabywcę i przesyła ją do systemu platformy faktoringowej. Nabywca zatwierdza fakturę w systemie, potwierdzając jej zgodność z zamówieniem i zobowiązując się do zapłaty faktorowi w oryginalnym terminie. Dostawca może następnie złożyć wniosek o wcześniejszą wypłatę — faktor wypłaca mu kwotę faktury pomniejszoną o prowizję (dyskonto). W dniu płatności oryginalnej faktor pobiera pełną kwotę od nabywcy.\\n\\nNadzór nad instytucjami bankowymi prowadzącymi programy supply chain finance sprawuje Komisja Nadzoru Finansowego (KNF). Spółki niebankowe działają na podstawie ustawy z dnia 6 marca 2018 r. Prawo przedsiębiorców. Rynkowe standardy programów SCF definiują Globalne Standardy Finansowania Łańcucha Dostaw (Global Supply Chain Finance Forum) wydane przez Bankers Association for Finance and Trade (BAFT) we współpracy z Międzynarodową Izbą Handlową (ICC) w Paryżu.\\n\\nW Polsce faktoring odwrotny stosowany jest głównie przez sieci handlowe, duże przedsiębiorstwa produkcyjne i podmioty publiczne jako narzędzie poprawy warunków dla dostawców (krótszy czas oczekiwania na płatność) przy jednoczesnym zachowaniu długich terminów płatności. Związek Polskiego Leasingu (ZPL) monitoruje rynek faktoringu, w tym faktoringu odwrotnego, publikując kwartalne dane o wartości sfinansowanych wierzytelności. Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych nakłada na dużych nabywców ograniczenia terminów płatności do 60 dni — faktoring odwrotny jest często stosowany jako zgodne z prawem rozwiązanie umożliwiające dostawcom otrzymanie płatności wcześniej, przy zachowaniu dłuższych terminów dla nabywcy.\\n\\nUmowa faktoringu odwrotnego w Polsce jest potrzebna zarówno nabywcom chcącym wesprzeć swoich dostawców, jak i samym dostawcom uczestniczącym w programie.\\n\\nDuże sieci handlowe z wieloma dostawcami. Sieci supermarketów, hurtownie i operatorzy logistyczni posiadający setki dostawców korzystają z faktoringu odwrotnego jako programu wsparcia łańcucha dostaw — dostawcy rzadziej doświadczają problemów płynnościowych, co przekłada się na stabilność dostaw.\\n\\nPoprawa warunków dostawców MŚP bez kosztów po stronie nabywcy. Mały dostawca korzysta z tańszego finansowania opartego na ratingu kredytowym nabywcy. Nabywca nie ponosi kosztu — ewentualny koszt faktoringu ponosi dostawca (prowizja jest niższa niż koszt kredytu obrotowego MŚP).\\n\\nOptymalizacja kapitału obrotowego nabywcy. Nabywca może negocjować z dostawcami dłuższe terminy płatności — np. 90 zamiast 30 dni — w zamian za udostępnienie programu SCF. Dostawca nie odczuwa negatywnych skutków dłuższego terminu, bo i tak korzysta z wcześniejszej wypłaty przez faktora.\\n\\nZmniejszenie ryzyka zakłócenia dostaw. Nabywca, który wie, że dostawca ma problemy z płynnością, może zachęcić go do skorzystania z programu SCF zamiast szukać tańszego dostawcy. Stabilność dostawcy jest ważnym elementem zarządzania ryzykiem łańcucha dostaw (supply chain risk management).\\n\\nWypełnienie wymogów ustawy o przeciwdziałaniu nadmiernym opóźnieniom. Duże przedsiębiorstwa (przychody > 50 mln EUR) zobowiązane są do sprawozdawania wartości przeterminowanych zobowiązań wobec MŚP. Program faktoringu odwrotnego, w ramach którego faktor wypłaca dostawcy wcześniej, może zmniejszyć efektywne opóźnienia płatności mierzone od perspektywy dostawcy.\\n\\nProgramy rządowe i zamówienia publiczne. Instytucje publiczne realizujące duże projekty infrastrukturalne (GDDKiA, PKP, podmioty Skarbu Państwa) coraz częściej oferują wykonawcom i podwykonawcom dostęp do platform SCF, aby ograniczyć zatory płatnicze i ryzyko upadłości wykonawców w trakcie realizacji kontraktu.\\n\\nUmowa faktoringu odwrotnego w Polsce powinna regulować zarówno stosunki nabywca-faktor (umowa ramowa programu), jak i warunki przystępowania dostawców.\\n\\nOznaczenie stron — faktor i nabywca. Pełna firma faktora — bank z numerem KNF, spółka faktoringowa z KRS. Pełna firma nabywcy — NIP, REGON, KRS. Wskazanie organu reprezentacji zgodnie z aktualnym odpisem z Krajowego Rejestru Sądowego.\\n\\nZakres i limit programu. Łączna kwota zobowiązań nabywcy objętych programem (limit całkowity). Ewentualne sublimity na dostawców lub grupy produktowe. Waluta programu (PLN lub waluty obce dla importu). Zasady zmiany limitu w trakcie trwania umowy.\\n\\nMechanizm zatwierdzania faktur przez nabywcę. Termin, w jakim nabywca zobowiązuje się zatwierdzić każdą fakturę dostawcy po jej przesłaniu do systemu platformy. Milczące zatwierdzenie — po upływie terminu bez reakcji faktura uznawana za zatwierdzoną. Zasady odrzucenia faktury — przyczyny, formularz powiadomienia. Nieodwołalność zatwierdzenia — raz zatwierdzona faktura nie może być cofnięta.\\n\\nProwizja faktora i warunki wypłaty. Stawka prowizji (procentowa lub dzienna) potrącana od kwoty wypłaconej dostawcy. Prowizja nie może przekraczać odsetek maksymalnych z art. 359 § 2¹ KC (dwukrotność odsetek ustawowych). Termin wypłaty po zatwierdzeniu faktury (standardowo 1–3 dni robocze). Waluta wypłaty i zasady przewalutowania. forms-legal.com zaleca porównanie prowizji programu SCF z innymi formami finansowania przed przystąpieniem.\\n\\nWarunki przystępowania i cesji przez dostawców. Dostawca przystępuje do programu przez podpisanie odrębnej umowy cesji wierzytelności z faktorem na podstawie art. 509 KC. Warunki kwalifikacyjne dostawcy: brak zaległości wobec ZUS i KAS, brak wpisu do rejestrów dłużników (BIK, BIG), akceptacja regulaminu platformy. Zawiadomienie nabywcy o cesji przez faktora lub dostawcę.\\n\\nSpłata przez nabywcę. Termin i sposób spłaty faktorowi przez nabywcę (w dniu oryginalnej wymagalności faktury). Rachunek bankowy faktora do wpłat. Odsetki za opóźnienie nabywcy w spłacie — zgodne z art. 481 § 2 KC (odsetki ustawowe za opóźnienie). Skutki braku spłaty przez nabywcę — eskalacja, wypowiedzenie programu.\\n\\nPlatforma technologiczna i bezpieczeństwo danych. Opis systemu informatycznego zarządzającego programem. Warunki dostępu do platformy dla nabywcy i dostawców. Obowiązki związane z ochroną danych osobowych zgodnie z rozporządzeniem (UE) 2016/679 (RODO) — dostawcami mogą być osoby fizyczne prowadzące działalność, których dane osobowe przetwarza faktor i nabywca. Nadzór nad przetwarzaniem danych sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nUmowa faktoringu odwrotnego w Polsce wymaga precyzyjnego określenia parametrów programu, gdyż obejmuje ona zarówno stosunki finansowe, jak i operacyjne między faktorem, nabywcą i dostawcami.\\n\\nKrok 1 — zidentyfikuj strony. Wpisz pełne dane faktora (bank lub spółka faktoringowa z numerem KRS) i nabywcy (inicjatora programu). Upewnij się, że nabywca ma odpowiedni rating kredytowy akceptowany przez faktora — program SCF jest tańszy dla dostawców właśnie dlatego, że ryzyko oceniane jest na poziomie nabywcy.\\n\\nKrok 2 — określ limit i zakres programu. Wskaż łączny limit w PLN obejmujący wszystkie wierzytelności dostawców finansowane przez faktora. Limit powinien odpowiadać co najmniej 50% rocznych zobowiązań wobec dostawców zaproszonych do programu, aby był praktycznie użyteczny.\\n\\nKrok 3 — ustal termin płatności i wcześniejszą wypłatę. Standardowy termin płatności nabywcy to termin, w jakim zapłaciłby dostawcy bez udziału faktora (np. 90 dni). Wcześniejsza wypłata to czas od zatwierdzenia faktury do wypłaty przez faktora dostawcy (np. 2 dni robocze).\\n\\nKrok 4 — opisz prowizję. Wpisz stawkę prowizji — najczęściej jako procent dzienny od wartości faktury (np. 0,025% dziennie = ~9% rocznie). Oblicz efektywny roczny koszt finansowania, aby sprawdzić, czy nie przekracza odsetek maksymalnych z art. 359 § 2¹ KC.\\n\\nKrok 5 — wybierz platformę. Wskaż system informatyczny obsługujący program i adres URL dostępu. Platforma powinna zapewniać elektroniczny obieg faktur, zatwierdzanie nabywcy, wnioski dostawców i raportowanie do faktora.\\n\\nKrok 6 — zdefiniuj warunki przystąpienia dostawcy. Wskaż jakie dokumenty dostawca musi złożyć (zaświadczenia ZUS/KAS, KRS/CEIDG) i jakie umowy podpisać (cesja wierzytelności z faktorem). Możliwe jest wdrożenie automatycznego onboardingu przez platformę.\\n\\nKrok 7 — podpisz i wdróż. Po podpisaniu umowy ramowej faktor uruchamia platformę i zaprasza dostawców. Dla każdego dostawcy zawierana jest odrębna umowa cesji. Nabywca udostępnia dostawcom regulamin programu i instrukcję obsługi platformy.\\n\\nUmowa faktoringu odwrotnego w Polsce podlega przepisom Kodeksu cywilnego, Prawa bankowego i ustaw konsumenckich i podatkowych.\\n\\nKodeks cywilny — art. 509–518 (przelew wierzytelności). Cesja wierzytelności dostawcy na faktora (art. 509 KC) jest rdzeniem programu faktoringu odwrotnego. Art. 509 § 1 KC — wierzyciel może bez zgody dłużnika przenieść wierzytelność na osobę trzecią, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu lub właściwości zobowiązania. Art. 512 KC — dopóki nabywca nie zostanie poinformowany o cesji, może skutecznie zapłacić dostawcy. Art. 509 § 2 KC — z wierzytelnością przechodzą wszelkie związane z nią prawa.\\n\\nOdsetki maksymalne — art. 359 § 2¹ KC i art. 481 § 2¹ KC. Prowizja faktora pobierana od dostawcy nie może przekraczać odsetek maksymalnych (dwukrotność odsetek ustawowych wynikających ze stopy referencyjnej NBP + 3,5 pp). Odsetki za opóźnienie nabywcy wobec faktora nie mogą przekraczać dwukrotności odsetek ustawowych za opóźnienie (art. 481 § 2¹ KC).\\n\\nUstawa o przeciwdziałaniu nadmiernym opóźnieniom — z dnia 8 marca 2013 r. Ustawa (Dz.U. 2013 poz. 403 ze zm.) ogranicza terminy płatności w transakcjach handlowych — standardowo do 60 dni. Duże podmioty (przychody > 50 mln EUR) zobowiązane są do corocznego raportowania do ministra właściwego do spraw gospodarki wartości przeterminowanych zobowiązań. Program faktoringu odwrotnego, z perspektywy dostawcy, może skrócić efektywny czas oczekiwania na środki.\\n\\nRegulaminy platform faktoringowych i ochrona konkurencji. Programy SCF obsługiwane przez dominujących nabywców mogą być badane przez Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) pod kątem ewentualnego nadużywania pozycji rynkowej wobec dostawców — szczególnie jeśli udział w programie jest warunkiem współpracy.\\n\\nPrzetwarzanie danych — RODO i u.o.d.o. Dane osobowe dostawców i ich reprezentantów przetwarzane przez faktora i nabywcę podlegają rozporządzeniu (UE) 2016/679 (RODO) i ustawie z dnia 10 maja 2018 r. o ochronie danych osobowych, nadzorowanej przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO). Dostawcy powinni otrzymać klauzulę informacyjną przed przystąpieniem do programu.\\n\\nVAT i rachunkowość. Wcześniejsza wypłata przez faktora nie zmienia momentu powstania obowiązku podatkowego VAT u dostawcy — jest nim wystawienie faktury lub dostawa towaru. Prowizja faktora stanowi koszt uzyskania przychodu dostawcy. Nabywca spłacający faktorowi zobowiązanie handlowe może zaliczyć je jako koszt na zasadach ogólnych ustawy o CIT.\\n\\nUmowa faktoringu odwrotnego w Polsce zawiera typowe błędy, które mogą prowadzić do konfliktów między nabywcą, faktorem i dostawcami.\\n\\nBłąd 1 — brak klauzuli o nieodwołalności zatwierdzenia. Jeżeli nabywca może cofnąć zatwierdzenie faktury po jej zatwierdzeniu, faktor nie ma pewności co do spłaty i odmawia wypłaty dostawcy. Zalecenie: zamieść wyraźną klauzulę nieodwołalności zatwierdzenia — raz potwierdzona faktura nie może być cofnięta.\\n\\nBłąd 2 — milczące zatwierdzenie bez wyraźnej klauzuli. Brak wyraźnego postanowienia o domyślnym zatwierdzeniu po upływie terminu prowadzi do sporów, gdy nabywca nie zareaguje na fakturę. Zalecenie: wpisz expressis verbis, że brak reakcji nabywcy w terminie X dni = zatwierdzenie.\\n\\nBłąd 3 — prowizja przekraczająca odsetki maksymalne. Przy wysokich stawkach dziennych (np. 0,1% dziennie = 36% rocznie) prowizja może przekraczać odsetki maksymalne z art. 359 § 2¹ KC. Zalecenie: oblicz roczny ekwiwalent prowizji i sprawdź zgodność z KC.\\n\\nBłąd 4 — brak zawiadomienia nabywcy o cesji przez dostawcę. Nabywca, który nie wie o cesji, może zapłacić dostawcy bezpośrednio — faktor traci środki. Zalecenie: zadbaj, aby faktor lub dostawca zawiadamiał nabywcę o każdej cesji wierzytelności na piśmie, zgodnie z art. 512 KC.\\n\\nBłąd 5 — pominięcie klauzuli RODO przy onboardingu dostawców. Program obejmujący setki dostawców bez klauzuli informacyjnej RODO narusza art. 13 rozporządzenia (UE) 2016/679 (RODO). Zalecenie: platforma powinna automatycznie dostarczać klauzulę informacyjną każdemu nowemu dostawcy podczas rejestracji.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-faktoringu-odwrotnego (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-507629f1-da66-4687-9584-aa17c56b3ea0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_8e39711c333245469a3cbd42",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"concentration risk single debtor factoring MŚP ryzyko koncentracji jeden dłużnik\"}"
+     }
+    },
+    {
+     "id": "call_a1e3d7b00c0b478192d33032",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"concentration risk\", \"ryzyko koncentracji\", \"jeden dłużnik\", \"single debtor\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_375\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 375. § 1. Dłużnik solidarny może się bronić zarzutami, które przysługują mu osobiście względem wierzyciela, jak również tymi, które ze względu na sposób powstania lub treść zobowiązania są wspólne wszystkim dłużnikom. § 2. Wyrok zapadły na korzyść jednego z dłużników solidarnych zwalnia współdłużników, jeżeli uwzględnia zarzuty, które są im wszystkim wspólne.\"}, {\"chunk_id\": \"uokik_items:uokik_2e38b6c394fcc29f\", \"source_id\": \"uokik_rejestr_klauzul_5403\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Właściciel serwisu ostrzega, że korzystanie z serwisu odbywa się wyłącznie na ryzyko użytkownika\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_355\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 355. § 1. Dłużnik obowiązany jest do staranności ogólnie wymaganej w stosunkach danego rodzaju (należyta staranność). § 2. Należytą staranność dłużnika w zakresie prowadzonej przez niego działalności gospodarczej określa się przy uwzględnieniu zawodowego charakteru tej działalności.\"}, {\"chunk_id\": \"sejm_eli_du_2023_2809_art_50\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 50. Jeżeli wierzytelność powstała przed rozszerzeniem wspólności, wierzyciel, którego dłużnikiem jest tylko jeden małżonek, może żądać zaspokojenia także z tych przedmiotów majątkowych, które należałyby do majątku osobistego dłużnika, gdyby wspólność majątkowa nie została rozszerzona.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1050\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1050. § 1. Jeżeli dłużnik ma wykonać czynność, której inna osoba wykonać za niego nie może, a której wykonanie zależy wyłącznie od jego woli, sąd, w którego okręgu czynność ma być wykonana, na wniosek wierzyciela po wysłuchaniu stron wyznaczy dłużnikowi termin do wykonania i zagrozi mu grzywną na wypadek, gdyby w wyznaczonym terminie czynności nie wykonał. § 1 1 . W sprawach z zakresu prawa pracy wierzyciel może złożyć wniose ...\"}]",
+   "tool_call_id": "call_8e39711c333245469a3cbd42",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_a1e3d7b00c0b478192d33032",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_cb73de6ae99a4f7d88f9366f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring concentration limit single debtor exposure MŚP ryzyko niewypłacalności jednego odbiorcy\"}"
+     }
+    },
+    {
+     "id": "call_8ecae8c998d44219a43ebfb7",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 509 KC\", \"art. 512 KC\", \"art. 516 KC\", \"art. 359 KC\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_69073e42b3046ddd\", \"source_id\": \"uokik_rejestr_klauzul_1756\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany: uświadamia sobie, że jeżeli nie będzie wykonywał swoich obowiązków płatniczych zgodnie z zawartymi umowami, nie osiągnie odpowiedniego poziomu wiarygodności i do niezawarcia umowy lub niewypłacenia kolejnej raty pożyczki dojdzie z winy zainteresowanego\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_83\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 83. Jeżeli majątek spółki nie wystarcza na spłatę udziałów i długów, niedobór dzieli się między wspólników stosownie do postanowień umowy, a w ich braku - w stosunku, w jakim wspólnicy uczestniczą w stracie. W przypadku niewypłacalności jednego ze wspólników, przypadającą na niego część niedoboru dzieli się między pozostałych wspólników w takim samym stosunku.\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_302\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 302. § 1. Kto, w razie grożącej mu niewypłacalności lub upadłości, nie mogąc zaspokoić wszystkich wierzycieli, spłaca lub zabezpiecza tylko niektórych, czym działa na szkodę pozostałych, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. § 2. Kto wierzycielowi udziela lub obiecuje udzielić korzyści majątkowej za działanie na szkodę innych wierzycieli w związku z postępowaniem upadłościowym lub zmierzającym do zapobieg ...\"}, {\"chunk_id\": \"uokik_items:uokik_2e38b6c394fcc29f\", \"source_id\": \"uokik_rejestr_klauzul_5403\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Właściciel serwisu ostrzega, że korzystanie z serwisu odbywa się wyłącznie na ryzyko użytkownika\"}, {\"chunk_id\": \"uokik_items:uokik_6415c60b8019f98f\", \"source_id\": \"uokik_rejestr_klauzul_2615\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Niewykorzystanie przez Klienta wszystkich punktów programu, a w szczególności wycieczek lub innych atrakcji w miejscu docelowego pobytu, a także wcześniejszy od planowanego powrót z imprezy zwalnia(...) z obowiązku zwrotu wartości opłaconych i niewykorzystanych świadczeń. Wcześniejszy powrót odbywa się na koszt i ryzyko Klienta. Niewykorzystanie świadczeń przez Klienta oznacza zrzeczenie się roszczeń z tego tytułu\"}]",
+   "tool_call_id": "call_cb73de6ae99a4f7d88f9366f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_8ecae8c998d44219a43ebfb7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_31f23fa0a0a24daba9743c98",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring MŚP jeden główny odbiorca ryzyko koncentracji limit sublimit odsetki maksymalne\"}"
+     }
+    },
+    {
+     "id": "call_c89c2692abda4880ac96fdbd",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"faktoring\", \"MŚP\", \"koncentracja\", \"limit\", \"sublimit\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"extractor_v9:filtered_0251_statute_e7bf4a12ebf7ffec\", \"source_id\": \"sejm_eli_du_2024_1061_art_359\", \"source_type\": \"statute\", \"top_category\": \"penalty_or_interest\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 359. § 1. Odsetki od sumy pieniężnej należą się tylko wtedy, gdy to wynika z czynności prawnej albo z ustawy, z orzeczenia sądu lub z decyzji innego właściwego organu. § 2. Jeżeli wysokość odsetek nie jest w inny sposób określona, należą się odsetki ustawowe w wysokości równej sumie stopy referencyjnej Narodowego Banku Polskiego i 3,5 punktów procentowych. § 2 1 . Maksymalna wysokość odsetek wynikających z czynności prawnej nie może w stosunku rocznym przekraczać dwukrotności wysokości odsetek ustawowych (odsetki maksymalne). § 2 2 . Jeżeli wysokość odsetek wynikających z czynności prawne ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_359\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 359. § 1. Odsetki od sumy pieniężnej należą się tylko wtedy, gdy to wynika z czynności prawnej albo z ustawy, z orzeczenia sądu lub z decyzji innego właściwego organu. § 2. Jeżeli wysokość odsetek nie jest w inny sposób określona, należą się odsetki ustawowe w wysokości równej sumie stopy referencyjnej Narodowego Banku Polskiego i 3,5 punktów procentowych. § 2 1 . Maksymalna wysokość odsetek wynikających z czynności prawnej nie może w stosunku r ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_14\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 14. 1. Maksymalny limit wydatków z budżetu państwa przeznaczonych na wykonywanie zadań wynikających z niniejszej ustawy, z wyłączeniem zadań, o których mowa w art. 15, wynosi w roku: 1) 2023 - 0 zł; 2) 2024 - 1,03 mln zł; 3) 2025 - 1,03 mln zł; 4) 2026 - 1,03 mln zł; 5) 2027 - 1,03 mln zł; 6) 2028 - 1,03 mln zł; 7) 2029 - 1,03 mln zł; 8) 2030 - 1,03 mln zł; 9) 2031 - 1,03 mln zł; 10) 2032 - 1,03 mln zł. 2. Minister Sprawiedliwości monit ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0044_statute_2b24eafbb121e626\", \"source_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_type\": \"statute\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli pozaodsetkowe koszty przekraczają maksymalną wysokość pozaodsetkowych kosztów określoną w § 1 lub 2, należą się pozaodsetkowe koszty w maksymalnej wysokości. § 4. Postanowienia umowne nie mogą wyłączać ani ograniczać przepisów o maksymalnej wysokości pozaodsetkowych kosztów, także w razie dokonania wyboru prawa obcego. W takim przypadku stosuje się przepisy ustawy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 2 . § 1. Jeżeli przepisy szczególne nie stanowią inaczej, w umowie pożyczki pieniężnej zawieranej z osobą fizyczną i niezwiązanej bezpośrednio z działalnością gospodarczą lub zawodową tej osoby łączna wysokość pozaodsetkowych kosztów nie może przekraczać maksymalnej wysokości pozaodsetkowych kosztów określonej wzorem: MPK = K × n/R × 20% w którym poszczególne symbole oznaczają: MPK - maksymalną wysokość pozaodsetkowych kosztów, K - całkowitą ...\"}]",
+   "tool_call_id": "call_31f23fa0a0a24daba9743c98",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_14\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 14. 1. Maksymalny limit wydatków z budżetu państwa przeznaczonych na wykonywanie zadań wynikających z niniejszej ustawy, z wyłączeniem zadań, o których mowa w art. 15, wynosi w roku: 1) 2023 - 0 zł; 2) 2024 - 1,03 mln zł; 3) 2025 - 1,03 mln zł; 4) 2026 - 1,03 mln zł; 5) 2027 - 1,03 mln zł; 6) 2028 - 1,03 mln zł; 7) 2029 - 1,03 mln zł; 8) 2030 - 1,03 mln zł; 9) 2031 - 1,03 mln zł; 10) 2032 - 1,03 mln zł. 2. Minister Sprawiedliwości monit ...\"}, {\"chunk_id\": \"uokik_items:uokik_0ed40e3a0aa348bc\", \"source_id\": \"uokik_rejestr_klauzul_2529\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank zastrzega sobie prawo do odmowy autoryzowania transakcji lub wprowadzenia ograniczeń limitów (kwotowych bądź ilościowych) autoryzowanych transakcji gotówkowych i/lub bezgotówkowych przeprowadzanych w ramach dostępnego limitu kredytowego w przypadku: a) naruszenia postanowień Umowy limitu lub Regulaminu limitu, b) naruszenia postanowień Umowy o kartę lub Regulaminu karty (jeśli posiadacz rachunku kredytowego zawarł z bankiem Umowę o kartę), c) powzięcia wiarygodnych informacji o pogorszeniu zdolności kredytowej lub sytuacji majątkowej Posiadacza rachunku kredytowego (...).&quot;\"}, {\"chunk_id\": \"uokik_items:uokik_183040bdc4fc5f83\", \"source_id\": \"uokik_rejestr_klauzul_6949\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank może w trakcie obowiązywania Umowy: 1) zwiększyć wysokość przyznanego Limitu, o ile zdolność kredytowa Posiadacza/y rachunku będzie pozwalała na spłatę zwiększonej wysokości Limitu, a Posiadacz/e rachunku rzetelnie wywiązywać się będzie/ będą ze wszystkich postanowień Umowy. Limit ten zostanie podwyższony od dnia wskazanego w piśmie przesłanym przez Bank, jeżeli w terminie 14 dni od daty otrzymania przez Posiadacza/y rachunku pisemnej propozycji podwyższenia Limitu, Posiadacz/e rachunku nie poinformują Banku o odmowie przyjęcia tej propozycji.\"}, {\"chunk_id\": \"uokik_items:uokik_1e40aea86c95aa56\", \"source_id\": \"uokik_rejestr_klauzul_5604\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kredytobiorca oraz Współkredytobiorca (jeśli jest stroną Umowy) oświadcza w trybie art. 97 ust. 1 i 2 ustawy z 29.08.1997 r. Prawo bankowe (Dz. U. 72 z 2002 r. poz. 665 z późn. zm.), że poddaje się egzekucji na podstawie bankowego tytułu egzekucyjnego w zakresie roszczeń Banku wynikających z niniejszej Umowy z tytułu: a) Kredytu, w tym kapitału, odsetek oraz należnych opłat i prowizji, do kwoty 80 000 zł, przy czym Bank może wystawić bankowy tytuł egzekucyjny do kwoty zadłużenia 80 000 oraz wystąpić o nadanie bankowemu tytułowi egzekucyjnemu klauzuli wykonalności w terminie do 31.12.2030 roku. ...\"}, {\"chunk_id\": \"curated:institutional_lease_six_month_cap_conditional\", \"source_id\": \"curated:institutional_lease_six_month_cap_conditional\", \"source_type\": \"statute_summary\", \"top_category\": \"deposit_or_advance\", \"title\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\", \"display_address\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\", \"legal_area\": [\"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Najem instytucjonalny/okazjonalny - kaucja tylko warunkowo\\nLimit sześciokrotności czynszu dla kaucji dotyczy szczególnych reżimów najmu, takich jak najem instytucjonalny albo okazjonalny. Nie należy przenosić tego limitu do zwykłego najmu mieszkania, najmu lokalu użytkowego ani zadania, które nie wskazuje szczególnego reżimu instytucjonalnego lub okazjonalnego.\"}]",
+   "tool_call_id": "call_c89c2692abda4880ac96fdbd",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Mam małą firmę i jeden duży klient jest mi winien sporo pieniędzy. Chcę szybko odzyskać gotówkę z tych faktur, ale martwię się, bo praktycznie cały mój obrót zależy od tej jednej firmy. Czy możecie mi w tym pomóc?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Prowadzę małą firmę produkcyjną i około osiemdziesięciu procent moich przychodów pochodzi od jednego dużego klienta, który płaci mi na 60 dni. Brak gotówki na bieżący działanie mnie przytłacza, więc chcę sprzedać jego faktury. Ponieważ praktycznie całe moje ryzyko skupia się na tym jednym kontrahencie, chciałbym wiedzieć, jak to wpłynie na warunki współpracy i co się stanie, jeśli on sam będzie miał problemy ze spłatą."
+  }
+ ]
+}

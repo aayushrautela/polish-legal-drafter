@@ -1,0 +1,306 @@
+{
+ "run": 31,
+ "hint": "Prywatne zakupy i załatwianie spraw (usługi concierge)",
+ "scenario": "Prywatne zakupy i załatwianie spraw (usługi concierge)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_zlecenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an \"umowa_zlecenia\" (contract of mandate) for \"Prywatne zakupy i załatwianie spraw (usługi concierge)\" - private shopping and errand-running services (concierge services).\n\nI need to:\n1. First read the base template for umowa_zlecenia\n2. Then search for provisions relevant to concierge services, shopping, errand-running, personal assistance services\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-9cd10b2d-0431-422b-a910-0603f5afd017",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"dla usług concierge, zakupów prywatnych, załatwiania spraw osobistych\", \"doc_type\": \"umowa_zlecenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa zlecenia\\nUmowa zlecenia w Polsce to umowa cywilnoprawna, w której przyjmujący zlecenie (zleceniobiorca) zobowiązuje się do dokonania określonej czynności na rzecz dającego zlecenie (zleceniodawcy), a ten zobowiązuje się zazwyczaj do zapłaty wynagrodzenia. Podstawą prawną jest art. 734 i nast. Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przy czym do umów o świadczenie usług, które nie są uregulowane innymi przepisami, stosuje się odpowiednio przepisy o zleceniu zgodnie z art. 750 Kodeksu cywilnego.\\n\\nNajważniejszą cechą prawną zlecenia jest to, że jest to umowa starannego działania, a nie umowa rezultatu. Zleceniobiorca odpowiada za sumienne i staranne wykonanie powierzonych czynności z należytą starannością określoną w art. 355 Kodeksu cywilnego, a nie za osiągnięcie konkretnego efektu. Odróżnia to zlecenie od umowy o dzieło (art. 627 Kodeksu cywilnego), w której liczy się zindywidualizowany rezultat. To rozróżnienie ma kluczowe skutki podatkowe i ubezpieczeniowe — umowa zlecenia co do zasady podlega oskładkowaniu w Zakładzie Ubezpieczeń Społecznych (ZUS), podczas gdy umowa o dzieło zasadniczo składkom nie podlega.\\n\\nZlecenie z założenia jest odpłatne — art. 735 Kodeksu cywilnego ustanawia domniemanie odpłatności, zgodnie z którym jeżeli ani z umowy, ani z okoliczności nie wynika, że przyjmujący zlecenie zobowiązał się wykonać je bez wynagrodzenia, należy się wynagrodzenie odpowiadające wykonanej pracy. Do umów zlecenia stosuje się również przepisy o minimalnej stawce godzinowej wynikającej z ustawy o minimalnym wynagrodzeniu za pracę, co chroni zleceniobiorcę przed zaniżaniem stawek.\\n\\nZasadą jest osobiste wykonanie zlecenia — art. 738 Kodeksu cywilnego stanowi, że przyjmujący zlecenie może powierzyć wykonanie zlecenia osobie trzeciej tylko wtedy, gdy wynika to z umowy, ze zwyczaju albo gdy jest do tego zmuszony przez okoliczności. W takim wypadku obowiązany jest niezwłocznie zawiadomić zleceniodawcę o osobie i miejscu zamieszkania swego zastępcy. Zleceniobiorca ma obowiązek udzielania zleceniodawcy potrzebnych wiadomości o przebiegu sprawy oraz złożenia sprawozdania po wykonaniu zlecenia (art. 740 Kodeksu cywilnego).\\n\\nUmowa zlecenia jest jedną z najpopularniejszych form współpracy w polskim obrocie gospodarczym, wykorzystywaną przy obsłudze administracyjnej, ochronie, sprzątaniu, pracach sezonowych, doradztwie czy stałej obsłudze przedsiębiorstwa. Nie tworzy ona stosunku pracy w rozumieniu Kodeksu pracy, dlatego nie obejmuje urlopu wypoczynkowego, norm czasu pracy ani ochrony przed wypowiedzeniem typowej dla zatrudnienia pracowniczego. Strony powinny jednak unikać tak zwanych umów pozornych — jeżeli faktyczny sposób wykonywania pracy ma cechy stosunku pracy (podporządkowanie, stałe godziny, kierownictwo pracodawcy), Państwowa Inspekcja Pracy (PIP) lub sąd pracy mogą uznać taką umowę za umowę o pracę.\\n\\nPraktyczna wartość umowy zlecenia polega na jej elastyczności i prostocie. Pozwala szybko ułożyć współpracę przy realizacji powtarzalnych czynności bez sztywnych rygorów prawa pracy, jednocześnie zapewniając zleceniobiorcy tytuł do ubezpieczeń społecznych i zdrowotnych. Dobrze sporządzona umowa precyzuje zakres czynności, wynagrodzenie, zasady rozliczania wydatków oraz tryb wypowiedzenia, dzięki czemu obie strony znają swoje prawa i obowiązki od początku współpracy.\\n\\nUmowa zlecenia w Polsce jest potrzebna we wszystkich sytuacjach, w których jedna strona ma wykonać na rzecz drugiej powtarzalne lub usługowe czynności starannego działania, niewymagające osiągnięcia konkretnego rezultatu w rozumieniu art. 627 Kodeksu cywilnego.\\n\\nStała obsługa przedsiębiorstwa. Przedsiębiorcy zawierają umowę zlecenia z osobami wykonującymi obsługę administracyjną biura, recepcję, ochronę mienia, sprzątanie czy obsługę klienta. Czynności te mają charakter ciągły i nie prowadzą do jednego zindywidualizowanego dzieła, dlatego prawidłową formą jest zlecenie, a nie umowa o dzieło.\\n\\nDoradztwo i usługi specjalistyczne. Konsultanci, doradcy, trenerzy i specjaliści świadczący usługi marketingowe, szkoleniowe czy organizacyjne zawierają umowę zlecenia (lub umowę o świadczenie usług na podstawie art. 750 Kodeksu cywilnego), gdy ich rola polega na starannym wykonywaniu czynności, a nie na dostarczeniu gotowego produktu.\\n\\nPrace sezonowe i dorywcze. Pracodawcy korzystają z umowy zlecenia przy zatrudnieniu sezonowym — w handlu, gastronomii, rolnictwie, przy inwentaryzacjach czy obsłudze wydarzeń. Forma ta umożliwia elastyczne rozliczenie według przepracowanych godzin z zachowaniem minimalnej stawki godzinowej.\\n\\nWspółpraca ze studentami i osobami uczącymi się. Zlecenie zawierane ze studentem do 26. roku życia korzysta ze zwolnienia ze składek na ubezpieczenia społeczne w ZUS, co czyni je atrakcyjną formą zatrudnienia młodych osób przy pracach dorywczych i projektowych.\\n\\nUsługi powtarzalne dla osób fizycznych. Osoby prywatne zawierają umowę zlecenia na opiekę nad osobą starszą lub dzieckiem, korepetycje, drobne naprawy czy pomoc w gospodarstwie domowym. Pisemna umowa porządkuje zakres czynności, stawkę i zasady wypowiedzenia.\\n\\nPośrednictwo i akwizycja. Zlecenie sprawdza się przy pośrednictwie handlowym, pozyskiwaniu klientów i czynnościach akwizycyjnych, gdzie wynagrodzenie może być powiązane z liczbą podjętych czynności, a nie z gwarantowanym skutkiem sprzedaży.\\n\\nUzupełnienie zatrudnienia. Pracownicy zatrudnieni u jednego pracodawcy zawierają dodatkową umowę zlecenia u innego podmiotu, co wpływa na zasady oskładkowania w ZUS (zbieg tytułów ubezpieczenia). Pisemna umowa pozwala prawidłowo ustalić podstawę składek i uniknąć sporów z organem rentowym.\\n\\nUmowa zlecenia w Polsce powinna zawierać następujące elementy zgodne z art. 734 i nast. Kodeksu cywilnego, aby jednoznacznie określić prawa i obowiązki stron.\\n\\nOznaczenie stron. Pełne dane zleceniodawcy i zleceniobiorcy: firma lub imię i nazwisko, adres siedziby lub zamieszkania, numer identyfikacyjny — NIP i REGON dla przedsiębiorców, PESEL dla osób fizycznych, numer KRS dla spółek wpisanych do Krajowego Rejestru Sądowego. Precyzyjne oznaczenie stron pozwala ustalić zakres odpowiedzialności i właściwy organ rozliczeniowy w ZUS oraz Krajowej Administracji Skarbowej (KAS).\\n\\nPrzedmiot zlecenia. Dokładny opis czynności powierzonych zleceniobiorcy. Sformułowanie powinno wskazywać, że chodzi o staranne wykonywanie czynności, a nie o osiągnięcie rezultatu, co odróżnia zlecenie od umowy o dzieło. Zbyt ogólny opis utrudnia ocenę należytego wykonania, dlatego forms-legal.com zaleca konkretne wymienienie zadań.\\n\\nCharakter umowy. Wyraźne wskazanie, że strony zawierają umowę zlecenia w rozumieniu art. 734 Kodeksu cywilnego, a nie umowę o pracę. Klauzula ta zmniejsza ryzyko zakwestionowania umowy przez Państwową Inspekcję Pracy (PIP), choć decyduje rzeczywisty sposób wykonywania czynności, a nie sama nazwa dokumentu.\\n\\nWynagrodzenie i jego wysokość. Kwota wynagrodzenia oraz sposób jego ustalenia — stawka godzinowa, miesięczna lub za poszczególne czynności. Z uwagi na domniemanie odpłatności z art. 735 Kodeksu cywilnego oraz minimalną stawkę godzinową wynikającą z ustawy o minimalnym wynagrodzeniu za pracę, wynagrodzenie nie może być niższe niż próg ustawowy w przeliczeniu na godzinę.\\n\\nTermin i sposób zapłaty. Określenie, kiedy wynagrodzenie staje się wymagalne (np. do 10. dnia następnego miesiąca) oraz formy płatności — przelew na rachunek bankowy lub gotówka. Przy opóźnieniu zleceniobiorcy przysługują odsetki ustawowe za opóźnienie zgodnie z art. 481 Kodeksu cywilnego.\\n\\nObowiązki składkowe i podatkowe. Wskazanie, że od wynagrodzenia odprowadzane są składki na ubezpieczenia społeczne i zdrowotne do ZUS oraz zaliczka na podatek dochodowy zgodnie z ustawą o podatku dochodowym od osób fizycznych. Reguły oskładkowania zależą od zbiegu tytułów ubezpieczenia oraz statusu zleceniobiorcy (np. zwolnienie studenta do 26. roku życia).\\n\\nSposób wykonania i osobiste świadczenie. Postanowienie dotyczące osobistego wykonania zlecenia albo dopuszczenia zastępcy na zasadach art. 738 Kodeksu cywilnego. Umowa może też przewidywać obowiązek zachowania poufności i bieżącego informowania zleceniodawcy o przebiegu sprawy (art. 740 Kodeksu cywilnego).\\n\\nCzas trwania i wypowiedzenie. Wskazanie daty rozpoczęcia oraz tego, czy umowa jest na czas oznaczony czy nieoznaczony, a także zasad jej zakończenia. Zgodnie z art. 746 Kodeksu cywilnego każda ze stron może wypowiedzieć zlecenie w każdym czasie, jednak wypowiedzenie odpłatnego zlecenia bez ważnego powodu rodzi odpowiedzialność za szkodę.\\n\\nZwrot wydatków. Klauzula o zwrocie przez zleceniodawcę uzasadnionych wydatków poniesionych przez zleceniobiorcę w celu należytego wykonania zlecenia, zgodnie z art. 742 Kodeksu cywilnego, oraz ewentualne udzielenie zaliczki na pokrycie tych wydatków (art. 743 Kodeksu cywilnego).\\n\\nPostanowienia końcowe i rozstrzyganie sporów. Odesłanie do przepisów Kodeksu cywilnego w sprawach nieuregulowanych, wymóg formy pisemnej dla zmian, liczba egzemplarzy oraz klauzula określająca sąd właściwy do rozstrzygania sporów (Sąd Rejonowy lub Sąd Okręgowy w zależności od wartości przedmiotu sporu).\\n\\nUmowa zlecenia w Polsce wypełniana jest według kolejnych kroków, które zapewniają zgodność z art. 734 i nast. Kodeksu cywilnego oraz przejrzystość rozliczeń.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane zleceniodawcy i zleceniobiorcy: firmę lub imię i nazwisko, adres, NIP i REGON albo PESEL, a w przypadku spółek numer KRS. Zweryfikuj dane przedsiębiorcy w Krajowym Rejestrze Sądowym (KRS) lub w CEIDG, aby uniknąć błędów w oznaczeniu reprezentacji.\\n\\nKrok 2 — opisz zakres czynności. Wskaż konkretnie, jakie czynności zleceniobiorca ma wykonywać. Sformułuj opis tak, aby było jasne, że chodzi o staranne działanie, a nie o stworzenie dzieła. Unikaj sformułowań sugerujących gwarantowany rezultat, ponieważ mogłyby wskazywać na umowę o dzieło i zmienić skutki podatkowo-ubezpieczeniowe.\\n\\nKrok 3 — ustal wynagrodzenie. Określ kwotę i sposób jej naliczania — stawka godzinowa, miesięczna lub za czynność. Sprawdź, czy stawka godzinowa nie jest niższa od minimalnej stawki wynikającej z ustawy o minimalnym wynagrodzeniu za pracę. Pamiętaj o domniemaniu odpłatności z art. 735 Kodeksu cywilnego.\\n\\nKrok 4 — określ termin i sposób zapłaty. Wpisz, kiedy wynagrodzenie staje się wymagalne i w jakiej formie jest wypłacane. Zaznacz numer rachunku bankowego, jeśli płatność następuje przelewem. Ustal, czy ewidencja godzin jest wymagana do rozliczenia stawki godzinowej.\\n\\nKrok 5 — uregeluj składki i podatki. Wskaż, że od wynagrodzenia płatnik odprowadza składki do ZUS oraz zaliczkę na podatek dochodowy. Ustal status zleceniobiorcy (student do 26. roku życia, osoba zatrudniona u innego pracodawcy, przedsiębiorca), ponieważ wpływa to na zbieg tytułów ubezpieczenia i wysokość składek.\\n\\nKrok 6 — wybierz sposób wykonania. Zdecyduj, czy zlecenie ma być wykonane osobiście, czy dopuszczasz zastępcę zgodnie z art. 738 Kodeksu cywilnego. Rozważ dodanie klauzuli poufności oraz obowiązku raportowania przebiegu sprawy zgodnie z art. 740 Kodeksu cywilnego.\\n\\nKrok 7 — ustal czas trwania i wypowiedzenie. Wpisz datę rozpoczęcia oraz czy umowa jest na czas oznaczony czy nieoznaczony. Opisz tryb wypowiedzenia, pamiętając, że art. 746 Kodeksu cywilnego pozwala wypowiedzieć zlecenie w każdym czasie, a wypowiedzenie odpłatnego zlecenia bez ważnego powodu może rodzić odpowiedzialność za szkodę.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę zawarcia, a następnie podpisz dokument w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron. Dla spółek podpis składa osoba uprawniona do reprezentacji zgodnie z wpisem w KRS. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym (art. 78[1] Kodeksu cywilnego), zrównana z formą pisemną.\\n\\nUmowa zlecenia w Polsce podlega regulacji prawa cywilnego, ubezpieczeń społecznych i prawa podatkowego.\\n\\nKodeks cywilny (art. 734–751). Zlecenie jest umową nazwaną uregulowaną w art. 734 i nast. Kodeksu cywilnego. Art. 734 określa istotę zlecenia, art. 735 ustanawia domniemanie odpłatności, art. 738 reguluje osobiste wykonanie i powołanie zastępcy, art. 740 nakłada obowiązek informowania i składania sprawozdania, art. 742 dotyczy zwrotu wydatków, a art. 746 reguluje wypowiedzenie. Do umów o świadczenie usług nieuregulowanych odrębnie stosuje się te przepisy odpowiednio na podstawie art. 750 Kodeksu cywilnego.\\n\\nForma umowy. Umowa zlecenia nie wymaga formy szczególnej i może być zawarta ustnie, jednak forma pisemna ma znaczenie dowodowe i porządkujące, a przy umowach ze stawką godzinową ułatwia wykazanie liczby przepracowanych godzin. Zmiany umowy zaleca się zastrzegać w formie pisemnej. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego.\\n\\nMinimalna stawka godzinowa. Ustawa o minimalnym wynagrodzeniu za pracę nakłada obowiązek zapewnienia minimalnej stawki godzinowej dla umów zlecenia i umów o świadczenie usług. Wynagrodzenie w przeliczeniu na godzinę nie może być niższe od progu ustawowego waloryzowanego corocznie. Strony zobowiązane są prowadzić ewidencję liczby godzin wykonania zlecenia.\\n\\nUbezpieczenia społeczne i zdrowotne (ZUS). Umowa zlecenia co do zasady stanowi tytuł do obowiązkowych ubezpieczeń społecznych i zdrowotnych w Zakładzie Ubezpieczeń Społecznych (ZUS). Zasady oskładkowania zależą od zbiegu tytułów ubezpieczenia — np. równoległego zatrudnienia na umowę o pracę czy prowadzenia działalności gospodarczej. Zlecenie zawarte ze studentem lub uczniem do ukończenia 26. roku życia jest zwolnione ze składek na ubezpieczenia społeczne.\\n\\nPodatek dochodowy. Wynagrodzenie z umowy zlecenia podlega opodatkowaniu podatkiem dochodowym od osób fizycznych zgodnie z ustawą z dnia 26 lipca 1991 r. o podatku dochodowym od osób fizycznych. Płatnik (zleceniodawca) pobiera zaliczkę na podatek i odprowadza ją do właściwego urzędu skarbowego (Krajowa Administracja Skarbowa, KAS). Przy niewielkich kwotach może mieć zastosowanie zryczałtowany podatek dochodowy.\\n\\nRozgraniczenie ze stosunkiem pracy. Zgodnie z art. 22 § 1[1] Kodeksu pracy zatrudnienie wykonywane w warunkach charakterystycznych dla stosunku pracy (podporządkowanie, wyznaczone miejsce i czas, kierownictwo pracodawcy) jest zatrudnieniem na podstawie stosunku pracy, niezależnie od nazwy zawartej umowy. Państwowa Inspekcja Pracy (PIP) oraz sąd pracy mogą zakwestionować pozorną umowę zlecenia i ustalić istnienie stosunku pracy.\\n\\nNależyta staranność i odpowiedzialność. Zleceniobiorca odpowiada za staranne wykonanie czynności z uwzględnieniem należytej staranności określonej w art. 355 Kodeksu cywilnego, a przy działalności gospodarczej — z uwzględnieniem zawodowego charakteru tej działalności (art. 355 § 2 Kodeksu cywilnego). Za nienależyte wykonanie zobowiązania odpowiada na zasadach art. 471 Kodeksu cywilnego.\\n\\nPrzedawnienie roszczeń. Roszczenia z umowy zlecenia o wynagrodzenie za spełnione czynności oraz o zwrot wydatków przedawniają się z upływem dwóch lat zgodnie z art. 751 Kodeksu cywilnego. Roszczenia związane z prowadzeniem działalności gospodarczej przedawniają się co do zasady z upływem trzech lat (art. 118 Kodeksu cywilnego).\\n\\nUmowa zlecenia w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć przy starannym jej sporządzeniu.\\n\\nBłąd 1 — mylenie zlecenia z umową o dzieło. Strony nazywają umowę zleceniem, mimo że jej istotą jest osiągnięcie konkretnego rezultatu, lub odwrotnie. Skutkuje to błędnym rozliczeniem składek w ZUS i ryzykiem zakwestionowania przez organ rentowy. Zalecenie: dopasuj typ umowy do rzeczywistego charakteru czynności — staranne działanie to zlecenie (art. 734 Kodeksu cywilnego), rezultat to umowa o dzieło (art. 627 Kodeksu cywilnego).\\n\\nBłąd 2 — pozorna umowa zlecenia zamiast umowy o pracę. Zawarcie zlecenia w warunkach podporządkowania, stałych godzin i kierownictwa pracodawcy naraża na zakwestionowanie umowy przez Państwową Inspekcję Pracy (PIP) i ustalenie stosunku pracy. Zalecenie: jeżeli praca ma cechy zatrudnienia pracowniczego, zawrzyj umowę o pracę zamiast zlecenia.\\n\\nBłąd 3 — zaniżenie stawki poniżej minimum. Ustalenie wynagrodzenia poniżej minimalnej stawki godzinowej narusza ustawę o minimalnym wynagrodzeniu za pracę i grozi karą grzywny. Zalecenie: ustal stawkę co najmniej na poziomie minimum ustawowego i prowadź ewidencję godzin wykonania zlecenia.\\n\\nBłąd 4 — brak rozliczenia składek ZUS. Pominięcie obowiązku zgłoszenia i opłacenia składek do ZUS prowadzi do zaległości składkowych i odsetek. Zalecenie: ustal status zleceniobiorcy i zbieg tytułów ubezpieczenia, a następnie prawidłowo zgłoś umowę do ubezpieczeń.\\n\\nBłąd 5 — niejasny zakres czynności. Ogólnikowy opis zadań uniemożliwia ocenę należytego wykonania i utrudnia dochodzenie roszczeń. Zalecenie: opisz konkretne czynności i, jeśli to możliwe, wskaźniki ich należytego wykonania.\\n\\nBłąd 6 — pominięcie zasad wypowiedzenia. Brak postanowień o wypowiedzeniu rodzi spory przy zakończeniu współpracy. Zalecenie: opisz tryb wypowiedzenia z odwołaniem do art. 746 Kodeksu cywilnego i ustal skutki finansowe wcześniejszego zakończenia.\\n\\nBłąd 7 — brak klauzuli o zwrocie wydatków. Nieuregulowanie zwrotu kosztów ponoszonych przez zleceniobiorcę prowadzi do nieporozumień. Zalecenie: dodaj klauzulę o zwrocie uzasadnionych wydatków zgodnie z art. 742 Kodeksu cywilnego i ewentualnej zaliczce na podstawie art. 743 Kodeksu cywilnego.\\n\\nBłąd 8 — niewłaściwa reprezentacja spółki. Podpisanie umowy przez osobę nieuprawnioną do reprezentacji zleceniodawcy lub zleceniobiorcy będącego spółką może podważyć jej skuteczność. Zalecenie: sprawdź sposób reprezentacji w Krajowym Rejestrze Sądowym (KRS) i zapewnij podpis osoby uprawnionej.\\n\\nŹródło: https://forms-legal.com/pl/business/services/umowa-zlecenie (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-9cd10b2d-0431-422b-a910-0603f5afd017",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. Let me search for provisions relevant to concierge services, private shopping, errand-running, personal assistance services. I should search for relevant legal provisions and practical clauses.",
+   "tool_calls": [
+    {
+     "id": "call-496263ce-da91-482a-8813-541ad2b0106f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"umowa zlecenia usługi concierge zakupy prywatne załatwianie spraw osobistych asystent osobisty\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}, {\"chunk_id\": \"curated:kc_zlecenie_due_care_750\", \"source_id\": \"curated:kc_zlecenie_due_care_750\", \"source_type\": \"statute_summary\", \"top_category\": \"service_quality\", \"title\": \"KC art. 734-751 i art. 750 - zlecenie i usługi\", \"display_address\": \"KC art. 734-751 i art. 750 - zlecenie i usługi\", \"legal_area\": [\"contracts\"], \"text\": \"KC art. 734-751 i art. 750 - zlecenie i usługi\\nPrzy umowie zlecenia i zwykłej umowie o świadczenie usług stosuje się reżim starannego działania. Art. 750 KC nakazuje odpowiednie stosowanie przepisów o zleceniu do usług nieuregulowanych innymi przepisami. Bez wyraźnego ustalenia rezultatu jakość usług należy opisywać przez należytą staranność, standard wykonania, współdziałanie stron, procedurę zgłoszenia zastrzeżeń i poprawę usługi.\"}, {\"chunk_id\": \"uokik_items:uokik_1f9c4850d81caf4f\", \"source_id\": \"uokik_rejestr_klauzul_1835\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Organizator nie ponosi żadnej odpowiedzialności i nie gwarantuje żadnych zwrotów finansowych w razie wojny, strajku, epidemii, katastrofy ekologicznej, zakłóceń komunikacyjnych, zamknięcia granic, decyzji administracyjnych władz i wystąpienie innych sił wyższych oraz działania osób trzecich, nie uczestniczących w wykonywaniu usługi objętej umową, uniemożliwiających jej realizację, a nie możliwych do przewidzenia i usunięcia. W szczególności organizator nie ponosi odpowiedzialności za decyzje organów granicznych oraz za jakość i dostępność usług fakultatywnych, zakupywanych samodzielnie przez u ...\"}, {\"chunk_id\": \"uokik_items:uokik_1eac8ceb3a13f4a3\", \"source_id\": \"uokik_rejestr_klauzul_4298\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony zgodnie postanawiają, iż zawarcie umowy sprzedaży, a także umowy przedwstępnej lub innej umowy, o której mowa w § 5 ust. 4 Umowy przez Zleceniodawcę z Kontrahentem, jak również osobą będącą małżonkiem, krewnym lub powinowatym Kontrahenta w linii prostej albo w linii bocznej niezależnie od stopnia, osobą związaną z Kontrahentem z tytułu przysposobienia, opieki lub kurateli lub osobą pozostającą z Kontrahentem w szczególnie bliskim stosunku osobistym, jak również z osobą prawną lub jednostką organizacyjną nieposiadającą osobowości prawnej, w której Kontrahent jest wspólnikiem albo sprawuj ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"uokik_items:uokik_c8907105878cc6cf\", \"source_id\": \"uokik_rejestr_klauzul_1763\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany wyraża zgodę na udostępnienie swoich danych osobowych przekazanych pośrednikowi w celu opracowania niniejszej umowy. Dalej wyraża zgodę na przechowywanie i przetwarzanie jego danych osobowych oraz wykorzystywanie ich przez pośrednika lub osobę trzecią w celu składania ofert handlowych lub oferowania usług na czas nieokreślony zgodnie z ustawą o ochronie danych osobowych.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_8b\", \"source_id\": \"sejm_eli_du_2024_1773_art_8b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 8b. 1. W przypadku umów, o których mowa w art. 734 i art. 750 Kodeksu cywilnego , strony określają w umowie sposób potwierdzania liczby godzin wykonania zlecenia lub świadczenia usług. 2. W przypadku gdy strony w umowie nie określą sposobu potwierdzania liczby godzin wykonania zlecenia lub świadczenia usług, przyjmujący zlecenie lub świadczący usługi przedkłada w formie pisemnej, elektronicznej lub dokumentowej informację o liczbie godzin wykonania zlecenia lub świadczenia usług, w terminie poprzedzającym termin wyp ...\"}, {\"chunk_id\": \"uokik_items:uokik_964db3ecff1a1542\", \"source_id\": \"uokik_rejestr_klauzul_461\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Korzystając z prawa do indywidualnego uzgodnienia warunków umowy wnoszę o zmianę następujących elementów umowy:...............poprzez nadanie im brzmienia jak w załączniku do umowy. Pozostałe nie wymienione wyżej postanowienia umowy uważam za indywidualnie uzgodnione, akceptując je bez zastrzeżeń co potwierdzam własnoręcznym podpisem, znając skutki prawne postanowień umowy\"}, {\"chunk_id\": \"uokik_items:uokik_3e74b8a7ae5fa008\", \"source_id\": \"uokik_rejestr_klauzul_957\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zleceniodawca zleca a Zleceniobiorca przyjmuje do realizacji wykonanie usługi, polegającej na przeszkoleniu Pani/Pana …… na kursie języka …… typu ……, z programem 120 godz. dydaktycznych (+1, -6 godz.)\"}]",
+   "tool_call_id": "call-496263ce-da91-482a-8813-541ad2b0106f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results didn't give me very specific results for concierge services. Let me try more targeted searches for relevant provisions - things like expense reimbursement (art. 742, 743 KC), personal performance, liability for entrusted items, handling of money/payments on behalf of the principal, data protection for personal errands, etc.",
+   "tool_calls": [
+    {
+     "id": "call-0ccc2ca4-2cfd-48dd-9934-69ad09eb225e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"art. 742\", \"art. 743\", \"zwrot wydatków\", \"zaliczka na wydatki\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 105 . W zakresie nieuregulowanym w niniejszym rozdziale do zabezpieczenia środka dowodowego przepisy art. 738, art. 742 § 1 zdanie pierwsze, § 2 i 3 oraz art. 744-746 stosuje się odpowiednio. Z żądaniem, o którym mowa w art. 742, może wystąpić również pozwany. Rozdział 3 Wyjawienie lub wydanie środka dowodowego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_763\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 763. Dla zabezpieczenia roszczenia o wynagrodzenie oraz o zwrot wydatków i zaliczek udzielonych dającemu zlecenie agentowi przysługuje ustawowe prawo zastawu na rzeczach i papierach wartościowych dającego zlecenie, otrzymanych w związku z umową agencyjną, dopóki przedmioty te znajdują się u niego lub osoby, która je dzierży w jego imieniu, albo dopóki może nimi rozporządzać za pomocą dokumentów.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_773\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 773. § 1. Dla zabezpieczenia roszczeń o prowizję oraz roszczeń o zwrot wydatków i zaliczek udzielonych komitentowi, jak również dla zabezpieczenia wszelkich innych należności wynikłych ze zleceń komisowych przysługuje komisantowi ustawowe prawo zastawu na rzeczach stanowiących przedmiot komisu, dopóki rzeczy te znajdują się u niego lub u osoby która je dzierży w jego imieniu, albo dopóki może nimi rozporządzać za pomocą dokumentów. § 2. Wymienio ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_802\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 802. § 1. Dla zabezpieczenia roszczeń o przewoźne oraz roszczeń o prowizję, o zwrot wydatków i innych należności wynikłych ze zleceń spedycyjnych, jak również dla zabezpieczenia takich roszczeń przysługujących poprzednim spedytorom i przewoźnikom, przysługuje spedytorowi ustawowe prawo zastawu na przesyłce, dopóki przesyłka znajduje się u niego lub u osoby, która ją dzierży w jego imieniu, albo dopóki może nią rozporządzać za pomocą dokumentów.  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_850\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 850. Dla zabezpieczenia należności za mieszkanie, utrzymanie i usługi dostarczone osobie korzystającej z usług hotelu lub podobnego zakładu, jak również dla zabezpieczenia roszczenia o zwrot wydatków dla tej osoby poniesionych przysługuje utrzymującemu zarobkowo hotel lub podobny zakład ustawowe prawo zastawu na rzeczach wniesionych. Prawo to podlega przepisom o ustawowym prawie zastawu wynajmującego.\"}]",
+   "tool_call_id": "call-0ccc2ca4-2cfd-48dd-9934-69ad09eb225e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for the actual articles 742 and 743 of the Civil Code which deal with expense reimbursement in mandate contracts.",
+   "tool_calls": [
+    {
+     "id": "call-291f9448-61ec-4768-b861-536d0778bbac",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 742 KC\", \"art. 743 KC\", \"zlecenie wydatki\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_742\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 742. Dający zlecenie powinien zwrócić przyjmującemu zlecenie wydatki, które ten poczynił w celu należytego wykonania zlecenia, wraz z odsetkami ustawowymi; powinien również zwolnić przyjmującego zlecenie od zobowiązań, które ten w powyższym celu zaciągnął w imieniu własnym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_746\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 746. § 1. Dający zlecenie może je wypowiedzieć w każdym czasie. Powinien jednak zwrócić przyjmującemu zlecenie wydatki, które ten poczynił w celu należytego wykonania zlecenia; w razie odpłatnego zlecenia obowiązany jest uiścić przyjmującemu zlecenie część wynagrodzenia odpowiadającą jego dotychczasowym czynnościom, a jeżeli wypowiedzenie nastąpiło bez ważnego powodu, powinien także naprawić szkodę. § 2. Przyjmujący zlecenie może je wypowiedzieć ...\"}]",
+   "tool_call_id": "call-291f9448-61ec-4768-b861-536d0778bbac",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_1f7acb6534dd4accb14c08e1",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa zlecenia zakupy załatwianie spraw prywatne asystent osobisty poufność dane osobowe odpowiedzialność za pieniądze powierzone\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_738\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 738. § 1. Przyjmujący zlecenie może powierzyć wykonanie zlecenia osobie trzeciej tylko wtedy, gdy to wynika z umowy lub ze zwyczaju albo gdy jest do tego zmuszony przez okoliczności. W wypadku takim obowiązany jest zawiadomić niezwłocznie dającego zlecenie o osobie i o miejscu zamieszkania swego zastępcy i w razie zawiadomienia odpowiedzialny jest tylko za brak należytej staranności w wyborze zastępcy. § 2. Zastępca odpowiedzialny jest za wykona ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"uokik_abusive_clause_206\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...)zrealizowania przedmiotu niniejszej umowy, klient którego dane osobowe określone zostały na pierwszej stronie umowy przez jego zawarcie przekazuje na rzecz (...). nieodwołalne i nie wygasające nawet po śmierci lub upadłości klienta pełnomocnictwo na okres formalnego istnienia zespołu aż do ostatecznego rozliczenia. Pełnomocnictwo to obejmuje prawo (...) do równoprawnego rozwiązywania spraw dotyczących klientów, w tym spowodowanych okolicznościami siły wyższej, a które mogłyby przynieść szkody programowi i zespołowi\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_739\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 739. W wypadku gdy przyjmujący zlecenie powierzył wykonanie zlecenia innej osobie nie będąc do tego uprawniony, a rzecz należąca do dającego zlecenie uległa przy wykonywaniu zlecenia utracie lub uszkodzeniu, przyjmujący zlecenie jest odpowiedzialny także za utratę lub uszkodzenie przypadkowe, chyba że jedno lub drugie nastąpiłoby również wtedy, gdyby sam zlecenie wykonywał.\"}, {\"chunk_id\": \"uokik_items:uokik_1eac8ceb3a13f4a3\", \"source_id\": \"uokik_rejestr_klauzul_4298\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony zgodnie postanawiają, iż zawarcie umowy sprzedaży, a także umowy przedwstępnej lub innej umowy, o której mowa w § 5 ust. 4 Umowy przez Zleceniodawcę z Kontrahentem, jak również osobą będącą małżonkiem, krewnym lub powinowatym Kontrahenta w linii prostej albo w linii bocznej niezależnie od stopnia, osobą związaną z Kontrahentem z tytułu przysposobienia, opieki lub kurateli lub osobą pozostającą z Kontrahentem w szczególnie bliskim stosunku osobistym, jak również z osobą prawną lub jednostką organizacyjną nieposiadającą osobowości prawnej, w której Kontrahent jest wspólnikiem albo sprawuj ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_125\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 125. § 1. Na zasadach określonych w art. 124 pracownicy mogą przyjąć wspólną odpowiedzialność materialną za mienie powierzone im łącznie z obowiązkiem wyliczenia się. Podstawą łącznego powierzenia mienia jest umowa o współodpowiedzialności materialnej, zawarta przez pracowników z pracodawcą na piśmie pod rygorem nieważności. § 2. Pracownicy ponoszący wspólną odpowiedzialność materialną odpowiadają w częściach określonych w umowie. Jednakże w razie ...\"}, {\"chunk_id\": \"uokik_items:uokik_94d809aa6c7fac1d\", \"source_id\": \"uokik_rejestr_klauzul_1752\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany wyraża zgodę na udostępnienie swoich danych osobowych oraz wyraża zgodę na przechowywanie, przetwarzanie, przekazywanie i wykorzystanie jego danych osobowych w celu przewidzianym umową, marketingowym i reklamowym przez pośrednika, wierzyciela i osoby trzecie. Pośrednik będzie postępować z danymi osobowymi zainteresowanego zgodnie z obowiązującymi przepisami a w szczególności zgodnie z ustawą o ochronie danych osobowych\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_745\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 745. Jeżeli kilka osób dało lub przyjęło zlecenie wspólnie, ich odpowiedzialność względem drugiej strony jest solidarna.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_736\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 736. Kto zawodowo trudni się załatwianiem czynności dla drugich, powinien, jeżeli nie chce zlecenia przyjąć, zawiadomić o tym niezwłocznie dającego zlecenie. Taki sam obowiązek ciąży na osobie, która dającemu zlecenie oświadczyła gotowość załatwiania czynności danego rodzaju.\"}, {\"chunk_id\": \"uokik_items:uokik_c8907105878cc6cf\", \"source_id\": \"uokik_rejestr_klauzul_1763\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany wyraża zgodę na udostępnienie swoich danych osobowych przekazanych pośrednikowi w celu opracowania niniejszej umowy. Dalej wyraża zgodę na przechowywanie i przetwarzanie jego danych osobowych oraz wykorzystywanie ich przez pośrednika lub osobę trzecią w celu składania ofert handlowych lub oferowania usług na czas nieokreślony zgodnie z ustawą o ochronie danych osobowych.\"}]",
+   "tool_call_id": "call_1f7acb6534dd4accb14c08e1",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam kogoś, kto załatwi dla mnie różne sprawy i zrobi zakupy, bo nie mam na to czasu. Czy oferujecie takie usługi?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem osobą zajętą i potrzebuję pomocy w codziennych sprawach – chodzi o zakupy w sklepach, odbiór paczek, załatwianie spraw urzędowych i tego typu drobne zlecenia. Chciałbym zlecić to jednej osobie na stałe, żeby oszczędzać czas. Czy jesteście w stanie pomóc i jak to wygląda w praktyce?"
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "run": 47,
+ "hint": "Dzierżawa z określeniem klas użytków rolnych",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wziąć w dzierżawę pole pod uprawy, ale nie wiem, jakiej jakości jest ta ziemia. Potrzebuję umowy, która dokładnie określa klasę użytków rolnych."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję wydzierżawić około pięciu hektarów ziemi pod uprawę warzyw. Właściciel twierdzi, że to dobra ziemia, ale chcę mieć to na piśmie. Potrzebuję umowy dzierżawy, która dokładnie określa klasę użytków rolnych na tym konkretnym terenie, żeby wiedzieć, co mogę tam uprawiać i czy nie ma jakichś ograniczeń."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"query\": \"dzierżawa gruntu rolnego z określeniem klas użytków rolnych\", \"doc_type\": \"umowa_dzierzawy\"})\\nRESULT: [{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa dzierżawy rolnej\\nUmowa dzierżawy rolnej w Polsce to szczególna forma dzierżawy regulowana przede wszystkim art. 693-709 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), uzupełniona przepisami ustawy z dnia 11 kwietnia 2003 r. o kształtowaniu ustroju rolnego (Dz.U. 2003 nr 64 poz. 592 ze zm.) i aktami powiązanymi. Umowa ta oddaje nieruchomość rolną rolnikowi-dzierżawcy do używania i pobierania pożytków — przede wszystkim płodów rolnych — za zapłatą czynszu dzierżawnego. Pożytki naturalne, takie jak zboża, rzepak, kukurydza, owoce czy warzywa, stanowią gospodarcze uzasadnienie instytucji dzierżawy rolnej w Polsce.\\n\\nNieruchomość rolna w rozumieniu art. 461 KC to nieruchomość gruntowa, która jest lub może być wykorzystywana do prowadzenia działalności wytwórczej w rolnictwie w zakresie produkcji roślinnej i zwierzęcej, nie wyłączając produkcji ogrodniczej, sadowniczej i rybnej. Definicja ta jest szersza od potocznego pojęcia pola uprawnego — obejmuje łąki, pastwiska, sady, ogrody warzywne i stawy rybne. Klasa bonitacyjna gruntu (klasy I-VI dla gruntów ornych) wpływa na wartość czynszową i jest odnotowywana w ewidencji gruntów i budynków prowadzonej przez starostę.\\n\\nCzynsz dzierżawny rolny może być wyrażony w pieniądzach lub w ułamku pożytków (art. 693 § 2 KC), co w praktyce rolnej oznacza niekiedy czynsz wyrażony w kwintalach pszenicy lub procencie zbiorów. Artykuł 700 KC przyznaje dzierżawcy rolnemu szczególne uprawnienie: w razie poważnej klęski żywiołowej lub innej nadzwyczajnej okoliczności, która zniszczyła znaczną część"
+}

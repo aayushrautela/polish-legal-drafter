@@ -1,0 +1,17 @@
+{
+ "run": 7,
+ "hint": "Najem lokalu użytkowego pod gabinet lekarski lub stomatologiczny",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć lokal pod gabinet lekarski, co muszę wiedzieć przed podpisaniem umowy?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję otworzyć gabinet stomatologiczny w lokalu ok. 80 m² w centrum miasta. Szukam umowy na 5 lat z opcją przedłużenia, jasnych zasad dotyczących remontu i adaptacji pod wymagania sanepidu oraz podziału kosztów eksploatacji. Czy możecie przygotować taki projekt umowy?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"lokal użytkowy gabinet lekarski stomatologiczny\", \"doc_type\": \"umowa_najmu\"})\\nRESULT: [{\"doc_type\": \"umowa_najmu\", \"kind\": \"structural_template\", \"text\": \"# Umowa najmu gabinetu lekarskiego\\nUmowa najmu gabinetu lekarskiego w Polsce to umowa na mocy której właściciel lokalu lub podmiot leczniczy (Wynajmujący) oddaje lekarzowi, stomatologowi, fizjoterapeucie lub innemu świadczeniodawcy (Najemcy) do odpłatnego używania lokal przeznaczony na udzielanie świadczeń zdrowotnych. Podstawę prawną stanowi art. 659 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) o umowie najmu oraz przepisy ustawy z dnia 15 kwietnia 2011 r. o działalności leczniczej (Dz.U. 2011 nr 112 poz. 654 ze zm.) w zakresie wymagań wobec pomieszczeń podmiotów leczniczych.\\n\\nNajem gabinetu lekarskiego jest szczególną formą najmu lokalu użytkowego — lokal musi spełniać wymagania sanitarne, epidemiologiczne i techniczne wynikające z rozporządzenia Ministra Zdrowia z dnia 26 marca 2019 r. w sprawie szczegółowych wymagań, jakim powinny odpowiadać pomieszczenia i urządzenia podmiotu wykonującego działalność leczniczą. Wymagania te obejmują odpowiednią powierzchnię gabinetu, dostęp do umywalki, wentylację, oświetlenie, odpowiednie wyposażenie medyczne, możliwość dezynfekcji i sterylizacji narzędzi.\\n\\nLekarze prowadzący indywidualną praktykę lekarską lub indywidualną specjalistyczną praktykę lekarską w wynajmowanym gabinecie muszą uzyskać wpis do rejestru podmiotów wykonujących działalność leczniczą (RPWDL) dla danego adresu. Okręgowe Izby Lekarskie (OIL) lub właściwe organy rejestrowe sprawdzają, czy lokal spełnia wymogi rozporządzenia Ministra Zdrowia przed wpisem. Wynajmujący powinien zapewnić, że lokal nadaje się do wpisu w RPWDL — stanowi to istotny element "
+}

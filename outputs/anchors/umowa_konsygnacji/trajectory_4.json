@@ -1,0 +1,320 @@
+{
+ "run": 6,
+ "hint": "Konsygnacja towaru sezonowego (odzież) z okresem rozliczeniowym kwartalnym",
+ "scenario": "Konsygnacja towaru sezonowego (odzież) z okresem rozliczeniowym kwartalnym",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_konsygnacji'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consignment agreement (umowa_konsygnacji) for seasonal goods (clothing) with a quarterly settlement period. I need to:\n\n1. First read the base template for umowa_konsygnacji\n2. Then search for relevant provisions related to seasonal goods, clothing, quarterly settlement periods, etc.\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-d91e6bc0-44df-45f8-b425-3f5a15cd6ddc",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_konsygnacji\", \"query\": \"konsygnacja towaru sezonowego odzież kwartalny okres rozliczeniowy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_konsygnacji\", \"kind\": \"structural_template\", \"text\": \"# Umowa konsygnacji\\nUmowa konsygnacji w Polsce to umowa nienazwana, w której konsygnant (właściciel towaru, dostawca) przekazuje towar konsygnatariuszowi (sprzedawcy, dystrybutorowi) w celu sprzedaży osobom trzecim, przy jednoczesnym zachowaniu przez konsygnanta prawa własności towaru niesprzedanego. Umowa konsygnacji jest umową nienazwaną tworzoną na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i łączy elementy umowy komisu (art. 765-773 KC) i umowy przechowania (art. 835-845 KC). Do umów konsygnacji stosuje się odpowiednio przepisy o komisie i przechowaniu.\\n\\nPodstawową cechą konsygnacji odróżniającą ją od zwykłej sprzedaży lub agencji jest to, że konsygnant nie sprzedaje towaru konsygnatariuszowi — przekazuje go wyłącznie do sprzedaży na własny rachunek. Towar niesprzedany jest własnością konsygnanta i może być przez niego w każdym czasie odwołany. Konsygnatariusz jest wynagradzany prowizją od sprzedanego towaru lub marżą (różnicą między ceną zakupu a ceną sprzedaży), nie zaś z góry zapłaconą ceną.\\n\\nKonsygnacja jest powszechna w handlu książkami, odzieżą, kosmetykami, dziełami sztuki i elektronarzędziami. Producent lub wydawca przekazuje towar do sieci dystrybucji (księgarnie, sklepy, galerie) bez konieczności uiszczania przez dystrybutora zapłaty z góry — płaci on dopiero po sprzedaniu towaru klientowi końcowemu. Niesprze dany towar wraca do konsygnanta. Ta struktura zmniejsza ryzyko dystrybucji dla konsygnatariusza i ułatwia dostęp do kanałów dystrybucji dla konsygnanta.\\n\\nObowiązki podatkowe w umowie konsygnacji są skomplikowane i wymagają staranności. Z perspektywy VAT, zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, obowiązek podatkowy VAT po stronie konsygnanta powstaje zazwyczaj w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej — nie w momencie przekazania towaru do konsygnacji, ponieważ wówczas własność nie przechodzi. Konsygnatariusz wystawia fakturę VAT klientowi końcowemu w swoim imieniu i rozlicza VAT od sprzedaży, a konsygnant wystawia fakturę za towary sprzedane w danym okresie rozliczeniowym. Krajowa Administracja Skarbowa (KAS) i Urząd Skarbowy mogą kontrolować prawidłowość dokumentacji konsygnacyjnej.\\n\\nPrawidłowo sporządzona umowa konsygnacji powinna regulować: szczegółowy opis towaru konsygnacyjnego, zasady przekazywania i zwrotu towaru, protokoły zdawczo-odbiorcze, warunki przechowywania, ceny detaliczne lub marżę konsygnatariusza, termin i formę rozliczenia, prawo konsygnanta do inwentaryzacji, odpowiedzialność za braki i uszkodzenia towaru, zasady zakończenia umowy i zwrotu niesprzedanego towaru.\\n\\nUmowa konsygnacji w Polsce jest potrzebna, gdy producent lub dostawca chce wprowadzić swój towar do dystrybucji bez konieczności ponoszenia kosztów sprzedaży przez dystrybutora z góry.\\n\\nWydawcy i autorzy. Wydawnictwa przekazują książki i podręczniki do sieci księgarń na zasadzie konsygnacji — księgarnia sprzedaje tytuły i rozlicza się z wydawnictwem z faktycznie sprzedanych egzemplarzy, odsyłając niesprzedane.\\n\\nProducenci odzieży i mody. Projektanci i marki modowe przekazują kolekcje do butików lub showroomów na konsygnację — butik nie musi kupować kolekcji z góry, co obniża jego ryzyko finansowe i zachęca do przyjęcia nowych marek.\\n\\nGalerie sztuki i antykwariaty. Artyści i handlarze dziełami sztuki przekazują obrazy, rzeźby lub przedmioty kolekcjonerskie do galerii na konsygnację — galeria pobiera prowizję od każdej sprzedanej pracy, a niesprzedane dzieła wracają do artysty lub kolekcjonera.\\n\\nProducenci elektroniki i narzędzi. Firmy z segmentu elektronarzędzi, sprzętu sportowego lub ogrodniczego przekazują towar na ekspozycję i sprzedaż do sieci detalicznych na konsygnację — detalista nie zamraża kapitału na towar, który może nie zostać sprzedany.\\n\\nFirmy wchodzące na nowe rynki. Producent wchodzący na nowy rynek geograficzny może zainteresować lokalnych dystrybutorów ofertą konsygnacyjną — dystrybutor nie musi kupować towaru z góry, co obniża barierę wejścia dla obu stron.\\n\\nDostawcy do małych firm i sklepów specjalistycznych. Małe sklepy specjalistyczne (sklepy zoologiczne, herbaciarnie, delikatesy) chętnie przyjmują towar na konsygnację od małych producentów i rękodzielników, którzy nie mogą sobie pozwolić na kosztowne kampanie sprzedażowe.\\n\\nImporterzy i dystrybutorzy. Importerzy przyjmujący towar od zagranicznych producentów mogą umówić się z lokalnym dystrybutorem na konsygnację jako formę zarządzania zapasami w magazynach dystrybutora (konsygnacja magazynowa).\\n\\nUmowa konsygnacji w Polsce powinna zawierać następujące elementy, aby skutecznie chronić interesy obu stron i spełniać wymogi podatkowe.\\n\\nOznaczenie stron. Pełne dane konsygnanta i konsygnatariusza: firma, adres siedziby, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG). NIP jest niezbędny dla prawidłowego fakturowania sprzedanego towaru.\\n\\nOpis towaru konsygnacyjnego. Szczegółowy opis asortymentu (rodzaj, kategorie, minimalna ilość), wymagania jakościowe, normy i certyfikaty jeśli dotyczy. Zasady aktualizacji asortymentu (np. prawo konsygnanta do wymiany towaru na nowy sezon). Wskazanie, że towar jest własnością konsygnanta do momentu sprzedaży osobie trzeciej.\\n\\nZastrzeżenie własności. Wyraźne postanowienie, że własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu jego sprzedaży osobie trzeciej przez konsygnatariusza. Zakaz zastawiania, obciążania i innego niż sprzedażowe korzystania z towaru przez konsygnatariusza. Skuteczne zastrzeżenie własności chroni konsygnanta w razie upadłości konsygnatariusza.\\n\\nCeny i wynagrodzenie konsygnatariusza. Cena detaliczna (ustalana przez konsygnanta lub z jego udziałem) oraz prowizja lub marża konsygnatariusza (procent od ceny sprzedaży netto lub różnica między ceną zakupu a ceną detaliczną). forms-legal.com zaleca precyzyjne określenie podstawy prowizji (cena netto bez VAT) i terminu jej naliczania (miesięcznego lub kwartalnego).\\n\\nRaportowanie i rozliczenie. Obowiązek konsygnatariusza prowadzenia ewidencji sprzedanego i pozostałego towaru, miesięcznych raportów sprzedaży i rozliczania się z konsygnantem. Termin rozliczenia (standardowo do 10. dnia miesiąca następnego). Faktura VAT na prowizję lub zestawienie sprzedaży umożliwiające wystawienie faktury przez konsygnanta.\\n\\nPrzechowywanie i odpowiedzialność za towar. Warunki przechowywania, obowiązek ubezpieczenia towaru, odpowiedzialność konsygnatariusza za braki i uszkodzenia z jego winy (art. 471 KC).\\n\\nInwentaryzacja i kontrola. Prawo konsygnanta do przeprowadzania inwentaryzacji towaru w miejscu przechowywania, tryb i częstotliwość inwentaryzacji.\\n\\nZwroty. Zasady i koszty zwrotu niesprzedanego towaru, tryb zwrotu na żądanie konsygnanta lub po zakończeniu umowy.\\n\\nCzas trwania i wypowiedzenie. Czas trwania, termin wypowiedzenia i skutki rozwiązania umowy dla towaru niesprzedanego.\\n\\nUmowa konsygnacji w Polsce jest wypełniana według kolejnych kroków zapewniających kompletność i prawidłowość podatkową dokumentu.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy), adresy siedzib, numery NIP, REGON i KRS lub wpisy do CEIDG. Numery NIP są niezbędne do prawidłowego fakturowania prowizji i sprzedanego towaru.\\n\\nKrok 2 — opisz towar konsygnacyjny. Szczegółowo opisz asortyment przekazywany w konsygnację — rodzaj towaru, kategorie, minimalna ilość, wymagania jakościowe. Im precyzyjniejszy opis, tym mniejsze ryzyko sporu o to, czy towar spełnia wymogi umowy.\\n\\nKrok 3 — ustal cenę detaliczną lub sposób jej określenia. Wskaż, czy cena detaliczna jest ustalana przez konsygnanta (cena sztywna na okładce lub etykiecie) czy konsygnatariusz ma swobodę jej kształtowania. Cena wpływa na wysokość prowizji i obliczenie VAT.\\n\\nKrok 4 — ustal prowizję i termin rozliczenia. Wpisz procent prowizji od ceny netto sprzedanego towaru oraz termin rozliczenia miesięcznego (standardowo do 10. dnia następnego miesiąca). Wskaż formę dokumentacyjną — raport sprzedaży plus faktura VAT na prowizję.\\n\\nKrok 5 — określ warunki przechowywania. Wpisz wymogi dotyczące przechowywania towaru konsygnacyjnego. Wskaż, czy konsygnatariusz jest zobowiązany do ubezpieczenia towaru i od jakiej wartości.\\n\\nKrok 6 — ustal czas trwania i wypowiedzenie. Wskaż czas trwania umowy i termin wypowiedzenia. W umowach konsygnacji standardowy termin wypowiedzenia wynosi 3 miesiące — pozwala to konsygnatariuszowi odsprzedać zapas lub zwrócić towar w sposób zorganizowany.\\n\\nKrok 7 — dopilnuj zastrzeżenia własności. Upewnij się, że umowa wyraźnie stwierdza, że własność towaru konsygnacyjnego pozostaje przy konsygnancie. Bez tej klauzuli w razie upadłości konsygnatariusza towar staje się częścią masy upadłości.\\n\\nKrok 8 — podpisz umowę. Złóż podpisy osób uprawnionych do reprezentacji zgodnie z KRS lub CEIDG. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym.\\n\\nUmowa konsygnacji w Polsce podlega przepisom Kodeksu cywilnego stosowanym odpowiednio (komis, przechowanie) oraz ustawie o podatku od towarów i usług.\\n\\nPodstawa prawna — art. 353[1] KC i art. 765-773 KC (komis odpowiednio). Umowa konsygnacji jest umową nienazwaną opartą na swobodzie umów (art. 353[1] KC). Do konsygnacji stosuje się odpowiednio przepisy o komisie (art. 765-773 KC) — komisant (odpowiednik konsygnatariusza) działa we własnym imieniu na rachunek komitenta (odpowiednik konsygnanta). Do przechowywania towaru stosuje się odpowiednio przepisy o umowie przechowania (art. 835-845 KC) — konsygnatariusz odpowiada za stan towaru jak depozytariusz.\\n\\nZastrzeżenie własności — art. 589 KC. Własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu sprzedaży towaru osobie trzeciej przez konsygnatariusza. Zastrzeżenie własności powinno być wyraźne i pisemne, aby było skuteczne wobec wierzycieli konsygnatariusza (art. 589 KC). W razie ogłoszenia upadłości konsygnatariusza — konsygnant może żądać wyłączenia towaru z masy upadłości na podstawie przepisów ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe (art. 70 ust. 1), jeżeli towar jest wyraźnie oznaczony jako własność konsygnanta i ewidencja konsygnacyjna jest prawidłowo prowadzona.\\n\\nVAT — ustawa z dnia 11 marca 2004 r. Obowiązek podatkowy VAT po stronie konsygnanta co do zasady powstaje w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej (nie w momencie przekazania do konsygnacji, gdy własność nie przechodzi). Konsygnatariusz wystawia fakturę VAT klientowi końcowemu we własnym imieniu, konsygnant wystawia fakturę za towar sprzedany w danym okresie rozliczeniowym. Prowizja konsygnatariusza podlega VAT 23% jako usługa. Prawidłowość dokumentacji konsygnacyjnej może być kontrolowana przez Krajową Administrację Skarbową (KAS).\\n\\nOdpowiedzialność za towar — art. 471 KC. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa. Odpowiedzialność odszkodowawczą obejmuje wartość rynkową brakującego lub zniszczonego towaru.\\n\\nUmowy konsygnacji w Polsce często zawierają błędy prowadzące do sporów o własność towaru, rozliczenia prowizji lub kwestie podatkowe.\\n\\nBłąd 1 — brak wyraźnego zastrzeżenia własności. Umowa konsygnacji bez wyraźnej klauzuli zastrzeżenia własności towaru naraża konsygnanta na utratę towaru w razie upadłości konsygnatariusza. Zalecenie: wskaż wyraźnie, że własność towaru pozostaje przy konsygnancie do momentu sprzedaży osobie trzeciej, i zadbaj o pisemną formę umowy.\\n\\nBłąd 2 — niejasna definicja \\\"sprzedaży\\\" powodującej przeniesienie własności. Brak precyzji co do momentu sprzedaży powodującej przeniesienie własności (faktura? zapłata przez klienta?) rodzi spory podatkowe i cywilne. Zalecenie: wskaż wprost, że własność przechodzi z chwilą zawarcia umowy sprzedaży z klientem końcowym lub, jeśli preferowane, z chwilą zapłaty przez klienta.\\n\\nBłąd 3 — brak obowiązku prowadzenia ewidencji konsygnacyjnej. Konsygnatariusz bez obowiązku prowadzenia ewidencji może nie być w stanie wykazać stanu towaru na żądanie konsygnanta lub Krajowej Administracji Skarbowej (KAS). Zalecenie: wskaż obowiązek prowadzenia ewidencji towarów konsygnacyjnych i dostarczania miesięcznych raportów sprzedaży.\\n\\nBłąd 4 — brak protokołów zdawczo-odbiorczych. Brak dokumentacji przy każdej dostawie towaru do konsygnacji uniemożliwia ustalenie stanu towaru w chwili przekazania i po zwrocie. Zalecenie: wymagaj sporządzania protokołu zdawczo-odbiorczego przy każdej dostawie i zwrocie towaru.\\n\\nBłąd 5 — niejasne zasady prowizji. Podstawa prowizji (cena brutto czy netto?) i moment jej naliczania (faktura wystawiona konsygnatariuszowi czy zapłata klienta?) mają istotny wpływ na wysokość wynagrodzenia. Zalecenie: wpisz jednoznacznie podstawę prowizji (procent od ceny netto sprzedanego towaru bez VAT) i termin jej naliczania.\\n\\nBłąd 6 — brak regulacji kosztów zwrotu. Brak określenia, kto ponosi koszty zwrotu niesprzedanego towaru, prowadzi do sporów przy zakończeniu umowy. Zalecenie: wskaż, że koszty zwrotu ponosi konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie konsygnanta.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-konsygnacji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-d91e6bc0-44df-45f8-b425-3f5a15cd6ddc",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_fc2b2fa02baa439886ee9946",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"konsygnacja towaru sezonowego odzież sezonowość kolekcje moda zwrot niesprzedanego towaru sezonowego\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_e8b57bc77e514eac840c0e29",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"okres rozliczeniowy kwartalny\", \"rozliczenie kwartalne\", \"kwartalne raportowanie\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_b6d3030403f84540847fa17c",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odpowiedzialność za towar konsygnacyjny odzież przechowywanie ubezpieczenie własność zastrzeżenie\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_565a95d26a8abf5b\", \"source_id\": \"uokik_rejestr_klauzul_4648\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar musi być kompletny, nie może nosić śladów użytkowania oraz musi posiadać oryginalne, niezniszczone opakowanie producenta\"}, {\"chunk_id\": \"uokik_items:uokik_a2c756d116b77299\", \"source_id\": \"uokik_rejestr_klauzul_6186\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Aby dokonać zwrotu towar musi być nie używany i w żaden sposób niezniszczony. Powinien zawierać oryginalne metki i przywieszki oraz powinien być do niego przyłączony dowód zakupu\"}, {\"chunk_id\": \"uokik_items:uokik_6ee04c977bf7d35c\", \"source_id\": \"uokik_rejestr_klauzul_6842\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwroty dopuszczalne są tylko w przypadku towaru nieużywanego (nienoszącego jakichkolwiek śladów używania), posiadającego oryginalnie przymocowane metki oraz oryginalnie opakowanego, jeżeli towar był opakowany\"}, {\"chunk_id\": \"uokik_items:uokik_199b68a3081301fc\", \"source_id\": \"uokik_rejestr_klauzul_6998\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar nie może być używany, nie może nosić jakichkolwiek śladów noszenia lub uszkodzeń, musi być dołączone do niego otrzymane opakowanie.\"}, {\"chunk_id\": \"uokik_items:uokik_74c551c80c253fe9\", \"source_id\": \"uokik_rejestr_klauzul_6960\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar należy odesłać razem z fakturą oraz oświadczeniem zwrotu, w oryginalnym nieuszkodzonym opakowaniu. Sklep gwarantuje zwrot kwoty równej cenie zmówionego towaru.\"}]",
+   "tool_call_id": "call_fc2b2fa02baa439886ee9946",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_e8b57bc77e514eac840c0e29",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43b. 1. Towar jest zgodny z umową, jeżeli zgodne z umową pozostają w szczególności jego: 1) opis, rodzaj, ilość, jakość, kompletność i funkcjonalność, a w odniesieniu do towarów z elementami cyfrowymi - również kompatybilność, interoperacyjność i dostępność aktualizacji; 2) przydatność do szczególnego celu, do którego jest potrzebny konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przeds ...\"}, {\"chunk_id\": \"uokik_items:uokik_5665c2cd5d472028\", \"source_id\": \"uokik_rejestr_klauzul_3461\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, gdy na rzecz ubezpieczonego zawarta została i w tym samym czasie obowiązuje więcej niż jedna umowa ubezpieczenia, o której mowa w ust. 9, ubezpieczyciel ponosi odpowiedzialność i wypłaca świadczenie wyłącznie na podstawie umowy ubezpieczenia zawartej najwcześniej, z zastrzeżeniem ust.12. Odpowiedzialność ubezpieczyciela z tytułu pozostałych umów ubezpieczenia zawartych na rzecz ubezpieczonego jest wyłączona\"}, {\"chunk_id\": \"uokik_items:uokik_3e79d0ff0fac7fba\", \"source_id\": \"uokik_rejestr_klauzul_5782\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku uszkodzenia opakowania (…) (...) zastrzega sobie odliczenie kosztów nowego opakowania towaru (usunięcia szkody)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_829\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 829. § 1. Ubezpieczenie osobowe może w szczególności dotyczyć: 1) przy ubezpieczeniu na życie - śmierci osoby ubezpieczonej lub dożycia przez nią oznaczonego wieku; 2) przy ubezpieczeniu następstw nieszczęśliwych wypadków - uszkodzenia ciała, rozstroju zdrowia lub śmierci wskutek nieszczęśliwego wypadku. § 2. W umowie ubezpieczenia na życie zawartej na cudzy rachunek, odpowiedzialność ubezpieczyciela rozpoczyna się nie wcześniej niż następnego d ...\"}, {\"chunk_id\": \"uokik_items:uokik_eae16527723a4f9f\", \"source_id\": \"uokik_rejestr_klauzul_517\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Uczestnik imprezy ponosi we własnym zakresie odpowiedzialność za przechowywanie przedmiotów wartościowych i pieniędzy w czasie trwania imprezy.\"}]",
+   "tool_call_id": "call_b6d3030403f84540847fa17c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n\n",
+   "reasoning": "The search results are not very relevant. Let me try more specific searches for consignment agreements with seasonal goods and quarterly settlement periods.",
+   "tool_calls": [
+    {
+     "id": "call-fb20729f-b319-4e66-b5f0-7ec9ef8bda87",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"umowa konsygnacji odzież sezonowa kolekcja wiosna lato jesień zima zwrot towaru po sezonie\"}"
+     }
+    },
+    {
+     "id": "call-a55954a6-a45d-498f-9e42-1c26765b94db",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"konsygnacja\", \"sezonowy\", \"odzież\", \"kwartalny\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-63747762-e37f-4a7e-a832-52c276436081",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"prowizja konsygnatariusza kwartalne rozliczenie raport sprzedaży termin rozliczenia 10 dzień miesiąca\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}, {\"chunk_id\": \"uokik_items:uokik_a2c756d116b77299\", \"source_id\": \"uokik_rejestr_klauzul_6186\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Aby dokonać zwrotu towar musi być nie używany i w żaden sposób niezniszczony. Powinien zawierać oryginalne metki i przywieszki oraz powinien być do niego przyłączony dowód zakupu\"}, {\"chunk_id\": \"uokik_items:uokik_a16032bf9c76280c\", \"source_id\": \"uokik_rejestr_klauzul_4911\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"…Należy mieć na uwadze, iż zwracany towar musi być pełnowartościowy oraz w stanie niezmienionym. Prawo odstąpienia od umowy przysługuje Kupującemu w następujących przypadkach: - gdy zwracany towar/towary nosi ślady użytkowania, - gdy zwracany towar/towary jest niekompletny, - gdy zwracany towar/towary nie posiada oryginalnego opakowania lub gdy to opakowanie jest uszkodzone\"}, {\"chunk_id\": \"uokik_items:uokik_10c2d41e579b733a\", \"source_id\": \"uokik_rejestr_klauzul_7115\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar nie może być uszkodzony i posiadać cech wskazujących na użytkowanie lub montaż. Towar musi zostać zwrócony w niezniszczonym opakowaniu z wszystkimi dokumentami (gwarancja, instrukcja itd.). W przeciwnym wypadku zastrzegamy sobie prawo odmówienia przyjęcia zwrotu.\"}, {\"chunk_id\": \"uokik_items:uokik_c0ed7802968e29d5\", \"source_id\": \"uokik_rejestr_klauzul_7210\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar należy odsyłać razem z otrzymanym wraz z nim paragonem lub fakturą. Sklep gwarantuje zwrot kwoty równej cenie towaru\"}]",
+   "tool_call_id": "call-fb20729f-b319-4e66-b5f0-7ec9ef8bda87",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 7 . § 1. Pracodawca jest obowiązany dostarczyć pracownikowi nieodpłatnie odzież i obuwie robocze, spełniające wymagania określone w Polskich Normach: 1) jeżeli odzież własna pracownika może ulec zniszczeniu lub znacznemu zabrudzeniu; 2) ze względu na wymagania technologiczne, sanitarne lub bezpieczeństwa i higieny pracy. § 2. Pracodawca może ustalić stanowiska, na których dopuszcza się używanie przez pracowników, za ich zgodą, własnej odzieży  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_814\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 814. § 1. Jeżeli cel egzekucji tego wymaga, komornik zarządzi otworzenie mieszkania oraz innych pomieszczeń i schowków dłużnika, jak również przeszuka jego rzeczy, mieszkanie i schowki. Gdyby to nie wystarczyło, komornik może ponadto przeszukać odzież, którą dłużnik ma na sobie. Komornik może to uczynić także wówczas, gdy dłużnik chce się wydalić lub gdy zachodzi podejrzenie, że chce usunąć od egzekucji przedmioty, które ma p ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 8 . § 1. Pracodawca ustala rodzaje środków ochrony indywidualnej oraz odzieży i obuwia roboczego, których stosowanie na określonych stanowiskach jest niezbędne w związku z art. 237 6 §1 i art. 237 7 §1, oraz przewidywane okresy użytkowania odzieży i obuwia roboczego. § 2. Środki ochrony indywidualnej oraz odzież i obuwie robocze, o których mowa w art. 237 6 §1 i art. 237 7 §1, stanowią własność pracodawcy.\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 9 . § 1. Pracodawca nie może dopuścić pracownika do pracy bez środków ochrony indywidualnej oraz odzieży i obuwia roboczego, przewidzianych do stosowania na danym stanowisku pracy. § 2. Pracodawca jest obowiązany zapewnić, aby stosowane środki ochrony indywidualnej oraz odzież i obuwie robocze posiadały właściwości ochronne i użytkowe, oraz zapewnić odpowiednio ich pranie, konserwację, naprawę, odpylanie i odkażanie. § 3. Jeżeli pracodawca nie ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_304\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 304 4 . Pracodawca jest obowiązany przydzielać niezbędną odzież roboczą i środki ochrony indywidualnej osobom wykonującym krótkotrwałe prace albo czynności inspekcyjne, w czasie których ich własna odzież może ulec zniszczeniu lub znacznemu zabrudzeniu, a także ze względu na bezpieczeństwo wykonywania tych prac lub czynności.\"}]",
+   "tool_call_id": "call-a55954a6-a45d-498f-9e42-1c26765b94db",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_47\", \"source_id\": \"sejm_eli_du_2025_350_art_47\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 47. 1. Płatnik składek przesyła w tym samym terminie deklarację rozliczeniową, imienne raporty miesięczne oraz opłaca składki za dany miesiąc, z zastrzeżeniem ust. 1a, nie później niż: 1) (uchylony) 2) do 5 dnia następnego miesiąca – dla jednostek budżetowych i samorządowych zakładów budżetowych; 3) do 15 dnia następnego miesiąca – dla płatników składek posiadających osobowość prawną; 4) do 20 dnia następnego miesiąca – dla pozostałych płatników składek. 1a. Twórcy i artyści przesyłają deklaracje rozliczeniowe i imie ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0327_statute_2aab1078fd5a8aae\", \"source_id\": \"sejm_eli_du_2024_1061_art_761\", \"source_type\": \"statute\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 761 5 . § 1. Dający zlecenie obowiązany jest złożyć agentowi oświadczenie zawierające dane o należnej mu prowizji nie później niż w ostatnim dniu miesiąca następującego po kwartale, w którym agent nabył prawo do prowizji. Oświadczenie to powinno wskazywać wszystkie dane stanowiące podstawę do obliczenia wysokości należnej prowizji. Postanowienie umowy agencyjnej mniej korzystne dla agenta jest nieważne. § 2. Agent może domagać się udostępnienia informacji potrzebnych do ustalenia, czy wysokość należnej mu prowizji została prawidłowo obliczona, w szczególności może domagać się wyciągów z k ...\"}, {\"chunk_id\": \"uokik_abusive_clause_209\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku zwolnienia przez Pośrednika nabywcy (najemcy) deklarującego pisemną wolę zakupu (najmu) za cenę ofertową lub do niej zbliżoną nie niższą niż 10% oraz odmowy sprzedaży przez Zamawiającego za w/w kwotę – prowizja jest płatna w 100% ustalonej kwoty prowizji, najpóźniej w ciągu 1 miesiąca od dnia otrzymania oświadczenia woli zakupu lub 7 dni od dnia rozwiązania tej umowy. A po tym terminie 6% ceny ofertowej nieruchomości a w przypadku najmu – trzykrotną wartość czynszu\"}, {\"chunk_id\": \"uokik_items:uokik_2cf140962004d9a2\", \"source_id\": \"uokik_rejestr_klauzul_5124\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zamawiający zobowiązuje się zapłacić Przedsiębiorcy prowizję w przypadku sprzedaży oferowanego przedmiotu osobie, która bezpośrednio lub pośrednio skojarzona została z Zamawiającym przez Przedsiębiorcę, a także gdy Zamawiający w inny sposób znalazł kontrahenta\"}, {\"chunk_id\": \"uokik_items:uokik_d4dd145b5e10ae28\", \"source_id\": \"uokik_rejestr_klauzul_5678\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jednocześnie Zleceniodawca przyjmuje na siebie zobowiązanie do zapłaty ustalonej wyżej prowizji w przypadku sprzedaży nieruchomości (…) w terminie do sześciu miesięcy od dnia rozwiązania umowy\"}]",
+   "tool_call_id": "call-63747762-e37f-4a7e-a832-52c276436081",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA KONSYGNACJI TOWARU SEZONOWEGO (ODZIEŻ)\n\nzawarta w dniu __________ r. w __________ pomiędzy:\n\n**Konsygnantem:**\n_________________________________________________________\n(pełna nazwa firmy)\nz siedzibą w: _____________________________________________\nadres: ___________________________________________________\nNIP: __________________ REGON: ___________________________\nKRS/CEIDG: _______________________________________________\nreprezentowanym przez: ___________________________________\n\na\n\n**Konsygnatariuszem:**\n_________________________________________________________\n(pełna nazwa firmy)\nz siedzibą w: _____________________________________________\nadres: ___________________________________________________\nNIP: __________________ REGON: ___________________________\nKRS/CEIDG: _______________________________________________\nreprezentowanym przez: ___________________________________\n\nłącznie zwanych \"Stronami\", a każda z nich osobno \"Stroną\".\n\n§ 1. Przedmiot umowy\n\n1. Konsygnant przekazuje Konsygnatariuszowi towar konsygnacyjny – odzież sezonową – w celu sprzedaży osobom trzecim na rzecz Konsygnatariusza, przy zachowaniu przez Konsygnanta prawa własności towaru do momentu jego sprzedaży osobie trzeciej.\n\n2. Towar konsygnacyjny obejmuje odzież sezonową, w tym w szczególności:\n   a) kolekcję wiosenno-letnią,\n   b) kolekcenno-jesienną,\n   c) kolekcenno-zimową,\n   d) inne kolekcje sezonowe wskazane w Załączniku nr 1 do niniejszej umowy.\n\n3. Szczegółowy opis asortymentu, w tym rodzaj, kategorie, ilości minimalne, wymagania jakościowe oraz normy i certyfikaty (jeśli dotyczy), określa Załącznik nr 1, który stanowi integralną część niniejszej umowy.\n\n4. Konsygnatariusz oświadcza, że zapoznał się z charakterystyką towaru i akceptuje jego specyfikę sezonową.\n\n§ 2. Przekazanie towaru i własność\n\n1. Towar konsygnacyjny jest własnością Konsygnanta i pozostaje jego własnością do momentu sprzedaży osobie trzeciej przez Konsygnatariusza.\n\n2. Własność towaru przechodzi na klienta końcowego z chwilą zawarcia umowy sprzedaży między Konsygnatariuszem a klientem końcowym.\n\n3. Konsygnatariusz zobowiązuje się do wyraźnego oznaczenia towaru jako własności Konsygnanta oraz do prowadzenia prawidłowej ewidencji towarów konsygnacyjnych.\n\n4. Konsygnatariusz nie jest uprawniony do zastawiania, obciążania ani innego niż sprzedażowe korzystania z towaru konsygnacyjnego.\n\n5. Zastrzeżenie własności jest skuteczne wobec wierzycieli Konsygnatariusza, w tym w przypadku ogłoszenia upadłości Konsygnatariusza – Konsygnant może żądać wyłączenia towaru z masy upadłości na podstawie art. 70 ust. 1 ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe.\n\n§ 3. Kolekcje sezonowe i aktualizacja asortymentu\n\n1. Konsygnatariusz przyjmuje towar konsygnacyjny według kolekcji sezonowych, zgodnie z harmonogramem dostaw określonym w Załączniku nr 2.\n\n2. Konsygnant zastrzega sobie prawo do wymiany towaru na nowe kolekcje sezonowe (wiosna, lato, jesień, zima) zgodnie z harmonogramem modowym.\n\n3. Konsygnatariusz zobowiązuje się do przyjmowania nowych kolekcji sezonowych oraz do zwrotu towaru niesprzedanego z poprzedniego sezonu w terminach określonych w § 7.\n\n4. Konsygnant ma prawo do wycofania towaru niesprzedanego przed końcem sezonu sprzedażowego, po uprzednim powiadomieniu Konsygnatariusza na 7 dni.\n\n§ 4. Przechowywanie i odpowiedzialność za towar\n\n1. Konsygnatariusz odpowiada za stan towaru konsygnacyjnego jak depozytariusz – za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa, zgodnie z art. 471 Kodeksu cywilnego.\n\n2. Konsygnatariusz zobowiązany jest do:\n   a) przechowywania towaru w odpowiednich warunkach (temperatura, wilgotność, ochrona przed uszkodzeniami mechanicznymi, światłem i szkodnikami),\n   b) zapewnienia odpowiedniej ekspozycji towaru w punkcie sprzedaży,\n   c) ubezpieczenia towaru konsygnacyjnego na wartość nie mniejszą niż __________ PLN (słownie: __________) od wszelkich ryzyk (pożar, kradzież, zalanie, zniszczenie) przez cały okres konsygnacji.\n\n3. Odpowiedzialność odszkodowawcza obejmuje wartość rynkową brakującego lub zniszczonego towaru.\n\n4. Konsygnatariusz nie ponosi odpowiedzialności za uszkodzenia towaru powstałe w wyniku normalnego zużycia lub wad ukrytych towaru, pod warunkiem niezwłocznego powiadomienia Konsygnanta.\n\n§ 5. Ceny i prowizja Konsygnatariusza\n\n1. Ceny detaliczne towaru konsygnacyjnego ustala Konsygnant i są obowiązkowe dla Konsygnatariusza. Ceny te mogą być modyfikowane wyłącznie za zgodą Konsygnanta.\n\n2. Konsygnatariusz otrzymuje prowizję od sprzedanego towaru w wysokości __________% (słownie: __________) ceny sprzedaży netto (bez VAT).\n\n3. Podstawą naliczania prowizji jest cena netto sprzedanego towaru bez VAT, potwierdzona fakturą VAT wystawioną przez Konsygnatariusza na rzecz klienta końcowego.\n\n4. Prowizja jest naliczana z chwilą zawarcia umowy sprzedaży z klientem końcowym.\n\n5. Konsygnatariusz wystawia fakturę VAT klientowi końcowemu we własnym imieniu i rozlicza VAT od sprzedaży.\n\n6. Konsygnant wystawia fakturę VAT za towary sprzedane w danym okresie rozliczeniowym.\n\n7. Prowizja Konsygnatariusza podlega podatkowi VAT w wysokości 23% jako świadczenie usług.\n\n§ 6. Raportowanie i rozliczenie kwartalne\n\n1. Strony ustalają **okres rozliczeniowy kwartalny**, obejmujący kolejne kwartały kalendarzowe: styczeń-marzec, kwiecień-czerwiec, lipiec-sierpień, wrzesień-grudzień.\n\n2. Konsygnatariusz zobowiązany jest do:\n   a) prowadzenia bieżącej ewidencji towarów konsygnacyjnych (przyjętych, sprzedanych, zwróconych, pozostałych),\n   b) sporządzania kwartalnego raportu sprzedaży za każdy okres rozliczeniowy.\n\n3. Kwartalny raport sprzedaży powinien zawierać:\n   a) dane identyfikujące towar (nazwa, kolekcja sezonowa, rozmiar, kolor),\n   b) ilość sprzedanego towaru,\n   c) ceny sprzedaży netto,\n   d) wartość sprzedaży netto,\n   e) stan towaru konsygnacyjnego na koniec okresu rozliczeniowego,\n   f) wykaz faktur VAT wystawionych klientom końcowym.\n\n4. Konsygnatariusz składa Konsygnantowi oświadczenie zawierające dane o należnej prowizji **nie później niż w ostatnim dniu miesiąca następującego po danym kwartale**, zgodnie z art. 761[5] § 1 Kodeksu cywilnego.\n\n5. Konsygnant weryfikuje oświadczenie i wystawia fakturę VAT na prowizję w terminie 7 dni od jego otrzymania.\n\n6. Konsygnatariusz zobowiązany jest do przekazania Konsygnantowi kopii faktur VAT wystawionych klientom końcowym w ciągu 5 dni od końca każdego miesiąca kalendarzowego.\n\n7. Konsygnant ma prawo do przeprowadzenia inwentaryzacji towaru konsygnacyjnego w miejscu przechowywania z częstotliwością nie rzadziej niż raz na okres rozliczeniowy kwartalny, po uprzednim powiadomieniu Konsygnatariusza na 3 dni robocze.\n\n§ 7. Zwroty towaru\n\n1. Konsygnatariusz zobowiązany jest do zwrotu towaru niesprzedanego:\n   a) po zakończeniu danego sezonu sprzedażowego – w terminie 14 dni od zakończenia sezonu,\n   b) na żądanie Konsygnanta – w terminie 7 dni od otrzymania żądania,\n   c) po rozwiązaniu umowy – w terminie 14 dni od zakończenia umowy.\n\n2. Towar odzieżowy podlegający zwrotowi musi spełniać łącznie następujące warunki:\n   a) musi być kompletny (wszystkie elementy zestawu),\n   b) nie może nosić śladów użytkowania (przymierzania, noszenia),\n   c) musi posiadać oryginalne, nieuszkodzone metki i przywieszki producenta,\n   d) musi być w oryginalnym, nieuszkodzonym opakowaniu producenta (jeśli towar był opakowany),\n   e) musi być pełnowartościowy i w stanie niezmienionym.\n\n3. W przypadku zwrotu towaru niespełniającego warunków określonych w ust. 2, Konsygnant ma prawo:\n   a) odmówić przyjęcia zwrotu,\n   b) pomniejszyć wartość zwrotu o koszty ewentualnej renowacji lub opakowania,\n   c) potrącić wartość towaru niepełnowartościowego z należnej prowizji.\n\n4. Koszty transportu i pakowania towaru zwrotnego ponosi Konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n5. Konsygnatariusz zobowiązany jest do odesłania towaru zwrotnego wraz z dokumentacją (fakturą lub paragonem oraz oświadczeniem zwrotu).\n\n§ 8. Czas trwania i wypowiedzenie umowy\n\n1. Umowa zostaje zawarta na czas nieokreślony / określony od __________ do __________.\n\n2. Każda ze Stron ma prawo wypowiedzieć umowę z zachowaniem 3-miesięcznego okresu wypowiedzenia, ze skutkiem na koniec miesiąca kalendarzowego.\n3. W przypadku wypowiedzenia umowy Konsygnatariusz zobowiązany jest do:\n   a) zwrotu całego towaru niesprzedanego w terminie 14 dni od zakończenia umowy,\n   b) rozliczenia się ze sprzedaży za okres do dnia zakończenia umowy w terminie określonym w § 6.\n\n4. Strony mogą rozwiązać umowę w trybie natychmiastowym w przypadku:\n   a) naruszenia postanowień umowy przez drugą Stronę, po bezskutecznym wezwaniu do usunięcia naruszenia w terminie 14 dni,\n   b) ogłoszenia upadłości lub likwidacji którejkolwiek ze Stron,\n   c) utraty możliwości wykonania umowy z przyczyn niezależnych od Stron.\n\n§ 9. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 353[1] KC, art. 765-773 KC (komis) oraz art. 835-845 KC (przechowanie), stosownie.\n\n3. Wszelkie spory wynikające na tle stosowania niniejszej umowy Strony poddają rozstrzygnięciu sądu właściwego dla siedziby Konsygnanta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n5. Integralną część umowy stanowią:\n   a) Załącznik nr 1 – Szczegółowy opis asortymentu towaru konsygnacyjnego,\n   b) Załącznik nr 2 – Harmonogram dostaw kolekcji sezonowych.\n\n\n\n\n_________________________                    _________________________\n(Konsygnant)                               (Konsygnatariusz)\n\nData: __________                          Data: __________",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA KONSYGNACJI TOWARU SEZONOWEGO (ODZIEŻ)\n\nzawarta w dniu __________ r. w __________ pomiędzy:\n\n**Konsygnantem:**\n_________________________________________________________\n(pełna nazwa firmy)\nz siedzibą w: _____________________________________________\nadres: ___________________________________________________\nNIP: __________________ REGON: ___________________________\nKRS/CEIDG: _______________________________________________\nreprezentowanym przez: ___________________________________\n\na\n\n**Konsygnatariuszem:**\n_________________________________________________________\n(pełna nazwa firmy)\nz siedzibą w: _____________________________________________\nadres: ___________________________________________________\nNIP: __________________ REGON: ___________________________\nKRS/CEIDG: _______________________________________________\nreprezentowanym przez: ___________________________________\n\nłącznie zwanych \"Stronami\", a każda z nich osobno \"Stroną\".\n\n§ 1. Przedmiot umowy\n\n1. Konsygnant przekazuje Konsygnatariuszowi towar konsygnacyjny – odzież sezonową – w celu sprzedaży osobom trzecim na rzecz Konsygnatariusza, przy zachowaniu przez Konsygnanta prawa własności towaru do momentu jego sprzedaży osobie trzeciej.\n\n2. Towar konsygnacyjny obejmuje odzież sezonową, w tym w szczególności:\n   a) kolekcję wiosenno-letnią,\n   b) kolekcenno-jesienną,\n   c) kolekcenno-zimową,\n   d) inne kolekcje sezonowe wskazane w Załączniku nr 1 do niniejszej umowy.\n\n3. Szczegółowy opis asortymentu, w tym rodzaj, kategorie, ilości minimalne, wymagania jakościowe oraz normy i certyfikaty (jeśli dotyczy), określa Załącznik nr 1, który stanowi integralną część niniejszej umowy.\n\n4. Konsygnatariusz oświadcza, że zapoznał się z charakterystyką towaru i akceptuje jego specyfikę sezonową.\n\n§ 2. Przekazanie towaru i własność\n\n1. Towar konsygnacyjny jest własnością Konsygnanta i pozostaje jego własnością do momentu sprzedaży osobie trzeciej przez Konsygnatariusza.\n\n2. Własność towaru przechodzi na klienta końcowego z chwilą zawarcia umowy sprzedaży między Konsygnatariuszem a klientem końcowym.\n\n3. Konsygnatariusz zobowiązuje się do wyraźnego oznaczenia towaru jako własności Konsygnanta oraz do prowadzenia prawidłowej ewidencji towarów konsygnacyjnych.\n\n4. Konsygnatariusz nie jest uprawniony do zastawiania, obciążania ani innego niż sprzedażowe korzystania z towaru konsygnacyjnego.\n\n5. Zastrzeżenie własności jest skuteczne wobec wierzycieli Konsygnatariusza, w tym w przypadku ogłoszenia upadłości Konsygnatariusza – Konsygnant może żądać wyłączenia towaru z masy upadłości na podstawie art. 70 ust. 1 ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe.\n\n§ 3. Kolekcje sezonowe i aktualizacja asortymentu\n\n1. Konsygnatariusz przyjmuje towar konsygnacyjny według kolekcji sezonowych, zgodnie z harmonogramem dostaw określonym w Załączniku nr 2.\n\n2. Konsygnant zastrzega sobie prawo do wymiany towaru na nowe kolekcje sezonowe (wiosna, lato, jesień, zima) zgodnie z harmonogramem modowym.\n\n3. Konsygnatariusz zobowiązuje się do przyjmowania nowych kolekcji sezonowych oraz do zwrotu towaru niesprzedanego z poprzedniego sezonu w terminach określonych w § 7.\n\n4. Konsygnant ma prawo do wycofania towaru niesprzedanego przed końcem sezonu sprzedażowego, po uprzednim powiadomieniu Konsygnatariusza na 7 dni.\n\n§ 4. Przechowywanie i odpowiedzialność za towar\n\n1. Konsygnatariusz odpowiada za stan towaru konsygnacyjnego jak depozytariusz – za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa, zgodnie z art. 471 Kodeksu cywilnego.\n\n2. Konsygnatariusz zobowiązany jest do:\n   a) przechowywania towaru w odpowiednich warunkach (temperatura, wilgotność, ochrona przed uszkodzeniami mechanicznymi, światłem i szkodnikami),\n   b) zapewnienia odpowiedniej ekspozycji towaru w punkcie sprzedaży,\n   c) ubezpieczenia towaru konsygnacyjnego na wartość nie mniejszą niż __________ PLN (słownie: __________) od wszelkich ryzyk (pożar, kradzież, zalanie, zniszczenie) przez cały okres konsygnacji.\n\n3. Odpowiedzialność odszkodowawcza obejmuje wartość rynkową brakującego lub zniszczonego towaru.\n\n4. Konsygnatariusz nie ponosi odpowiedzialności za uszkodzenia towaru powstałe w wyniku normalnego zużycia lub wad ukrytych towaru, pod warunkiem niezwłocznego powiadomienia Konsygnanta.\n\n§ 5. Ceny i prowizja Konsygnatariusza\n\n1. Ceny detaliczne towaru konsygnacyjnego ustala Konsygnant i są obowiązkowe dla Konsygnatariusza. Ceny te mogą być modyfikowane wyłącznie za zgodą Konsygnanta.\n\n2. Konsygnatariusz otrzymuje prowizję od sprzedanego towaru w wysokości __________% (słownie: __________) ceny sprzedaży netto (bez VAT).\n\n3. Podstawą naliczania prowizji jest cena netto sprzedanego towaru bez VAT, potwierdzona fakturą VAT wystawioną przez Konsygnatariusza na rzecz klienta końcowego.\n\n4. Prowizja jest naliczana z chwilą zawarcia umowy sprzedaży z klientem końcowym.\n\n5. Konsygnatariusz wystawia fakturę VAT klientowi końcowemu we własnym imieniu i rozlicza VAT od sprzedaży.\n\n6. Konsygnant wystawia fakturę VAT za towary sprzedane w danym okresie rozliczeniowym.\n\n7. Prowizja Konsygnatariusza podlega podatkowi VAT w wysokości 23% jako świadczenie usług.\n\n§ 6. Raportowanie i rozliczenie kwartalne\n\n1. Strony ustalają **okres rozliczeniowy kwartalny**, obejmujący kolejne kwartały kalendarzowe: styczeń-marzec, kwiecień-czerwiec, lipiec-sierpień, wrzesień-grudzień.\n\n2. Konsygnatariusz zobowiązany jest do:\n   a) prowadzenia bieżącej ewidencji towarów konsygnacyjnych (przyjętych, sprzedanych, zwróconych, pozostałych),\n   b) sporządzania kwartalnego raportu sprzedaży za każdy okres rozliczeniowy.\n\n3. Kwartalny raport sprzedaży powinien zawierać:\n   a) dane identyfikujące towar (nazwa, kolekcja sezonowa, rozmiar, kolor),\n   b) ilość sprzedanego towaru,\n   c) ceny sprzedaży netto,\n   d) wartość sprzedaży netto,\n   e) stan towaru konsygnacyjnego na koniec okresu rozliczeniowego,\n   f) wykaz faktur VAT wystawionych klientom końcowym.\n\n4. Konsygnatariusz składa Konsygnantowi oświadczenie zawierające dane o należnej prowizji **nie później niż w ostatnim dniu miesiąca następującego po danym kwartale**, zgodnie z art. 761[5] § 1 Kodeksu cywilnego.\n\n5. Konsygnant weryfikuje oświadczenie i wystawia fakturę VAT na prowizję w terminie 7 dni od jego otrzymania.\n\n6. Konsygnatariusz zobowiązany jest do przekazania Konsygnantowi kopii faktur VAT wystawionych klientom końcowym w ciągu 5 dni od końca każdego miesiąca kalendarzowego.\n\n7. Konsygnant ma prawo do przeprowadzenia inwentaryzacji towaru konsygnacyjnego w miejscu przechowywania z częstotliwością nie rzadziej niż raz na okres rozliczeniowy kwartalny, po uprzednim powiadomieniu Konsygnatariusza na 3 dni robocze.\n\n§ 7. Zwroty towaru\n\n1. Konsygnatariusz zobowiązany jest do zwrotu towaru niesprzedanego:\n   a) po zakończeniu danego sezonu sprzedażowego – w terminie 14 dni od zakończenia sezonu,\n   b) na żądanie Konsygnanta – w terminie 7 dni od otrzymania żądania,\n   c) po rozwiązaniu umowy – w terminie 14 dni od zakończenia umowy.\n\n2. Towar odzieżowy podlegający zwrotowi musi spełniać łącznie następujące warunki:\n   a) musi być kompletny (wszystkie elementy zestawu),\n   b) nie może nosić śladów użytkowania (przymierzania, noszenia),\n   c) musi posiadać oryginalne, nieuszkodzone metki i przywieszki producenta,\n   d) musi być w oryginalnym, nieuszkodzonym opakowaniu producenta (jeśli towar był opakowany),\n   e) musi być pełnowartościowy i w stanie niezmienionym.\n\n3. W przypadku zwrotu towaru niespełniającego warunków określonych w ust. 2, Konsygnant ma prawo:\n   a) odmówić przyjęcia zwrotu,\n   b) pomniejszyć wartość zwrotu o koszty ewentualnej renowacji lub opakowania,\n   c) potrącić wartość towaru niepełnowartościowego z należnej prowizji.\n\n4. Koszty transportu i pakowania towaru zwrotnego ponosi Konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie Konsygnanta.\n\n5. Konsygnatariusz zobowiązany jest do odesłania towaru zwrotnego wraz z dokumentacją (fakturą lub paragonem oraz oświadczeniem zwrotu).\n\n§ 8. Czas trwania i wypowiedzenie umowy\n\n1. Umowa zostaje zawarta na czas nieokreślony / określony od __________ do __________.\n\n2. Każda ze Stron ma prawo wypowiedzieć umowę z zachowaniem 3-miesięcznego okresu wypowiedzenia, ze skutkiem na koniec miesiąca kalendarzowego.\n3. W przypadku wypowiedzenia umowy Konsygnatariusz zobowiązany jest do:\n   a) zwrotu całego towaru niesprzedanego w terminie 14 dni od zakończenia umowy,\n   b) rozliczenia się ze sprzedaży za okres do dnia zakończenia umowy w terminie określonym w § 6.\n\n4. Strony mogą rozwiązać umowę w trybie natychmiastowym w przypadku:\n   a) naruszenia postanowień umowy przez drugą Stronę, po bezskutecznym wezwaniu do usunięcia naruszenia w terminie 14 dni,\n   b) ogłoszenia upadłości lub likwidacji którejkolwiek ze Stron,\n   c) utraty możliwości wykonania umowy z przyczyn niezależnych od Stron.\n\n§ 9. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 353[1] KC, art. 765-773 KC (komis) oraz art. 835-845 KC (przechowanie), stosownie.\n\n3. Wszelkie spory wynikające na tle stosowania niniejszej umowy Strony poddają rozstrzygnięciu sądu właściwego dla siedziby Konsygnanta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n5. Integralną część umowy stanowią:\n   a) Załącznik nr 1 – Szczegółowy opis asortymentu towaru konsygnacyjnego,\n   b) Załącznik nr 2 – Harmonogram dostaw kolekcji sezonowych.\n\n\n\n\n_________________________                    _________________________\n(Konsygnant)                               (Konsygnatariusz)\n\nData: __________                          Data: __________",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę przekazać swoją odzież sezonową do sprzedaży w sklepie na konsygnację, z rozliczeniami co kwartał. Potrzebuję umowy, która to ureguluje."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam markę odzieżową i chcę udostępnić kolekcje wiosenne, letnie, jesienne i zimowe sklepowi partnerskiemu na zasadzie konsygnacji. Potrzebuję umowy, która określi, że towar pozostaje moją własnością do momentu sprzedaży, a rozliczenia prowizji będą kwartalne. Ważne są dla mnie szczegóły dotyczące zwrotów niesprzedanego towaru po sezonie, warunków przechowywania i ubezpieczenia, oraz obowiązku raportowania sprzedaży co kwartał."
+  }
+ ]
+}

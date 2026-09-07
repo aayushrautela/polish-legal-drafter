@@ -1,0 +1,305 @@
+{
+ "run": 32,
+ "hint": "Odstąpienie od umowy z żądaniem zwrotu zaliczki przy braku realizacji",
+ "scenario": "Odstąpienie od umowy z żądaniem zwrotu zaliczki przy braku realizacji",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='odstapienie_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_50878dca992847f2870042e8",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"odstapienie_konsumenta\"}"
+     }
+    },
+    {
+     "id": "call_da010e128c1a4002aa104d1e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odstąpienie od umowy zwrot zaliczki brak realizacji usługi przedsiębiorca nie wykonuje świadczenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"odstapienie_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Odstąpienie od umowy zawartej poza lokalem przedsiębiorstwa\\nOdstąpienie od umowy zawartej poza lokalem przedsiębiorstwa w Polsce to pisemne oświadczenie konsumenta, na podstawie którego konsument bez podawania przyczyny i bez ponoszenia kosztów rezygnuje z umowy zawartej w okolicznościach innych niż siedziba lub lokal przedsiębiorcy. Podstawę prawną tego dokumentu stanowią art. 27 i art. 40 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.), która implementuje dyrektywę Parlamentu Europejskiego i Rady 2011/83/UE w sprawie praw konsumentów.\\n\\nUmową zawartą poza lokalem przedsiębiorstwa jest umowa zawarta przy jednoczesnej obecności fizycznej stron w miejscu, które nie jest lokalem przedsiębiorcy, na przykład w miejscu zamieszkania konsumenta, w pracy konsumenta, podczas targów, na pokazach handlowych, w hotelach, na ulicy lub w środkach transportu publicznego. Umową poza lokalem jest też umowa zawarta bezpośrednio po tym, jak konsument był nagabywany w publicznym miejscu lub na wycieczce zorganizowanej przez przedsiębiorcę w celu promocji lub sprzedaży produktów. Taka sytuacja — presja sprzedawcy w niespodziewanych okolicznościach — uzasadnia szczególną ochronę konsumenta w postaci prawa do namysłu i bezkosztowego wycofania się z transakcji.\\n\\nKonsument, który zawarł umowę poza lokalem przedsiębiorstwa, może odstąpić od niej w terminie 14 dni bez podania przyczyny i bez ponoszenia kosztów, z wyjątkami określonymi w ustawie. Termin biegnie od dnia zawarcia umowy, a przy umowach sprzedaży — od dnia objęcia towaru w posiadanie. Jeżeli przedsiębiorca nie poinformował konsumenta o prawie odstąpienia, termin wydłuża się o dodatkowe 12 miesięcy, czyli łącznie do 12 miesięcy i 14 dni, zgodnie z art. 29 ustawy o prawach konsumenta. To wyjątkowo długi termin będący sankcją za naruszenie obowiązku informacyjnego.\\n\\nSkutek odstąpienia jest bardzo korzystny dla konsumenta: umowę uważa się za niezawartą, strony zwracają sobie wzajemnie świadczenia. Przedsiębiorca musi zwrócić konsumentowi wszystkie dokonane przez niego płatności — cenę, opłaty za dostawę — w terminie 14 dni od otrzymania oświadczenia o odstąpieniu, bez obciążania konsumenta kosztami, które nie wynikają z jego własnego wyboru droższego środka dostawy. Koszty bezpośredniego zwrotu rzeczy ponosi konsument, chyba że przedsiębiorca nie poinformował go o tym obowiązku lub zgodził się pokryć te koszty. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) strzeże przestrzegania praw konsumentów przez przedsiębiorców w Polsce.\\n\\nPrawo do odstąpienia od umowy poza lokalem nie jest nieograniczone — ustawa o prawach konsumenta w art. 38 wymienia sytuacje, gdy prawo to nie przysługuje. Dotyczy to między innymi umów dotyczących rzeczy nieprefabrykowanych wytworzonych według specyfikacji konsumenta, rzeczy ulegających szybkiemu zepsuciu lub mających krótki termin przydatności, nagrań dźwiękowych lub wizualnych lub oprogramowania w zapieczętowanym opakowaniu otwartym przez konsumenta, świadczenia usług, które zostały już w pełni wykonane za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia. Konsument powinien sprawdzić, czy zachodzi któryś z wyjątków, zanim złoży oświadczenie. Wzorzec formularza odstąpienia od umowy poza lokalem stanowi załącznik nr 2 do ustawy o prawach konsumenta, a gotowy formularz zapewnia formy-legal.com.\\n\\nOświadczenie o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce jest potrzebne wszędzie tam, gdzie konsument zawarł umowę w okolicznościach innych niż lokal przedsiębiorcy i chce skorzystać z ustawowego prawa odstąpienia w terminie 14 dni. Dokument jest najczęściej stosowany po zakupach podczas pokazów handlowych, na targach, na spotkaniach organizowanych przez firmy sprzedażowe w hotelach, przy sprzedaży obwoźnej dokonywanej przez akwizytorów przychodzących do domu, w trakcie wycieczek promujących produkty lub w każdej innej sytuacji, gdy transakcja nie odbyła się w regularnym sklepie stacjonarnym.\\n\\nTypowe sytuacje, w których dokument jest niezbędny, obejmują: zakup garnków, odkurzaczy, filtrów wody lub kosmetyków na pokazach handlowych, podpisanie umowy z firmą świadczącą usługi remontowe lub budowlane w domu konsumenta, zakup systemu alarmowego lub instalacji fotowoltaicznej podczas wizyty sprzedawcy, a także wszelkie inne zakupy towarów lub usług w miejscu innym niż lokal sprzedawcy. Presja sprzedawcy i niespodzianie warunki pokazu często prowadzą do pochopnych decyzji, którym ustawa daje konsumentowi prawo naprawić.\\n\\nDokument jest potrzebny niezwłocznie — konsument powinien wysłać oświadczenie o odstąpieniu najpóźniej 14. dnia od zawarcia umowy lub od objęcia towaru w posiadanie. Data stempla pocztowego lub data wysłania wiadomości e-mail jest wystarczająca do dochowania terminu, nie jest konieczne, by oświadczenie dotarło do przedsiębiorcy w ciągu 14 dni. Warto pamiętać, że jeżeli przedsiębiorca nie poinformował konsumenta o prawie odstąpienia, termin 14 dni w ogóle nie zaczął biec i konsument ma łącznie do 12 miesięcy i 14 dni na złożenie oświadczenia, co wynika wprost z art. 29 ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\\n\\nDokument jest potrzebny niezależnie od tego, czy towar jest wadliwy, czy nie, i bez konieczności podawania jakiegokolwiek uzasadnienia. Prawo do odstąpienia od umowy poza lokalem jest prawem bezwarunkowym — konsument nie musi tłumaczyć, dlaczego rezygnuje z umowy. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) regularnie interweniuje w sprawach przedsiębiorców utrudniających wykonanie tego prawa lub stosujących niedozwolone klauzule wyłączające prawo odstąpienia w sytuacjach, gdy jest ono ustawowo gwarantowane.\\n\\nPismo jest stosowane również w sytuacjach, gdy konsument podpisał umowę pod wpływem nacisku sprzedawcy lub bez pełnego zrozumienia jej treści. Prawo do namysłu wbudowane w art. 27 ustawy o prawach konsumenta chroni przed pochopnymi decyzjami zakupowymi podejmowanymi w nieoczekiwanych okolicznościach. Miejski lub powiatowy rzecznik konsumentów udziela bezpłatnej pomocy prawnej konsumentom, którzy mają trudności z egzekwowaniem prawa odstąpienia od umowy poza lokalem przedsiębiorstwa.\\n\\nPrawidłowe oświadczenie o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce powinno zawierać wszystkie elementy przewidziane w art. 27 i art. 40 ustawy z dnia 30 maja 2014 r. o prawach konsumenta oraz w ustawowym wzorcu formularza stanowiącym załącznik nr 2 do tej ustawy.\\n\\nOznaczenie konsumenta: imię, nazwisko, adres zamieszkania i adres e-mail konsumenta, a także numer rachunku bankowego, na który ma zostać zwrócona zapłacona cena lub wynagrodzenie. Podanie numeru rachunku we wstępnej korespondencji znacząco przyspiesza zwrot płatności.\\n\\nOznaczenie przedsiębiorcy: pełna firma i adres siedziby przedsiębiorcy, z którym zawarto umowę poza lokalem. Adres do doręczenia oświadczenia może być inny niż adres siedziby, jeżeli przedsiębiorca wskazał adres reklamacyjny w umowie lub regulaminie.\\n\\nOkoliczności zawarcia umowy: data zawarcia umowy, miejsce jej zawarcia poza lokalem przedsiębiorstwa, na przykład \\\"w moim domu przy ul. Różanej 3/10 w Poznaniu podczas wizyty sprzedawcy w dniu 15.05.2025 r.\\\" lub \\\"podczas pokazu handlowego w hotelu Ibis w Krakowie w dniu 10.04.2025 r.\\\" Wskazanie miejsca poza lokalem ma istotne znaczenie dowodowe — to ono przesądza o zastosowaniu ustawy o prawach konsumenta.\\n\\nPrzedmiot umowy i cena: dokładny opis towaru lub usługi objętej umową oraz cena lub wynagrodzenie, które konsument zapłacił lub miał zapłacić. Jeżeli umowa została zawarta na czas określony, należy wskazać jej czas trwania.\\n\\nPowołanie podstawy prawnej: wyraźne stwierdzenie, że konsument odstępuje od umowy na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta. Powołanie przepisu porządkuje sprawę i wskazuje przedsiębiorcy właściwą podstawę działania konsumenta.\\n\\nŻądanie zwrotu płatności: wniosek o zwrot zapłaconej ceny lub wynagrodzenia na wskazany rachunek bankowy w terminie 14 dni. Serwis forms-legal.com udostępnia kompletny wzór oświadczenia spełniający wszystkie wymagania ustawowe. Oświadczenie należy wysłać listem poleconym lub e-mailem z potwierdzeniem odbioru i zachować dowód daty wysłania — liczy się data wysłania, nie odbioru, dla zachowania 14-dniowego terminu odstąpienia wynikającego z art. 27 ustawy o prawach konsumenta.\\n\\nWypełnianie oświadczenia o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce zacznij od wpisania swoich danych jako konsumenta — imienia i nazwiska, adresu zamieszkania, adresu e-mail i numeru rachunku bankowego do zwrotu. Podanie numeru rachunku we wstępnym oświadczeniu przyspiesza zwrot płatności przez przedsiębiorcę.\\n\\nW polu przedsiębiorcy wpisz pełną firmę i adres przedsiębiorcy, z którym zawarto umowę poza lokalem. Dane te znajdziesz w umowie, na fakturze lub na stronie internetowej firmy. Pamiętaj, że składasz oświadczenie przedsiębiorcy, u którego dokonałeś zakupu lub zawarłeś umowę, a nie pośrednikowi.\\n\\nW sekcji dotyczącej umowy wpisz datę jej zawarcia, miejsce — ważne, żeby precyzyjnie wskazać, że umowę zawarto poza lokalem przedsiębiorcy, na przykład \\\"podczas pokazu handlowego w hotelu Marriott w Warszawie\\\" lub \\\"w moim mieszkaniu podczas wizyty sprzedawcy\\\" — oraz przedmiot umowy i zapłaconą lub należną cenę. Numer umowy lub zamówienia ułatwi przedsiębiorcy identyfikację transakcji.\\n\\nW oświadczeniu zaznacz, że odstępujesz od umowy na podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta i że umowę uważa się za niezawartą. Wskaż, że oczekujesz zwrotu ceny na wskazany rachunek bankowy w terminie 14 dni. Wpisz miejscowość i datę złożenia oświadczenia oraz złóż podpis. Oświadczenie wyślij listem poleconym lub e-mailem z potwierdzeniem odbioru niezwłocznie — termin 14 dni od zawarcia umowy lub objęcia towaru w posiadanie jest bezwzględny, a za zachowanie terminu uważa się datę wysłania, nie dostarczenia. Zachowaj potwierdzenie nadania jako dowód dochowania terminu.\\n\\nWymogi prawne oświadczenia o odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce wynikają z art. 27-40 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.), wdrażającej dyrektywę Parlamentu Europejskiego i Rady 2011/83/UE z dnia 25 października 2011 r. w sprawie praw konsumentów.\\n\\nArt. 27 ustawy przyznaje konsumentowi prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość w terminie 14 dni bez podawania przyczyny. Art. 40 nakazuje przedsiębiorcy niezwłocznie wydać konsumentowi pisemne potwierdzenie zawarcia umowy wraz z informacją o prawie odstąpienia oraz dołączyć ustawowy wzorzec formularza odstąpienia stanowiący załącznik nr 2 do ustawy. Brak tej informacji skutkuje wydłużeniem terminu do odstąpienia o dodatkowe 12 miesięcy (art. 29 ustawy).\\n\\nPrzedsiębiorcy zobowiązani są do wykonania obowiązków informacyjnych przed zawarciem umowy poza lokalem, określonych w art. 12 i art. 39 ustawy o prawach konsumenta. Należą do nich informacje o prawie odstąpienia, terminie, sposobie i skutkach odstąpienia, a także o kosztach zwrotu rzeczy ponoszonych przez konsumenta. Naruszenie tych obowiązków jest praktyka naruszającą zbiorowe interesy konsumentów, za którą Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) może nałożyć administracyjną karę pieniężną na podstawie ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów.\\n\\nArt. 32 ustawy o prawach konsumenta nakazuje przedsiębiorcy zwrócić konsumentowi wszystkie płatności — cenę i koszty dostawy — w terminie 14 dni od dnia otrzymania oświadczenia o odstąpieniu. Przedsiębiorca może wstrzymać zwrot do chwili otrzymania rzeczy lub potwierdzenia jej odesłania. Koszty bezpośredniego zwrotu rzeczy ponosi konsument, chyba że nie poinformowano go o tym obowiązku. Zwrot płatności przy umowie zawartej poza lokalem przedsiębiorstwa jest analogiczny do zwrotu przy umowie zawartej na odległość i podlega tym samym rygorom terminów i formy, przy czym prawem strzegącym tych praw konsumentów jest Prezes UOKiK.\\n\\nNajczęstsze błędy przy odstąpieniu od umowy zawartej poza lokalem przedsiębiorstwa w Polsce zaczynają się od przekroczenia terminu 14 dni na złożenie oświadczenia. Termin ten biegnie od dnia zawarcia umowy lub od dnia objęcia towaru w posiadanie przy umowach sprzedaży i jest terminem bezwzględnym. Zwlekanie z podjęciem decyzji lub oczekiwanie na odpowiedź przedsiębiorcy przed złożeniem oświadczenia może skutkować utratą prawa odstąpienia. Oświadczenie najlepiej wysłać niezwłocznie po podjęciu decyzji o rezygnacji.\\n\\nKolejnym błędem jest brak pisemnej formy lub niedochowanie dowodu wysłania oświadczenia. Choć prawo nie wymaga bezwzględnie formy pisemnej — oświadczenie można też złożyć ustnie lub przez formularz elektroniczny na stronie przedsiębiorcy — to pisemna forma z dowodem daty wysłania jest najlepszym zabezpieczeniem prawnym konsumenta. Listy polecone ze zwrotnym potwierdzeniem odbioru lub wiadomości e-mail z potwierdzeniem dostarczenia są optymalne. Data wysłania, nie data odbioru, decyduje o zachowaniu terminu 14 dni wynikającego z art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\\n\\nBłędem jest niezgłaszanie prawa do odstąpienia z obawy przed odmową przedsiębiorcy. Przedsiębiorca jest prawnie zobowiązany przyjąć oświadczenie i zwrócić płatność. Jeżeli odmawia lub utrudnia skorzystanie z prawa, konsument może zwrócić się do miejskiego lub powiatowego rzecznika konsumentów, złożyć skargę do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) lub wniesieniu pozwu do Sądu Rejonowego.\\n\\nCzęstą pułapką jest próba odstąpienia od umowy w sytuacji, gdy w grę wchodzi wyjątek z art. 38 ustawy o prawach konsumenta. Prawo odstąpienia nie przysługuje na przykład przy rzeczach wytworzonych na zamówienie konsumenta, rzeczach szybko psujących się lub nagraniach w zapieczętowanym opakowaniu otwartym przez konsumenta. Warto sprawdzić, czy umowa nie wchodzi w zakres jednego z wyjątków, zanim złoży się oświadczenie.\\n\\nNajczęstszym uchybieniem jest wreszcie brak podania numeru rachunku bankowego w oświadczeniu, co może opóźnić zwrot płatności przez przedsiębiorcę. Przedsiębiorca ma 14 dni na zwrot, ale nie może tego wykonać bez znajomości numeru konta konsumenta. Podanie rachunku we wstępnym oświadczeniu skraca czas oczekiwania na zwrot pieniędzy.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/odstapienie-od-umowy-zawartej-poza-lokalem (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_50878dca992847f2870042e8",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}, {\"chunk_id\": \"uokik_items:uokik_e36b79da60a058b9\", \"source_id\": \"uokik_rejestr_klauzul_6060\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Brak wpłaty zaliczki na poczet realizacji umowy, o której mowa w Art. 7 pkt 1 ust. 1.1 przez Kupującego, brak terminowego przedstawienia przez Kupującego Sprzedającemu źródła finansowania, o którym mowa w Art. 6 pkt 1 ust. 1.2 niniejszej umowy, lub brak pełnej zapłaty za przedmiot umowy przez Kupującego w terminie określonym w Art. 7 pkt 1 ust. 1.2 niniejszej umowy, może być traktowane przez Sprzedającego za odstąpienie Kupującego od umowy\"}, {\"chunk_id\": \"uokik_items:uokik_27e1a29216e2ffb7\", \"source_id\": \"uokik_rejestr_klauzul_4081\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Rezygnacja z zamówienia skierowanego już do realizacji skutkuje przepadkiem wpłaconej zaliczki\"}, {\"chunk_id\": \"uokik_items:uokik_889e2a33ebf8d0a8\", \"source_id\": \"uokik_rejestr_klauzul_5410\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku gdy strony uzgodnią, że wpłacona zaliczka ma charakter zadatku, odstąpienie od umowy przez Sprzedawcę zgodnie z pkt. 6 pozwala na zachowanie otrzymanego zadatku w pełnej wysokości, a odstąpienie od umowy przez klienta w myśl pkt. 7 rodzi zobowiązanie sprzedawcy do zwrotu zadatku w podwójnej wysokości. Nie dotyczy to przypadku odstąpienia od umowy przez Klienta w razie niemożliwości świadczenia (pkt. 3 ust. C). W takim przypadku, strony uzgadniają zwrot zadatku w wysokości kwoty wpłaconej\"}]",
+   "tool_call_id": "call_da010e128c1a4002aa104d1e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about withdrawal from contracts when the entrepreneur fails to perform, and about the return of deposits/advance payments (zaliczka).",
+   "tool_calls": [
+    {
+     "id": "call-aa96c224-7cfe-49b4-8340-60b6d49696c1",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"zaliczka\", \"zadatek\", \"zwrot zaliczki\", \"brak realizacji\", \"niewykonanie umowy\"]}"
+     }
+    },
+    {
+     "id": "call-b7249bfc-0f04-423b-b8ca-4597330f4767",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odstąpienie od umowy konsumenta zwrot zaliczki przedsiębiorca nie wykonał usługi brak realizacji\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie j ...\"}, {\"chunk_id\": \"uokik_abusive_clause_229\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W razie niewykonania umowy przez Kupującego Sprzedający może bez dodatkowego wezwania odstąpić od umowy i zatrzymać 35% wartości umowy. Przez niewykonanie umowy przez Kupującego strony rozumieją – zaleganie z płatnościami wymienionymi w § 3 niniejszej umowy więcej niż 30 dni od dnia ich wymagalności. Powyższe nie dotyczy pierwszej wpłaty, której nie wniesienie w terminie powoduje rozwiązanie niniejszej umowy ze skutkiem natychmiastowych z winy Kupującego\"}, {\"chunk_id\": \"uokik_abusive_clause_230\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W razie niewykonania umowy przez Sprzedającego i rezygnacji z umowy przez Kupującego zwróci on wpłacone kwoty w całości Kupującemu po znalezieniu nowego nabywcy, lecz nie później niż z końcem inwestycji. Przez niewykonanie umowy przez Sprzedającego strony rozumieją rażąco niezgodne z projektem lub wadliwe wykonawstwo – przedłużenie czasu trwania umowy o więcej niż 90 dni. Termin realizacji może być przesunięty w przypadku, gdy mimo dołożenia należytej staranności przez Sprzedającego wystąpiły przyczyny niezależne od Sprzedającego takie jak: - warunki pogodowe uniemożliwiające prowadzenie robót ...\"}, {\"chunk_id\": \"uokik_items:uokik_49a094ddca287443\", \"source_id\": \"uokik_rejestr_klauzul_2135\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient nie może dochodzić odszkodowania za niewykonanie umowy od Organizatora w przypadku: 1) zgłoszenia się mniejszej liczby uczestników niż liczba minimalna dla danej imprezy, która wynosi 40% zakontraktowanych miejsc w przewozie pasażerskim (...)\"}, {\"chunk_id\": \"uokik_items:uokik_b379902bd5d0b782\", \"source_id\": \"uokik_rejestr_klauzul_2865\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient nie może dochodzić odszkodowania za niewykonanie umowy od Organizatora w przypadku (…) zgłoszenia się mniejszej liczby uczestników niż liczba wymagana dla danej imprezy, która wynosi 40 % zakontraktowanych miejsc w przewozie pasażerskim i odnosi się do każdego państwa, do którego Organizator oferuje pakiet\"}]",
+   "tool_call_id": "call-aa96c224-7cfe-49b4-8340-60b6d49696c1",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_id\": \"sejm_eli_du_2024_1796_art_40\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 40. 1. Konsument, który zawarł na odległość umowę o usługi finansowe, może od niej odstąpić bez podania przyczyn, składając oświadczenie na piśmie, w terminie 14 dni od dnia zawarcia umowy lub od dnia potwierdzenia informacji, o którym mowa w art. 39 ust. 3, jeżeli jest to termin późniejszy. Termin uważa się za zachowany, jeżeli przed jego upływem oświadczenie zostało wysłane. Konsument nie ponosi kosztów związanych z odstąpieniem, z wyjąt ...\"}, {\"chunk_id\": \"uokik_items:uokik_e36b79da60a058b9\", \"source_id\": \"uokik_rejestr_klauzul_6060\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Brak wpłaty zaliczki na poczet realizacji umowy, o której mowa w Art. 7 pkt 1 ust. 1.1 przez Kupującego, brak terminowego przedstawienia przez Kupującego Sprzedającemu źródła finansowania, o którym mowa w Art. 6 pkt 1 ust. 1.2 niniejszej umowy, lub brak pełnej zapłaty za przedmiot umowy przez Kupującego w terminie określonym w Art. 7 pkt 1 ust. 1.2 niniejszej umowy, może być traktowane przez Sprzedającego za odstąpienie Kupującego od umowy\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"uokik_items:uokik_1068b7fdd6cb3aba\", \"source_id\": \"uokik_rejestr_klauzul_912\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie wykonania umowy przez Kupującego wpłacona zaliczka przepada, a jeżeli z winy Sprzedawcy umowa nie zostanie wykonana, zaliczka podlega zwrotowi\"}, {\"chunk_id\": \"uokik_items:uokik_27e1a29216e2ffb7\", \"source_id\": \"uokik_rejestr_klauzul_4081\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Rezygnacja z zamówienia skierowanego już do realizacji skutkuje przepadkiem wpłaconej zaliczki\"}]",
+   "tool_call_id": "call-b7249bfc-0f04-423b-b8ca-4597330f4767",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_fb34495d482f4fa4964be7d1",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 32\", \"zwrot płatności\", \"14 dni\", \"odstąpienie od umowy\"]}"
+     }
+    },
+    {
+     "id": "call_e8b452e9e9684c5eaa10fcc8",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"art. 32 ustawy o prawach konsumenta zwrot płatności przedsiębiorca termin 14 dni odstąpienie od umowy zaliczka\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_773ac283ae72c0c6\", \"source_id\": \"uokik_rejestr_klauzul_2619\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie rezygnacji z wycieczki bez skutecznego wezwania innej osoby (lub osób) wstępującej w miejsce Klienta oraz pozostałych osób, na rzecz których zawarto umowę, Klient będzie obciążony poniższymi kosztami; - jeżeli odstąpienie od umowy nastąpiło w terminie do 50 dni przed rozpoczęciem wycieczki, 10 % ceny, - jeżeli odstapienie od umowy nastąpiło w terminie od 49 do 35 dnia przed rozpoczęciem wycieczki, 50 % ceny, - jeżeli odstąpienie od umowy nastapiło w terminie po 35 dniu do dnia rozpoczęcia wycieczki, 100 % ceny, pomniejszonej o świadczenia przewidziane na uczestnika wycieczki za które P ...\"}, {\"chunk_id\": \"uokik_items:uokik_acd316ed58bf1e34\", \"source_id\": \"uokik_rejestr_klauzul_5310\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Odstąpienie od Umowy przez konsumenta w terminie 7 dni od zawarcia Umowy, powoduje potrącenie z wpłaconej zaliczki kwoty 900,00 PLN, tytułem kosztów związanych z opracowaniem dokumentacji, pomniejszonej o wpłatę na poczet kosztu opracowania projektu. Odstąpienie od umowy po upływie 7 dni od jej zawarcia, powoduje potrącenie ...% wartości kuchni z dokonanej przedpłaty, na poczet ceny, nie mniej jednak niż kwota 1.200,00 PLN\"}, {\"chunk_id\": \"uokik_items:uokik_889e2a33ebf8d0a8\", \"source_id\": \"uokik_rejestr_klauzul_5410\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku gdy strony uzgodnią, że wpłacona zaliczka ma charakter zadatku, odstąpienie od umowy przez Sprzedawcę zgodnie z pkt. 6 pozwala na zachowanie otrzymanego zadatku w pełnej wysokości, a odstąpienie od umowy przez klienta w myśl pkt. 7 rodzi zobowiązanie sprzedawcy do zwrotu zadatku w podwójnej wysokości. Nie dotyczy to przypadku odstąpienia od umowy przez Klienta w razie niemożliwości świadczenia (pkt. 3 ust. C). W takim przypadku, strony uzgadniają zwrot zadatku w wysokości kwoty wpłaconej\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"uokik_items:uokik_6a5909ac08efd5de\", \"source_id\": \"uokik_rejestr_klauzul_1254\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(…) zwłoka strony zobowiązanej do kupna powyżej 14 dni będzie poczytana przez stronę zobowiązaną do sprzedaży za odstąpienie od umowy, w takiej sytuacji lokal mieszkalny zostanie wystawiony na sprzedaż, zaś strona zobowiązana do kupna otrzyma zwrot wpłaconych kwot, ale - dopiero po uzyskaniu wpłat od nowego nabywcy lokalu mieszkalnego. Ponadto stawiający oświadcza, że strona zobowiązana do kupna w sytuacji odstąpienia przez nią od umowy zobowiązana będzie do ponoszenia kosztów manipulacyjnych poniesionych przez stronę zobowiązaną do sprzedaży w wysokości 5 % od kwoty już dokonanych wpłat przez ...\"}]",
+   "tool_call_id": "call_fb34495d482f4fa4964be7d1",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_32\", \"source_id\": \"sejm_eli_du_2024_1796_art_32\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 32. 1. Przedsiębiorca ma obowiązek niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania oświadczenia konsumenta o odstąpieniu od umowy, zwrócić konsumentowi wszystkie dokonane przez niego płatności, w tym koszty dostarczenia towaru. 2. Przedsiębiorca dokonuje zwrotu płatności przy użyciu takiego samego sposobu zapłaty, jakiego użył konsument, chyba że konsument wyraźnie zgodził się na inny sposób zwrotu, który nie wiąże się d ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_34\", \"source_id\": \"sejm_eli_du_2024_1796_art_34\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 34. 1. Konsument ma obowiązek zwrócić towar przedsiębiorcy lub przekazać go osobie upoważnionej przez przedsiębiorcę do odbioru niezwłocznie, jednak nie później niż 14 dni od dnia, w którym odstąpił od umowy, chyba że przedsiębiorca zaproponował, że sam odbierze towar. Do zachowania terminu wystarczy odesłanie towaru przed jego upływem. 1a. W przypadku odstąpienia od umowy o dostarczanie treści cyfrowej lub usługi cyfrowej, konsument jest  ...\"}, {\"chunk_id\": \"uokik_items:uokik_772dd1cdd023f803\", \"source_id\": \"uokik_rejestr_klauzul_513\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia przez Kupującego od Umowy Sprzedający zwróci Kupującemu wpłaconą zaliczkę w nominalnej wysokości czyli bez oprocentowania w terminie 14 dni od sprzedaży samochodu, będącego przedmiotem niniejszego zamówienia innemu Klientowi\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 27. 1. Konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może w terminie 14 dni odstąpić od niej bez podawania przyczyny i bez ponoszenia kosztów, z wyjątkiem kosztów określonych w art. 33, art. 34 ust. 2 i art. 35. 2. Jeżeli konsument zawarł umowę poza lokalem przedsiębiorstwa podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki, termin do odstąpienia o ...\"}, {\"chunk_id\": \"uokik_items:uokik_d9cfec784dfed6fd\", \"source_id\": \"uokik_rejestr_klauzul_2704\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony uzgadniają, że kupujący ma prawo do odstąpienia od niniejszej umowy bez podania przyczyn, z obowiązkiem zapłaty odstępnego w wysokości 20.000 (dwadzieścia tysięcy) złotych. W takim przypadku Sprzedający zobowiązuje się do zwrotu wpłaconych przez Kupującego zaliczek na poczet ceny sprzedaży w terminie 30 dni od daty otrzymania pisemnego zawiadomienia o odstąpieniu od umowy, przy czym sprzedający zastrzega sobie prawo pomniejszenia zwracanej kwoty o 20.000 złotych, jako odstępnego należnego od kupującego (potrącenie).&quot; albo alternatywnie &quot; Strony uzgadniają, że kupujący ma prawo ...\"}]",
+   "tool_call_id": "call_e8b452e9e9684c5eaa10fcc8",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "OŚWIADCZENIE O ODSTĄPIENIU OD UMOWY ZAWARTEJ POZA LOKALEM PRZEDSIĘBORSTWA Z ŻĄDANIEM ZWROTU ZALICZKI Z POWODU BRAKU REALIZACJI USŁUGI\n\nMiejscowość, data: ……………………………………………………\n\nKONSUMENT:\nImię i nazwisko: ……………………………………………………\nAdres zamieszkania: ……………………………………………………\nAdres e-mail: ……………………………………………………\nNumer rachunku bankowego do zwrotu płatności: ……………………………………………………\n\nPRZEDSIĘBCY:\nPełna firma: ……………………………………………………\nAdres siedziby / adres do doręczeń: ……………………………………………………\n\nINFORMACJE O UMOWIE:\nData zawarcia umowy: ……………………………………………………\nMiejsce zawarcia umowy (poza lokalem przedsiębiorstwa): ……………………………………………………\nPrzedmiot umowy (opis usługi lub towaru): ……………………………………………………\nCena umowy / wynagrodzenie: …………………………………………………… PLN\nWysokość wpłaconej zaliczki: …………………………………………………… PLN\nData wpłaty zaliczki: ……………………………………………………\n\nOŚWIADCZENIE O ODSTĄPIENIU OD UMOWY:\nNa podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.) oświadczam, że odstępuję od umowy zawartej poza lokalem przedsiębiorstwa w dniu ……………… w ………………………………………………………………\n\nOświadczenie składam w terminie 14 dni od dnia zawarcia umowy, zgodnie z art. 27 ustawy o prawach konsumenta, bez podawania przyczyny i bez ponoszenia kosztów.\n\nINFORMACJA O BRAKU REALIZACJI USŁUGI:\nZarzucam, że przedsiębiorca nie rozpoczął realizacji umowy / nie wykonał umowy w terminie umownym / nie wykonali usługi w całości (niepotrzebne skreślić). W związku z tym, zgodnie z art. 32 ustawy o prawach konsumenta, przedsiębiorca ma obowiązek zwrócić wszystkie dokonane płatności, w tym wpłaconą zaliczkę.\n\nŻĄDANIE ZWROTU ZALICZKI:\nWzywam przedsiębiorcę do zwrotu wpłaconej zaliczki w wysokości …………………………………………………… PLN (słownie: …………………………………………………… złotych) na wskazany rachunek bankowy:\n\nNumer rachunku: ……………………………………………………\nWłaściciel rachunku: ……………………………………………………\n\nZgodnie z art. 32 ust. 1 ustawy o prawach konsumenta przedsiębiorca ma obowiązek dokonać zwrotu płatności niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania niniejszego oświadczenia. Zwrot powinien nastąpić przy użyciu tego samego sposobu zapłaty, jakiego użyłem przy wpłacie zaliczki, chyba że wyraźnie zgodzę się na inny sposób zwrotu.\n\nINFORMACJA O NIEDOZWOLONYCH KLAUZULACH UMOWYCH:\nZwracam uwagę, że klauzule umowne przewidujące przepadkiem zaliczki na rzecz przedsiębiorcy w przypadku odstąpienia od umowy przez konsumenta, podczas gdy w razie niewykonania umowy przez przedsiębiorcę zaliczka podlega zwrotowi, są niedozwolone i nieważne na podstawie art. 38 ust. 1 pkt 5 ustawy o prawach konsumenta oraz zgodnie z orzecznictwem sądu Okregowego – Sądu Polubownego przy Urzędzie Ochrony Konkurencji i Konsumentów. Przedsiębiorca nie może zatrzymać zaliczki ani potrącić jakichkolwiek kosztów, skoro usługa nie została wykonana.\n\nPODSTAWA PRAWNA:\n1. Art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta – prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa w terminie 14 dni bez podawania przyczyny.\n2. Art. 32 ustawy o prawach konsumenta – obowiązek zwrotu wszystkich płatności przez przedsiębiorcę w terminie 14 dni od otrzymania oświadczenia o odstąpieniu.\n3. Art. 38 ustawy o prawach konsumenta – niedozwolone klauzule umowne.\n\nPOTWIERDZENIE ODBIORU:\nProszę o potwierdzenie otrzymania niniejszego oświadczenia w terminie 7 dni.\n\n……………………………………………………\n(podpis konsumenta)\n\nZałączniki:\n1. Dowód wpłaty zaliczki (kopia)\n2. Umowa zawarta poza lokalem przedsiębiorstwa (kopia)\n\nINFORMACJE DODATKOWE:\nNiniejsze oświadczenie należy wysłać listem poleconym za zwrotnym potwierdzeniem odbioru lub przesłać e-mailem z potwierdzeniem dostarczenia. Zachowaj dowód nadania pisma jako potwierdzenie zachowania terminu 14 dni. Termin uważa się za zachowany, jeżeli oświadczenie zostało wysłane przed upływem 14 dni od dnia zawarcia umowy.\n\nW przypadku braku zwrotu zaliczki w terminie 14 dni masz prawo dochodzić roszczeń przed sądem powszechnym lub skargę do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "OŚWIADCZENIE O ODSTĄPIENIU OD UMOWY ZAWARTEJ POZA LOKALEM PRZEDSIĘBORSTWA Z ŻĄDANIEM ZWROTU ZALICZKI Z POWODU BRAKU REALIZACJI USŁUGI\n\nMiejscowość, data: ……………………………………………………\n\nKONSUMENT:\nImię i nazwisko: ……………………………………………………\nAdres zamieszkania: ……………………………………………………\nAdres e-mail: ……………………………………………………\nNumer rachunku bankowego do zwrotu płatności: ……………………………………………………\n\nPRZEDSIĘBCY:\nPełna firma: ……………………………………………………\nAdres siedziby / adres do doręczeń: ……………………………………………………\n\nINFORMACJE O UMOWIE:\nData zawarcia umowy: ……………………………………………………\nMiejsce zawarcia umowy (poza lokalem przedsiębiorstwa): ……………………………………………………\nPrzedmiot umowy (opis usługi lub towaru): ……………………………………………………\nCena umowy / wynagrodzenie: …………………………………………………… PLN\nWysokość wpłaconej zaliczki: …………………………………………………… PLN\nData wpłaty zaliczki: ……………………………………………………\n\nOŚWIADCZENIE O ODSTĄPIENIU OD UMOWY:\nNa podstawie art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.) oświadczam, że odstępuję od umowy zawartej poza lokalem przedsiębiorstwa w dniu ……………… w ………………………………………………………………\n\nOświadczenie składam w terminie 14 dni od dnia zawarcia umowy, zgodnie z art. 27 ustawy o prawach konsumenta, bez podawania przyczyny i bez ponoszenia kosztów.\n\nINFORMACJA O BRAKU REALIZACJI USŁUGI:\nZarzucam, że przedsiębiorca nie rozpoczął realizacji umowy / nie wykonał umowy w terminie umownym / nie wykonali usługi w całości (niepotrzebne skreślić). W związku z tym, zgodnie z art. 32 ustawy o prawach konsumenta, przedsiębiorca ma obowiązek zwrócić wszystkie dokonane płatności, w tym wpłaconą zaliczkę.\n\nŻĄDANIE ZWROTU ZALICZKI:\nWzywam przedsiębiorcę do zwrotu wpłaconej zaliczki w wysokości …………………………………………………… PLN (słownie: …………………………………………………… złotych) na wskazany rachunek bankowy:\n\nNumer rachunku: ……………………………………………………\nWłaściciel rachunku: ……………………………………………………\n\nZgodnie z art. 32 ust. 1 ustawy o prawach konsumenta przedsiębiorca ma obowiązek dokonać zwrotu płatności niezwłocznie, nie później niż w terminie 14 dni od dnia otrzymania niniejszego oświadczenia. Zwrot powinien nastąpić przy użyciu tego samego sposobu zapłaty, jakiego użyłem przy wpłacie zaliczki, chyba że wyraźnie zgodzę się na inny sposób zwrotu.\n\nINFORMACJA O NIEDOZWOLONYCH KLAUZULACH UMOWYCH:\nZwracam uwagę, że klauzule umowne przewidujące przepadkiem zaliczki na rzecz przedsiębiorcy w przypadku odstąpienia od umowy przez konsumenta, podczas gdy w razie niewykonania umowy przez przedsiębiorcę zaliczka podlega zwrotowi, są niedozwolone i nieważne na podstawie art. 38 ust. 1 pkt 5 ustawy o prawach konsumenta oraz zgodnie z orzecznictwem sądu Okregowego – Sądu Polubownego przy Urzędzie Ochrony Konkurencji i Konsumentów. Przedsiębiorca nie może zatrzymać zaliczki ani potrącić jakichkolwiek kosztów, skoro usługa nie została wykonana.\n\nPODSTAWA PRAWNA:\n1. Art. 27 ustawy z dnia 30 maja 2014 r. o prawach konsumenta – prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa w terminie 14 dni bez podawania przyczyny.\n2. Art. 32 ustawy o prawach konsumenta – obowiązek zwrotu wszystkich płatności przez przedsiębiorcę w terminie 14 dni od otrzymania oświadczenia o odstąpieniu.\n3. Art. 38 ustawy o prawach konsumenta – niedozwolone klauzule umowne.\n\nPOTWIERDZENIE ODBIORU:\nProszę o potwierdzenie otrzymania niniejszego oświadczenia w terminie 7 dni.\n\n……………………………………………………\n(podpis konsumenta)\n\nZałączniki:\n1. Dowód wpłaty zaliczki (kopia)\n2. Umowa zawarta poza lokalem przedsiębiorstwa (kopia)\n\nINFORMACJE DODATKOWE:\nNiniejsze oświadczenie należy wysłać listem poleconym za zwrotnym potwierdzeniem odbioru lub przesłać e-mailem z potwierdzeniem dostarczenia. Zachowaj dowód nadania pisma jako potwierdzenie zachowania terminu 14 dni. Termin uważa się za zachowany, jeżeli oświadczenie zostało wysłane przed upływem 14 dni od dnia zawarcia umowy.\n\nW przypadku braku zwrotu zaliczki w terminie 14 dni masz prawo dochodzić roszczeń przed sądem powszechnym lub skargę do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Podpisałem umowę u siebie w domu i wpłaciłem zaliczkę, ale usługa nie została wykonana. Chcę się od umowy odstąpić i odzyskać swoje pieniądze."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Przed dwa tygodnie agent przyszedł do mnie do mieszkania i podpisałem umowę na remont łazienki, wpłacając zaliczkę 3000 zł. Do dziś firma nie zaczął prac ani się nie zgłasza. Chcę pisać do nich oficjalnie, żeby zwrócili mi zaliczkę, bo minął termin i nic nie zrobili."
+  }
+ ]
+}

@@ -1,0 +1,292 @@
+{
+ "run": 62,
+ "hint": "Faktoring z odstąpieniem od umowy przy przekroczeniu limitu windykacji",
+ "scenario": "Faktoring z odstąpieniem od umowy przy przekroczeniu limitu windykacji",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_faktoringu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a factoring contract (umowa_faktoringu) with a specific scenario direction: \"Faktoring z odstąpieniem od umowy przy przekroczeniu limitu windykacji\" (Factoring with withdrawal from the contract upon exceeding the debt collection limit).\n\nLet me start by reading the base template for factoring contracts, then search for relevant provisions related to withdrawal/termination upon exceeding collection limits.",
+   "tool_calls": [
+    {
+     "id": "call-07a0fab0-f8f0-49ff-8571-ac84ba43fba3",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"faktoring z odstąpieniem od umowy przy przekroczeniu limitu windykacji\", \"doc_type\": \"umowa_faktoringu\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_faktoringu\", \"kind\": \"structural_template\", \"text\": \"# Umowa faktoringu\\nUmowa faktoringu w Polsce to kontrakt, na podstawie którego faktorant (przedsiębiorca posiadający wierzytelności handlowe) przelewa je na faktora (instytucję finansową lub spółkę faktoringową), a faktor w zamian finansuje faktoranta, wypłacając mu zaliczkę jeszcze przed terminem płatności od dłużnika. Podstawą prawną przelewu wierzytelności jest art. 509 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), który stanowi, że wierzyciel może bez zgody dłużnika przenieść wierzytelność na osobę trzecią, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu albo właściwości zobowiązania.\\n\\nFaktoring jako instrument finansowy nie jest wprost uregulowany w polskim Kodeksie cywilnym jako umowa nazwana — jest umową nienazwaną skonstruowaną na podstawie zasady swobody umów z art. 353[1] KC. Polska Konwencja UNIDROIT o faktoringu międzynarodowym (Ottawa 1988) dostarcza definicji przyjętych w praktyce rynkowej, jednak w obrocie krajowym jej stosowanie ma charakter pomocniczy. Nadzór nad instytucjami bankowymi świadczącymi usługi faktoringowe sprawuje Komisja Nadzoru Finansowego (KNF), natomiast niebankowe spółki faktoringowe prowadzą działalność na podstawie ustawy Prawo przedsiębiorców z dnia 6 marca 2018 r.\\n\\nW ramach umowy faktoringu faktor kupuje wierzytelności faktoranta, zwykle jeszcze niewymagalne, i wypłaca mu z góry określony procent ich wartości — nazywany zaliczką lub finansowaniem — zazwyczaj w granicach 70–90% wartości faktury brutto. Po uregulowaniu należności przez dłużnika faktor rozlicza pozostałą część, pomniejszoną o swoją prowizję i odsetki. Wynagrodzenie faktora składa się co do zasady z prowizji faktoringowej (procent od wartości przejętych faktur) oraz odsetek od udostępnionego finansowania, przy czym odsetki nie mogą przekraczać odsetek maksymalnych wynikających z art. 359 § 2[1] KC.\\n\\nPolskie przedsiębiorstwa najczęściej korzystają z faktoringu krajowego, jednak usługi faktoringowe obejmują również wierzytelności z eksportu. Z punktu widzenia rachunkowości faktoranta, cesja wierzytelności oznacza wyłączenie ich z bilansu (derecognition) w przypadku faktoringu pełnego — jest to istotne dla wskaźników płynności i zadłużenia regulowanych przez ustawę z dnia 29 września 1994 r. o rachunkowości (Dz.U. 1994 nr 121 poz. 591 ze zm.), która określa zasady wyceny należności i ujmowania ich w sprawozdaniach finansowych.\\n\\nFaktoring dzieli się przede wszystkim na pełny (właściwy, bez regresu) i niepełny (z regresem). W faktoringu pełnym faktor przejmuje ryzyko niewypłacalności dłużnika — w razie braku zapłaty to faktor ponosi stratę. W faktoringu niepełnym faktorant odpowiada za wypłacalność dłużnika i w razie jego niewypłacalności zobowiązany jest do odkupu wierzytelności. Wybór rodzaju faktoringu determinuje cenę usługi i rozkład ryzyka między stronami.\\n\\nUmowa faktoringu jest instrumentem zarządzania płynnością finansową przedsiębiorstwa — pozwala przekształcić należności handlowe w gotówkę bez oczekiwania na termin płatności od kontrahentów. Szczególne znaczenie ma w branżach o długich terminach płatności, takich jak budownictwo, handel hurtowy czy przemysł spożywczy, gdzie zatory płatnicze stanowią realne zagrożenie dla bieżącej działalności zgodnie z regulacjami ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych.\\n\\nUmowa faktoringu w Polsce jest potrzebna, gdy przedsiębiorca posiada wymagalne lub niewymagalne wierzytelności handlowe wobec swoich kontrahentów i chce zamienić je na gotówkę bez oczekiwania na termin płatności.\\n\\nProblemy z płynnością finansową. Gdy firma sprzedaje towary lub usługi z odroczonym terminem płatności (30–120 dni), a sama musi regulować zobowiązania wobec dostawców lub ZUS i KAS na bieżąco, faktoring pozwala sfinansować tę lukę płynnościową bez zaciągania kredytu obrotowego.\\n\\nSezonowość i intensywny wzrost sprzedaży. Przedsiębiorstwa, których sprzedaż koncentruje się w określonych miesiącach roku lub które dynamicznie się rozwijają, mogą potrzebować elastycznego finansowania adekwatnego do wolumenu wystawianych faktur. Faktoring automatycznie skaluje finansowanie wraz ze sprzedażą.\\n\\nOchrona przed ryzykiem dłużnika. Przy faktoringu pełnym (bez regresu) faktorant przenosi na faktora ryzyko niewypłacalności odbiorcy. Rozwiązanie szczególnie wartościowe przy wejściu na nowe rynki lub współpracy z nieznanymi kontrahentami.\\n\\nUproszczenie zarządzania należnościami. Faktor przejmuje obsługę wierzytelności — monitorowanie terminów, wysyłanie wezwań do zapłaty i prowadzenie windykacji. Dzięki temu faktorant może skupić się na sprzedaży i produkcji zamiast śledzenia płatności.\\n\\nAlternatywa dla kredytu bankowego. Przedsiębiorcy, którym banki odmawiają kredytu obrotowego lub którzy wolą nie obciążać zdolności kredytowej, korzystają z faktoringu, bo finansowanie opiera się na jakości portfela wierzytelności, nie wyłącznie na kondycji finansowej faktoranta.\\n\\nWspółpraca z dużymi sieciami handlowymi. Dostawcy dużych sieci handlowych i przemysłowych, którzy muszą akceptować terminy płatności 60–90 dni, stosują faktoring odwrotny (reverse factoring) lub tradycyjny, aby utrzymać bieżącą płynność i dotrzymać własnych zobowiązań.\\n\\nEksport. Eksporterzy korzystają z faktoringu eksportowego, który łączy finansowanie z ubezpieczeniem ryzyka dłużnika zagranicznego, co jest szczególnie istotne wobec trudności z dochodzeniem roszczeń poza granicami Polski przed sądem właściwym.\\n\\nUmowa faktoringu w Polsce powinna zawierać elementy zapewniające skuteczność cesji wierzytelności i precyzyjne warunki finansowania, oparte na art. 509 Kodeksu cywilnego oraz zasadach swobody umów z art. 353[1] KC.\\n\\nOznaczenie stron. Pełne dane faktora i faktoranta: firma, adres, NIP, REGON, numer KRS lub wpis CEIDG. Dla banku — numer zezwolenia wydanego przez Komisję Nadzoru Finansowego (KNF). Wskazanie organu reprezentacji zgodnie z Krajowym Rejestrem Sądowym (KRS) lub odpisem z CEIDG.\\n\\nOkreślenie wierzytelności. Dokładny opis zbywanych wierzytelności: rodzaj (z tytułu sprzedaży towarów lub usług), lista odbiorców objętych faktoringiem (dłużnicy faktoringowi), waluta, maksymalny termin płatności (np. do 90 lub 120 dni), rynek (krajowy lub eksport). Oświadczenie faktoranta, że wierzytelności istnieją, są bezsporne i nieobciążone zgodnie z wymogami art. 509 KC.\\n\\nLimit finansowania. Łączna kwota finansowania w ramach umowy ramowej (limit globalny). Zasady ustalania sublimitów na poszczególnych dłużników (odbiorcę faktoringowego). Warunki podwyższenia lub obniżenia limitu w zależności od jakości portfela wierzytelności.\\n\\nZaliczka i rozliczenie. Procentowa zaliczka wypłacana po akceptacji faktury przez faktora (typowo 70–90%). Termin wypłaty zaliczki — standardowo 1–3 dni robocze. Zasady rozliczenia reszty ceny (retentat) po inkasie przez faktora lub po upływie okresu finansowania. Przy faktoringu z regresem — termin i warunki zwrotu zaliczki przez faktoranta.\\n\\nWynagrodzenie faktora. Prowizja faktoringowa (procent od wartości faktury lub kwoty finansowania) oraz odsetki dzienne od kwoty zaliczki. Opłaty dodatkowe: opłata przygotowawcza, za monitoring dłużnika, administracyjna. Ograniczenie odsetek do pułapu maksymalnego z art. 359 § 2[1] KC. forms-legal.com zaleca transparentne wyliczenie całkowitego kosztu finansowania.\\n\\nRodzaj faktoringu i ryzyko. Wyraźne wskazanie, czy umowa jest faktoringiem pełnym (bez regresu) czy niepełnym (z regresem), co determinuje rozkład ryzyka niewypłacalności dłużnika. Przy faktoringu pełnym — przeniesienie ryzyka kredytowego na faktora z chwilą skutecznej cesji. Przy faktoringu z regresem — obowiązek odkupu wierzytelności przez faktoranta w razie nieuiszczenia zapłaty przez dłużnika w ustalonym terminie.\\n\\nZawiadomienie dłużnika. Obowiązek powiadomienia dłużnika o cesji (art. 512 KC). Tryb zawiadomienia — przez faktoranta, przez faktora lub łącznie. Wskazanie numeru rachunku bankowego faktora na fakturach i w zawiadomieniu. Zakaz podwójnej cesji tej samej wierzytelności.\\n\\nOchrona danych osobowych i RODO. Obowiązki wynikające z rozporządzenia (UE) 2016/679 (RODO) oraz ustawy o ochronie danych osobowych w zakresie przetwarzania danych osobowych dłużników. Nadzór sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nCzas trwania, wypowiedzenie i postanowienia końcowe. Czas trwania umowy ramowej, warunki i termin wypowiedzenia, przesłanki wypowiedzenia ze skutkiem natychmiastowym (w szczególności przy pogorszeniu sytuacji finansowej faktoranta). Zapis na sąd właściwy dla siedziby faktora lub klauzula arbitrażowa. Obowiązek formy pisemnej dla zmian umowy.\\n\\nUmowa faktoringu w Polsce wymaga starannego wypełnienia poszczególnych pól, aby cesja wierzytelności była skuteczna prawnie i finansowo bezpieczna dla obu stron.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane faktora (firma, adres, NIP, KRS, ewentualnie numer licencji KNF) i faktoranta (firma, adres, NIP, numer KRS lub CEIDG). Sprawdź, czy faktor figuruje w rejestrze podmiotów nadzorowanych przez Komisję Nadzoru Finansowego (KNF) lub jest spółką wpisaną do KRS.\\n\\nKrok 2 — opisz wierzytelności. Wskaż precyzyjnie rodzaj wierzytelności (z tytułu sprzedaży towarów, usług), nazwy dłużników (odbiorców), walutę i maksymalny termin płatności. Pamiętaj, że zgodnie z art. 509 Kodeksu cywilnego cesja obejmuje tylko wierzytelności istniejące lub przyszłe ściśle oznaczone. Dołącz lub wskaż listę odbiorców zaakceptowanych przez faktora.\\n\\nKrok 3 — ustal limit i zaliczkę. Wpisz globalny limit finansowania w złotych (PLN) oraz procentową zaliczkę (np. 80% brutto). Limit powinien odpowiadać szacowanemu miesięcznemu obrotowi wierzytelności. Zbyt niski limit ogranicza korzyści faktoringu, zbyt wysoki — podnosi ryzyko faktora.\\n\\nKrok 4 — określ wynagrodzenie faktora. Wpisz prowizję (np. 1,0–2,0% wartości faktur) i stawkę odsetek dziennych (np. 0,03–0,05% od kwoty zaliczki za dzień finansowania). Sprawdź, czy łączny koszt nie przekracza odsetek maksymalnych z art. 359 § 2[1] KC.\\n\\nKrok 5 — wybierz rodzaj faktoringu. Zdecyduj, czy faktor przejmuje ryzyko kredytowe dłużnika (faktoring pełny) czy nie (faktoring z regresem). Faktoring pełny jest droższy, ale chroni faktoranta przed stratą w razie upadłości odbiorcy.\\n\\nKrok 6 — zaplanuj zawiadomienie dłużników. Wskaż, kto i w jakiej formie informuje każdego dłużnika o cesji. Powiadomienie jest kluczowe — do momentu jego dokonania dłużnik może skutecznie zapłacić faktorantowi i zwolnić się z długu (art. 512 KC). Zadbaj, aby na wszystkich przyszłych fakturach widniał rachunek bankowy faktora.\\n\\nKrok 7 — wpisz czas trwania i zasady wypowiedzenia. Umowy faktoringowe zawiera się zazwyczaj na czas nieokreślony z wypowiedzeniem 1–3-miesięcznym lub na rok z możliwością przedłużenia. Wskaż przesłanki wypowiedzenia natychmiastowego.\\n\\nKrok 8 — podpisz i rozlicz. Każda ze stron podpisuje umowę w miejscowości i dacie zawarcia. Dla spółek podpis składają osoby uprawnione według KRS. Dopuszczalny jest kwalifikowany podpis elektroniczny (art. 78[1] KC). Po podpisaniu faktor weryfikuje wierzytelności i uruchamia finansowanie zgodnie z regulaminem faktoringowym.\\n\\nUmowa faktoringu w Polsce podlega kilku aktom prawnym, które regulują zarówno skuteczność cesji wierzytelności, jak i wymogi rachunkowe i nadzorcze.\\n\\nCesja wierzytelności — art. 509–518 Kodeksu cywilnego. Podstawą prawną faktoringu jest przelew wierzytelności z art. 509 KC. Wierzytelność przechodzi na nabywcę (faktora) z chwilą zawarcia umowy przelewu, wraz ze wszelkimi związanymi z nią prawami — odsetkami, zabezpieczeniami, prawem do odszkodowania. Wyjątki: wierzytelności niezbywalne z mocy prawa lub umowy (klauzula zakazu cesji). Zawiadomienie dłużnika (art. 512 KC) nie jest warunkiem skuteczności cesji między stronami, lecz decyduje o tym, czy dłużnik może skutecznie spełnić świadczenie na rzecz dotychczasowego wierzyciela.\\n\\nSwoboda umów — art. 353[1] KC. Faktoring jest umową nienazwaną. Strony kształtują jej treść swobodnie, z zachowaniem granic wyznaczonych przez naturę stosunku, ustawę i zasady współżycia społecznego. Przepisy o zleceniu (art. 750 KC) stosuje się odpowiednio do świadczenia usług faktoringowych nieobjętych cesją.\\n\\nOdsetki maksymalne — art. 359 KC. Odsetki za korzystanie z finansowania faktoringowego nie mogą przekraczać dwukrotności odsetek ustawowych (art. 359 § 2[1] KC). Przekroczenie tego limitu skutkuje ich obniżeniem do maksimum z mocy prawa.\\n\\nUstawa o rachunkowości — 29 września 1994 r. Faktorant prowadzący pełną księgowość lub uproszczoną ewidencję zobowiązany jest do prawidłowego ujmowania cesji wierzytelności w księgach rachunkowych. Ustawa o rachunkowości reguluje wycenę należności, tworzenie odpisów aktualizujących oraz ujawnienia w sprawozdaniu finansowym. Przy faktoringu pełnym wierzytelności wyłącza się z bilansu faktoranta, przy faktoringu z regresem — mogą pozostać w aktywach z jednoczesnym ujęciem zobowiązania.\\n\\nPrzeciwdziałanie nadmiernym opóźnieniom — ustawa z dnia 8 marca 2013 r. Ustawa chroni faktoranta jako wierzyciela. Jeżeli faktor jest instytucją finansową, do rozliczeń między faktorantem a faktorem stosuje się przepisy o terminach zapłaty w transakcjach handlowych, co oznacza prawo do odsetek ustawowych za opóźnienie i rekompensaty za koszty odzyskiwania.\\n\\nNadzór finansowy — Komisja Nadzoru Finansowego (KNF). Banki świadczące usługi faktoringowe podlegają nadzorowi KNF. Spółki faktoringowe niebędące bankami działają na podstawie ustawy Prawo przedsiębiorców i nie wymagają zezwolenia KNF, chyba że prowadzą działalność objętą ustawą o usługach płatniczych.\\n\\nOchrona danych osobowych — RODO i u.o.d.o. Dane osobowe dłużników (osób fizycznych prowadzących działalność) przetwarzane w ramach faktoringu podlegają rozporządzeniu (UE) 2016/679 (RODO) oraz ustawie z dnia 10 maja 2018 r. o ochronie danych osobowych, nadzorowanej przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO). Podstawą przetwarzania jest prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO) lub wykonanie umowy.\\n\\nUmowa faktoringu w Polsce bywa wadliwa z powodu poniższych błędów, których należy unikać przy jej sporządzaniu.\\n\\nBłąd 1 — brak zawiadomienia dłużnika o cesji. Pominięcie powiadomienia dłużnika (art. 512 KC) powoduje, że dłużnik może skutecznie zapłacić faktorantowi (pierwotnemu wierzycielowi), a faktor straci możliwość dochodzenia wierzytelności. Zalecenie: wskaż w umowie wyraźnie, kto i w jakim terminie zawiadamia dłużnika, i zadbaj, aby każda faktura oznaczona była rachunkiem faktora.\\n\\nBłąd 2 — nieprecyzyjne określenie zbywanych wierzytelności. Ogólne sformułowanie zakresu wierzytelności bez wskazania dłużników, terminów i kwot może podważyć skuteczność cesji. Zalecenie: opisz wierzytelności jak najdokładniej, dołącz listę zaakceptowanych dłużników i określ parametry każdej faktury kwalifikującej się do faktoringu.\\n\\nBłąd 3 — pominięcie klauzuli zakazu podwójnej cesji. Przelanie tej samej wierzytelności na dwa podmioty rodzi spór o pierwszeństwo i naraża faktoranta na odpowiedzialność. Zalecenie: zamieść w umowie wyraźny zakaz dalszej cesji tych samych wierzytelności i zobowiązanie faktoranta do złożenia oświadczenia o braku obciążeń.\\n\\nBłąd 4 — przekroczenie odsetek maksymalnych. Odsetki faktoringowe przekraczające dwukrotność odsetek ustawowych (art. 359 § 2[1] KC) są z mocy prawa nieskuteczne powyżej tego limitu. Zalecenie: zweryfikuj, czy łączny koszt finansowania mieści się w ustawowym limicie, uwzględniając zarówno prowizję, jak i odsetki.\\n\\nBłąd 5 — brak uregulowania rodzaju faktoringu i konsekwencji regresu. Niewyraźne wskazanie, czy umowa jest pełna czy z regresem, rodzi spory w razie niewypłacalności dłużnika. Zalecenie: wprost wskaż rodzaj faktoringu i szczegółowe zasady regresu — termin, w jakim faktorant musi odkupić wierzytelność, oraz skutki finansowe.\\n\\nBłąd 6 — brak zgodności z ustawą o rachunkowości. Faktorant prowadzący pełną księgowość musi prawidłowo ująć cesję w księgach. Błędne ujęcie skutkuje zniekształceniem bilansu i sprawozdania finansowego kontrolowanego przez biegłego rewidenta. Zalecenie: skonsultuj z biurem rachunkowym lub głównym księgowym sposób ujęcia faktoringu zgodnie z ustawą o rachunkowości z 29 września 1994 r.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-faktoringu (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-07a0fab0-f8f0-49ff-8571-ac84ba43fba3",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_c9a4c9f1d8ef4cfdaa3386f1",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odstąpienie od umowy faktoringu przesłanki wypowiedzenia limit windykacji niewypłacalność dłużników\"}"
+     }
+    },
+    {
+     "id": "call_96575a41f7e94b6c96f73b2f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"odstąpienie od umowy\", \"limit windykacji\", \"faktoring\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_752775512c5b1c31\", \"source_id\": \"uokik_rejestr_klauzul_6688\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Bank może wypowiedzieć umowę (…) w przypadku (…) niespłacenia należności wymagalnych (…).\"}, {\"chunk_id\": \"uokik_items:uokik_8d0d70af0268830f\", \"source_id\": \"uokik_rejestr_klauzul_6349\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(1) W przypadku wystąpienia zadłużenia w spłacie należności wynikających z Umowy zawartej z Bankiem, Bank może prowadzić działania windykacyjne - jako działania własne lub zlecone zewnętrznej firmie windykacyjnej. (…). W przypadku działań prowadzonych przez zewnętrzną firmę windykacyjną opłaty obciążające KREDYTOBIORCĘ/POŻYCZKOBIORCĘ w związku z windykacją należności dla pojedyńczej Umowy nie mogą przekroczyć 15 kwoty wymagalnej należności Banku z tytułu zleconej do windykacji firmie windykacyjnej Umowy\"}, {\"chunk_id\": \"uokik_items:uokik_b10ff5e7fb02df0c\", \"source_id\": \"uokik_rejestr_klauzul_6170\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wypowiedzenie lub odstąpienie przez Zamawiającego stanie się skuteczne pod warunkiem, że przed jego dokonaniem Zamawiający nie uzyskał od Pośrednika danych osoby (bądź podmiotu), która w ciągu 12 miesięcy następujących po dacie złożenia Pośrednikowi oświadczenia o wypowiedzeniu bądź odstąpieniu od niniejszej umowy zawarła z Zamawiającym umowę przedwstępną, zobowiązującą bądź rozporządzającą przenoszącą prawa do przedmiotowej Nieruchomości; warunek ten - w razie ziszczenia się - będzie mieć moc wsteczną\"}, {\"chunk_id\": \"uokik_items:uokik_4160cd853b07b9b8\", \"source_id\": \"uokik_rejestr_klauzul_1390\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Nabywca ma prawo odstąpić od umowy bez zachowania okresu wypowiedzenia w przypadku opóźnienia w wykonaniu przedmiotu umowy wyższego niż 120 dni. (...) zwróci Nabywcy wniesione przez nich kwoty w wysokości nominalnej, z zastrzeżeniem potrąceń opisanych w ust. 5 w terminie 60 dni od rozwiązania umowy.\"}, {\"chunk_id\": \"uokik_items:uokik_53e01f2b6131d9be\", \"source_id\": \"uokik_rejestr_klauzul_1005\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Kupujący ma prawo odstąpienia od umowy z przyczyn leżących po ich stronie, kiedy zostało złożone pisemne oświadczenie o wypowiedzeniu. Zwrot wpłaconych pieniędzy nastąpi w rozliczeniu nominalnym, po podpisaniu nowej umowy sprzedaży na przedmiotowy lokal. Bądź w nieprzekraczalnym terminie 3 miesięcy po wypowiedzeniu\"}]",
+   "tool_call_id": "call_c9a4c9f1d8ef4cfdaa3386f1",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_773ac283ae72c0c6\", \"source_id\": \"uokik_rejestr_klauzul_2619\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie rezygnacji z wycieczki bez skutecznego wezwania innej osoby (lub osób) wstępującej w miejsce Klienta oraz pozostałych osób, na rzecz których zawarto umowę, Klient będzie obciążony poniższymi kosztami; - jeżeli odstąpienie od umowy nastąpiło w terminie do 50 dni przed rozpoczęciem wycieczki, 10 % ceny, - jeżeli odstapienie od umowy nastąpiło w terminie od 49 do 35 dnia przed rozpoczęciem wycieczki, 50 % ceny, - jeżeli odstąpienie od umowy nastapiło w terminie po 35 dniu do dnia rozpoczęcia wycieczki, 100 % ceny, pomniejszonej o świadczenia przewidziane na uczestnika wycieczki za które P ...\"}, {\"chunk_id\": \"uokik_items:uokik_acd316ed58bf1e34\", \"source_id\": \"uokik_rejestr_klauzul_5310\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Odstąpienie od Umowy przez konsumenta w terminie 7 dni od zawarcia Umowy, powoduje potrącenie z wpłaconej zaliczki kwoty 900,00 PLN, tytułem kosztów związanych z opracowaniem dokumentacji, pomniejszonej o wpłatę na poczet kosztu opracowania projektu. Odstąpienie od umowy po upływie 7 dni od jej zawarcia, powoduje potrącenie ...% wartości kuchni z dokonanej przedpłaty, na poczet ceny, nie mniej jednak niż kwota 1.200,00 PLN\"}, {\"chunk_id\": \"uokik_items:uokik_889e2a33ebf8d0a8\", \"source_id\": \"uokik_rejestr_klauzul_5410\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku gdy strony uzgodnią, że wpłacona zaliczka ma charakter zadatku, odstąpienie od umowy przez Sprzedawcę zgodnie z pkt. 6 pozwala na zachowanie otrzymanego zadatku w pełnej wysokości, a odstąpienie od umowy przez klienta w myśl pkt. 7 rodzi zobowiązanie sprzedawcy do zwrotu zadatku w podwójnej wysokości. Nie dotyczy to przypadku odstąpienia od umowy przez Klienta w razie niemożliwości świadczenia (pkt. 3 ust. C). W takim przypadku, strony uzgadniają zwrot zadatku w wysokości kwoty wpłaconej\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_77\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 77. § 1. Uzupełnienie lub zmiana umowy wymaga zachowania takiej formy, jaką ustawa lub strony przewidziały w celu jej zawarcia. § 2. Jeżeli umowa została zawarta w formie pisemnej, dokumentowej albo elektronicznej, jej rozwiązanie za zgodą obu stron, jak również odstąpienie od niej albo jej wypowiedzenie wymaga zachowania formy dokumentowej, chyba że ustawa lub umowa zastrzega inną formę. § 3. Jeżeli umowa została zawarta w innej formie szczegól ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_812\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 812. § 1. (uchylony) § 2. (uchylony) § 3. (uchylony) § 4. Jeżeli umowa ubezpieczenia jest zawarta na okres dłuższy niż 6 miesięcy, ubezpieczający ma prawo odstąpienia od umowy ubezpieczenia w terminie 30 dni, a w przypadku gdy ubezpieczający jest przedsiębiorcą - w terminie 7 dni od dnia zawarcia umowy. Jeżeli najpóźniej w chwili zawarcia umowy ubezpieczyciel nie poinformował ubezpieczającego będącego konsumentem o prawie odstąpienia od umowy, t ...\"}]",
+   "tool_call_id": "call_96575a41f7e94b6c96f73b2f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "The search results don't directly address the specific scenario of \"faktoring z odstąpieniem od umowy przy przekroczeniu limitu windykacji\" (factoring with withdrawal from contract upon exceeding debt collection limit). Let me search more specifically for factoring-related provisions about withdrawal/termination based on collection limits or debt collection thresholds.",
+   "tool_calls": [
+    {
+     "id": "call-73078c5d-cca3-4b0b-ab17-e4b1eea8280d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring limit windykacji prog windykacyjny odsetki odsetki za opóźnienie windykacja dłużnika\"}"
+     }
+    },
+    {
+     "id": "call-b1b517db-d062-4368-9059-204c4038d7b6",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"windykacja\", \"faktoring\", \"prog windykacyjny\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_481\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 481. § 1. Jeżeli dłużnik opóźnia się ze spełnieniem świadczenia pieniężnego, wierzyciel może żądać odsetek za czas opóźnienia, chociażby nie poniósł żadnej szkody i chociażby opóźnienie było następstwem okoliczności, za które dłużnik odpowiedzialności nie ponosi. § 2. Jeżeli stopa odsetek za opóźnienie nie była oznaczona, należą się odsetki ustawowe za opóźnienie w wysokości równej sumie stopy referencyjnej Narodowego Banku Polskiego i 5,5 punkt ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_7\", \"source_id\": \"sejm_eli_du_2023_1790_art_7\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 7. 1. W transakcjach handlowych - z wyłączeniem transakcji, w których dłużnikiem jest podmiot publiczny - wierzycielowi, bez wezwania, przysługują odsetki ustawowe za opóźnienie w transakcjach handlowych, chyba że strony uzgodniły wyższe odsetki, za okres od dnia wymagalności świadczenia pieniężnego do dnia zapłaty, jeżeli są spełnione łącznie następujące warunki: 1) wierzyciel spełnił swoje świadczenie; 2) wierzyciel nie otrzymał zapłaty w terminie okr ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0273_statute_6523fd137812a44b\", \"source_id\": \"sejm_eli_du_2024_1061_art_481\", \"source_type\": \"statute\", \"top_category\": \"penalty_or_interest\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli wysokość odsetek za opóźnienie przekracza wysokość odsetek maksymalnych za opóźnienie, należą się odsetki maksymalne za opóźnienie. § 2 3 . Postanowienia umowne nie mogą wyłączać ani ograniczać przepisów o odsetkach maksymalnych za opóźnienie, także w przypadku dokonania wyboru prawa obcego. W takim przypadku stosuje się przepisy ustawy. § 2 4 . Minister Sprawiedliwości ogłasza, w drodze obwieszczenia, w Dzienniku Urzędowym Rzeczypospolitej Polskiej „Monitor Polski”, wysokość odsetek ustawowych za opóźnienie. § 3. W razie zwłoki dłużnika wierzyciel może nadto żądać naprawienia szkody na ...\"}, {\"chunk_id\": \"uokik_items:uokik_2849329fd4544455\", \"source_id\": \"uokik_rejestr_klauzul_1422\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku jeżli Dłużnik nie zapłaci prawidłowo pełnych 2 rat wg aktualnego Kalendarza rat lub w przypadku, jeśli Dłużnik zalega z zapłatą raty miesięcznej powyżej 30 dni lub w przypadku, jeżli Dłużnik zalega z zapłatą innego zobowiązania pieniężnego wg niniejszej umowy powyżej 30 dni: a) Dłużnik poza odsetkami wymienionymi w art. 12 ust. 12.1 zobowiązany jest do zapłaty dodatkowych odsetek za opóźnienie w wysokości 50% wysokości pożyczki (wg art. 1 ust. 1.1) i wynagrodzenia umownego za udzielenie pożyczki (wg art. 5 ust. 5.1.)\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_8\", \"source_id\": \"sejm_eli_du_2023_1790_art_8\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 8. 1. W transakcjach handlowych, w których dłużnikiem jest podmiot publiczny, wierzycielowi, bez wezwania, przysługują odsetki ustawowe za opóźnienie w transakcjach handlowych, za okres od dnia wymagalności świadczenia pieniężnego do dnia zapłaty, jeżeli są spełnione łącznie następujące warunki: 1) wierzyciel spełnił swoje świadczenie; 2) wierzyciel nie otrzymał zapłaty w terminie określonym w umowie. 2. Termin zapłaty określony w umowie nie może przekr ...\"}]",
+   "tool_call_id": "call-73078c5d-cca3-4b0b-ab17-e4b1eea8280d",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_5a37a76e323d5c4c\", \"source_id\": \"uokik_rejestr_klauzul_7428\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony ustalają, iż w przypadku powstania zaległości płatniczych pomiędzy Zamawiającym a Pośrednikiem windykacja należności zostanie przekazana do współpracującej z Pośrednikiem Kancelarii Radcy Prawnego (...), a koszty tego postępowania obciążają Zamawiającego\"}]",
+   "tool_call_id": "call-b1b517db-d062-4368-9059-204c4038d7b6",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam faktoringu dla mojej firmy, ale martwię się, co się stanie, jeśli windykacja przekroczy ustalony limit. Czy mogę mieć umowę, która pozwoli mi od niej odstąpić w takiej sytuacji?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam firmę produkcyjną i chcę skorzystać z faktoringu na faktury od kontrahentów, którzy często opóźniają płatności. Ustaliliśmy limit windykacji na 500 tysięcy złotych, ale obawiam się, że przy większej liczbie spóźnionych faktur ten limit może zostać przekroczony. Chciałbym zawrzeć umowę, która daje mi prawo do odstąpienia od niej, gdy windykacja przekroczy tę kwotę, żeby nie ryzykować dalszych kosztów."
+  }
+ ]
+}

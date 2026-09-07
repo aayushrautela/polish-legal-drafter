@@ -1,0 +1,305 @@
+{
+ "run": 49,
+ "hint": "Faktoring z karą umowną za nieterminowe przekazanie dokumentów",
+ "scenario": "Faktoring z karą umowną za nieterminowe przekazanie dokumentów",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_faktoringu'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_ed7562074c384403bd47677e",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_faktoringu\"}"
+     }
+    },
+    {
+     "id": "call_de32508645ac401394525e8c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"kara umowna\", \"nieterminowe\", \"przekazanie dokumentów\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_faktoringu\", \"kind\": \"structural_template\", \"text\": \"# Umowa faktoringu\\nUmowa faktoringu w Polsce to kontrakt, na podstawie którego faktorant (przedsiębiorca posiadający wierzytelności handlowe) przelewa je na faktora (instytucję finansową lub spółkę faktoringową), a faktor w zamian finansuje faktoranta, wypłacając mu zaliczkę jeszcze przed terminem płatności od dłużnika. Podstawą prawną przelewu wierzytelności jest art. 509 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), który stanowi, że wierzyciel może bez zgody dłużnika przenieść wierzytelność na osobę trzecią, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu albo właściwości zobowiązania.\\n\\nFaktoring jako instrument finansowy nie jest wprost uregulowany w polskim Kodeksie cywilnym jako umowa nazwana — jest umową nienazwaną skonstruowaną na podstawie zasady swobody umów z art. 353[1] KC. Polska Konwencja UNIDROIT o faktoringu międzynarodowym (Ottawa 1988) dostarcza definicji przyjętych w praktyce rynkowej, jednak w obrocie krajowym jej stosowanie ma charakter pomocniczy. Nadzór nad instytucjami bankowymi świadczącymi usługi faktoringowe sprawuje Komisja Nadzoru Finansowego (KNF), natomiast niebankowe spółki faktoringowe prowadzą działalność na podstawie ustawy Prawo przedsiębiorców z dnia 6 marca 2018 r.\\n\\nW ramach umowy faktoringu faktor kupuje wierzytelności faktoranta, zwykle jeszcze niewymagalne, i wypłaca mu z góry określony procent ich wartości — nazywany zaliczką lub finansowaniem — zazwyczaj w granicach 70–90% wartości faktury brutto. Po uregulowaniu należności przez dłużnika faktor rozlicza pozostałą część, pomniejszoną o swoją prowizję i odsetki. Wynagrodzenie faktora składa się co do zasady z prowizji faktoringowej (procent od wartości przejętych faktur) oraz odsetek od udostępnionego finansowania, przy czym odsetki nie mogą przekraczać odsetek maksymalnych wynikających z art. 359 § 2[1] KC.\\n\\nPolskie przedsiębiorstwa najczęściej korzystają z faktoringu krajowego, jednak usługi faktoringowe obejmują również wierzytelności z eksportu. Z punktu widzenia rachunkowości faktoranta, cesja wierzytelności oznacza wyłączenie ich z bilansu (derecognition) w przypadku faktoringu pełnego — jest to istotne dla wskaźników płynności i zadłużenia regulowanych przez ustawę z dnia 29 września 1994 r. o rachunkowości (Dz.U. 1994 nr 121 poz. 591 ze zm.), która określa zasady wyceny należności i ujmowania ich w sprawozdaniach finansowych.\\n\\nFaktoring dzieli się przede wszystkim na pełny (właściwy, bez regresu) i niepełny (z regresem). W faktoringu pełnym faktor przejmuje ryzyko niewypłacalności dłużnika — w razie braku zapłaty to faktor ponosi stratę. W faktoringu niepełnym faktorant odpowiada za wypłacalność dłużnika i w razie jego niewypłacalności zobowiązany jest do odkupu wierzytelności. Wybór rodzaju faktoringu determinuje cenę usługi i rozkład ryzyka między stronami.\\n\\nUmowa faktoringu jest instrumentem zarządzania płynnością finansową przedsiębiorstwa — pozwala przekształcić należności handlowe w gotówkę bez oczekiwania na termin płatności od kontrahentów. Szczególne znaczenie ma w branżach o długich terminach płatności, takich jak budownictwo, handel hurtowy czy przemysł spożywczy, gdzie zatory płatnicze stanowią realne zagrożenie dla bieżącej działalności zgodnie z regulacjami ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych.\\n\\nUmowa faktoringu w Polsce jest potrzebna, gdy przedsiębiorca posiada wymagalne lub niewymagalne wierzytelności handlowe wobec swoich kontrahentów i chce zamienić je na gotówkę bez oczekiwania na termin płatności.\\n\\nProblemy z płynnością finansową. Gdy firma sprzedaje towary lub usługi z odroczonym terminem płatności (30–120 dni), a sama musi regulować zobowiązania wobec dostawców lub ZUS i KAS na bieżąco, faktoring pozwala sfinansować tę lukę płynnościową bez zaciągania kredytu obrotowego.\\n\\nSezonowość i intensywny wzrost sprzedaży. Przedsiębiorstwa, których sprzedaż koncentruje się w określonych miesiącach roku lub które dynamicznie się rozwijają, mogą potrzebować elastycznego finansowania adekwatnego do wolumenu wystawianych faktur. Faktoring automatycznie skaluje finansowanie wraz ze sprzedażą.\\n\\nOchrona przed ryzykiem dłużnika. Przy faktoringu pełnym (bez regresu) faktorant przenosi na faktora ryzyko niewypłacalności odbiorcy. Rozwiązanie szczególnie wartościowe przy wejściu na nowe rynki lub współpracy z nieznanymi kontrahentami.\\n\\nUproszczenie zarządzania należnościami. Faktor przejmuje obsługę wierzytelności — monitorowanie terminów, wysyłanie wezwań do zapłaty i prowadzenie windykacji. Dzięki temu faktorant może skupić się na sprzedaży i produkcji zamiast śledzenia płatności.\\n\\nAlternatywa dla kredytu bankowego. Przedsiębiorcy, którym banki odmawiają kredytu obrotowego lub którzy wolą nie obciążać zdolności kredytowej, korzystają z faktoringu, bo finansowanie opiera się na jakości portfela wierzytelności, nie wyłącznie na kondycji finansowej faktoranta.\\n\\nWspółpraca z dużymi sieciami handlowymi. Dostawcy dużych sieci handlowych i przemysłowych, którzy muszą akceptować terminy płatności 60–90 dni, stosują faktoring odwrotny (reverse factoring) lub tradycyjny, aby utrzymać bieżącą płynność i dotrzymać własnych zobowiązań.\\n\\nEksport. Eksporterzy korzystają z faktoringu eksportowego, który łączy finansowanie z ubezpieczeniem ryzyka dłużnika zagranicznego, co jest szczególnie istotne wobec trudności z dochodzeniem roszczeń poza granicami Polski przed sądem właściwym.\\n\\nUmowa faktoringu w Polsce powinna zawierać elementy zapewniające skuteczność cesji wierzytelności i precyzyjne warunki finansowania, oparte na art. 509 Kodeksu cywilnego oraz zasadach swobody umów z art. 353[1] KC.\\n\\nOznaczenie stron. Pełne dane faktora i faktoranta: firma, adres, NIP, REGON, numer KRS lub wpis CEIDG. Dla banku — numer zezwolenia wydanego przez Komisję Nadzoru Finansowego (KNF). Wskazanie organu reprezentacji zgodnie z Krajowym Rejestrem Sądowym (KRS) lub odpisem z CEIDG.\\n\\nOkreślenie wierzytelności. Dokładny opis zbywanych wierzytelności: rodzaj (z tytułu sprzedaży towarów lub usług), lista odbiorców objętych faktoringiem (dłużnicy faktoringowi), waluta, maksymalny termin płatności (np. do 90 lub 120 dni), rynek (krajowy lub eksport). Oświadczenie faktoranta, że wierzytelności istnieją, są bezsporne i nieobciążone zgodnie z wymogami art. 509 KC.\\n\\nLimit finansowania. Łączna kwota finansowania w ramach umowy ramowej (limit globalny). Zasady ustalania sublimitów na poszczególnych dłużników (odbiorcę faktoringowego). Warunki podwyższenia lub obniżenia limitu w zależności od jakości portfela wierzytelności.\\n\\nZaliczka i rozliczenie. Procentowa zaliczka wypłacana po akceptacji faktury przez faktora (typowo 70–90%). Termin wypłaty zaliczki — standardowo 1–3 dni robocze. Zasady rozliczenia reszty ceny (retentat) po inkasie przez faktora lub po upływie okresu finansowania. Przy faktoringu z regresem — termin i warunki zwrotu zaliczki przez faktoranta.\\n\\nWynagrodzenie faktora. Prowizja faktoringowa (procent od wartości faktury lub kwoty finansowania) oraz odsetki dzienne od kwoty zaliczki. Opłaty dodatkowe: opłata przygotowawcza, za monitoring dłużnika, administracyjna. Ograniczenie odsetek do pułapu maksymalnego z art. 359 § 2[1] KC. forms-legal.com zaleca transparentne wyliczenie całkowitego kosztu finansowania.\\n\\nRodzaj faktoringu i ryzyko. Wyraźne wskazanie, czy umowa jest faktoringiem pełnym (bez regresu) czy niepełnym (z regresem), co determinuje rozkład ryzyka niewypłacalności dłużnika. Przy faktoringu pełnym — przeniesienie ryzyka kredytowego na faktora z chwilą skutecznej cesji. Przy faktoringu z regresem — obowiązek odkupu wierzytelności przez faktoranta w razie nieuiszczenia zapłaty przez dłużnika w ustalonym terminie.\\n\\nZawiadomienie dłużnika. Obowiązek powiadomienia dłużnika o cesji (art. 512 KC). Tryb zawiadomienia — przez faktoranta, przez faktora lub łącznie. Wskazanie numeru rachunku bankowego faktora na fakturach i w zawiadomieniu. Zakaz podwójnej cesji tej samej wierzytelności.\\n\\nOchrona danych osobowych i RODO. Obowiązki wynikające z rozporządzenia (UE) 2016/679 (RODO) oraz ustawy o ochronie danych osobowych w zakresie przetwarzania danych osobowych dłużników. Nadzór sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nCzas trwania, wypowiedzenie i postanowienia końcowe. Czas trwania umowy ramowej, warunki i termin wypowiedzenia, przesłanki wypowiedzenia ze skutkiem natychmiastowym (w szczególności przy pogorszeniu sytuacji finansowej faktoranta). Zapis na sąd właściwy dla siedziby faktora lub klauzula arbitrażowa. Obowiązek formy pisemnej dla zmian umowy.\\n\\nUmowa faktoringu w Polsce wymaga starannego wypełnienia poszczególnych pól, aby cesja wierzytelności była skuteczna prawnie i finansowo bezpieczna dla obu stron.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane faktora (firma, adres, NIP, KRS, ewentualnie numer licencji KNF) i faktoranta (firma, adres, NIP, numer KRS lub CEIDG). Sprawdź, czy faktor figuruje w rejestrze podmiotów nadzorowanych przez Komisję Nadzoru Finansowego (KNF) lub jest spółką wpisaną do KRS.\\n\\nKrok 2 — opisz wierzytelności. Wskaż precyzyjnie rodzaj wierzytelności (z tytułu sprzedaży towarów, usług), nazwy dłużników (odbiorców), walutę i maksymalny termin płatności. Pamiętaj, że zgodnie z art. 509 Kodeksu cywilnego cesja obejmuje tylko wierzytelności istniejące lub przyszłe ściśle oznaczone. Dołącz lub wskaż listę odbiorców zaakceptowanych przez faktora.\\n\\nKrok 3 — ustal limit i zaliczkę. Wpisz globalny limit finansowania w złotych (PLN) oraz procentową zaliczkę (np. 80% brutto). Limit powinien odpowiadać szacowanemu miesięcznemu obrotowi wierzytelności. Zbyt niski limit ogranicza korzyści faktoringu, zbyt wysoki — podnosi ryzyko faktora.\\n\\nKrok 4 — określ wynagrodzenie faktora. Wpisz prowizję (np. 1,0–2,0% wartości faktur) i stawkę odsetek dziennych (np. 0,03–0,05% od kwoty zaliczki za dzień finansowania). Sprawdź, czy łączny koszt nie przekracza odsetek maksymalnych z art. 359 § 2[1] KC.\\n\\nKrok 5 — wybierz rodzaj faktoringu. Zdecyduj, czy faktor przejmuje ryzyko kredytowe dłużnika (faktoring pełny) czy nie (faktoring z regresem). Faktoring pełny jest droższy, ale chroni faktoranta przed stratą w razie upadłości odbiorcy.\\n\\nKrok 6 — zaplanuj zawiadomienie dłużników. Wskaż, kto i w jakiej formie informuje każdego dłużnika o cesji. Powiadomienie jest kluczowe — do momentu jego dokonania dłużnik może skutecznie zapłacić faktorantowi i zwolnić się z długu (art. 512 KC). Zadbaj, aby na wszystkich przyszłych fakturach widniał rachunek bankowy faktora.\\n\\nKrok 7 — wpisz czas trwania i zasady wypowiedzenia. Umowy faktoringowe zawiera się zazwyczaj na czas nieokreślony z wypowiedzeniem 1–3-miesięcznym lub na rok z możliwością przedłużenia. Wskaż przesłanki wypowiedzenia natychmiastowego.\\n\\nKrok 8 — podpisz i rozlicz. Każda ze stron podpisuje umowę w miejscowości i dacie zawarcia. Dla spółek podpis składają osoby uprawnione według KRS. Dopuszczalny jest kwalifikowany podpis elektroniczny (art. 78[1] KC). Po podpisaniu faktor weryfikuje wierzytelności i uruchamia finansowanie zgodnie z regulaminem faktoringowym.\\n\\nUmowa faktoringu w Polsce podlega kilku aktom prawnym, które regulują zarówno skuteczność cesji wierzytelności, jak i wymogi rachunkowe i nadzorcze.\\n\\nCesja wierzytelności — art. 509–518 Kodeksu cywilnego. Podstawą prawną faktoringu jest przelew wierzytelności z art. 509 KC. Wierzytelność przechodzi na nabywcę (faktora) z chwilą zawarcia umowy przelewu, wraz ze wszelkimi związanymi z nią prawami — odsetkami, zabezpieczeniami, prawem do odszkodowania. Wyjątki: wierzytelności niezbywalne z mocy prawa lub umowy (klauzula zakazu cesji). Zawiadomienie dłużnika (art. 512 KC) nie jest warunkiem skuteczności cesji między stronami, lecz decyduje o tym, czy dłużnik może skutecznie spełnić świadczenie na rzecz dotychczasowego wierzyciela.\\n\\nSwoboda umów — art. 353[1] KC. Faktoring jest umową nienazwaną. Strony kształtują jej treść swobodnie, z zachowaniem granic wyznaczonych przez naturę stosunku, ustawę i zasady współżycia społecznego. Przepisy o zleceniu (art. 750 KC) stosuje się odpowiednio do świadczenia usług faktoringowych nieobjętych cesją.\\n\\nOdsetki maksymalne — art. 359 KC. Odsetki za korzystanie z finansowania faktoringowego nie mogą przekraczać dwukrotności odsetek ustawowych (art. 359 § 2[1] KC). Przekroczenie tego limitu skutkuje ich obniżeniem do maksimum z mocy prawa.\\n\\nUstawa o rachunkowości — 29 września 1994 r. Faktorant prowadzący pełną księgowość lub uproszczoną ewidencję zobowiązany jest do prawidłowego ujmowania cesji wierzytelności w księgach rachunkowych. Ustawa o rachunkowości reguluje wycenę należności, tworzenie odpisów aktualizujących oraz ujawnienia w sprawozdaniu finansowym. Przy faktoringu pełnym wierzytelności wyłącza się z bilansu faktoranta, przy faktoringu z regresem — mogą pozostać w aktywach z jednoczesnym ujęciem zobowiązania.\\n\\nPrzeciwdziałanie nadmiernym opóźnieniom — ustawa z dnia 8 marca 2013 r. Ustawa chroni faktoranta jako wierzyciela. Jeżeli faktor jest instytucją finansową, do rozliczeń między faktorantem a faktorem stosuje się przepisy o terminach zapłaty w transakcjach handlowych, co oznacza prawo do odsetek ustawowych za opóźnienie i rekompensaty za koszty odzyskiwania.\\n\\nNadzór finansowy — Komisja Nadzoru Finansowego (KNF). Banki świadczące usługi faktoringowe podlegają nadzorowi KNF. Spółki faktoringowe niebędące bankami działają na podstawie ustawy Prawo przedsiębiorców i nie wymagają zezwolenia KNF, chyba że prowadzą działalność objętą ustawą o usługach płatniczych.\\n\\nOchrona danych osobowych — RODO i u.o.d.o. Dane osobowe dłużników (osób fizycznych prowadzących działalność) przetwarzane w ramach faktoringu podlegają rozporządzeniu (UE) 2016/679 (RODO) oraz ustawie z dnia 10 maja 2018 r. o ochronie danych osobowych, nadzorowanej przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO). Podstawą przetwarzania jest prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO) lub wykonanie umowy.\\n\\nUmowa faktoringu w Polsce bywa wadliwa z powodu poniższych błędów, których należy unikać przy jej sporządzaniu.\\n\\nBłąd 1 — brak zawiadomienia dłużnika o cesji. Pominięcie powiadomienia dłużnika (art. 512 KC) powoduje, że dłużnik może skutecznie zapłacić faktorantowi (pierwotnemu wierzycielowi), a faktor straci możliwość dochodzenia wierzytelności. Zalecenie: wskaż w umowie wyraźnie, kto i w jakim terminie zawiadamia dłużnika, i zadbaj, aby każda faktura oznaczona była rachunkiem faktora.\\n\\nBłąd 2 — nieprecyzyjne określenie zbywanych wierzytelności. Ogólne sformułowanie zakresu wierzytelności bez wskazania dłużników, terminów i kwot może podważyć skuteczność cesji. Zalecenie: opisz wierzytelności jak najdokładniej, dołącz listę zaakceptowanych dłużników i określ parametry każdej faktury kwalifikującej się do faktoringu.\\n\\nBłąd 3 — pominięcie klauzuli zakazu podwójnej cesji. Przelanie tej samej wierzytelności na dwa podmioty rodzi spór o pierwszeństwo i naraża faktoranta na odpowiedzialność. Zalecenie: zamieść w umowie wyraźny zakaz dalszej cesji tych samych wierzytelności i zobowiązanie faktoranta do złożenia oświadczenia o braku obciążeń.\\n\\nBłąd 4 — przekroczenie odsetek maksymalnych. Odsetki faktoringowe przekraczające dwukrotność odsetek ustawowych (art. 359 § 2[1] KC) są z mocy prawa nieskuteczne powyżej tego limitu. Zalecenie: zweryfikuj, czy łączny koszt finansowania mieści się w ustawowym limicie, uwzględniając zarówno prowizję, jak i odsetki.\\n\\nBłąd 5 — brak uregulowania rodzaju faktoringu i konsekwencji regresu. Niewyraźne wskazanie, czy umowa jest pełna czy z regresem, rodzi spory w razie niewypłacalności dłużnika. Zalecenie: wprost wskaż rodzaj faktoringu i szczegółowe zasady regresu — termin, w jakim faktorant musi odkupić wierzytelność, oraz skutki finansowe.\\n\\nBłąd 6 — brak zgodności z ustawą o rachunkowości. Faktorant prowadzący pełną księgowość musi prawidłowo ująć cesję w księgach. Błędne ujęcie skutkuje zniekształceniem bilansu i sprawozdania finansowego kontrolowanego przez biegłego rewidenta. Zalecenie: skonsultuj z biurem rachunkowym lub głównym księgowym sposób ujęcia faktoringu zgodnie z ustawą o rachunkowości z 29 września 1994 r.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-faktoringu (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_ed7562074c384403bd47677e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_e0df83cd6140c5d1\", \"source_id\": \"uokik_rejestr_klauzul_2153\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za nieterminowe wpłaty zaliczek Wykonawca będzie naliczać odsetki umowne w wysokości podwójnych odsetek ustawowych. Nieterminowe wpłaty upoważniają wykonawcę do przesunięcia o okres ich opóźnienia, terminu wydania segmentu. Dokonane wpłaty w pierwszej kolejności zostaną zaliczone na należne odsetki od nieterminowego regulowania ustalonych rat\"}, {\"chunk_id\": \"uokik_items:uokik_b7ac9268659d6978\", \"source_id\": \"uokik_rejestr_klauzul_4122\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca nie ponosi odpowiedzialności za szkodę lub utratę oczekiwanych korzyści, w szczególności w wyniku nieterminowej realizacji zamówienia, w tym za nieterminowe dostarczenie przesyłki przez pocztę i firmy kurierskie\"}, {\"chunk_id\": \"uokik_items:uokik_72cafb1426a66d2d\", \"source_id\": \"uokik_rejestr_klauzul_5219\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku, kiedy Posiadacz karty nie spłaci Minimalnej wymaganej miesięcznej spłaty (podanej w Zestawieniu transakcji) w Terminie spłaty, o którym mowa w § 1 ust. 7, Bank podejmie czynności windykacyjne, w następstwie których pobierze opłatę za obsługę nieterminowej spłaty, w wysokości określonej w taryfie opłat i prowizji. Posiadacz karty zobowiązany jest do uiszczenia opłaty za obsługę nieterminowej spłaty nie później niż w kolejnym najbliższym Terminie spłaty Minimalnej wymaganej miesięcznej spłaty. Z zastrzeżeniem § 7 ust. 6, za okres opóźnienia w spłacie Minimalnej wymaganej miesięcznej ...\"}, {\"chunk_id\": \"uokik_items:uokik_960a3ab3082a3489\", \"source_id\": \"uokik_rejestr_klauzul_7190\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sklep (...)nie ponosi odpowiedzialności za szkodę lub utratę oczekiwanych korzyści w wyniku nieterminowej realizacji zamówienia, w szczególności za nieterminowe dostarczenie przesyłki przez firmę spedycyjną\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_484\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 484. § 1. W razie niewykonania lub nienależytego wykonania zobowiązania kara umowna należy się wierzycielowi w zastrzeżonej na ten wypadek wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły. § 2. Jeżeli zobowiązanie zostało w znacznej części wykonane, dłużnik może żądać zmniejszenia kary umownej; to samo dotyczy wypadku, g ...\"}]",
+   "tool_call_id": "call_de32508645ac401394525e8c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_cd16302176964059a9c5a46e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 484 KC\", \"kara umowna\", \"zobowiązanie\"]}"
+     }
+    },
+    {
+     "id": "call_c78efd467d66445993d517b4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring obowiązek przekazania dokumentów terminowo kara umowna\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_83a\", \"source_id\": \"sejm_eli_du_2025_350_art_83a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 83a. 1. Prawo lub zobowiązanie stwierdzone decyzją ostateczną Zakładu ulega ponownemu ustaleniu na wniosek osoby zainteresowanej lub z urzędu, jeżeli po uprawomocnieniu się decyzji zostaną prz edłożone nowe dowody lub ujawniono okoliczności istniejące przed wydaniem tej decyzji, które mają wpływ na to prawo lub zobowiązanie. 2. Decyzje ostateczne Zakładu, od których nie zostało wniesione odwołanie do właściwego sądu, mogą być z urzędu przez Zakł ad uchylone, zmienione lub unieważnione, na zasadach określonych w przep ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_2809_art_41\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 41. § 1. Jeżeli małżonek zaciągnął zobowiązanie za zgodą drugiego małżonka, wierzyciel może żądać zaspokojenia także z majątku wspólnego małżonków. § 2. Jeżeli małżonek zaciągnął zobowiązanie bez zgody drugiego małżonka albo zobowiązanie jednego z małżonków nie wynika z czynności prawnej, wierzyciel może żądać zaspokojenia z majątku osobistego dłużnika, z wynagrodzenia za pracę lub z dochodów uzyskanych przez dłużnika z innej działa ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_484\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 484. § 1. W razie niewykonania lub nienależytego wykonania zobowiązania kara umowna należy się wierzycielowi w zastrzeżonej na ten wypadek wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły. § 2. Jeżeli zobowiązanie zostało w znacznej części wykonane, dłużnik może żądać zmniejszenia kary umownej; to samo dotyczy wypadku, g ...\"}, {\"chunk_id\": \"uokik_items:uokik_64ce6ce839ed90f7\", \"source_id\": \"uokik_rejestr_klauzul_2057\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia przez Abonenta zobowiązania, o którym mowa w Pkt III ppkt 2.1, Abonent będzie zobowiązany na pisemne żądanie (...) do naprawienia szkody poprzez zapłatę na jej rzecz kary umownej. Kara umowna dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację wynosi 900 zł. Kara umowna będzie pomniejszana w zależności od czasu, w jakim Abonent wykonał swoje zobowiązanie. Jeżeli naruszenie zobowiązania nastąpi do 12 miesiąca od daty aktywacji, Abonent zapłaci 100 % kary umownej. Jeżeli naruszenie zobowiązania nastąpi pomiędzy początkiem 13 a końcem 18 mie ...\"}, {\"chunk_id\": \"uokik_items:uokik_d6e15aac2ae84a4d\", \"source_id\": \"uokik_rejestr_klauzul_2205\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia przez Abonenta zobowiązania, o którym mowa w pkt III ppkt 2.1, Abonent będzie zobowiązany na pisemne żądanie (...)do naprawienia szkody poprzez zapłatę na jej rzecz kary umownej. Kara umowna dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację w cenie dla 1 oraz 2 Ofert wynosi 900 zł, natomiast dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację w cenie dla 3 i więcej Ofert oraz (...) wynosi 1200 zł. Kara umowna będzie pomniejszana w zależności od czasu, w jakim Abonent wykonywał zobowiązanie. Jeżeli narusz ...\"}]",
+   "tool_call_id": "call_cd16302176964059a9c5a46e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_6ec96d4901dc63da\", \"source_id\": \"uokik_rejestr_klauzul_5765\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Obowiązek terminowego przekazywania Funduszowi wszelkich niezbędnych informacji związanych z prawidłowym wykonywaniem prawa własności Nieruchomości, takich jak w szczególności zawiadomienia o zebraniach właścicieli wspólnoty mieszkaniowej lub walnym zgromadzeniu wspólnoty mieszkaniowej. W razie uchybienia temu obowiązkowi Właściciel zobowiązany będzie każdorazowo do zapłaty kary umownej na rzecz Funduszu w wysokości 100,00 zł, która będzie mogła być potrącona z przysługującej Właścicielowi renty wynikającej z niniejszej Umowy Renty\"}, {\"chunk_id\": \"uokik_abusive_clause_156\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Kara umowna należna nabywcy w okolicznościach wymienionych w ust. 1 wynosi 0,1 % kwoty wpłaconej przez nabywcę za każdy dzień opóźnienia przekraczający 60 dni, nie więcej jednak niż 10% tej kwoty\"}, {\"chunk_id\": \"uokik_items:uokik_bc8611f66f626c9b\", \"source_id\": \"uokik_rejestr_klauzul_7085\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Obowiązek zapłaty przez Zamawiającego kary umownej, o której mowa w ust. 1, powstaje również w sytuacji, gdy w czasie obowiązywania niniejszej umowy jak i w okresie 12 miesięcy po jej zakończeniu dojdzie do zawarcia Umowy o której mowa w ust. 1 powyżej, pomiędzy Zbywcą Nieruchomości przedstawionej Zamawiającemu przez pośrednika, a osobą bliską zamawiającemu.\"}, {\"chunk_id\": \"uokik_items:uokik_61a8c1dd4d6c494f\", \"source_id\": \"uokik_rejestr_klauzul_2957\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie dostarczenia na czas towaru lub usług spowodowanego okolicznościami, za które odpowiedzialność ponosi (...). Zamawiającemu spełniającemu warunki, o których mowa w pkt. 15 powyżej Zamawiający będzie upoważniony do dochodzenia od(...). kary umownej w wysokości 0,1 % wartości zamówienia brutto za każdy dzień opóźnienia, jednak nie więcej, niż 10 % wartości zamówienia brutto i zarazem nie więcej niż 1.000 (słownie 1 tysiąc) złotych brutto.\"}, {\"chunk_id\": \"uokik_items:uokik_2b2416af269d394a\", \"source_id\": \"uokik_rejestr_klauzul_1333\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku rezygnacji z przyczyn nie leżących po stronie (...) a to z powodu: odmowy wydania paszportu lub wizy; braku dokumentów uprawniających do przekroczenia granicy; niedotrzymania określonych w umowie terminów płatności; nieprzybycia na miejsce zbiórki, choroby i innych przypadków losowych, uniemożliwienia przekroczenia granicy przez służby graniczne itp. Osobie, która dokonała wpłaty zwraca się wpłaconą kwotę po potrąceniu kary umownej, w wysokości uzależnionej od daty rezygnacji i wynoszącej: - rezygnacja na więcej niż 30 dni przed dniem rozpoczęcia imprezy - 100 PLN od osoby (koszty  ...\"}]",
+   "tool_call_id": "call_c78efd467d66445993d517b4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "Let me search for more specific provisions related to factoring and document delivery obligations, as well as contractual penalties in commercial contracts.",
+   "tool_calls": [
+    {
+     "id": "call-bc632820-2d91-4df0-9a9e-2b8ab78956fc",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"faktoring\", \"dokumenty\", \"przekazanie\", \"termin\"]}"
+     }
+    },
+    {
+     "id": "call-41b04d42-add9-4a8f-9732-90d22a881835",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"faktoring zobowiązanie faktoranta przekazywanie faktur dokumentów terminowo kara umowna\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_24\", \"source_id\": \"sejm_eli_du_2025_350_art_24\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 24. 1. (utracił moc)8) 1a. W razie nieopłacenia składek lub opłacenia ich w zaniżonej wysokości Zakład może wymierzyć płatnikowi składek dodatkową opłatę do wysokości 100 % nieopłaconych składek. Od decyzji w sprawie wymierzenia dodatkowej opłaty przysługuje odwołanie do sądu według zasad określonych w art. 83. 1b. W stosunku do płatnika sk ładek będącego osobą fizyczną, skazanego prawomocnym wyrokiem za nieopłacenie składek lub opłacenie ich w zaniżonej wysokości, dodatkowej opłaty za ten sam czyn nie wymierza się.  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1790_art_13v\", \"source_id\": \"sejm_eli_du_2023_1790_art_13v\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\", \"display_address\": \"Dz.U. 2023 poz. 1790\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych (tekst jednolity: Dz.U. 2023 poz. 1790)\\nArt. 13v. 1. W przypadku stwierdzenia nadmiernego opóźniania się ze spełnianiem świadczeń pieniężnych przez stronę postępowania, Prezes Urzędu może nałożyć na nią, w drodze decyzji, administracyjną karę pieniężną. 2. Wysokość administracyjnej kary pieniężnej, o której mowa w ust. 1, nie może być większa niż obliczona według następującego wzoru: WK = (WŚ1 × 1%) + (WŚ2 × 2%) + (WŚ3 × 4%) + (WŚ4 × 12%) + (WŚ5 × 24%) gdzie poszczególne symbole oznaczają: WK - ma ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_36\", \"source_id\": \"sejm_eli_du_2025_350_art_36\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 36. 1. Każda osoba objęta obowiązkowo ubezpieczeniami emerytalnym i rentowymi podlega zgłoszeniu do ubezpieczeń społecznych. 2. Obowiązek zgłoszenia do ubezpieczeń społecznych osób określonych w art. 6 ust. 1 pkt 1–4, 6–9b, 11, 12, 19 –22, ust. 2, 2a i 2d, duchownych będących członkami zakonów lub klasztorów oraz osób współpracujących, o których mowa w art. 8 ust. 11, należy do płatnika składek. 2a. Osoba przebywająca na urlopie wychowawczym jest obowiązana poinformować płatnika składek o ustaleniu prawa do emerytury ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_47a\", \"source_id\": \"sejm_eli_du_2025_350_art_47a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 47a. 1. Z zastrzeżeniem ust. 1a–3, płatnicy składek są obowiązani przekazywać zgłoszenia do ubezpieczeń społecznych, o których mowa w art. 36 ust. 10, imienne raporty miesięczne, o których mowa w art. 41 ust. 3, deklaracje rozliczeniowe, o których mowa w art. 46 ust. 4, inne dokumenty niezbędne do prowadzenia kont płatników składek i kont ubezpieczonych oraz korekty tych dokumentów poprzez transmisję danych w formie dokumentu elektronicznego z oprogramowania, którego zgodność z wymaganiami określonymi przez Zakł ad n ...\"}]",
+   "tool_call_id": "call-bc632820-2d91-4df0-9a9e-2b8ab78956fc",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_abusive_clause_156\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Kara umowna należna nabywcy w okolicznościach wymienionych w ust. 1 wynosi 0,1 % kwoty wpłaconej przez nabywcę za każdy dzień opóźnienia przekraczający 60 dni, nie więcej jednak niż 10% tej kwoty\"}, {\"chunk_id\": \"uokik_items:uokik_6ec96d4901dc63da\", \"source_id\": \"uokik_rejestr_klauzul_5765\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Obowiązek terminowego przekazywania Funduszowi wszelkich niezbędnych informacji związanych z prawidłowym wykonywaniem prawa własności Nieruchomości, takich jak w szczególności zawiadomienia o zebraniach właścicieli wspólnoty mieszkaniowej lub walnym zgromadzeniu wspólnoty mieszkaniowej. W razie uchybienia temu obowiązkowi Właściciel zobowiązany będzie każdorazowo do zapłaty kary umownej na rzecz Funduszu w wysokości 100,00 zł, która będzie mogła być potrącona z przysługującej Właścicielowi renty wynikającej z niniejszej Umowy Renty\"}, {\"chunk_id\": \"uokik_items:uokik_36c8b6e533358bb4\", \"source_id\": \"uokik_rejestr_klauzul_4434\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie nie otrzymania faktury w terminie, w którym była ona zwykle Abonentowi przekazywana, Abonent zobowiązany jest do bezzwłocznego zawiadomienia o tym fakcie Operatora i dokonania płatności na konto bankowe podane w poprzedzającej fakturze o tej samej kwocie która widniała na poprzedniej fakturze dostarczonej Abonentowi\\\" (§ 6 pkt 9 regulaminu)\"}, {\"chunk_id\": \"uokik_items:uokik_5360b5b6f00bdae5\", \"source_id\": \"uokik_rejestr_klauzul_3447\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za każdy dzień przerwy w świadczeniu usługi płatnej okresowo abonentowi na jego żądanie wypłacana jest kara umowna w wysokości 1/30 średniej opłaty miesięcznej liczonej według wysokości kwot netto na fakturach VAT z ostatnich trzech okresów rozliczeniowych w odniesieniu do łącza, na którym wystąpiła awaria. Kara umowna nie przysługuje, jeżeli w okresie rozliczeniowym łączny czas przerw wynikających z awarii był krótszy niż 36 godzin. Łączna wysokość kary umownej w danym okresie rozliczeniowym należnej z tytułu niewykonania lub nienależytego wykonania umowy na danym łączu nie może być wyższa, n ...\"}, {\"chunk_id\": \"uokik_items:uokik_39d7a3b3b2c945de\", \"source_id\": \"uokik_rejestr_klauzul_2447\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku nie dostarczenia na czas towaru lub usług spowodowanego okolicznościami, za które odpowiedzialność ponosi (...) Zamawiającemu spełniającemu warunki, o których mowa w pkt 15 powyżej Zamawiający będzie upoważniony do dochodzenia od (...). kary umownej w wysokości 0,1% wartości zamówienia brutto za każdy dzień opóźnienia, jednak nie więcej niż 10% wartości zamówienia brutto i zarazem nie więcej niż 4.000 (słownie cztery tysiące) złotych brutto\"}]",
+   "tool_call_id": "call-41b04d42-add9-4a8f-9732-90d22a881835",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam faktoringu dla mojej firmy, ale chcę wiedzieć, co się stanie, jeśli spóźnię się z przekazaniem dokumentów."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Prowadzę firmę i potrzebuję szybkiego dostępu do gotówki, dlatego chcę skorzystać z faktoringu. Czasami zdarza mi się spóźniać z wysyłką faktur, więc obawiam się opóźnień w przekazaniu dokumentów. Chciałbym wiedzieć, jaką dokładnie karę umowną zapłacę faktoringodawcy, jeśli nie zdążę przekazać dokumentów na czas."
+  }
+ ]
+}

@@ -1,0 +1,327 @@
+{
+ "run": 37,
+ "hint": "Umowa NDA z dostępem zdalnym i logowaniem (IT security)",
+ "scenario": "Umowa NDA z dostępem zdalnym i logowaniem (IT security)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_zachowanie_poufnosci'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an NDA (umowa_o_zachowanie_poufnosci) that includes provisions for remote access and login (IT security). I need to:\n\n1. First read the base template for umowa_o_zachowanie_poufnosci\n2. Then search for provisions relevant to remote access, IT security, login, etc.\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-0eca9ea5-7d90-4fbe-8cbc-f0e77e98358b",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"query\": \"remote access IT security login\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"kind\": \"structural_template\", \"text\": \"# Umowa o cyberbezpieczeństwo\\nUmowa o cyberbezpieczeństwo w Polsce to umowa, na podstawie której wyspecjalizowany dostawca usług bezpieczeństwa informatycznego (MSSP — Managed Security Services Provider) zobowiązuje się świadczyć na rzecz zamawiającego kompleksowe usługi ochrony systemów informatycznych przed cyberatakami, a zamawiający zobowiązuje się do zapłaty wynagrodzenia. Usługi cyberbezpieczeństwa obejmują monitoring zagrożeń, reagowanie na incydenty, testy penetracyjne, zarządzanie podatnościami, audyty bezpieczeństwa oraz szkolenia pracowników.\\n\\nPodstawę prawną umowy o cyberbezpieczeństwo stanowią: zasada swobody umów z art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przepisy o zleceniu (art. 734 i następne w zw. z art. 750) jako umowy starannego działania, a dla podmiotów objętych regulacjami — ustawa z dnia 5 lipca 2018 r. o krajowym systemie cyberbezpieczeństwa (ustawa o KSC, Dz.U. 2018 poz. 1560 ze zm.), która implementuje dyrektywę UE NIS (2016/1148) i określa obowiązki operatorów usług kluczowych i dostawców usług cyfrowych w zakresie bezpieczeństwa.\\n\\nUstawa o krajowym systemie cyberbezpieczeństwa (KSC) nakłada na operatorów usług kluczowych z sektorów energetyki, transportu, bankowości, ochrony zdrowia, zaopatrzenia w wodę i infrastruktury cyfrowej obowiązki w zakresie wdrożenia środków bezpieczeństwa, zarządzania incydentami i współpracy z CSIRT NASK (Computer Security Incident Response Team działającym przy Naukowej i Akademickiej Sieci Komputerowej — Państwowym Instytucie Badawczym). Operatorzy są zobowiązani do zgłaszania poważnych incydentów do CSIRT NASK w ciągu 24 godzin od wykrycia.\\n\\nOchrona danych osobowych jest integralną częścią cyberbezpieczeństwa. Naruszenie ochrony danych osobowych (data breach) musi być zgłoszone Prezesowi Urzędu Ochrony Danych Osobowych (PUODO) w ciągu 72 godzin od wykrycia, zgodnie z art. 33 rozporządzenia (UE) 2016/679 (RODO). Gdy dostawca usług cyberbezpieczeństwa w ramach monitoringu uzyskuje dostęp do danych osobowych zamawiającego, konieczna jest umowa powierzenia przetwarzania zgodna z art. 28 RODO z zachowaniem środków bezpieczeństwa z art. 32 RODO.\\n\\nUmowa o cyberbezpieczeństwo zawiera zazwyczaj parametry SLA dotyczące czasów reakcji na incydenty sklasyfikowane według poziomu zagrożenia: krytyczne (np. ransomware, breach), wysokie, średnie i niskie. Naruszenie czasów reakcji jest zobowiązaniem niepieniężnym, które można zabezpieczyć karą umowną (art. 483 Kodeksu cywilnego). Szczególnie wrażliwe informacje ujawnione w raportach z testów penetracyjnych i audytów — listy podatności, architektura sieci, konfiguracje urządzeń — wymagają ochrony jako tajemnica przedsiębiorstwa na podstawie art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji.\\n\\nUmowa o cyberbezpieczeństwo w Polsce jest potrzebna wówczas, gdy przedsiębiorstwo zleca zewnętrznemu dostawcy ochronę swoich systemów informatycznych przed zagrożeniami cyfrowymi.\\n\\nOperatorzy usług kluczowych. Podmioty z sektorów energetyki, transportu, bankowości i ochrony zdrowia objęte ustawą o krajowym systemie cyberbezpieczeństwa (KSC) są zobowiązane wdrożyć środki bezpieczeństwa i zarządzać incydentami. Outsourcing usług SOC do wyspecjalizowanego MSSP wymaga umowy o cyberbezpieczeństwo precyzującej zakres monitorowania, czasy reakcji i obowiązki zgłoszeniowe wobec CSIRT NASK.\\n\\nSektor finansowy — DORA. Instytucje finansowe, banki, zakłady ubezpieczeń i inne podmioty rynku finansowego objęte rozporządzeniem (UE) 2022/2554 (DORA — Digital Operational Resilience Act) są zobowiązane do zarządzania ryzykiem operacyjnym ICT, co obejmuje umowy z dostawcami usług cyberbezpieczeństwa spełniające wymogi DORA dotyczące klauzul umownych, audytu i exit strategy.\\n\\nZamówienia publiczne i administracja. Jednostki sektora finansów publicznych zamawiające monitoring bezpieczeństwa i testy penetracyjne zawierają umowę o cyberbezpieczeństwo regulującą dostęp do systemów rządowych, poufność wyników testów i zgodność z przepisami o ochronie informacji niejawnych.\\n\\nMSP po incydencie lub dla prewencji. Małe i średnie przedsiębiorstwa, które doświadczyły ataku ransomware lub phishingu, zawierają umowę o cyberbezpieczeństwo jako element planu odbudowy i wzmocnienia bezpieczeństwa, obejmującą monitoring, szkolenia i procedury reagowania na incydenty.\\n\\nTesty penetracyjne i audyty bezpieczeństwa. Firmy zamawiające jednorazowe testy penetracyjne (penetration testing) lub audyt bezpieczeństwa IT zawierają umowę regulującą zakres testów, dostęp do systemów, poufność wyników i zasady odpowiedzialności za ewentualne szkody w trakcie testów.\\n\\nZarządzanie podatnościami. Organizacje zarządzające złożoną infrastrukturą IT zawierają umowę o ciągłe zarządzanie podatnościami (vulnerability management), obejmujące skanowanie, priorytetyzację i śledzenie usuwania podatności przez zamawiającego.\\n\\nUmowa o cyberbezpieczeństwo w Polsce powinna zawierać następujące kluczowe elementy.\\n\\nOznaczenie stron. Pełne dane zamawiającego i dostawcy (firma, adres, NIP, KRS lub CEIDG), dane osób odpowiedzialnych za realizację umowy (CISO lub IT Security Manager zamawiającego, account manager dostawcy).\\n\\nSzczegółowy zakres usług. Precyzyjny opis usług: monitoring SOC 24/7, testy penetracyjne (zakres, częstotliwość, metodologia — OWASP, PTES, NIST), audyty bezpieczeństwa, zarządzanie podatnościami, incident response (IR), zarządzanie dostępem uprzywilejowanym (PAM), szkolenia. forms-legal.com zaleca określenie, które usługi są objęte abonamentem, a które rozliczane oddzielnie.\\n\\nParametry SLA i klasyfikacja incydentów. Definicja kategorii incydentów (krytyczne, wysokie, średnie, niskie) z czasami reakcji i eskalacji. Kary umowne za naruszenie SLA (art. 483 Kodeksu cywilnego za zobowiązanie niepieniężne).\\n\\nObowiązki zgłoszeniowe. Procedura powiadamiania zamawiającego o incydentach bezpieczeństwa (w tym data breach w 4 h wewnętrznie, PUODO/UODO w 72 h na podstawie art. 33 RODO, CSIRT NASK w 24 h na podstawie ustawy o KSC). Dostawca asystuje przy sporządzaniu zgłoszeń.\\n\\nPoufność wyników testów i raportów. Raporty z testów penetracyjnych i audytów zawierają krytyczne informacje o podatnościach systemu zamawiającego. Ochrona jako tajemnica przedsiębiorstwa (art. 11 ustawy o zwalczaniu nieuczciwej konkurencji) przez określony czas (np. 10 lat). Bezpieczne przechowywanie i niszczenie raportów po zakończeniu umowy.\\n\\nPowierzenie przetwarzania danych (RODO art. 28). Jeżeli dostawca monitoruje ruch sieciowy zawierający dane osobowe, konieczna jest umowa powierzenia z wymogami art. 28 RODO: środki bezpieczeństwa (art. 32), podpowierzenie, pomoc administratorowi, usunięcie danych po zakończeniu.\\n\\nOdpowiedzialność. Zakres odpowiedzialności dostawcy za niewykonanie zobowiązania (art. 471 KC), limit odpowiedzialności (np. roczne wynagrodzenie), wyłączenia odpowiedzialności (incydenty z winy zamawiającego, niezastosowanie rekomendacji), zakaz wyłączenia odpowiedzialności umyślnej (art. 473 § 2 KC).\\n\\nDostęp do systemów i zasada minimalnych uprawnień. Procedury udzielania i odbierania dostępu do systemów zamawiającego (zasada least privilege), rejestr dostępów, usunięcie dostępów po zakończeniu umowy, narzędzia hakerskie używane wyłącznie za pisemną zgodą.\\n\\nUmowa o cyberbezpieczeństwo w Polsce wypełniana jest według poniższych kroków.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane zamawiającego i dostawcy: firmę, adres, NIP, KRS lub CEIDG. Wskaż CISO lub osobę odpowiedzialną za bezpieczeństwo IT po stronie zamawiającego.\\n\\nKrok 2 — opisz zakres usług. Wymień wszystkie usługi objęte umową: monitoring SOC, testy penetracyjne, audyty, incident response, szkolenia. Wyodrębnij usługi objęte abonamentem od usług jednorazowych (testy, szkolenia). Dołącz szczegółową specyfikację usług jako Załącznik nr 1.\\n\\nKrok 3 — ustal parametry SLA. Wpisz definicje kategorii incydentów (krytyczne/wysokie/średnie/niskie) z czasami reakcji i eskalacji. Wskaż kary umowne za naruszenie SLA (art. 483 Kodeksu cywilnego).\\n\\nKrok 4 — ureguluj obowiązki zgłoszeniowe. Wpisz procedurę zgłaszania incydentów: powiadomienie wewnętrzne w 4 h, zgłoszenie do PUODO w 72 h (art. 33 RODO), zgłoszenie do CSIRT NASK w 24 h (ustawa o KSC). Wskaż obowiązek asysty dostawcy przy sporządzaniu zgłoszeń.\\n\\nKrok 5 — ustal wynagrodzenie. Wpisz abonament miesięczny netto plus VAT 23% i stawki za usługi jednorazowe. Wskaż termin płatności i odsetki za opóźnienie (art. 481 KC).\\n\\nKrok 6 — ureguluj poufność. Wpisz zasady poufności raportów z testów penetracyjnych i podatności systemu (art. 11 ustawy o zwalczaniu nieuczciwej konkurencji), czas trwania zobowiązania i procedurę niszczenia raportów.\\n\\nKrok 7 — ureguluj RODO. Wskaż, że dostawca jest podmiotem przetwarzającym i zawrzyj umowę powierzenia jako Załącznik nr 2 zgodnie z art. 28 RODO.\\n\\nKrok 8 — ureguluj dostęp do systemów. Wskaż zasadę minimalnych uprawnień, rejestr dostępów i obowiązek ich usunięcia po zakończeniu umowy.\\n\\nKrok 9 — podpisz umowę. Wpisz miejscowość i datę. Podpisz w dwóch egzemplarzach lub z kwalifikowanym podpisem elektronicznym (art. 78[1] Kodeksu cywilnego).\\n\\nUmowa o cyberbezpieczeństwo w Polsce podlega przepisom Kodeksu cywilnego, ustawy o KSC, RODO i prawa podatkowego.\\n\\nUstawa o krajowym systemie cyberbezpieczeństwa (KSC). Ustawa z dnia 5 lipca 2018 r. o krajowym systemie cyberbezpieczeństwa (Dz.U. 2018 poz. 1560 ze zm.) implementuje dyrektywę (UE) 2016/1148 (NIS). Nakłada na operatorów usług kluczowych z sektorów energetyki, transportu, bankowości, infrastruktury rynków finansowych, ochrony zdrowia, zaopatrzenia w wodę pitną i infrastruktury cyfrowej obowiązek wdrożenia środków zarządzania ryzykiem cyberbezpieczeństwa (art. 8 ustawy o KSC) i zgłaszania poważnych incydentów do CSIRT NASK w ciągu 24 godzin od wykrycia (art. 11). Dostawcy usług cyfrowych mają analogiczne obowiązki z art. 18 tej ustawy.\\n\\nRODO i naruszenia ochrony danych. Art. 33 RODO nakłada na administratora obowiązek zgłoszenia naruszenia ochrony danych osobowych do organu nadzorczego (PUODO) bez zbędnej zwłoki, nie później niż 72 godziny od stwierdzenia naruszenia. Art. 28 RODO reguluje powierzenie przetwarzania danych dostawcy usług cyberbezpieczeństwa. Art. 32 RODO nakłada obowiązek wdrożenia odpowiednich środków technicznych i organizacyjnych bezpieczeństwa. Nadzór sprawuje Prezes Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nRODO — DORA. Podmioty finansowe objęte rozporządzeniem (UE) 2022/2554 (DORA) są zobowiązane do zarządzania ryzykiem operacyjnym ICT, stosowania umów z kluczowymi dostawcami usług IT (w tym cyberbezpieczeństwa) zawierających klauzule wymagane przez art. 30 DORA (zakres, poziomy usług, audyt, exit strategy) oraz do testowania odporności cyfrowej (TLPT — Threat-Led Penetration Testing).\\n\\nOdpowiedzialność kontraktowa. Dostawca odpowiada za niewykonanie lub nienależyte wykonanie zobowiązania na zasadach art. 471 Kodeksu cywilnego. Strony mogą umownie ograniczyć odpowiedzialność, lecz nie mogą wyłączyć odpowiedzialności za szkodę wyrządzoną umyślnie (art. 473 § 2). Kary umowne za naruszenie SLA (zobowiązanie niepieniężne) zastrzega się na podstawie art. 483 Kodeksu cywilnego i podlegają miarkowaniu z art. 484 § 2.\\n\\nForma umowy. Umowa o cyberbezpieczeństwo nie wymaga formy szczególnej pod rygorem nieważności. Zaleca się formę pisemną lub elektroniczną z kwalifikowanym podpisem elektronicznym (art. 78[1] Kodeksu cywilnego) ze względów dowodowych i regulacyjnych.\\n\\nUmowa o cyberbezpieczeństwo w Polsce bywa wadliwa z powodu typowych błędów.\\n\\nBłąd 1 — brak precyzyjnych SLA dla kategorii incydentów. Umowy bez zdefiniowanych kategorii incydentów i mierzalnych czasów reakcji są nieskuteczne. Zalecenie: zdefiniuj kategorie (krytyczne/wysokie/średnie/niskie) z precyzyjnymi czasami reakcji i usuwania oraz karami umownymi (art. 483 KC).\\n\\nBłąd 2 — brak regulacji obowiązków zgłoszeniowych. Pominięcie procedury powiadamiania PUODO (RODO art. 33) i CSIRT NASK (KSC) naraża zamawiającego na odpowiedzialność za spóźnione zgłoszenie. Zalecenie: wpisz terminy i procedury powiadamiania, zobowiązując dostawcę do asysty i natychmiastowego alertowania (4 h wewnętrznie).\\n\\nBłąd 3 — brak umowy powierzenia RODO. Monitoring ruchu sieciowego zawierającego dane osobowe bez umowy powierzenia narusza RODO. Zalecenie: zawrzyj odrębną umowę powierzenia spełniającą wymogi art. 28 RODO ze środkami bezpieczeństwa art. 32.\\n\\nBłąd 4 — brak ochrony raportów z testów penetracyjnych. Raporty zawierają listę krytycznych podatności systemu zamawiającego. Bez klauzuli poufności mogą trafić do nieuprawnionych podmiotów. Zalecenie: objęj raporty ochroną tajemnicy przedsiębiorstwa (art. 11 ustawy o zwalczaniu nieuczciwej konkurencji) przez co najmniej 5 lat i ustal procedurę bezpiecznego niszczenia.\\n\\nBłąd 5 — brak klauzuli o dostępach do systemów. Brak regulacji dostępu do systemów zamawiającego i zasady minimalnych uprawnień naraża na nieuprawnione działania. Zalecenie: prowadź rejestr dostępów, stosuj zasadę least privilege i zobowiązuj do usunięcia dostępów w 24 h po zakończeniu zadania.\\n\\nBłąd 6 — wyłączenie odpowiedzialności za błędy dostawcy wynikające z niezastosowania rekomendacji. Zbyt szerokie wyłączenie odpowiedzialności dostawcy za incydenty, których nie zapobiegł mimo wykrycia podatności, pozbawia zamawiającego ochrony. Zalecenie: wyłączaj odpowiedzialność tylko gdy zamawiający pisemnie odmówił wdrożenia rekomendacji dostawcy.\\n\\nBłąd 7 — brak klauzuli exit strategy. Brak procedury zakończenia umowy i przekazania wiedzy nowemu dostawcy skutkuje lukami w bezpieczeństwie. Zalecenie: ustal obowiązek przekazania dokumentacji, raportów i procedur bezpieczeństwa nowemu dostawcy i minimalizacji ryzyka w okresie przejściowym.\\n\\nŹródło: https://forms-legal.com/pl/business/services/umowa-o-cyberbezpieczenstwo (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-0eca9ea5-7d90-4fbe-8cbc-f0e77e98358b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_f37c12a3820345df8438259b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"remote access login IT security confidentiality agreement NDA provisions\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_f35b264baa05466c9930e86f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"dostęp zdalny\", \"logowanie\", \"cyberbezpieczeństwo\", \"IT security\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_552cc9aa43faa39f\", \"source_id\": \"uokik_rejestr_klauzul_6293\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(…) nie ponosi odpowiedzialności za utratę przez Użytkownika lub wejście w posiadanie przez inne osoby (niezależnie od sposobu wejścia w posiadanie) ich adresu e-mail (lub loginu) i hasła\"}, {\"chunk_id\": \"uokik_items:uokik_27dc120d8f801107\", \"source_id\": \"uokik_rejestr_klauzul_5856\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Operator nie ponosi żadnej odpowiedzialności za utratę przez Użytkownika lub wejście w posiadanie przez inne osoby (niezależnie od sposobu wejścia w posiadanie) ich loginu, adresu e-mail i hasła\"}, {\"chunk_id\": \"uokik_items:uokik_4e7cf4bd032ac666\", \"source_id\": \"uokik_rejestr_klauzul_4659\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) nie ponosi odpowiedzialności za skutki dostępu do danych Abonenta przez osoby trzecie, dysponujące loginem Abonenta\"}, {\"chunk_id\": \"uokik_items:uokik_069e4414884cdff7\", \"source_id\": \"uokik_rejestr_klauzul_5946\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wnioskodawcy potwierdzają, że zrozumieli, akceptują i będą przestrzegać postanowień oświadczenia o prywatności, […] i niniejszych Warunków, które to dokumenty można znaleźć na stronie internetowej (...)Za wiążącą uznaje się ostatnią wersję takich dokumentów opublikowaną dnia 1 czerwca 2012 roku\"}, {\"chunk_id\": \"uokik_items:uokik_0ba803843c91aa34\", \"source_id\": \"uokik_rejestr_klauzul_6511\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie spory mogące wyniknąć na tle stosowania umowy rozstrzygać będzie sąd właściwy dla SPRZEDAWCY rzeczowo(...)\"}]",
+   "tool_call_id": "call_f37c12a3820345df8438259b",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_583a4b3df88d5f78\", \"source_id\": \"uokik_rejestr_klauzul_6673\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zalogowanie się do systemu oznacza zgodę na przetwarzanie danych dla celów marketingowych wyłącznie przez firmę (...) danych osobowych w celu wypełnienia ankiety z opinią o dokonanej transakcji\"}]",
+   "tool_call_id": "call_f35b264baa05466c9930e86f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "The search results are mostly about abusive clauses (UOKiK register) and not directly relevant to NDA with remote access/IT security provisions. Let me search more specifically for NDA provisions related to remote access, IT security, VPN, MFA, etc.",
+   "tool_calls": [
+    {
+     "id": "call-06ef9dd6-7e35-4ec1-8d4d-712fafadd5be",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"NDA confidentiality agreement remote access VPN MFA multi-factor authentication IT security measures\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-b54cde98-f35a-4cd2-a64a-2a4319659b3a",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"VPN\", \"MFA\", \"uwierzytelnianie\", \"dwuskładnikowe\", \"bezpieczeństwo informacji\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2019_1000_art_13-18\", \"source_id\": \"sejm_eli_du_2019_1000_art_13-18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 13-18. (pominięte)\"}, {\"chunk_id\": \"uokik_items:uokik_c8907105878cc6cf\", \"source_id\": \"uokik_rejestr_klauzul_1763\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany wyraża zgodę na udostępnienie swoich danych osobowych przekazanych pośrednikowi w celu opracowania niniejszej umowy. Dalej wyraża zgodę na przechowywanie i przetwarzanie jego danych osobowych oraz wykorzystywanie ich przez pośrednika lub osobę trzecią w celu składania ofert handlowych lub oferowania usług na czas nieokreślony zgodnie z ustawą o ochronie danych osobowych.\"}, {\"chunk_id\": \"uokik_items:uokik_7c0a959f8c7219eb\", \"source_id\": \"uokik_rejestr_klauzul_5956\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dane osobowe. (…) (...) może przekazywać takie dane osobowe osobom trzecim przede wszystkim w związku z organizacją i administracją sprzedaży Biletów i/lub dla celów wdrożenia odpowiednich środków bezpieczeństwa i ochrony podczas (...). Ponadto pod warunkiem, że Wnioskodawcy wyraźnie wyrazili na to zgodę w Formularzu Zgłoszeniowym, dane osobowe mogą być wykorzystywane w celu udzielania Wnioskodawcom informacji na temat produktów i uslug (...) lub innych podmiotów, które zostały starannie wybrane przez (...) lub w związku z przyszłymi działaniami komercyjnymi lub innymi imprezami organizowanymi ...\"}, {\"chunk_id\": \"uokik_items:uokik_4e68273b808408e4\", \"source_id\": \"uokik_rejestr_klauzul_1758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zainteresowany wyraża zgodę, ażeby wierzyciel w związku z oceną jego wiarygodności uzyskiwał informację od osób trzecich i zobowiązuje się że osoby trzecie informację o nim udzielają i w związku z tym udzieli pełnomocnictwo wierzycielowi do pozyskiwania powyższych informacji od osób trzecich.\"}, {\"chunk_id\": \"uokik_items:uokik_0ba803843c91aa34\", \"source_id\": \"uokik_rejestr_klauzul_6511\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wszelkie spory mogące wyniknąć na tle stosowania umowy rozstrzygać będzie sąd właściwy dla SPRZEDAWCY rzeczowo(...)\"}]",
+   "tool_call_id": "call-06ef9dd6-7e35-4ec1-8d4d-712fafadd5be",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-b54cde98-f35a-4cd2-a64a-2a4319659b3a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results are not giving me relevant NDA provisions for remote access/IT security. Let me try more specific searches related to NDA templates and IT security provisions.",
+   "tool_calls": [
+    {
+     "id": "call-c3d15042-b7be-4342-965f-c3a61c7be093",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa o zachowaniu poufności NDA dostęp zdalny systemy informatyczne bezpieczeństwo IT\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-2654ea81-c354-4ee0-8dc7-7aea57b3fce4",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"systemy informatyczne\", \"bezpieczeństwo informacji\", \"zasady bezpieczeństwa\", \"kontrola dostępu\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"uokik_items:uokik_8150eaa87c5398d8\", \"source_id\": \"uokik_rejestr_klauzul_6050\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia zobowiązania do zachowania poufności, o którym mowa w ust.1 powyżej Klient zobowiązuje się zapłacić na rzecz (…) karę umowną w wysokości 100% środków wypłaconych na rzecz Klienta (słownie:…)\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_4\", \"source_id\": \"sejm_eli_du_2025_350_art_4\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 4. Użyte w ustawie określenia oznaczają: 1) ubezpieczeni – osoby fizyczne podlegające chociaż jednemu z ubezpieczeń społecznych, o których mowa w art. 1; 2) płatnik składek: a) pracodawca – w stosunku do pracowników i osób odbywających służbę zastępczą oraz jednostka organizacyjna lub osoba fizyczna pozostająca z inną osobą fizyczną w stosunku prawnym uzasadniającym objęcie tej osoby ubezpieczeniami społecznymi, w tym z tytułu przebywania na urlopie wychowawczym albo pobierania zasiłku macierzyńskiego, z wyłączeniem  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_267\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 267. § 1. Kto bez uprawnienia uzyskuje dostęp do informacji dla niego nieprzeznaczonej, otwierając zamknięte pismo, podłączając się do sieci telekomunikacyjnej lub przełamując albo omijając elektroniczne, magnetyczne, informatyczne lub inne szczególne jej zabezpieczenie, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. § 2. Tej samej karze podlega, kto bez uprawnienia uzyskuje dostęp do całości lub części systemu in ...\"}]",
+   "tool_call_id": "call-c3d15042-b7be-4342-965f-c3a61c7be093",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_211\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 211. Przestrzeganie przepisów i zasad bezpieczeństwa i higieny pracy jest podstawowym obowiązkiem pracownika. W szczególności pracownik jest obowiązany: 1) znać przepisy i zasady bezpieczeństwa i higieny pracy, brać udział w szkoleniu i instruktażu z tego zakresu oraz poddawać się wymaganym egzaminom sprawdzającym; 2) wykonywać pracę w sposób zgodny z przepisami i zasadami bezpieczeństwa i higieny pracy oraz stosować się do wydawanych w tym zakres ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_177\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 177. § 1. Kto, naruszając, chociażby nieumyślnie, zasady bezpieczeństwa w ruchu lądowym, wodnym lub powietrznym, powoduje nieumyślnie wypadek, w którym inna osoba odniosła obrażenia ciała określone w art. 157 § 1, podlega karze pozbawienia wolności do lat 3. § 2. Jeżeli następstwem wypadku jest śmierć innej osoby albo ciężki uszczerbek na jej zdrowiu, sprawca podlega karze pozbawienia wolności od 6 miesięcy do lat 8. § 3. Jeżeli pokrzywdzonym jest  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_355\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 355. § 1. Żołnierz, który prowadząc uzbrojony pojazd mechaniczny, narusza chociażby nieumyślnie zasady bezpieczeństwa w ruchu lądowym, wodnym lub powietrznym i powoduje nieumyślnie wypadek, w którym inna osoba odniosła obrażenia ciała określone w art. 157 § 1 lub wyrządzona została znaczna szkoda w mieniu, podlega karze aresztu wojskowego albo pozbawienia wolności do lat 3. § 2. Jeżeli następstwem wypadku określonego w § 1 jest śmierć innej osoby l ...\"}]",
+   "tool_call_id": "call-2654ea81-c354-4ee0-8dc7-7aea57b3fce4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Potrzebuję umowy o poufności, która uwzględnia, że współpracownik będzie miał zdalny dostęp do naszych systemów i danych."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Szukam NDA dla programisty pracującego zdalnie, który będzie logował się do naszego VPN i miał dostęp do bazy danych klientów. Umowa ma regulować jak on bezpiecznie się loguje, co robi z hasłami, jak zgłasza incydenty bezpieczeństwa i co się dzieje z danymi po zakończeniu współpracy."
+  }
+ ]
+}

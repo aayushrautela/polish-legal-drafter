@@ -1,0 +1,306 @@
+{
+ "run": 30,
+ "hint": "Zadatek przy rezerwacji zakupu konia wyścigowego",
+ "scenario": "Zadatek przy rezerwacji zakupu konia wyścigowego",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_82669860913c4f2e89a10090",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"kaucja_zaliczka\"}"
+     }
+    },
+    {
+     "id": "call_fe10fb1824e04746bfb0cd01",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"zadatek\", \"koń wyścigowy\", \"rezerwacja\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Wezwanie do zwrotu kaucji\\nWezwanie do zwrotu kaucji w Polsce to pisemne żądanie najemcy skierowane do wynajmującego, w którym najemca domaga się zwrotu kaucji mieszkaniowej po zakończeniu stosunku najmu i wydaniu lokalu. Podstawą prawną jest art. 6 ust. 4 ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego (Dz.U. 2001 nr 71 poz. 733 ze zm.), zgodnie z którym kaucja podlega zwrotowi w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę, po potrąceniu należności wynajmującego z tytułu najmu. Dopełnieniem jest art. 455 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.) dotyczący wymagalności świadczeń bezterminowych oraz art. 481 KC o odsetkach za opóźnienie.\\n\\nKaucja przy najmie lokalu mieszkalnego pełni funkcję zabezpieczenia roszczeń wynajmującego na wypadek, gdyby najemca nie uregulował czynszu lub innych należności albo wyrządził szkodę w lokalu ponad normalne zużycie. Zgodnie z art. 6 ust. 1 ustawy o ochronie praw lokatorów kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. W przypadku najmu okazjonalnego dopuszczalna kaucja wynosi sześciokrotność miesięcznego czynszu. Kaucja jest depozytem zwrotnym — po zakończeniu najmu i rozliczeniu ewentualnych roszczeń wynajmujący ma obowiązek zwrócić ją najemcy w ustawowym terminie.\\n\\nJeżeli wynajmujący nie zwróci kaucji w ciągu miesiąca od opróżnienia lokalu, najemca powinien wezwać go pisemnie, wskazując termin i rachunek bankowy do zwrotu. Takie wezwanie stawia zobowiązanie do zwrotu kaucji w stan wymagalności na gruncie art. 455 KC i otwiera bieg naliczania odsetek za opóźnienie zgodnie z art. 481 KC. Odsetki ustawowe za opóźnienie (stopa referencyjna NBP plus 5,5 punktu procentowego) są należne od dnia następnego po upływie terminu zwrotu, tj. od dnia po upływie miesiąca od opróżnienia lokalu, bez konieczności wzywania.\\n\\nWezwanie do zwrotu kaucji różni się od żądania rozliczenia kaucji (gdzie najemca kwestionuje tylko częściowe potrącenia). W niniejszym piśmie najemca żąda zwrotu pełnej kwoty, ewentualnie powołując się na to, że lokal był zdany w stanie prawidłowym, bez szkód uzasadniających potrącenia. Spory o kaucję trafiają często przed Sąd Rejonowy (wydział cywilny) właściwy dla miejsca zamieszkania pozwanego lub miejsca położenia lokalu. Ze względu na niską wartość sporu (kaucja zazwyczaj nieprzekraczająca kilkunastu tysięcy złotych) sprawy te rozpatrywane są w trybie uproszczonym, co skraca czas postępowania.\\n\\nNajemca powinien pamiętać, że wynajmujący ma prawo potrącić z kaucji udokumentowane należności z tytułu niezapłaconego czynszu lub opłat eksploatacyjnych, a także koszty napraw szkód przekraczających normalne zużycie lokalu. Normalne zużycie rzeczy w ramach prawidłowego używania nie jest podstawą potrącenia z kaucji. Art. 6a ustawy o ochronie praw lokatorów nakłada na wynajmującego obowiązki dotyczące stanu technicznego lokalu. Spory o zakres normalnego zużycia są częste i rozstrzygane przez Sąd Rejonowy na podstawie protokołów zdawczo-odbiorczych, fotografii i opinii biegłych.\\n\\nWezwanie do zwrotu kaucji w Polsce jest potrzebne zawsze, gdy wynajmujący nie zwrócił kaucji w ciągu miesiąca od opróżnienia lokalu, choć art. 6 ust. 4 ustawy o ochronie praw lokatorów nakłada na niego taki obowiązek.\\n\\nDokument jest niezbędny, gdy minął ustawowy termin zwrotu kaucji, a wynajmujący nie podjął kontaktu, milczy lub odmawia zwrotu bez podania przyczyny. Formalne wezwanie dokumentuje żądanie najemcy, wyznacza dodatkowy termin i zapowiada postępowanie sądowe, co często mobilizuje wynajmującego do działania bez konieczności wnoszenia pozwu.\\n\\nWezwanie jest potrzebne, gdy wynajmujący zwrócił tylko część kaucji, a zdaniem najemcy potrącenia były nieuzasadnione. W takim przypadku wezwanie może obejmować żądanie zwrotu tej różnicy, z powołaniem się na to, że lokal był zdany w stanie odpowiadającym normalnemu zużyciu, a protokół zdawczo-odbiorczy nie dokumentował szkód uzasadniających potrącenia.\\n\\nPismo jest konieczne, gdy najemca nie posiada potwierdzenia rozliczenia kaucji. W praktyce wynajmujący, szczególnie prywatni, niekiedy zwlekają z rozliczeniem, licząc na bierność najemcy. Pisemne wezwanie formalizuje sytuację i tworzy ślad dokumentacyjny, który będzie niezbędny w ewentualnym postępowaniu sądowym przed Sądem Rejonowym.\\n\\nWezwanie do zwrotu kaucji jest ważne z punktu widzenia terminów przedawnienia. Roszczenie najemcy o zwrot kaucji przedawnia się na zasadach ogólnych — z upływem sześciu lat lub trzech lat przy roszczeniach związanych z działalnością gospodarczą (art. 118 KC). Wysłanie wezwania dokumentuje, od kiedy najemca aktywnie dochodził zwrotu, i pozwala ustalić termin, od którego biegną odsetki za opóźnienie. Przy wysyłaniu wezwania warto korzystać z pomocy miejskiego lub powiatowego rzecznika konsumentów, który bezpłatnie wspiera najemców w sporach z wynajmującymi będącymi przedsiębiorcami.\\n\\nPrawidłowe wezwanie do zwrotu kaucji w Polsce, oparte na art. 6 ust. 4 ustawy o ochronie praw lokatorów i art. 455 Kodeksu cywilnego, powinno zawierać następujące elementy.\\n\\nOznaczenie stron: imię i nazwisko najemcy (wzywającego) oraz wynajmującego (wzywanego), adresy obu stron, a w przypadku wynajmującego będącego przedsiębiorcą — NIP i numer KRS lub CEIDG.\\n\\nOdniesienie do umowy najmu: data zawarcia umowy najmu, adres wynajmowanego lokalu, data zakończenia najmu lub data opróżnienia lokalu. Data opróżnienia lokalu jest kluczowa, bo od niej liczy się ustawowy miesięczny termin zwrotu kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów.\\n\\nKwota kaucji i data wpłaty: wezwanie musi precyzyjnie wskazywać kwotę wpłaconej kaucji (cyfrowo i słownie), datę jej wpłaty i ewentualny sposób wpłaty (przelew bankowy z podaniem numeru transakcji lub gotówka z podaniem pokwitowania). To kluczowe dla wykazania, że kaucja rzeczywiście została wpłacona.\\n\\nStan lokalu przy zdaniu: krótkie wskazanie, że lokal był zdany w stanie prawidłowym lub z usterkami wynikającymi jedynie z normalnego zużycia, z powołaniem się na protokół zdawczo-odbiorczy. Jeżeli protokół nie dokumentuje szkód uzasadniających potrącenia, argument ten wzmacnia żądanie zwrotu pełnej kwoty.\\n\\nTermin i rachunek do zwrotu: konkretny termin zwrotu kaucji (rekomendowane 14 dni od doręczenia wezwania) oraz numer rachunku bankowego, na który ma nastąpić przelew. Dodatkowe wymaganie odsetkowe: odsetki ustawowe za opóźnienie naliczone zgodnie z art. 481 KC od dnia upływu ustawowego terminu zwrotu do dnia faktycznej zapłaty.\\n\\nSkutki braku zwrotu: zapowiedź skierowania sprawy do Sądu Rejonowego z powództwem o zapłatę. Serwis forms-legal.com udostępnia gotowy wzór wezwania do zwrotu kaucji. Pismo należy wysłać listem poleconym za potwierdzeniem odbioru lub doręczyć osobiście za pokwitowaniem, zachowując dowód doręczenia.\\n\\nWypełnianie wezwania do zwrotu kaucji w Polsce zacznij od precyzyjnego oznaczenia stron. W sekcji najemcy wpisz swoje imię i nazwisko, aktualny adres korespondencyjny (nie adres wynajmowanego lokalu, bo możesz się już wyprowadzić) oraz numer rachunku bankowego, na który wynajmujący ma przelać zwrot. W sekcji wynajmującego podaj jego imię i nazwisko lub firmę, adres zamieszkania lub siedziby.\\n\\nW sekcji szczegółów najmu i kaucji podaj adres wynajmowanego lokalu, datę zawarcia umowy najmu i datę zakończenia najmu lub opróżnienia lokalu. Data opróżnienia lokalu jest kluczowa — od niej liczy się ustawowy miesiąc na zwrot kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów. Wpisz kwotę kaucji cyfrowo i słownie oraz datę jej wpłaty.\\n\\nW polu dotyczącym stanu lokalu przy zdaniu wybierz odpowiednią opcję. Jeżeli lokal był zdany bez usterek lub z normalnymi śladami użytkowania potwierdzonymi protokołem zdawczo-odbiorczym, zaznacz to wyraźnie — to wzmacnia żądanie pełnego zwrotu kaucji. Jeżeli protokół był sporny lub są nieporozumienia co do zakresu usterek, wskaż to, sygnalizując gotowość do rozmów.\\n\\nWyznacz termin zwrotu — rekomendowane 14 dni od otrzymania wezwania. Wskaż wyraźnie numer rachunku bankowego i tytuł przelewu. Poinformuj o należnych odsetkach za opóźnienie zgodnie z art. 481 KC, licząc je od upływu ustawowego terminu miesięcznego.\\n\\nNa koniec wpisz miejscowość i datę oraz złóż podpis. Wyślij wezwanie listem poleconym za potwierdzeniem odbioru. Zachowaj kopię pisma, dowód nadania i potwierdzenie odbioru. W przypadku dalszego braku zwrotu będziesz mógł(-a) złożyć pozew do Sądu Rejonowego lub skorzystać z pomocy miejskiego rzecznika konsumentów, jeżeli wynajmujący jest przedsiębiorcą.\\n\\nWymogi prawne wezwania do zwrotu kaucji w Polsce wynikają przede wszystkim z ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego, a uzupełniająco z Kodeksu cywilnego. Kluczowy przepis to art. 6 ust. 4 ustawy o ochronie praw lokatorów, który nakłada na wynajmującego bezwzględny obowiązek zwrotu kaucji w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę. Termin miesięczny jest terminem ustawowym i nie może być skrócony ani wyłączony przez umowę w stosunku do najemcy będącego konsumentem.\\n\\nZwrot kaucji następuje po potrąceniu należności wynajmującego z tytułu najmu. Wynajmujący może potrącić: niezapłacony czynsz i inne opłaty należne za czas najmu, a także koszty napraw szkód wyrządzonych przez najemcę lub przekraczających normalne zużycie lokalu. Normalne zużycie wynikające z prawidłowego używania lokalu nie uprawnia do potrącenia z kaucji. Ciężar udowodnienia zasadności potrącenia spoczywa na wynajmującym — powinien on przedstawić najemcy rozliczenie kaucji z dokumentacją (protokół zdawczo-odbiorczy, faktury za naprawy, kosztorysy).\\n\\nJeżeli wynajmujący nie zwróci kaucji lub jej części w terminie miesięcznym, od dnia następnego po tym terminie naliczane są odsetki ustawowe za opóźnienie zgodnie z art. 481 § 1 Kodeksu cywilnego, niezależnie od wysłania wezwania. Wezwanie otwiera dodatkowy termin i dokumentuje żądanie najemcy, ale nie jest warunkiem sine qua non naliczenia odsetek — te biegną z mocy prawa.\\n\\nOgraniczenia kaucji: art. 6 ust. 1 ustawy o ochronie praw lokatorów stanowi, że kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu. Postanowienia umowy najmu ustalające wyższą kaucję są nieważne w zakresie nadwyżki. Przy najmie okazjonalnym (art. 19a ustawy) kaucja nie może przekraczać sześciokrotności czynszu. Spory o zwrot kaucji rozpatruje Sąd Rejonowy właściwy dla miejsca zamieszkania pozwanego (wynajmującego) lub miejsca położenia lokalu. Przy wartości sporu do 20 000 zł można skorzystać z postępowania uproszczonego lub elektronicznego postępowania upominawczego przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie, VI Wydział Cywilny). Nieodpłatną pomoc prawną dla konsumentów w sporach z przedsiębiorcami oferuje miejski lub powiatowy rzecznik konsumentów.\\n\\nNajczęstsze błędy przy wezwaniu do zwrotu kaucji w Polsce zaczynają się od nieustalenia dokładnej daty opróżnienia lokalu. Termin miesięczny na zwrot kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów liczy się od dnia opróżnienia lokalu, a nie od daty wypowiedzenia umowy najmu. Najemca powinien dysponować dowodem oddania kluczy — protokołem zdawczo-odbiorczym podpisanym przez obie strony z datą. Bez tego dowodu trudno precyzyjnie ustalić, od kiedy biegnie termin zwrotu.\\n\\nKolejnym błędem jest brak dowodu wpłaty kaucji. Najemca, który domaga się zwrotu kaucji, musi być w stanie udowodnić, że ją wpłacił. Potwierdzenie przelewu bankowego lub pokwitowanie gotówkowe z podpisem wynajmującego są niezbędnymi dowodami. Bez nich wynajmujący może kwestionować fakt wpłaty lub jej wysokość.\\n\\nBłędem jest też wysłanie wezwania bez numeru rachunku bankowego do zwrotu. Wynajmujący może twierdzić, że nie wiedział, na jaki rachunek przelać kaucję, co opóźnia zwrot i komplikuje sprawę. Numer rachunku powinien być wyraźnie wskazany w wezwaniu.\\n\\nCzęstym uchybieniem jest nieoprotestowanie nieuzasadnionych potrąceń z kaucji. Jeżeli wynajmujący zwrócił tylko część kaucji, podając jako przyczynę normalne zużycie lokalu, najemca powinien w wezwaniu zakwestionować te potrącenia i żądać zwrotu różnicy. Normalne zużycie (farba ścian, drobne rysy na podłodze) nie jest podstawą potrącenia — wynajmujący musi udowodnić, że szkody przekraczały normalną eksploatację. Dokumentacja fotograficzna lokalu wykonana przy objęciu i przy zdaniu lokalu jest kluczowym dowodem.\\n\\nBłędem jest też czekanie zbyt długo z wezwaniem. Choć roszczenie o zwrot kaucji przedawnia się po sześciu latach, odsetki za opóźnienie biegną dopiero od dnia upływu miesięcznego terminu, a nie od daty wysłania wezwania. Im wcześniej najemca wyśle wezwanie i — w razie potrzeby — wniesie pozew, tym szybciej uzyska zwrot pieniędzy. Spory o kaucję przed Sądem Rejonowym trwają zazwyczaj od kilku tygodni (w trybie upominawczym) do kilku miesięcy (przy sprzeciwie dłużnika), a koszty opłaty sądowej (5% wartości przedmiotu sporu) są niskie przy typowych kwotach kaucji.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/wezwanie-do-zwrotu-kaucji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_82669860913c4f2e89a10090",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie j ...\"}, {\"chunk_id\": \"uokik_items:uokik_8eff7cd8851c3ba9\", \"source_id\": \"uokik_rejestr_klauzul_1104\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Warunkiem koniecznym wejścia w życie umowy jest płacenie Organizatorowi na konto zliczki w wysokości 30% ceny imprezy. W przypadku, gdy umowa - rezerwacja nie zostanie doręczona w terminie 48 godz.od jej wypełnienia do Organizatora albo jest wypełniona nieczytelnie lub niekompetentnie czy w sprzeczności z niniejszymi Ogólnymi warunkami umowa nie wchodzi w życie\\\".\"}, {\"chunk_id\": \"uokik_items:uokik_e24acce1a25db2e4\", \"source_id\": \"uokik_rejestr_klauzul_1446\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Organizator zastrzega sobie prawo odwołania każdej imprezy, na której rezerwacja nie obejmuje minimum 80% miejsc. W przypadku odwołania zawiadomienie klienta nastąpi niezwłocznie i nie później niż 4 dni przed planowanym wylotem. Organizator jest zobowiązany zwrócić klientowi wpłacony koszt na imprezę w terminie 10 dni od odwołania wyjazdu na podany przez klienta do rezerwacji adres lub konto bankowe.\"}, {\"chunk_id\": \"uokik_items:uokik_d02b20f035181b85\", \"source_id\": \"uokik_rejestr_klauzul_1911\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dane osoby, na którą rezerwacja jest założona, powinny zgadzać się z danymi w paszporcie lub w dowodzie osobistym przy podróżach na terenie Unii Europejskiej pod rygorem nie zrealizowania świadczeń wykupionych. W takim przypadku dokonana zapłata za wycieczkę turystyczną nie podlega zwrotowi\\\".\"}, {\"chunk_id\": \"uokik_items:uokik_a67fc7f331713f48\", \"source_id\": \"uokik_rejestr_klauzul_5032\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W okresie szczytu sezonu, a szczególnie w okresie wakacji szkolnych rezerwacja może być utrudniona, a w niektórych przypadkach niemożliwa\"}]",
+   "tool_call_id": "call_fe10fb1824e04746bfb0cd01",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The template I got is about \"Wezwanie do zwrotu kaucji\" (demand for return of deposit) which is not the right template for \"kaucja_zaliczka\" - it seems to be a specific document type for a demand letter, not a contract template. Let me search for more relevant materials about zadatek (earnest money) for horse purchase, and also look for any specific provisions about horse racing/sales.\n\nLet me search for more relevant content.",
+   "tool_calls": [
+    {
+     "id": "call-7a203a44-63d3-444a-bd76-a3f3208bcfd3",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"zadatek rezerwacja zakup konia wyścigowego umowa przedwstępna art. 394 KC\"}"
+     }
+    },
+    {
+     "id": "call-7ca28934-ffe0-4eb8-80f9-420cf9725236",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"konie\", \"zwierzęta\", \"sprzedaż zwierząt\", \"zadatek art. 394\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie j ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_389\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 389. § 1. Umowa, przez którą jedna ze stron lub obie zobowiązują się do zawarcia oznaczonej umowy (umowa przedwstępna), powinna określać istotne postanowienia umowy przyrzeczonej. § 2. Jeżeli termin, w ciągu którego ma być zawarta umowa przyrzeczona, nie został oznaczony, powinna ona być zawarta w odpowiednim terminie wyznaczonym przez stronę uprawnioną do żądania zawarcia umowy przyrzeczonej. Jeżeli obie strony są uprawnione do żądania zawarcia ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_394\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 394. § 1. Zażalenie do sądu drugiej instancji przysługuje na postanowienia sądu pierwszej instancji kończące postępowanie w sprawie, a ponadto na postanowienia sądu pierwszej instancji i zarządzenia przewodniczącego, których przedmiotem jest: 1) zwrot pisma wniesionego jako pozew, z którego nie wynika żądanie rozpoznania sprawy; 2) zwrot pozwu; 3) odmowa odrzucenia pozwu; 4) przekazanie sprawy sądowi równorzędnemu lub niższem ...\"}, {\"chunk_id\": \"uokik_items:uokik_c04ba20a44d76da9\", \"source_id\": \"uokik_rejestr_klauzul_7147\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia przez Zleceniodawcę od wykonania umowy, kwota przedpłaty gwarancyjnej przepada na rzecz Usługodawcy (Art. 394 k.c.).\"}, {\"chunk_id\": \"uokik_items:uokik_c29036f1c75837ac\", \"source_id\": \"uokik_rejestr_klauzul_6065\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Połowę kwoty prowizji w formie zadatku najpóźniej w dniu zawarcia umowy przedwstępnej\"}]",
+   "tool_call_id": "call-7a203a44-63d3-444a-bd76-a3f3208bcfd3",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_17_art_25\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 25. § 1. Nie popełnia przestępstwa, kto w obronie koniecznej odpiera bezpośredni, bezprawny zamach na jakiekolwiek dobro chronione prawem. § 2. W razie przekroczenia granic obrony koniecznej, w szczególności gdy sprawca zastosował sposób obrony niewspółmierny do niebezpieczeństwa zamachu, sąd może zastosować nadzwyczajne złagodzenie kary, a nawet odstąpić od jej wymierzenia. § 2a. Nie podlega karze, kto przekracza granice obrony koniecznej, odpiera ...\"}, {\"chunk_id\": \"uokik_items:uokik_25394e1b242d9d21\", \"source_id\": \"uokik_rejestr_klauzul_7414\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"XII. Kupujący oświadcza ponadto, że: 1) nie będzie wnosić protestów, sprzeciwów i odwołań od wszelkich postanowień i decyzji administracyjnych wydanych w ramach postępowań o wydanie decyzji administracyjnych, zgód, pozwoleń, uzgodnień itp. koniecznych do przygotowania i realizacji inwestycji budowlanej na działce nr 1326/1, 2) ustanawia Spółkę oraz każdoczesnego jej przedstawiciela (względnie wykazanego pełnomocnika), (...) - swoimi pełnomocnikami i upoważnia te osoby do: a) (...), b) dokonywania wszelkich czynności faktycznych i prawnych w zakresie podziału, połączenia lub zmiany przeznaczeni ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_829\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 829 1 . Jeżeli dłużnikiem jest rolnik prowadzący gospodarstwo rolne, egzekucji nie podlegają również: 1) stado podstawowe zwierząt gospodarskich: a) bydła mlecznego, b) bydła mięsnego, c) koni, d) kóz, e) owiec, f) świń, g) drobiu, h) zwierząt futerkowych, i) innych gatunków, stanowiących podstawę produkcji zwierzęcej w gospodarstwie rolnym dłużnika; 2) zwierzęta gospodarskie, poza stadem podstawowym, w drugiej połowie okresu ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_181\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 181. § 1 130) W brzmieniu ustalonym przez art. 5 pkt 2 ustawy, o której mowa w odnośniku 26. . Kto powoduje zniszczenie w świecie roślinnym lub zwierzęcym w znacznych rozmiarach, podlega karze pozbawienia wolności od 6 miesięcy do lat 8. § 2 130) W brzmieniu ustalonym przez art. 5 pkt 2 ustawy, o której mowa w odnośniku 26. . Kto, wbrew przepisom obowiązującym na terenie objętym ochroną, niszczy lub uszkadza rośliny, zwierzęta, grzyby lub ich siedl ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_145\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 145. § 1. Jeżeli nieruchomość nie ma odpowiedniego dostępu do drogi publicznej lub do należących do tej nieruchomości budynków gospodarskich, właściciel może żądać od właścicieli gruntów sąsiednich ustanowienia za wynagrodzeniem potrzebnej służebności drogowej (droga konieczna). § 2. Przeprowadzenie drogi koniecznej nastąpi z uwzględnieniem potrzeb nieruchomości niemającej dostępu do drogi publicznej oraz z najmniejszym obciążeniem gruntów, prze ...\"}]",
+   "tool_call_id": "call-7ca28934-ffe0-4eb8-80f9-420cf9725236",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "The search results don't have specific provisions about horse sales. Let me search for more specific provisions about animal sales, consumer protection in animal purchases, and any specific regulations about racehorses.",
+   "tool_calls": [
+    {
+     "id": "call-222de88a-787b-46ea-99bb-157a76d58269",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż konia umowa kupna sprzedaży zwierzęta wady fizyczne prawne gwarancja rękojmia\"}"
+     }
+    },
+    {
+     "id": "call-949b5c3e-751b-4509-984d-5624baface17",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"rękojmia\", \"wady zwierząt\", \"sprzedaż zwierząt\", \"konie wyścigowe\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_621\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 621. Do rękojmi za wady fizyczne i prawne przedmiotu kontraktacji oraz środków produkcji dostarczonych producentowi przez kontraktującego stosuje się odpowiednio przepisy o rękojmi przy sprzedaży z tą zmianą, że prawo odstąpienia od umowy z powodu wad fizycznych przedmiotu kontraktacji przysługuje kontraktującemu tylko wtedy, gdy wady są istotne.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_980\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 980. Jeżeli przedmiotem zapisu są rzeczy oznaczone tylko co do gatunku, do odpowiedzialności obciążonego względem zapisobiercy za wady fizyczne i prawne rzeczy stosuje się odpowiednio przepisy o rękojmi przy sprzedaży. Jednakże zapisobierca może żądać od obciążonego zapisem tylko odszkodowania za nienależyte wykonanie zapisu albo dostarczenia zamiast rzeczy wadliwych rzeczy takiego samego gatunku wolnych od wad oraz naprawienia szkody wynikłej z ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_559\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 559. Sprzedawca jest odpowiedzialny z tytułu rękojmi za wady fizyczne, które istniały w chwili przejścia niebezpieczeństwa na kupującego lub wynikły z przyczyny tkwiącej w rzeczy sprzedanej w tej samej chwili.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_557\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 557. § 1. Sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili zawarcia umowy. § 2. Gdy przedmiotem sprzedaży są rzeczy oznaczone tylko co do gatunku albo rzeczy mające powstać w przyszłości, sprzedawca jest zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli kupujący wiedział o wadzie w chwili wydania rzeczy. § 3. Sprzedawca nie jest odpowiedzialny względem kupującego będącego konsument ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_576\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 576. Do wykonywania uprawnień z tytułu rękojmi za wady prawne rzeczy sprzedanej stosuje się przepisy art. 568 § 2-5, z tym że bieg terminu, o którym mowa w art. 568 § 2, rozpoczyna się od dnia, w którym kupujący dowiedział się o istnieniu wady, a jeżeli kupujący dowiedział się o istnieniu wady dopiero na skutek powództwa osoby trzeciej - od dnia, w którym orzeczenie wydane w sporze z osobą trzecią stało się prawomocne. Dział II 1 (uchylony) Dzia ...\"}]",
+   "tool_call_id": "call-222de88a-787b-46ea-99bb-157a76d58269",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_1046\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 1046. Po dokonaniu działu spadku spadkobiercy są wzajemnie obowiązani do rękojmi za wady fizyczne i prawne według przepisów o rękojmi przy sprzedaży. Rękojmia co do wierzytelności spadkowych rozciąga się także na wypłacalność dłużnika. Tytuł IX Umowy dotyczące spadku\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_953\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 953. § 1. Komornik ogłosi o licytacji przez publiczne obwieszczenie, w którym wymienia: 1) nieruchomość, która ma być sprzedana, ze wskazaniem miejsca jej położenia i przeznaczenia gospodarczego, wraz z podaniem numeru księgi wieczystej lub z oznaczeniem zbioru dokumentów i sądu, w którym zbiór jest prowadzony, a także imienia i nazwiska dłużnika, z wyłączeniem innych danych osobowych pozwalających go zidentyfikować; 2) czas  ...\"}, {\"chunk_id\": \"uokik_items:uokik_8ccb14f4d6410375\", \"source_id\": \"uokik_rejestr_klauzul_5800\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Gwarancja, rękojmia oraz prawo odstąpienia od umowy nie obowiązują gdy produkt dotknięty jest uszkodzeniami mechanicznymi pochodzenia zewnętrznego\"}]",
+   "tool_call_id": "call-949b5c3e-751b-4509-984d-5624baface17",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA PRZEDWSTĘPNA SPRZEDAŻY KONIA WYŚCIGOWEGO\nZ ZADATKIUMiejscowość: _________________ dnia _________________ r.\n\nStrony umowy:\n\nSprzedawca:\nImię i nazwisko / Nazwa: ______________________________________________\nAdres zamieszkania / Siedziba: ________________________________________\nPESEL / NIP: _______________________ REGON: ________________________\nTelefon: _______________________ E-mail: ____________________________\n\nKupujący:\nImię i nazwisko / Nazwa: ______________________________________________\nAdres zamieszkania / Siedziba: ________________________________________\nPESEL / NIP: _______________________ REGON: ________________________\nTelefon: _______________________ E-mail: ____________________________\n\n§ 1 Przedmiot umowy\n\n1. Strony zobowiązują się do zawarcia w terminie określonym w § 4 niniejszej umowy umowy sprzedaży konia wyścigowego (zwanego dalej \"Koniem\"), o następujących danych:\n   a) Imię konia: _________________________________________________\n   b) Rasa: _______________________________________________________\n   c) Płeć: _______________________________________________________\n   d) Data urodzenia: _____________________________________________\n   e) Kolor i znaki szczególne: ______________________________________\n   f) Numer paszportu / chipa: ______________________________________\n   g) Rodowód (numer i wydawca): ___________________________________\n   h) Właściciel zgodnie z paszportem: ________________________________\n   i) Dotychczasowe osiągnięcia sportowe (starty, wygrane, notowania): __________________________________________________________________\n   j) Aktualny stan zdrowia (wg dostępnych dokumentów): __________________________________________________________________\n\n2. Sprzedawca oświadcza, że jest właścicielem Konia lub jest do tego upoważniony przez właściciela, a Koń jest wolny od wad prawnych, w szczególności nie obciążony jest prawami osób trzecich, ani nie jest przedmiotem postępowania egzekucyjnego lub sądowego.\n\n§ 2 Zadatek\n\n1. W celu zabezpieczenia zawarcia umowy ostatecznej, Kupujący wpłaca Sprzedawcy zadatek w wysokości _________________ złotych (słownie: _________________________________________________ złotych) na rachunek bankowy Sprzedawcy nr: ________________________________________.\n\n2. Zadatek uiszczony przy zawarciu umowy przedwstępnej ma znaczenie określone w art. 394 § 1 Kodeksu cywilnego, tj.:\n   a) w razie niewykonania umowy ostatecznej przez Kupującego, Sprzedawca ma prawo odstąpić od umowy bez wyznaczania terminu dodatkowego i zachować otrzymany zadatek;\n   b) w razie niewykonania umowy ostatecznej przez Sprzedawcę, Kupujący ma prawo odstąpić od umowy bez wyznaczania terminu dodatkowego i żądać zwrotu sumy dwukrotnie wyższej (tj. _________________ złotych).\n\n3. Strony mogą w drodze porozumienia odstąpić od ustalonych w ust. 2 skutków zadatku, o ile nie narusza to przepisów bezwzględnie obowiązujących.\n\n4. W razie prawidłowego zawarcia i wykonania umowy ostatecznej, zadatek ulega zaliczeniu na poczet ceny zakupu Konia zgodnie z art. 394 § 2 Kodeksu cywilnego.\n\n§ 3 Cena zakupu i warunki płatności\n\n1. Cena zakupu Konia zostanie ustalona w kwocie _________________ złotych (słownie: _________________________________________________ złotych) i podlega zapłacie w terminie i sposobem określonym w umowie ostatecznej.\n\n2. Zadatek, o którym mowa w § 2, stanowi część ceny zakupu i zostanie potrącony z zapłaty ostatecznej.\n\n§ 4 Termin zawarcia umowy ostatecznej\n\n1. Strony zobowiązują się do zawarcia umowy sprzedaży Konia w formie aktu notarialnego w terminie _________________ dni od dnia podpisania niniejszej umowy przez obie strony.\n\n2. Jeżeli termin, o którym mowa w ust. 1, nie został oznaczony, umowa ostateczna powinna być zawarta w odpowiednim terminie wyznaczonym przez stronę uprawnioną do żądania jej zawarcia, zgodnie z art. 389 § 2 Kodeksu cywilnego.\n\n3. Koszty sporządzenia aktu notarialnego ponosi strona, która tego zawnioskuje, chyba że strony postanowią inaczej.\n\n§ 5 Badanie weterynaryjne i stan zdrowia Konia\n\n1. Kupujący ma prawo poddanie Konia badaniu weterynaryjnemu w ciągu _________________ dni od dnia podpisania niniejszej umowy. Badanie przeprowadza weterynarz wybrany przez Kupującego, a koszty ponosi Kupujący.\n\n2. Sprzedawca zobowiązuje się udostępnić Konie do badania weterynaryjnego i przekazać wszystkie dostępne dokumenty medyczne, w szczególności:\n   a) paszport konia;\n   b) dokumentację szczepień;\n   c) wyniki badań klinicznych z ostatnich 12 miesięcy;\n   d) informacje o przebytych urazach i chorobach.\n\n3. Jeżeli w wyniku badania weterynaryjnego zostaną wykryte wady fizyczne Konia, o których Sprzedawca nie wiedział ani nie musiał wiedzieć w chwili zawarcia niniejszej umowy, a które istotnie wpływają na zdolność Konia do startów wyścigowych, Kupujący ma prawo odstąpić od umowy ostatecznej w terminie _________________ dni od dnia otrzymania wyniku badania. W takim przypadku zadatek podlega zwrotowi w terminie 7 dni.\n\n4. Sprzedawca oświadcza, że w chwili zawarcia niniejszej umowy Koń nie ma wad ukrytych uniemożliwiających starty wyścigowe, chyba że zostały one wymienione w załączniku nr 1 do niniejszej umowy.\n\n§ 6 Rękojmia i gwarancje\n\n1. Do umowy ostatecznej sprzedaży Konia będą stosownie stosować się przepisy o rękojmi za wady fizyczne i prawne rzeczy sprzedanej (art. 556 - 576 Kodeksu cywilnego), w szczególności:\n   a) Sprzedawca będzie odpowiedzialny za wady fizyczne Konia, które istniały w chwili przejścia niebezpieczeństwa na Kupującego lub wynikły z przyczyny tkwiącej w Koniu w tej samej chwili (art. 559 KC);\n   b) Sprzedawca będzie zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli Kupujący wiedział o wadzie w chwili zawarcia umowy ostatecznej (art. 557 § 1 KC).\n\n2. Strony mogą w umowie ostatecznej ustalić ograniczenie lub wyłączenie odpowiedzialności Sprzedawcy z tytułu rękojmi, z zastrzeżeniem przepisów o niedozwolonych klauzulach umownych (art. 385¹ KC) oraz przepisów ustawy z dnia 23 kwietnia 1964 r. - Kodeks cywilny w brzmieniu art. 558 § 1 KC dotyczącego rękojmi wobec konsumentów.\n\n3. Sprzedawca gwarantuje, że w chwili zawarcia umowy ostatecznej Koń będzie wolny od wad prawnych, w szczególności:\n   a) nie będzie obciążony prawami osób trzecich (służebności, zastawy, użyczenia, najmu);\n   b) nie będzie przedmiotem toczącego się postępowania sądowego lub administracyjnego;\n   c) nie będzie obciążony wierytelnościami.\n\n§ 7 Ryzyko i ubezpieczenie\n\n1. Niebezpieczeństwo śmierci, utraty lub uszkodzenia Konia przechodzi na Kupującego z dniem zawarcia umowy ostatecznej, chyba że strony postanowią inaczej.\n\n2. Sprzedawca zobowiązuje się do utrzymywania w mocy ubezpieczenia na życie Konia do dnia zawarcia umowy ostatecznej. Koszty ubezpieczenia ponosi Sprzedawca.\n\n3. W przypadku śmierci lub utraty Konia przed zawarciem umowy ostatecznej z przyczyn leżących po stronie Sprzedawcy, zadatek podlega zwrotowi w terminie 7 dni, a Kupujący może dodatkowo żądać odszkodowania na zasadach ogólnych.\n\n§ 8 Odpowiedzialność i kary umowne\n\n1. W przypadku odstąpienia od umowy przez którąkolwiek ze stron bez uzasadnionej przyczyny, strona odstąpająca zapłaci drugiej stronie karę umowną w wysokości _________________ złotych. Zapłata kary nie zwalnia z obowiązku zwrotu zadatku na zasadach określonych w § 2.\n\n2. Strony mogą żądać odszkodowania przewyższającego wysokość kary umownej na zasadach ogólnych, tj. po wykazaniu wysokości szkody przewyższającej wysokość zastrzeżonej kary.\n\n§ 9 Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n2. W sprawach nieuregulowanych niniejszą umową stosuje się przepisy Kodeksu cywilnego, w szczególności art. 389 KC (umowa przedwstępna), art. 394 KC (zadatek) oraz przepisy o rękojmi przy sprzedaży.\n3. Wszelkie spory wynikające z niniejszej umowy strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby Sprzedawcy.\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\nZałączniki:\n1. Wymienione wady Konia (jeśli występują)\n2. Kopia paszportu Konia\n3. Kopia dokumentacji szczepień\n\nSprzedawca:\n.........................................................\n(czytelny podpis)\n\nKupujący:\n.........................................................\n(czytelny podpis)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA PRZEDWSTĘPNA SPRZEDAŻY KONIA WYŚCIGOWEGO\nZ ZADATKIUMiejscowość: _________________ dnia _________________ r.\n\nStrony umowy:\n\nSprzedawca:\nImię i nazwisko / Nazwa: ______________________________________________\nAdres zamieszkania / Siedziba: ________________________________________\nPESEL / NIP: _______________________ REGON: ________________________\nTelefon: _______________________ E-mail: ____________________________\n\nKupujący:\nImię i nazwisko / Nazwa: ______________________________________________\nAdres zamieszkania / Siedziba: ________________________________________\nPESEL / NIP: _______________________ REGON: ________________________\nTelefon: _______________________ E-mail: ____________________________\n\n§ 1 Przedmiot umowy\n\n1. Strony zobowiązują się do zawarcia w terminie określonym w § 4 niniejszej umowy umowy sprzedaży konia wyścigowego (zwanego dalej \"Koniem\"), o następujących danych:\n   a) Imię konia: _________________________________________________\n   b) Rasa: _______________________________________________________\n   c) Płeć: _______________________________________________________\n   d) Data urodzenia: _____________________________________________\n   e) Kolor i znaki szczególne: ______________________________________\n   f) Numer paszportu / chipa: ______________________________________\n   g) Rodowód (numer i wydawca): ___________________________________\n   h) Właściciel zgodnie z paszportem: ________________________________\n   i) Dotychczasowe osiągnięcia sportowe (starty, wygrane, notowania): __________________________________________________________________\n   j) Aktualny stan zdrowia (wg dostępnych dokumentów): __________________________________________________________________\n\n2. Sprzedawca oświadcza, że jest właścicielem Konia lub jest do tego upoważniony przez właściciela, a Koń jest wolny od wad prawnych, w szczególności nie obciążony jest prawami osób trzecich, ani nie jest przedmiotem postępowania egzekucyjnego lub sądowego.\n\n§ 2 Zadatek\n\n1. W celu zabezpieczenia zawarcia umowy ostatecznej, Kupujący wpłaca Sprzedawcy zadatek w wysokości _________________ złotych (słownie: _________________________________________________ złotych) na rachunek bankowy Sprzedawcy nr: ________________________________________.\n\n2. Zadatek uiszczony przy zawarciu umowy przedwstępnej ma znaczenie określone w art. 394 § 1 Kodeksu cywilnego, tj.:\n   a) w razie niewykonania umowy ostatecznej przez Kupującego, Sprzedawca ma prawo odstąpić od umowy bez wyznaczania terminu dodatkowego i zachować otrzymany zadatek;\n   b) w razie niewykonania umowy ostatecznej przez Sprzedawcę, Kupujący ma prawo odstąpić od umowy bez wyznaczania terminu dodatkowego i żądać zwrotu sumy dwukrotnie wyższej (tj. _________________ złotych).\n\n3. Strony mogą w drodze porozumienia odstąpić od ustalonych w ust. 2 skutków zadatku, o ile nie narusza to przepisów bezwzględnie obowiązujących.\n\n4. W razie prawidłowego zawarcia i wykonania umowy ostatecznej, zadatek ulega zaliczeniu na poczet ceny zakupu Konia zgodnie z art. 394 § 2 Kodeksu cywilnego.\n\n§ 3 Cena zakupu i warunki płatności\n\n1. Cena zakupu Konia zostanie ustalona w kwocie _________________ złotych (słownie: _________________________________________________ złotych) i podlega zapłacie w terminie i sposobem określonym w umowie ostatecznej.\n\n2. Zadatek, o którym mowa w § 2, stanowi część ceny zakupu i zostanie potrącony z zapłaty ostatecznej.\n\n§ 4 Termin zawarcia umowy ostatecznej\n\n1. Strony zobowiązują się do zawarcia umowy sprzedaży Konia w formie aktu notarialnego w terminie _________________ dni od dnia podpisania niniejszej umowy przez obie strony.\n\n2. Jeżeli termin, o którym mowa w ust. 1, nie został oznaczony, umowa ostateczna powinna być zawarta w odpowiednim terminie wyznaczonym przez stronę uprawnioną do żądania jej zawarcia, zgodnie z art. 389 § 2 Kodeksu cywilnego.\n\n3. Koszty sporządzenia aktu notarialnego ponosi strona, która tego zawnioskuje, chyba że strony postanowią inaczej.\n\n§ 5 Badanie weterynaryjne i stan zdrowia Konia\n\n1. Kupujący ma prawo poddanie Konia badaniu weterynaryjnemu w ciągu _________________ dni od dnia podpisania niniejszej umowy. Badanie przeprowadza weterynarz wybrany przez Kupującego, a koszty ponosi Kupujący.\n\n2. Sprzedawca zobowiązuje się udostępnić Konie do badania weterynaryjnego i przekazać wszystkie dostępne dokumenty medyczne, w szczególności:\n   a) paszport konia;\n   b) dokumentację szczepień;\n   c) wyniki badań klinicznych z ostatnich 12 miesięcy;\n   d) informacje o przebytych urazach i chorobach.\n\n3. Jeżeli w wyniku badania weterynaryjnego zostaną wykryte wady fizyczne Konia, o których Sprzedawca nie wiedział ani nie musiał wiedzieć w chwili zawarcia niniejszej umowy, a które istotnie wpływają na zdolność Konia do startów wyścigowych, Kupujący ma prawo odstąpić od umowy ostatecznej w terminie _________________ dni od dnia otrzymania wyniku badania. W takim przypadku zadatek podlega zwrotowi w terminie 7 dni.\n\n4. Sprzedawca oświadcza, że w chwili zawarcia niniejszej umowy Koń nie ma wad ukrytych uniemożliwiających starty wyścigowe, chyba że zostały one wymienione w załączniku nr 1 do niniejszej umowy.\n\n§ 6 Rękojmia i gwarancje\n\n1. Do umowy ostatecznej sprzedaży Konia będą stosownie stosować się przepisy o rękojmi za wady fizyczne i prawne rzeczy sprzedanej (art. 556 - 576 Kodeksu cywilnego), w szczególności:\n   a) Sprzedawca będzie odpowiedzialny za wady fizyczne Konia, które istniały w chwili przejścia niebezpieczeństwa na Kupującego lub wynikły z przyczyny tkwiącej w Koniu w tej samej chwili (art. 559 KC);\n   b) Sprzedawca będzie zwolniony od odpowiedzialności z tytułu rękojmi, jeżeli Kupujący wiedział o wadzie w chwili zawarcia umowy ostatecznej (art. 557 § 1 KC).\n\n2. Strony mogą w umowie ostatecznej ustalić ograniczenie lub wyłączenie odpowiedzialności Sprzedawcy z tytułu rękojmi, z zastrzeżeniem przepisów o niedozwolonych klauzulach umownych (art. 385¹ KC) oraz przepisów ustawy z dnia 23 kwietnia 1964 r. - Kodeks cywilny w brzmieniu art. 558 § 1 KC dotyczącego rękojmi wobec konsumentów.\n\n3. Sprzedawca gwarantuje, że w chwili zawarcia umowy ostatecznej Koń będzie wolny od wad prawnych, w szczególności:\n   a) nie będzie obciążony prawami osób trzecich (służebności, zastawy, użyczenia, najmu);\n   b) nie będzie przedmiotem toczącego się postępowania sądowego lub administracyjnego;\n   c) nie będzie obciążony wierytelnościami.\n\n§ 7 Ryzyko i ubezpieczenie\n\n1. Niebezpieczeństwo śmierci, utraty lub uszkodzenia Konia przechodzi na Kupującego z dniem zawarcia umowy ostatecznej, chyba że strony postanowią inaczej.\n\n2. Sprzedawca zobowiązuje się do utrzymywania w mocy ubezpieczenia na życie Konia do dnia zawarcia umowy ostatecznej. Koszty ubezpieczenia ponosi Sprzedawca.\n\n3. W przypadku śmierci lub utraty Konia przed zawarciem umowy ostatecznej z przyczyn leżących po stronie Sprzedawcy, zadatek podlega zwrotowi w terminie 7 dni, a Kupujący może dodatkowo żądać odszkodowania na zasadach ogólnych.\n\n§ 8 Odpowiedzialność i kary umowne\n\n1. W przypadku odstąpienia od umowy przez którąkolwiek ze stron bez uzasadnionej przyczyny, strona odstąpająca zapłaci drugiej stronie karę umowną w wysokości _________________ złotych. Zapłata kary nie zwalnia z obowiązku zwrotu zadatku na zasadach określonych w § 2.\n\n2. Strony mogą żądać odszkodowania przewyższającego wysokość kary umownej na zasadach ogólnych, tj. po wykazaniu wysokości szkody przewyższającej wysokość zastrzeżonej kary.\n\n§ 9 Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n2. W sprawach nieuregulowanych niniejszą umową stosuje się przepisy Kodeksu cywilnego, w szczególności art. 389 KC (umowa przedwstępna), art. 394 KC (zadatek) oraz przepisy o rękojmi przy sprzedaży.\n3. Wszelkie spory wynikające z niniejszej umowy strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby Sprzedawcy.\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\nZałączniki:\n1. Wymienione wady Konia (jeśli występują)\n2. Kopia paszportu Konia\n3. Kopia dokumentacji szczepień\n\nSprzedawca:\n.........................................................\n(czytelny podpis)\n\nKupujący:\n.........................................................\n(czytelny podpis)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zarezerwować konia wyścigowego, płacąc zadatek, i potrzebuję umowy, która zabezpieczy moje pieniądze i da mi czas na badanie konia u weterynarza."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Znalazłem konia wyścigowego, który chcę kupić, ale muszę najpierw sprawdzić go u weterynarza i upewnić się, że jest zdrowy na starty. Chcę zapłacić zadatek, żeby sprzedawca nie sprzedał konia innemu w międzyczasie, i chcę mieć gwarancję, że jeśli badanie wykaże poważne wady, dostanę zadatek z powrotem. Potrzebuję umowy przedwstępnej, która to wszystko ureguluje i ustali termin na podpisanie ostatecznej umowy u notariusza."
+  }
+ ]
+}

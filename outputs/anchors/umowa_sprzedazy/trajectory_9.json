@@ -1,0 +1,307 @@
+{
+ "run": 9,
+ "hint": "Sprzedaż samochodu ciężarowego firmie (B2B)",
+ "scenario": "Sprzedaż samochodu ciężarowego firmie (B2B)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_sprzedazy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a sales contract (umowa_sprzedazy) for a B2B sale of a heavy truck (samochód ciężarowy). I need to:\n1. First read the base template for umowa_sprzedazy\n2. Then search for provisions relevant to B2B sale of a heavy truck\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-5cd75d36-8796-45ac-85ff-a83f65560ac4",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_sprzedazy\", \"query\": \"sprzedaż samochodu ciężarowego B2B\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_sprzedazy\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży samochodu\\nUmowa sprzedaży samochodu w Polsce to umowa nazwana, regulowana przepisami art. 535-555 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), uzupełniona przez przepisy o rękojmi za wady z art. 556-576 Kodeksu cywilnego oraz szczególne wymogi wynikające z ustawy z dnia 20 czerwca 1997 r. Prawo o ruchu drogowym (Dz.U. 2023 poz. 1047 ze zm.) i aktów wykonawczych dotyczących rejestracji pojazdów. Przez tę umowę sprzedający zobowiązuje się przenieść na kupującego własność pojazdu i wydać mu pojazd, a kupujący zobowiązuje się pojazd odebrać i zapłacić sprzedającemu uzgodnioną cenę.\\n\\nSamochód osobowy, ciężarowy, motocykl lub inny pojazd mechaniczny stanowi rzecz ruchomą w rozumieniu art. 45 Kodeksu cywilnego, a jego sprzedaż podlega ogólnym przepisom o przeniesieniu własności. Własność pojazdu przechodzi na kupującego z chwilą zawarcia umowy (art. 155 § 1 Kodeksu cywilnego), jednak do korzystania z pojazdu w ruchu drogowym niezbędna jest rejestracja w wydziale komunikacji właściwego starostwa lub urzędu miasta na prawach powiatu, a do momentu rejestracji kupujący obowiązany jest dysponować dowodem nabycia pojazdu — właśnie umową sprzedaży.\\n\\nUmowa sprzedaży samochodu spełnia kilka kluczowych funkcji prawnych. Po pierwsze, przenosi własność pojazdu i dokumentuje ten fakt na potrzeby postępowania rejestracyjnego w Wydziale Komunikacji. Po drugie, stanowi podstawę do ubezpieczenia pojazdu w zakładzie ubezpieczeń — towarzystwo ubezpieczeniowe wymaga dowodu nabycia przy zawieraniu polisy OC lub AC. Po trzecie, jest dowodem w ewentualnych sporach cywilnych przed Sądem Rejonowym lub Sądem Okręgowym, w tym w postępowaniu o rękojmię za wady lub o zapłatę ceny. Po czwarte, pozwala ustalić datę zbycia pojazdu na potrzeby podatkowe — zarówno podatku od czynności cywilnoprawnych (PCC), który kupujący ma obowiązek odprowadzić w terminie 14 dni od daty nabycia do właściwego urzędu skarbowego (Krajowa Administracja Skarbowa, KAS), jak i ewentualnego podatku dochodowego przy sprzedaży w ramach działalności gospodarczej.\\n\\nW obrocie prywatnym między osobami fizycznymi strony mają znaczną swobodę w kształtowaniu warunków, w szczególności mogą wyłączyć lub ograniczyć rękojmię za wady (art. 558 § 1 Kodeksu cywilnego), pod warunkiem że sprzedający nie zatai wad znanych mu w chwili zawarcia umowy. W obrocie konsumenckim — gdy sprzedającym jest przedsiębiorca, a kupującym konsument w rozumieniu art. 22¹ Kodeksu cywilnego — ograniczenie rękojmi jest niedopuszczalne, a kupujący korzysta z pełni uprawnień przewidzianych w art. 560-561 Kodeksu cywilnego oraz w ustawie z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.).\\n\\nNumer VIN (Vehicle Identification Number) stanowi unikalny identyfikator pojazdu i jest weryfikowany zarówno przy rejestracji, jak i przy zawarciu umowy ubezpieczenia. Jego dokładne wskazanie w umowie jest niezbędne — rozbieżność między numerem VIN w umowie a stanem faktycznym może skutkować odmową rejestracji przez Wydział Komunikacji lub unieważnieniem polisy przez zakład ubezpieczeń. Dane pojazdu powinny być przepisane wprost z dowodu rejestracyjnego lub karty pojazdu, a nie z tablicy znamionowej, gdyż dowód rejestracyjny jest dokumentem urzędowym mającym pierwszeństwo w postępowaniu administracyjnym przed organem rejestracyjnym.\\n\\nUmowa sprzedaży samochodu w Polsce jest niezbędna za każdym razem, gdy dochodzi do przeniesienia własności pojazdu — zarówno w transakcji prywatnej, jak i w obrocie komisowym lub dealerskim. Obowiązek posiadania dokumentu potwierdzającego nabycie wynika wprost z ustawy Prawo o ruchu drogowym oraz rozporządzenia Ministra Infrastruktury w sprawie rejestracji i oznaczania pojazdów — Wydział Komunikacji nie dokona przerejestrowania bez okazania umowy sprzedaży lub innego dowodu nabycia.\\n\\nDokument jest niezbędny przy zakupie pojazdu od osoby prywatnej na rynku wtórnym — czyli w tzw. sprzedaży z ogłoszenia. To najczęstszy przypadek transakcji, w której obie strony są osobami fizycznymi nieprowadzącymi działalności gospodarczej, a umowa reguluje w szczególności stan techniczny, przebieg i ewentualne znane wady pojazdu, co wpływa na późniejsze rozliczenia w razie reklamacji.\\n\\nUmowa jest potrzebna przy zakupie pojazdu od dealera lub komisu samochodowego, gdy sprzedającym jest przedsiębiorca. W tym przypadku kupujący będący konsumentem korzysta z rozszerzonej ochrony prawnej wynikającej z przepisów o prawach konsumenta i nie może zrzec się uprawnień z rękojmi za wady.\\n\\nDokument jest konieczny do przeprowadzenia cesji polisy OC na nabywcę. Zgodnie z przepisami ustawy z dnia 22 maja 2003 r. o ubezpieczeniach obowiązkowych, Ubezpieczeniowym Funduszu Gwarancyjnym i Polskim Biurze Ubezpieczycieli Komunikacyjnych, polisa OC przechodzi z mocy prawa na nabywcę pojazdu — zakład ubezpieczeń musi jednak otrzymać informację o zmianie właściciela, a umowa sprzedaży jest niezbędnym dowodem. Analogicznie towarzystwo AC żąda umowy przy likwidacji szkody zgłoszonej przez nowego właściciela.\\n\\nUmowa jest potrzebna przy wszelkich sporach dotyczących pojazdu — zarówno z tytułu wad fizycznych lub prawnych, jak i w razie mandatów, opłat parkingowych lub wyroków karnych dotyczących zdarzeń sprzed transakcji. Posiadanie datowanej umowy z numerem VIN pozwala wykazać, że odpowiedzialność za określone zdarzenie drogowe dotyczy poprzedniego właściciela, co jest ważne przy ewentualnych postępowaniach prowadzonych przez policję, Inspekcję Transportu Drogowego lub sąd.\\n\\nPrawidłowa umowa sprzedaży samochodu w Polsce, oparta na art. 535 i następnych Kodeksu cywilnego, musi zawierać elementy identyfikujące strony, przedmiot sprzedaży oraz warunki transakcji.\\n\\nOznaczenie stron: pełne imię i nazwisko sprzedającego oraz kupującego, numery PESEL obu stron, serie i numery dowodów osobistych lub paszportów, adresy zamieszkania lub zameldowania. Dane te są weryfikowane przez Wydział Komunikacji podczas przerejestrowania i przez zakład ubezpieczeń przy zmianie ubezpieczonego. W przypadku sprzedaży przez przedsiębiorcę konieczne są dane firmy: NIP, REGON, numer KRS lub CEIDG, adres siedziby i osoba uprawniona do reprezentacji.\\n\\nDane pojazdu: marka i model (identycznie jak w dowodzie rejestracyjnym), rok produkcji, numer VIN (17 znaków), numer rejestracyjny, rodzaj pojazdu, pojemność silnika, przebieg w chwili zawarcia umowy, kolor i stan techniczny. Numer VIN powinien być przepisany dokładnie — nawet jedna pomyłka powoduje odmowę rejestracji przez Wydział Komunikacji.\\n\\nCena i płatność: kwota cyfrowo i słownie (np. \\\"25 000 zł, słownie: dwadzieścia pięć tysięcy złotych\\\"), waluta PLN, sposób zapłaty (przelew bankowy — zalecany — lub gotówka za pokwitowaniem), termin i sposób zapłaty oraz rachunek bankowy sprzedającego. Kupujący ma obowiązek złożenia deklaracji PCC-3 i zapłaty podatku od czynności cywilnoprawnych w wysokości 2 procent wartości rynkowej pojazdu w terminie 14 dni od zawarcia umowy do właściwego urzędu skarbowego (KAS).\\n\\nWydanie pojazdu i dokumentów: data wydania, lista dokumentów przekazywanych kupującemu (dowód rejestracyjny, karta pojazdu jeżeli była wydana, kluczyki, instrukcja obsługi), oświadczenie o stanie licznika oraz o braku wad prawnych pojazdu (brak zastawu, kredytu, zajęcia komorniczego). Warto zaznaczyć, że dane z Centralnej Ewidencji Pojazdów i Kierowców (CEPiK) mogą zostać zweryfikowane przez kupującego przed podpisaniem umowy.\\n\\nRękojmia za wady: w obrocie prywatnym dopuszczalne jest jej wyłączenie lub ograniczenie (art. 558 § 1 Kodeksu cywilnego), jednak wyłączenie nie obejmuje wad ukrytych umyślnie zatajonych przez sprzedającego. W obrocie konsumenckim (dealer–konsument) wyłączenie rękojmi jest bezskuteczne z mocy prawa. Termin rękojmi za wady fizyczne wynosi dwa lata od wydania pojazdu (art. 568 Kodeksu cywilnego). Kupujący może żądać obniżenia ceny, odstąpienia od umowy, wymiany lub naprawy.\\n\\nPostanowienia końcowe: zastrzeżenie formy pisemnej dla zmian umowy, wskazanie sądu właściwego dla ewentualnych sporów (Sąd Rejonowy lub Sąd Okręgowy w zależności od wartości przedmiotu sporu — art. 16-17 Kodeksu postępowania cywilnego), liczba egzemplarzy i podpisy. Serwis forms-legal.com udostępnia wzór umowy sprzedaży samochodu jako punkt wyjścia; przy pojeździe z kredytem lub zajęciem komorniczym warto skonsultować się z radcą prawnym lub adwokatem.\\n\\nWypełnianie umowy sprzedaży samochodu w Polsce należy zacząć od zebrania dokumentów: dowód rejestracyjny pojazdu, karta pojazdu (jeżeli istnieje), dowody osobiste obu stron. Sprawdź dane w Centralnej Ewidencji Pojazdów i Kierowców (CEPiK) pod adresem historiapojazdu.gov.pl — raport o historii pojazdu pozwoli zweryfikować, czy przebieg jest niezmieniony, a pojazd nie figuruje jako skradziony lub obciążony zastawem.\\n\\nW sekcji sprzedającego wpisz imię i nazwisko dokładnie jak w dowodzie osobistym, numer PESEL, serię i numer dowodu osobistego lub paszportu oraz adres zamieszkania. Analogicznie uzupełnij dane kupującego. Obie strony powinny mieć dokumenty tożsamości przy sobie w chwili podpisywania umowy.\\n\\nW sekcji danych pojazdu przepisz wszystkie informacje bezpośrednio z dowodu rejestracyjnego: markę i model, rok produkcji, numer VIN (dokładnie 17 znaków — zweryfikuj każdy znak, bo pomyłka spowoduje odmowę przerejestrowania przez Wydział Komunikacji), numer rejestracyjny i kolor. Wpisz aktualny stan licznika — poproś sprzedającego o zaokrąglenie do całkowitych kilometrów i obejrzyj licznik fizycznie. Rozbieżność między wskazaniem w umowie a stanem faktycznym może być podstawą reklamacji z tytułu rękojmi za wady.\\n\\nCenę podaj cyfrowo i słownie. Kupujący ma obowiązek zapłacić podatek PCC-3 w wysokości 2 procent wartości rynkowej pojazdu w ciągu 14 dni do urzędu skarbowego KAS — wartość rynkowa jest szacowana na podstawie tabel stosowanych przez urzędy skarbowe, a zaniżona cena w umowie może skutkować doszacowaniem przez organ podatkowy. Jeżeli płatność następuje przelewem, zachowaj potwierdzenie przelewu razem z umową.\\n\\nPodpisz umowę w dwóch egzemplarzach — po jednym dla każdej ze stron. Upewnij się, że zarówno sprzedający, jak i kupujący podpisują się czytelnie. Kupujący powinien zarejestrować pojazd w Wydziale Komunikacji w ciągu 30 dni od daty nabycia, zabrać ze sobą: umowę sprzedaży, dowód rejestracyjny, kartę pojazdu, polisę OC i dowód uiszczenia podatku PCC (lub zaświadczenie o zwolnieniu z podatku).\\n\\nWymogi prawne umowy sprzedaży samochodu w Polsce wynikają z kilku aktów prawnych, które nakładają obowiązki zarówno na sprzedającego, jak i kupującego.\\n\\nKodeks cywilny (ustawa z dnia 23 kwietnia 1964 r.) reguluje w art. 535 samą umowę sprzedaży, w art. 556-576 rękojmię za wady fizyczne i prawne, a w art. 155 § 1 moment przejścia własności. Do umowy sprzedaży samochodu nie jest wymagana forma szczególna pod rygorem nieważności — wystarczy forma pisemna lub nawet ustna, jednak dla celów dowodowych i rejestracyjnych forma pisemna jest obowiązkowa w praktyce.\\n\\nPrawo o ruchu drogowym (ustawa z dnia 20 czerwca 1997 r., Dz.U. 2023 poz. 1047 ze zm.) nakłada na nowego właściciela obowiązek rejestracji pojazdu lub zawiadomienia organu rejestracyjnego w terminie 30 dni od daty nabycia, pod groźbą kary pieniężnej wymierzanej przez Wydział Komunikacji starostwa lub urzędu miasta na prawach powiatu. Nabycie pojazdu zarejestrowanego za granicą wymaga czasowej rejestracji w terminie 30 dni od przywozu.\\n\\nUstawa z dnia 9 września 2000 r. o podatku od czynności cywilnoprawnych (Dz.U. 2023 poz. 170 ze zm.) nakłada na kupującego obowiązek złożenia deklaracji PCC-3 i zapłaty podatku w wysokości 2 procent wartości rynkowej pojazdu w terminie 14 dni od daty zawarcia umowy. Obowiązek ten ciąży na kupującym będącym osobą fizyczną; w przypadku zakupu od przedsiębiorcy będącego podatnikiem VAT transakcja podlega VAT, nie PCC.\\n\\nUstawa z dnia 22 maja 2003 r. o ubezpieczeniach obowiązkowych, Ubezpieczeniowym Funduszu Gwarancyjnym i Polskim Biurze Ubezpieczycieli Komunikacyjnych nakazuje każdemu właścicielowi pojazdu posiadać ważną polisę OC — jej brak grozi karą pieniężną wymierzaną przez Ubezpieczeniowy Fundusz Gwarancyjny (UFG). Polisa OC przechodzi na nabywcę z mocy prawa i może być kontynuowana lub rozwiązana przez nabywcę; sprzedający może ją wypowiedzieć po przeniesieniu własności.\\n\\nW obrocie konsumenckim zastosowanie znajdzie ustawa z dnia 30 maja 2014 r. o prawach konsumenta, przyznająca kupującemu prawo odstąpienia w terminie 14 dni przy umowach zawieranych na odległość lub poza lokalem przedsiębiorstwa (art. 27 tej ustawy).\\n\\nNajczęstsze błędy przy umowie sprzedaży samochodu w Polsce zaczynają się od niezgodności danych pojazdu z dowodem rejestracyjnym. Wpisanie błędnego numeru VIN, choćby przez zamianę jednej litery lub cyfry, skutkuje odmową przerejestrowania przez Wydział Komunikacji i koniecznością sporządzenia aneksu lub nowej umowy. Zawsze przepisuj numer VIN bezpośrednio z dowodu rejestracyjnego i porównaj z tabliczką znamionową pojazdu.\\n\\nKolejnym powszechnym błędem jest zaniżanie ceny w umowie, aby zmniejszyć podatek PCC. Urząd skarbowy (KAS) ma prawo wezwać strony do złożenia wyjaśnień, jeżeli zadeklarowana cena odbiega od wartości rynkowej pojazdu ustalanej na podstawie katalogów. Znaczące zaniżenie może skutkować doszacowaniem i naliczeniem zaległego podatku wraz z odsetkami za zwłokę.\\n\\nBrak wskazania stanu licznika w umowie lub podanie stanu \\\"nieznany\\\" osłabia pozycję kupującego w razie sporu z tytułu rękojmi za wady. Cofanie licznika stanowi przestępstwo z art. 306a Kodeksu karnego (Dz.U. 2022 poz. 1138 ze zm.), a pisemne oświadczenie sprzedającego o przebiegu jest ważnym dowodem w postępowaniu karnym i cywilnym.\\n\\nPomijanie zapisu o stanie technicznym i znanych wadach powoduje, że kupujący nie może wykazać, które usterki były sprzedającemu znane przed zawarciem umowy. Wyłączenie rękojmi bez opisu znanych wad jest nieskuteczne wobec wad celowo zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego), co może rodzić odpowiedzialność sprzedającego.\\n\\nBrak terminowego opłacenia podatku PCC przez kupującego (14 dni od daty zawarcia umowy) grozi sankcją karno-skarbową. Strony mylnie zakładają, że obowiązek spoczywa na sprzedającym lub na obu stronach — ustawa jednoznacznie wskazuje kupującego jako podatnika.\\n\\nŹródło: https://forms-legal.com/pl/personal/bills-of-sale/umowa-sprzedazy-samochodu (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-5cd75d36-8796-45ac-85ff-a83f65560ac4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Good, I have the base template for a car sale agreement. Now I need to search for provisions specific to B2B sale of a heavy truck (samochód ciężarowy). This would involve:\n1. B2B specific provisions (VAT instead of PCC, entrepreneur obligations)\n2. Heavy truck specific requirements (technical inspection, tachograph, weight restrictions, etc.)\n3. Business-to-business warranty limitations\n4. Registration requirements for commercial vehicles\n\nLet me search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-cd60d2cb-5c3e-4347-a100-cb9a5a10bbe5",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż samochodu ciężarowego B2B przedsiębiorca przedsiębiorcy VAT faktura rejestracja pojazdu ciężarowego\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_1e77388c465704cf\", \"source_id\": \"uokik_rejestr_klauzul_6758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar należy dostarczyć do siedziby Sprzedawcy w komplecie: faktura VAT\"}, {\"chunk_id\": \"uokik_items:uokik_3512da4f9540977c\", \"source_id\": \"uokik_rejestr_klauzul_6996\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Do każdego wysyłanego towaru dołączamy paragon lub fakturę VAT, który jest dowodem zakupu jak również podstawą do jakichkolwiek reklamacji lub zwrotów.\"}, {\"chunk_id\": \"uokik_items:uokik_1917e4226cc12d10\", \"source_id\": \"uokik_rejestr_klauzul_5414\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena pojazdu może wzrosnąć w stosunku do ceny określonej w Zamówieniu, gdy do dnia wystawienia faktury nastąpi zmiana: (ii) przepisów prawnych na terenie Rzeczypospolitej Polskiej, nakładających na producentów lub importerów nowe ciężary o charakterze publicznym lub zobowiązującym do wprowadzenia zmian technicznych w pojazdach sprowadzonych na teren Rzeczypospolitej Polskiej\"}, {\"chunk_id\": \"uokik_items:uokik_fe5052b72cb53f30\", \"source_id\": \"uokik_rejestr_klauzul_5413\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena pojazdu może wzrosnąć w stosunku do ceny określonej w Zamówieniu, gdy do dnia wystawienia faktur nastąpi zmiana: (i) stawek celnych lub podatkowych lub zostaną wprowadzone nowe opłaty\"}, {\"chunk_id\": \"uokik_items:uokik_7677f312319bb6ac\", \"source_id\": \"uokik_rejestr_klauzul_6741\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wraz z odsyłanym produktem należy odesłać dowód zakupu, którym jest faktura VAT lub paragon oraz w oświadczenie z podaniem imienia, nazwiska, adresu, numeru zamówienia oraz dane niezbędne do dokonania przelewu (numer konta i nazwa banku).\"}, {\"chunk_id\": \"uokik_items:uokik_358e41df4c76e9a6\", \"source_id\": \"uokik_rejestr_klauzul_6968\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest dowód zakupu towaru (paragon lub faktura VAT)\"}, {\"chunk_id\": \"uokik_items:uokik_9927fb413d3e8455\", \"source_id\": \"uokik_rejestr_klauzul_6426\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Do zwracanego towaru musi być załączony podpisany oryginał faktury VAT oraz numer rachunku bankowego na który ma zostać dokonany zwrot wartości towaru\"}, {\"chunk_id\": \"uokik_items:uokik_314cd509a5db2dfb\", \"source_id\": \"uokik_rejestr_klauzul_7021\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest przedstawienie przez Klienta dowodu zakupu towaru (paragon fiskalny lub faktura VAT).\"}, {\"chunk_id\": \"uokik_items:uokik_4c5c9d5258d47e1a\", \"source_id\": \"uokik_rejestr_klauzul_4242\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest dowód zakupu towaru (paragon fiskalny lub faktura VAT)\"}, {\"chunk_id\": \"uokik_items:uokik_cf8400af9131a96d\", \"source_id\": \"uokik_rejestr_klauzul_6787\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(…). Do przesyłki zawierającej zwracany egzemplarz publikacji kupujący zobowiązany jest dołączyć otrzymaną od sprzedawcy fakturę VAT lub paragon oraz pismo informujące o chęci odstąpienia od umowy.(…)\"}]",
+   "tool_call_id": "call-cd60d2cb-5c3e-4347-a100-cb9a5a10bbe5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results are about consumer clauses, not very relevant. Let me search more specifically for heavy truck/B2B provisions.",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-b953e605ad22dda0",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"samochód ciężarowy\", \"B2B\", \"przedsiębiorca\", \"VAT\", \"faktura\"], \"top_k\": 8}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43d. 1. Jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. 2. Przedsiębiorca może dokonać wymiany, gdy konsument żąda naprawy, lub przedsiębiorca może dokonać naprawy, gdy konsument żąda wymiany, jeżeli doprowadzenie do zgodności towaru z umową w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy. Jeżeli naprawa i wymiana są niemożliwe lub wymagałyby nadmi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43o\", \"source_id\": \"sejm_eli_du_2024_1796_art_43o\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43o. 1. Po odstąpieniu od umowy przedsiębiorca nie może wykorzystywać treści innych niż dane osobowe dostarczone lub wytworzone przez konsumenta w trakcie korzystania z treści cyfrowej lub usługi cyfrowej dostarczonych przez przedsiębiorcę, z wyjątkiem treści, które: 1) są użyteczne wyłącznie w związku z treścią cyfrową lub usługą cyfrową, które stanowiły przedmiot umowy; 2) dotyczą wyłącznie aktywności konsumenta w trakcie korzystania z t ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43b. 1. Towar jest zgodny z umową, jeżeli zgodne z umową pozostają w szczególności jego: 1) opis, rodzaj, ilość, jakość, kompletność i funkcjonalność, a w odniesieniu do towarów z elementami cyfrowymi - również kompatybilność, interoperacyjność i dostępność aktualizacji; 2) przydatność do szczególnego celu, do którego jest potrzebny konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przeds ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43j\", \"source_id\": \"sejm_eli_du_2024_1796_art_43j\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43j. 1. Przedsiębiorca dostarcza konsumentowi treść cyfrową lub usługę cyfrową niezwłocznie po zawarciu umowy, chyba że strony postanowiły inaczej. 2. Treść cyfrową uważa się za dostarczoną w chwili, gdy treść cyfrowa lub środek, który pozwala na uzyskanie dostępu do treści cyfrowej lub pobranie treści cyfrowej, zostały udostępnione konsumentowi lub fizycznemu lub wirtualnemu urządzeniu, które konsument wybrał samodzielnie w tym celu, lub  ...\"}]",
+   "tool_call_id": "chatcmpl-tool-b953e605ad22dda0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "These are consumer protection provisions, not B2B. Let me search for more specific B2B/heavy truck provisions - maybe in the Civil Code or Road Traffic Act.",
+   "tool_calls": [
+    {
+     "id": "call-ca0c3ac3-7f22-476f-a839-3f3c27bacc3a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż pojazdu ciężarowego między przedsiębiorcami VAT faktura rejestracja CEPiK tachograf badanie techniczne\", \"top_k\": 8}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_1917e4226cc12d10\", \"source_id\": \"uokik_rejestr_klauzul_5414\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena pojazdu może wzrosnąć w stosunku do ceny określonej w Zamówieniu, gdy do dnia wystawienia faktury nastąpi zmiana: (ii) przepisów prawnych na terenie Rzeczypospolitej Polskiej, nakładających na producentów lub importerów nowe ciężary o charakterze publicznym lub zobowiązującym do wprowadzenia zmian technicznych w pojazdach sprowadzonych na teren Rzeczypospolitej Polskiej\"}, {\"chunk_id\": \"uokik_items:uokik_01e98f284796d2b2\", \"source_id\": \"uokik_rejestr_klauzul_7336\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą rozpatrywania spraw reklamacyjnych jest dowód sprzedaży w postaci paragonu fiskalnego lub faktury VAT\"}, {\"chunk_id\": \"uokik_items:uokik_1e77388c465704cf\", \"source_id\": \"uokik_rejestr_klauzul_6758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zwracany towar należy dostarczyć do siedziby Sprzedawcy w komplecie: faktura VAT\"}, {\"chunk_id\": \"uokik_items:uokik_3512da4f9540977c\", \"source_id\": \"uokik_rejestr_klauzul_6996\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Do każdego wysyłanego towaru dołączamy paragon lub fakturę VAT, który jest dowodem zakupu jak również podstawą do jakichkolwiek reklamacji lub zwrotów.\"}, {\"chunk_id\": \"uokik_items:uokik_358e41df4c76e9a6\", \"source_id\": \"uokik_rejestr_klauzul_6968\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest dowód zakupu towaru (paragon lub faktura VAT)\"}, {\"chunk_id\": \"uokik_items:uokik_fe5052b72cb53f30\", \"source_id\": \"uokik_rejestr_klauzul_5413\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena pojazdu może wzrosnąć w stosunku do ceny określonej w Zamówieniu, gdy do dnia wystawienia faktur nastąpi zmiana: (i) stawek celnych lub podatkowych lub zostaną wprowadzone nowe opłaty\"}, {\"chunk_id\": \"uokik_items:uokik_4c5c9d5258d47e1a\", \"source_id\": \"uokik_rejestr_klauzul_4242\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest dowód zakupu towaru (paragon fiskalny lub faktura VAT)\"}, {\"chunk_id\": \"uokik_items:uokik_2bac06b82960da76\", \"source_id\": \"uokik_rejestr_klauzul_6980\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest faktura Vat lub paragon fiskalny, otrzymany przez Kupującego wraz z zakupionym towarem.\"}]",
+   "tool_call_id": "call-ca0c3ac3-7f22-476f-a839-3f3c27bacc3a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "These are still consumer-focused. Let me search for specific legal provisions about B2B vehicle sales, VAT, and heavy truck requirements in the statutes.",
+   "tool_calls": [
+    {
+     "id": "call-b0f28cef-4fe5-4b87-bbe0-8ac7b98c393d",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 535\", \"art. 556\", \"rękojmia\", \"przedsiębiorca\", \"VAT\", \"PCC\", \"samochód ciężarowy\", \"DMC\", \"tachograf\"], \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_id\": \"sejm_eli_du_2024_1796_art_38\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 38. 1. Prawo odstąpienia od umowy zawartej poza lokalem przedsiębiorstwa lub na odległość nie przysługuje konsumentowi w odniesieniu do umów: 1) o świadczenie usług, za które konsument jest zobowiązany do zapłaty ceny, jeżeli przedsiębiorca wykonał w pełni usługę za wyraźną i uprzednią zgodą konsumenta, który został poinformowany przed rozpoczęciem świadczenia, że po spełnieniu świadczenia przez przedsiębiorcę utraci prawo odstąpienia od u ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43d. 1. Jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. 2. Przedsiębiorca może dokonać wymiany, gdy konsument żąda naprawy, lub przedsiębiorca może dokonać naprawy, gdy konsument żąda wymiany, jeżeli doprowadzenie do zgodności towaru z umową w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy. Jeżeli naprawa i wymiana są niemożliwe lub wymagałyby nadmi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43o\", \"source_id\": \"sejm_eli_du_2024_1796_art_43o\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43o. 1. Po odstąpieniu od umowy przedsiębiorca nie może wykorzystywać treści innych niż dane osobowe dostarczone lub wytworzone przez konsumenta w trakcie korzystania z treści cyfrowej lub usługi cyfrowej dostarczonych przez przedsiębiorcę, z wyjątkiem treści, które: 1) są użyteczne wyłącznie w związku z treścią cyfrową lub usługą cyfrową, które stanowiły przedmiot umowy; 2) dotyczą wyłącznie aktywności konsumenta w trakcie korzystania z t ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43b. 1. Towar jest zgodny z umową, jeżeli zgodne z umową pozostają w szczególności jego: 1) opis, rodzaj, ilość, jakość, kompletność i funkcjonalność, a w odniesieniu do towarów z elementami cyfrowymi - również kompatybilność, interoperacyjność i dostępność aktualizacji; 2) przydatność do szczególnego celu, do którego jest potrzebny konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przeds ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43j\", \"source_id\": \"sejm_eli_du_2024_1796_art_43j\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43j. 1. Przedsiębiorca dostarcza konsumentowi treść cyfrową lub usługę cyfrową niezwłocznie po zawarciu umowy, chyba że strony postanowiły inaczej. 2. Treść cyfrową uważa się za dostarczoną w chwili, gdy treść cyfrowa lub środek, który pozwala na uzyskanie dostępu do treści cyfrowej lub pobranie treści cyfrowej, zostały udostępnione konsumentowi lub fizycznemu lub wirtualnemu urządzeniu, które konsument wybrał samodzielnie w tym celu, lub  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43k\", \"source_id\": \"sejm_eli_du_2024_1796_art_43k\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43k. 1. Treść cyfrowa lub usługa cyfrowa są zgodne z umową, jeżeli zgodne z umową pozostają w szczególności ich: 1) opis, rodzaj, ilość, jakość, kompletność, funkcjonalność, kompatybilność, interoperacyjność oraz dostępność wsparcia technicznego i aktualizacji; 2) przydatność do szczególnego celu, do którego są potrzebne konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przedsiębiorca zaa ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43l\", \"source_id\": \"sejm_eli_du_2024_1796_art_43l\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43l. 1. Przedsiębiorca ponosi odpowiedzialność za brak zgodności z umową treści cyfrowej lub usługi cyfrowej dostarczanych jednorazowo lub w częściach, który istniał w chwili ich dostarczenia i ujawnił się w ciągu dwóch lat od tej chwili. Domniemywa się, że brak zgodności treści cyfrowej lub usługi cyfrowej z umową, który ujawnił się przed upływem roku od chwili dostarczenia treści cyfrowej lub usługi cyfrowej, istniał w chwili ich dostarc ...\"}]",
+   "tool_call_id": "call-b0f28cef-4fe5-4b87-bbe0-8ac7b98c393d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę sprzedać swój ciężarówkę firmie i potrzebuję umowy, która chroni mnie, jeśli kupujący nie zapłaci w terminie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Sprzedaję ciężarówkę marki MAN, rocznik 2019, przebieg 450 tys. km, firmie zarejestrowanej w Polsce. Chcę ustalić cenę 180 tys. zł netto, zapłatę w dwóch ratach (50% przy odbiorze, reszta po 30 dniach), oraz precyzować, kto ponosi koszty przejęcia i ewentualnej naprawy hamulców przed sprzedażą. Potrzebuję też zabezpieczenia na wypadek opóźnienia płatności."
+  }
+ ]
+}

@@ -1,0 +1,326 @@
+{
+ "run": 44,
+ "hint": "Mycie okien, elewacji i rynien",
+ "scenario": "Mycie okien, elewacji i rynien",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_zlecenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an \"umowa_zlecenia\" (contract of mandate) for window cleaning, facade cleaning, and gutter cleaning services. I need to:\n\n1. First read the base template for umowa_zlecenia\n2. Search for relevant provisions related to this specific scenario (cleaning services, windows, facades, gutters)\n3. Look for any specific legal requirements for this type of service\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-3af4ee53-77d9-4da5-b542-b8b4857cf967",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"mycie okien elewacji rynien usługi sprzątania\", \"doc_type\": \"umowa_zlecenia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa z firmą sprzątającą\\nUmowa z firmą sprzątającą w Polsce to umowa o świadczenie usług zawierana na podstawie art. 750 w związku z art. 734 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na mocy której firma sprzątająca (Wykonawca) zobowiązuje się do regularnego lub jednorazowego sprzątania i utrzymywania czystości w obiektach zamawiającego — hotelach, restauracjach, biurach, centrach handlowych, szpitalach, obiektach przemysłowych — a zamawiający do zapłaty umówionego wynagrodzenia. Umowa ma charakter umowy starannego działania (art. 355 § 2 KC), co oznacza, że Wykonawca odpowiada za dołożenie należytej staranności wymaganej przy zawodowym charakterze działalności, nie zaś za osiągnięcie konkretnego rezultatu estetycznego.\\n\\nRynek usług sprzątania i utrzymania czystości w Polsce jest jednym z największych rynków outsourcingu usługowego. Szacunkowa wartość rynku to ponad 10 mld zł rocznie. Dominują cztery segmenty: sprzątanie biurowe i komercyjne (galerie handlowe, biurowce, centrum outsourcingowe); sprzątanie hotelowe (housekeeping, pokoje, części wspólne, spa); sprzątanie i dezynfekcja w obiektach gastronomicznych (restauracje, stołówki, zakłady produkcji żywności) oraz sprzątanie przemysłowe i specjalistyczne (czyszczenie hal produkcyjnych, czyszczenie wysokościowe, dezynfekcja pomieszczeń). Rynek zdominowany jest przez duże sieci (ISS Facility Services, Sodexo, Impel, Rentokil) oraz tysiące małych i średnich firm sprzątających działających regionalnie.\\n\\nKluczowym aspektem prawnym umowy z firmą sprzątającą jest odpowiedzialność za szkody wyrządzone podczas sprzątania. Personel Wykonawcy ma dostęp do pomieszczeń Zamawiającego, wyposażenia i mienia — uszkodzenie wyposażenia, kradzież lub wypadek gościa na mokrej podłodze bez oznaczenia rodzi odpowiedzialność odszkodowawczą Wykonawcy na podstawie art. 471 KC (nienależyte wykonanie umowy) lub art. 415 KC (czyn niedozwolony). Dlatego kluczowe jest, aby Wykonawca posiadał aktualną polisę ubezpieczenia OC z tytułu prowadzonej działalności z odpowiednią sumą gwarancyjną.\\n\\nWażnym elementem umów sprzątania hotelowego jest aspekt bezpieczeństwa i poufności. Personel sprzątający ma dostęp do pokoi gości, ich bagaży i mienia — co rodzi szczególne wymogi w zakresie rzetelności i integralności pracowników, procedur bezpieczeństwa (klucze, karty dostępu) i ochrony danych osobowych gości. Jeżeli Wykonawca ma dostęp do danych osobowych (listy gości, rezerwacje, dokumenty tożsamości) — konieczne jest zawarcie umowy powierzenia przetwarzania danych osobowych na podstawie art. 28 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO), nadzorowanego przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nOdrębnym zagadnieniem jest status zatrudnienia personelu sprzątającego. Firma sprzątająca może zatrudniać pracowników na podstawie umów o pracę (Kodeks pracy z dnia 26 czerwca 1974 r.) lub korzystać z umów zlecenia (art. 734-751 KC), a w ramach outsourcingu pracowniczego — z agencji pracy tymczasowej (ustawa z dnia 9 lipca 2003 r. o zatrudnianiu pracowników tymczasowych). Zamawiający jest chroniony przed odpowiedzialnością solidarną za wynagrodzenia pracowników Wykonawcy przez art. 6471 KC analogicznie stosowany w praktyce.\\n\\nUmowa z firmą sprzątającą w Polsce jest niezbędna w każdej sytuacji regularnego lub jednorazowego zlecania usług sprzątania podmiotowi zewnętrznemu.\\n\\nSprzątanie hotelowe (housekeeping). Hotele, motele, pensjonaty i obiekty noclegowe zlecają obsługę housekeepingu zewnętrznej firmie sprzątającej lub hybrydowo łączą własny personel z outsourcingiem na szczytach sezonu. Umowa reguluje harmonogram sprzątania pokoi po wymeldowaniu, standardy czystości według gwiazdek hotelu i procedury dezynfekcji.\\n\\nSprzątanie restauracji i obiektów gastronomicznych. Restauracje, stołówki i zakłady cateringowe potrzebują regularnego sprzątania kuchni i stref gastronomicznych zgodnie z wymogami systemu HACCP i decyzji SANEPID. Umowa musi uwzględniać specyfikę środków chemicznych dozwolonych w strefach kontaktu z żywnością i częstotliwość dezynfekcji.\\n\\nSprzątanie biurowe. Firmy, instytucje i centra usług wspólnych outsourcują sprzątanie biur i przestrzeni coworkingowych do wyspecjalizowanych podmiotów. Umowa reguluje harmonogram (po godzinach pracy lub rano przed pracownikami), zakres usług (podłogi, sanitariaty, kuchnie, zewnętrzne szyby) i wymagania co do środków czystości.\\n\\nObiekty medyczne i szpitale. Szpitale, przychodnie, laboratoria i apteki wymagają specjalistycznego sprzątania i dezynfekcji, często z użyciem środków biobójczych wymagających rejestracji w Biurze Rejestracji Produktów Leczniczych, Wyrobów Medycznych i Produktów Biobójczych. Umowa z firmą sprzątającą szpital musi uwzględniać wymogi sanitarne i procedury dezynfekcji zgodne z rozporządzeniami Ministra Zdrowia.\\n\\nJednorazowe imprezy i sprzątanie po remoncie. Organizatorzy imprez, inwestorzy i właściciele nieruchomości zawierają umowy na jednorazowe sprzątanie po imprezach (sprzątanie postimprezowe) lub po remoncie. Umowa określa zakres prac, termin wykonania i cenę ryczałtową.\\n\\nUmowa z firmą sprzątającą w Polsce powinna zawierać następujące kluczowe elementy chroniące obie strony:\\n\\nOznaczenie stron. Pełne dane Zamawiającego i Wykonawcy: firma, adres, NIP, REGON, KRS lub CEIDG, organ reprezentacji. Zweryfikuj reprezentację Wykonawcy w KRS lub CEIDG. Sprawdź opinię Wykonawcy (referencje od poprzednich klientów).\\n\\nOpis obiektu i zakresu prac. Szczegółowy opis obiektu objętego sprzątaniem: adres, rodzaj (hotel, restauracja, biuro), powierzchnia (m²), liczba pomieszczeń. Pełny zakres prac jako Załącznik nr 1: sprzątanie bieżące (codzienne), głębokie (tygodniowe, miesięczne), specjalistyczne (mycie okien, czyszczenie wykładzin, dezynfekcja). Wskaż wyraźnie strefy wyłączone z umowy (np. pomieszczenia techniczne, składy chemikaliów).\\n\\nHarmonogram i dostęp. Dni i godziny sprzątania. Procedura dostępu personelu Wykonawcy do obiektu (klucze, karty dostępu, system ewidencji wejść). Liczba pracowników sprzątających w każdej zmianie. Procedura zgłaszania nieobecności i zastępstwa.\\n\\nŚrodki czystości i sprzęt. Wskazanie, która strona dostarcza środki czystości i sprzęt (najczęściej Wykonawca). Wykaz dopuszczonych środków chemicznych (zgodnych z wymogami SANEPID i rozporządzeniem (WE) nr 648/2004 o detergentach). Dla obiektów gastronomicznych — środki dozwolone w kontakcie z żywnością. Dla obiektów medycznych — środki biobójcze z aktualnym pozwoleniem.\\n\\nWynagrodzenie i VAT. Miesięczna ryczałtowa kwota netto plus VAT 23%. Cykl fakturowania i termin płatności. Klauzula waloryzacyjna (np. co roku możliwa korekta o wskaźnik inflacji GUS). Odsetki za opóźnienie (art. 481 KC) i rekompensata z ustawy o nadmiernych opóźnieniach.\\n\\nUbezpieczenie OC. Obowiązek posiadania aktualnej polisy OC z tytułu prowadzonej działalności przez cały czas trwania umowy, z minimalną sumą gwarancyjną (np. 500 000 zł na zdarzenie). Kopia polisy jako Załącznik nr 2. Obowiązek dostarczenia nowej polisy przy każdym wznowieniu. Odpowiedzialność Wykonawcy za szkody wyrządzone przez personel sprzątający (art. 474 KC).\\n\\nKary umowne. Kary za niewykonanie usług w danym dniu lub nienależyte wykonanie (np. 1% wynagrodzenia miesięcznego za dzień niewykonania — art. 483 KC). Prawo Zamawiającego do zlecenia sprzątania zastępczego innemu podmiotowi na koszt Wykonawcy przy trwającym niewykonaniu (art. 480 KC — wykonanie zastępcze).\\n\\nPoufność i RODO. Klauzula poufności informacji uzyskanych przy wykonywaniu usług. Przy dostępie do danych osobowych gości lub pracowników — umowa powierzenia przetwarzania na podstawie art. 28 RODO. forms-legal.com rekomenduje zawarcie odrębnej umowy powierzenia przy sprzątaniu hotelowym.\\n\\nWypowiedzenie. Termin wypowiedzenia (30-90 dni). Ważne powody natychmiastowego wypowiedzenia (trzykrotne niewykonanie, naruszenie bezpieczeństwa, brak polisy OC).\\n\\nUmowę z firmą sprzątającą w Polsce wypełnia się etapami chroniącymi interesy obu stron:\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane Zamawiającego i Wykonawcy z NIP, KRS lub CEIDG. Zweryfikuj reprezentację. Przed podpisaniem umowy sprawdź referencje Wykonawcy i żądaj kopii polisy OC.\\n\\nKrok 2 — opisz obiekt i zakres. Wpisz adres i opis obiektu (hotel, restauracja, biuro), powierzchnię i liczbę pomieszczeń. Przygotuj jako Załącznik nr 1 szczegółowy wykaz prac: sprzątanie bieżące, głębokie, specjalistyczne. Wskaż środki czystości (dostarcza Wykonawca lub Zamawiający).\\n\\nKrok 3 — ustal harmonogram. Wpisz dni i godziny sprzątania. Dla hoteli: godziny po check-out, sprzątanie pokoi, harmonogram rotacji. Wpisz procedurę dostępu (klucze, karty, protokół klucza). Wskaż, kto jest koordynatorem ze strony każdej ze stron.\\n\\nKrok 4 — wylicz wynagrodzenie. Wpisz miesięczną kwotę netto plus VAT 23%. Wpisz cykl fakturowania (miesięczny, po wykonaniu) i termin płatności (14-30 dni). Wpisz klauzulę waloryzacyjną i odsetki za opóźnienie (art. 481 KC).\\n\\nKrok 5 — ustal ubezpieczenie i odpowiedzialność. Wpisz wymóg polisy OC z sumą gwarancyjną (min. 500 000 zł) i dołącz kopię polisy jako Załącznik nr 2. Wpisz karę umowną za niewykonanie (art. 483 KC) i prawo do wykonania zastępczego (art. 480 KC).\\n\\nKrok 6 — dodaj RODO. Jeżeli Wykonawca ma dostęp do danych osobowych gości — wpisz klauzulę o zawarciu odrębnej umowy powierzenia przetwarzania (art. 28 RODO). Wpisz klauzulę poufności informacji.\\n\\nKrok 7 — podpisz. Wpisz miejscowość i datę. Podpisują uprawnieni reprezentanci. Dopuszczalna forma elektroniczna z kwalifikowanym podpisem (art. 78¹ KC). Sporządź dwa egzemplarze.\\n\\nUmowa z firmą sprzątającą w Polsce musi spełniać wymogi prawa cywilnego, prawa pracy i przepisów sanitarnych.\\n\\nPodstawa cywilnoprawna. Umowa kwalifikowana jest jako umowa o świadczenie usług (art. 750 KC) z odpowiednim stosowaniem przepisów o zleceniu (art. 734-751 KC). Charakter umowy starannego działania — Wykonawca odpowiada za należytą staranność (art. 355 § 2 KC), nie za osiągnięcie konkretnego stanu czystości. Za działania personelu sprzątającego Wykonawca odpowiada na podstawie art. 474 KC.\\n\\nBezpieczeństwo i higiena pracy. Firma sprzątająca jako pracodawca jest zobowiązana do zapewnienia pracownikom bezpiecznych i higienicznych warunków pracy na podstawie art. 237¹ i n. Kodeksu pracy z dnia 26 czerwca 1974 r. Obejmuje to: szkolenia BHP przed dopuszczeniem do pracy; zapewnienie środków ochrony indywidualnej (rękawice, obuwie antypoślizgowe, odzież robocza); instrukcje obsługi sprzętu; ocenę ryzyka zawodowego. Inspekcja Pracy (PIP) kontroluje przestrzeganie przepisów BHP.\\n\\nŚrodki chemiczne i produkty biobójcze. Środki czystości stosowane przez firmy sprzątające muszą być zgodne z rozporządzeniem Parlamentu Europejskiego i Rady (WE) nr 648/2004 z dnia 31 marca 2004 r. w sprawie detergentów. Środki biobójcze (dezynfekcyjne) stosowane w szpitalach i obiektach medycznych muszą posiadać pozwolenie na obrót wydane przez Biuro Rejestracji Produktów Leczniczych, Wyrobów Medycznych i Produktów Biobójczych na podstawie ustawy z dnia 9 października 2015 r. o produktach biobójczych (Dz.U. 2015 poz. 1926 ze zm.).\\n\\nOchrona danych osobowych i RODO. Personel sprzątający w hotelu lub biurze może mieć dostęp do danych osobowych (dane gości na listach zameldowania, dokumenty pracowników, dane na widocznych biurkach). Jeżeli firma sprzątająca przetwarza dane osobowe Zamawiającego jako podmiot przetwarzający — konieczna jest umowa powierzenia przetwarzania na podstawie art. 28 RODO z obowiązkowymi elementami z art. 28 ust. 3 RODO (zobowiązanie do poufności, środki bezpieczeństwa, podpowierzenie, pomoc administratorowi, usunięcie danych po zakończeniu). Nadzór sprawuje Prezes PUODO.\\n\\nKary umowne i wykonanie zastępcze. Kary umowne (art. 483 KC) za niewykonanie usług sprzątania są dopuszczalne za zobowiązanie niepieniężne. Przy trwającym niewykonaniu Zamawiający może zlecić sprzątanie innemu podmiotowi na koszt Wykonawcy — art. 480 § 1 KC (wykonanie zastępcze) po uprzednim wezwaniu Wykonawcy i bezskutecznym upływie dodatkowego terminu.\\n\\nUmowy z firmami sprzątającymi w Polsce bywają wadliwie zawierane, co prowadzi do sporów lub przerw w obsłudze obiektu.\\n\\nBłąd 1 — brak szczegółowego zakresu prac. Umowa mówi o \\\"sprzątaniu całego hotelu\\\" bez Załącznika z wykazem pomieszczeń, częstotliwości sprzątania i standardów. Firmy interpretują zakres różnie — sprzątają mniej i żądają pełnego wynagrodzenia. Zalecenie: dołącz Załącznik nr 1 z wykazem pomieszczeń, częstotliwością i standardem dla każdego rodzaju pomieszczenia.\\n\\nBłąd 2 — brak wymogu polisy OC. Umowa nie wymaga od Wykonawcy posiadania ubezpieczenia OC. Pracownik Wykonawcy rozbija drogi wazon lub pozostawia mokrą podłogę bez oznaczenia, przez co gość doznaje urazu — Zamawiający nie może skutecznie dochodzić odszkodowania od Wykonawcy, jeżeli ten nie ma majątku ani polisy. Zalecenie: żądaj kopii aktualnej polisy OC z minimalną sumą gwarancyjną (500 000 zł) jako Załącznika nr 2.\\n\\nBłąd 3 — brak procedury dostępu do kluczy. Umowa nie reguluje procedury przekazania i ewidencji kluczy lub kart dostępu personelowi Wykonawcy. Klucze do pokoi lub sejfów hotelowych mogą zostać skopiowane. Zalecenie: wpisz procedurę przekazania kluczy (protokół klucza, zakaz kopiowania pod rygorem kary umownej) i obowiązek niezwłocznego zwrotu przy zakończeniu umowy.\\n\\nBłąd 4 — brak klauzuly RODO. Firma sprzątająca w hotelu ma dostęp do kart meldunkowych, list rezerwacji i innych danych osobowych gości. Brak umowy powierzenia przetwarzania (art. 28 RODO) stanowi naruszenie RODO i może skutkować karą PUODO. Zalecenie: zawrzyj umowę powierzenia przetwarzania lub upewnij się, że firma sprzątająca nie ma dostępu do danych osobowych.\\n\\nBłąd 5 — brak regulacji środków chemicznych. Umowa nie określa, jakie środki czystości może stosować Wykonawca. W restauracji lub szpitalu Wykonawca używa nieodpowiednich środków — naruszenie wymogów SANEPID lub niebezpieczna reakcja chemiczna z materiałami wyposażenia. Zalecenie: wpisz wykaz dopuszczonych środków lub wymóg stosowania środków zgodnych z przepisami prawa żywnościowego (w gastronomii) lub przepisami o produktach biobójczych (w medycynie).\\n\\nBłąd 6 — brak kary za niewykonanie. Umowa nie przewiduje kary dla Wykonawcy za niestawienie się personelu. Hotel wita gości po nocy, w której nikt nie posprzątał restauracji. Zamawiający nie ma podstawy do obniżenia wynagrodzenia ani odzyskania kosztów awaryjna ekipy sprzątającej bez udowodnienia szkody. Zalecenie: wpisz karę umowną za niewykonanie (art. 483 KC) i prawo do wykonania zastępczego (art. 480 KC) na koszt Wykonawcy.\\n\\nŹródło: https://forms-legal.com/pl/business/services/umowa-z-firma-sprzatajaca (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-3af4ee53-77d9-4da5-b542-b8b4857cf967",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_4433e7565cfe48bf80a7758f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"mycie okien elewacji rynien usługi sprzątania wysokościowej odpowiedzialność BHP\"}"
+     }
+    },
+    {
+     "id": "call_e276a2c666144769ae5844d2",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"mycie okien\", \"elewacje\", \"rynnie\", \"wysokościowe\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_4fb1b3518ab3f636\", \"source_id\": \"uokik_rejestr_klauzul_4123\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W każdym wypadku odpowiedzialność Usługodawcy jest ograniczona do wysokości szkody rzeczywistej i nie będzie przekraczała każdorazowo mniejszej z wartości: czterokrotności kwoty złożonego zamówienia lub kwoty 5.000 zł (pięć tysięcy złotych)\"}, {\"chunk_id\": \"uokik_items:uokik_8321cab4da624f49\", \"source_id\": \"uokik_rejestr_klauzul_497\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Organizator w uzasadnionych przypadkach ponosi odpowiedzialność z tytułu wykonania usługi maksymalnie do 2 krotnej jej wartości\"}, {\"chunk_id\": \"uokik_items:uokik_36305ade312d2eb6\", \"source_id\": \"uokik_rejestr_klauzul_42\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za rzeczy zaginione lub zniszczone z winy Zakładu, odpowiada on w wysokości 10-cio krotnej wartości tejże usługi\\\".\"}, {\"chunk_id\": \"uokik_items:uokik_0a86dc7ff83f6063\", \"source_id\": \"uokik_rejestr_klauzul_81\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za rzeczy zaginione lub zniszczone z winy Zakładu odpowiada on w wysokości 10-cio krotnej wartości tejże usługi.\"}, {\"chunk_id\": \"uokik_items:uokik_3d466179943de898\", \"source_id\": \"uokik_rejestr_klauzul_4880\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Z tytułu świadczenia Usług wskazanym w Regulaminie do czasu wydania towaru Przewoźnikowi odpowiedzialność Usługodawcy ograniczona jest do wysokości rzeczywistej wartości Towaru wskazanej na dokumencie potwierdzającym sprzedaż (np. faktura, paragon fiskalny) i nie może przekroczyć 2000 zł. Jakakolwiek inna odpowiedzialność odszkodowawcza (...) zostaje mocą niniejszego Regulaminu wyłączona\"}]",
+   "tool_call_id": "call_4433e7565cfe48bf80a7758f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_e276a2c666144769ae5844d2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The keyword search didn't return specific results for window cleaning, facades, and gutters. Let me try more specific searches related to this type of service - maybe looking for \"sprzątanie wysokościowe\" (high-altitude cleaning) or \"mycie elewacji\" (facade cleaning).",
+   "tool_calls": [
+    {
+     "id": "call-c3456502-f0c5-4735-8d51-03068d9bfaa5",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzątanie wysokościowe mycie elewacji rynien BHP uprawnienia altany dźwigi\"}"
+     }
+    },
+    {
+     "id": "call-5af76b55-df2e-4d31-b373-641cbc192d70",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"sprzątanie wysokościowe\", \"prace wysokościowe\", \"mycie elewacji\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_725_art_6b\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 6b. 1. Najemca jest obowiązany utrzymywać lokal oraz pomieszczenia, do używania których jest uprawniony, we właściwym stanie technicznym i higieniczno-sanitarnym określonym odrębnymi przepisami oraz przestrzegać porządku domowego. Najemca jest także obowiązany dbać i chronić przed uszkodzeniem lub dewastacją części budynku przeznaczone do wspólnego użytku, jak dźwigi osobowe, klat ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_6a\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 6a. 1. Wynajmujący jest obowiązany do zapewnienia sprawnego działania istniejących instalacji i urządzeń związanych z budynkiem umożliwiających najemcy korzystanie z wody, paliw gazowych i ciekłych, ciepła, energii elektrycznej, dźwigów osobowych oraz innych instalacji i urządzeń stanowiących wyposażenie lokalu i budynku określone odrębnymi przepisami. 2. W razie oddania w najem l ...\"}, {\"chunk_id\": \"uokik_items:uokik_e57f33a6911ca37c\", \"source_id\": \"uokik_rejestr_klauzul_7413\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"X. Kupujący oświadcza, że jako członek Wspólnoty Mieszkaniowej Budynków wyraża zgodę na: a) dokonanie określenia sposobu korzystania z Nieruchomości Wspólnej, w ten sposób, że każdoczesnym właścicielom wskazanych przez Spółkę lokali znajdujących się w Budynkach przysługiwać będą z wyłączeniem osób trzecich i innych współwłaścicieli Nieruchomości Wspólnej, a w ramach udziałów w Nieruchomości Wspólnej związanych z tymi lokalami - (...) prawa do wywieszania szyldów reklamowych, podświetlanych reklam itp. we wskazanych miejscach na elewacji Budynków w sposób nie utrudniający korzystania z Nierucho ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_231\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 231. § 1. Funkcjonariusz publiczny, który, przekraczając swoje uprawnienia lub nie dopełniając obowiązków, działa na szkodę interesu publicznego lub prywatnego, podlega karze pozbawienia wolności do lat 3. § 2. Jeżeli sprawca dopuszcza się czynu określonego w § 1 w celu osiągnięcia korzyści majątkowej lub osobistej, podlega karze pozbawienia wolności od roku do lat 10. § 3. Jeżeli sprawca czynu określonego w § 1 działa nieumyślnie i wyrządza istotn ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_16\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 16. § 1. Jeżeli organ prowadzący postępowanie jest obowiązany pouczyć uczestników postępowania o ciążących obowiązkach i o przysługujących im uprawnieniach, brak takiego pouczenia lub mylne pouczenie nie może wywoływać ujemnych skutków procesowych dla uczestnika postępowania lub innej osoby, której to dotyczy. § 2. Organ prowadzący postępowanie powinien ponadto w miarę potrzeby udzielać uczestnikom postępowania informacji o ciążących ...\"}]",
+   "tool_call_id": "call-c3456502-f0c5-4735-8d51-03068d9bfaa5",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-5af76b55-df2e-4d31-b373-641cbc192d70",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_0c2f709ec3a14d50a9cb5d2a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa zlecenia usługi sprzątania mycie okien elewacji rynien wynagrodzenie minimalna stawka godzinowa\"}"
+     }
+    },
+    {
+     "id": "call_e299404747e24248a9916d75",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"umowa zlecenia\", \"mycie okien\", \"elewacja\", \"rynnie\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1773_art_1\", \"source_id\": \"sejm_eli_du_2024_1773_art_1\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 1. Użyte w ustawie określenia oznaczają: 1) „Rada Dialogu Społecznego” - Rada Dialogu Społecznego, o której mowa w ustawie z dnia 24 lipca 2015 r. o Radzie Dialogu Społecznego i innych instytucjach dialogu społecznego ( Dz. U. z 2018 r. poz. 2232 , z późn. zm. 1) Zmiany tekstu jednolitego wymienionej ustawy zostały ogłoszone w Dz. U. z 2020 r. poz. 568 i 2157, z 2021 r. poz. 2445, z 2022 r. poz. 2666 oraz z 2023 r. poz. 1586 i 1723. ) ; 1a) „minimalna stawka godzinowa” - minimalna wysokość wynagrodzenia za każdą god ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_8a\", \"source_id\": \"sejm_eli_du_2024_1773_art_8a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 8a. 1. W przypadku umów, o których mowa w art. 734 i art. 750 Kodeksu cywilnego , wykonywanych przez przyjmującego zlecenie lub świadczącego usługi, wysokość wynagrodzenia powinna być ustalona w umowie w taki sposób, aby wysokość wynagrodzenia za każdą godzinę wykonania zlecenia lub świadczenia usług nie była niższa niż wysokość minimalnej stawki godzinowej ustalonej zgodnie z art. 2 ust. 3a, 3b i 5. 2. W przypadku gdy wysokość wynagrodzenia ustalonego w umowie nie zapewnia przyjmującemu zlecenie lub świadczącemu us ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_2\", \"source_id\": \"sejm_eli_du_2024_1773_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 2. 1. Wysokość minimalnego wynagrodzenia za pracę, zwanego dalej „minimalnym wynagrodzeniem”, jest corocznie przedmiotem negocjacji w ramach Rady Dialogu Społecznego. 2. Rada Ministrów, w terminie do dnia 15 czerwca każdego roku, przedstawia Radzie Dialogu Społecznego: 1) propozycję wysokości minimalnego wynagrodzenia w roku następnym oraz propozycję wysokości minimalnej stawki godzinowej w roku następnym określoną zgodnie z ust. 3a i 3b, wraz z terminem zmiany tych wysokości, zgodnie z art. 3; 2) informację o wskaź ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1773_art_8e\", \"source_id\": \"sejm_eli_du_2024_1773_art_8e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\", \"display_address\": \"Dz.U. 2024 poz. 1773\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę\\nArt. 8e. Kto, będąc przedsiębiorcą albo działając w imieniu przedsiębiorcy albo innej jednostki organizacyjnej, wypłaca przyjmującemu zlecenie lub świadczącemu usługi wynagrodzenie za każdą godzinę wykonania zlecenia lub świadczenia usług w wysokości niższej niż obowiązująca wysokość minimalnej stawki godzinowej, podlega karze grzywny od 1000 zł do 30 000 zł.\"}, {\"chunk_id\": \"sejm_eli_du_2025_1242_art_1\", \"source_id\": \"sejm_eli_du_2025_1242_art_1\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Rozporządzenie Rady Ministrów z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę oraz wysokości minimalnej stawki godzinowej w 2026 r.\", \"display_address\": \"Dz.U. 2025 poz. 1242\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Rozporządzenie Rady Ministrów z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę oraz wysokości minimalnej stawki godzinowej w 2026 r.\\nDZIENNIK USTAW RZECZYPOSPOLITEJ POLSKIEJ Warszawa, dnia 15 września 2025 r. Poz. 1242 ROZPORZĄDZENIE RADY MINISTRÓW z dnia 11 września 2025 r. w sprawie wysokości minimalnego wynagrodzenia za pracę oraz wysokości minimalnej stawki godzinowej w 2026 r. Na podstawie art. 2 ust. 5 ustawy z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę (Dz. U. z 2024 r. poz. 1773) zarządza się, co następuje: § 1. Od dnia 1 stycznia  ...\"}]",
+   "tool_call_id": "call_0c2f709ec3a14d50a9cb5d2a",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}, {\"chunk_id\": \"uokik_items:uokik_9501ed17c231ee05\", \"source_id\": \"uokik_rejestr_klauzul_545\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) może zgłosić budynek do odbioru końcowego, nawet jeżeli niektóre elementy zakresu robót nie zostały ukończone (elewacja i detale), o ile termin tego odbioru przypada w okresie jesienno-zimowym (od listopada do kwietnia) i o ile pozostały zakres rzeczowy jest wykonany zgodnie z umową\"}]",
+   "tool_call_id": "call_e299404747e24248a9916d75",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam firmy do mycia okien, elewacji i rynien w moim domu. Czy możecie przyjechać i zrobić wycenę?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam dom jednorodzinny z dwoma piętrami i potrzebuję kompleksowego sprzątania. Chciałbym umyć okna z obu stron, oczyścić elewację z zabrudzeń po zimie oraz wyczyścić rynienie, które zapchły się liśćmi. Elewacja jest pokryta tynkiem silikonowym, więc potrzebuję delikatnego mycia. Czy macie możliwość przyjechać w maju i zrobić dokładną wycenę?"
+  }
+ ]
+}

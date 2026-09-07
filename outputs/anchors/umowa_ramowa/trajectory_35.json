@@ -1,0 +1,305 @@
+{
+ "run": 39,
+ "hint": "Umowa ramowa z tajemnicą przedsiębiorstwa i karą umowną",
+ "scenario": "Umowa ramowa z tajemnicą przedsiębiorstwa i karą umowną",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_ramowa'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a framework agreement (umowa_ramowa) that includes trade secret (tajemnica przedsiębiorstwa) and contractual penalty (kara umowna) provisions. I need to:\n\n1. First read the base template for umowa_ramowa\n2. Search for relevant provisions about trade secrets and contractual penalties\n3. Gather material to create a realistic variation\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-57609cfe-6591-4bf8-a3fd-3943a8f1aa05",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_ramowa\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_ramowa\", \"kind\": \"structural_template\", \"text\": \"# Umowa ramowa o współpracy\\nUmowa ramowa o współpracy w Polsce to umowa określająca ogólne zasady i warunki, na jakich strony będą zawierać i realizować w przyszłości poszczególne umowy lub zamówienia jednostkowe. Jest to umowa nienazwana, oparta na zasadzie swobody umów wyrażonej w art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), zgodnie z którą strony mogą ułożyć stosunek prawny według swego uznania, byleby jego treść lub cel nie sprzeciwiały się naturze stosunku, ustawie ani zasadom współżycia społecznego. Umowa ramowa jest fundamentem długoterminowej, powtarzalnej współpracy gospodarczej między przedsiębiorcami.\\n\\nNajważniejszą cechą prawną umowy ramowej jest to, że co do zasady nie tworzy ona samodzielnego obowiązku świadczenia. Jej rolą jest ustalenie warunków brzegowych — cen, rabatów, terminów, zasad jakości, poufności i odpowiedzialności — które będą obowiązywać przy realizacji konkretnych zamówień jednostkowych. Dopiero złożenie i potwierdzenie zamówienia jednostkowego rodzi obowiązek spełnienia świadczenia. Dzięki temu strony nie muszą za każdym razem negocjować całości warunków, lecz odwołują się do uzgodnionych ram, co przyspiesza i upraszcza bieżącą współpracę.\\n\\nUmowa ramowa odróżnia się od pojedynczej umowy sprzedaży czy dostawy tym, że ma charakter porządkujący i wieloletni, podczas gdy poszczególne transakcje realizowane są na jej podstawie. W praktyce stosuje się ją przy stałych dostawach towarów, regularnym świadczeniu usług, współpracy dystrybucyjnej, podwykonawstwie oraz długoterminowych relacjach handlowych. Relacja między umową ramową a zamówieniami jednostkowymi powinna być jednoznacznie określona, w szczególności przez wskazanie, które postanowienia mają pierwszeństwo w razie rozbieżności.\\n\\nWarunki cenowe i płatnicze stanowią istotny element umowy ramowej. Strony ustalają zasady kształtowania cen, rabaty ilościowe, terminy i sposób płatności oraz reguły waloryzacji. Jeżeli strony są czynnymi podatnikami podatku od towarów i usług, do cen netto dolicza się podatek VAT według stawki podstawowej 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług. W obrocie między przedsiębiorcami zastosowanie ma ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, która chroni wierzyciela przed zatorami płatniczymi.\\n\\nUmowy ramowe często zawierają mechanizmy zabezpieczające: kary umowne za zwłokę w realizacji zamówień lub naruszenie obowiązków niepieniężnych (art. 483 Kodeksu cywilnego), klauzule poufności chroniące tajemnicę przedsiębiorstwa oraz zabezpieczenia wykonania, takie jak gwarancje bankowe czy weksle. Kary umowne mogą być miarkowane przez sąd, gdy zobowiązanie zostało w znacznej części wykonane lub gdy kara jest rażąco wygórowana (art. 484 § 2 Kodeksu cywilnego).\\n\\nUmowa ramowa o współpracy ma kluczowe znaczenie dla stabilności i przewidywalności relacji handlowych. Pozwala zaplanować długoterminową współpracę, zabezpieczyć ciągłość dostaw lub usług oraz ograniczyć koszty transakcyjne związane z powtarzaniem negocjacji. Dobrze sporządzona umowa precyzyjnie określa przedmiot współpracy, tryb składania zamówień, warunki cenowe, czas trwania, zasady wypowiedzenia oraz klauzule zabezpieczające, dzięki czemu obie strony mają jasność co do reguł długoterminowej współpracy.\\n\\nUmowa ramowa o współpracy w Polsce jest potrzebna wówczas, gdy strony planują długoterminową, powtarzalną współpracę i chcą z góry ustalić jej ogólne warunki w ramach swobody umów z art. 353[1] Kodeksu cywilnego.\\n\\nStałe dostawy towarów. Przedsiębiorcy zawierają umowę ramową przy regularnych dostawach surowców, towarów handlowych czy komponentów. Umowa porządkuje ceny, rabaty ilościowe, terminy dostaw i zasady jakości, a poszczególne dostawy realizowane są na podstawie zamówień jednostkowych, co zapewnia ciągłość zaopatrzenia.\\n\\nRegularne świadczenie usług. Firmy korzystające z powtarzalnych usług — transportowych, serwisowych, marketingowych, informatycznych — zawierają umowę ramową ustalającą stawki i zasady zlecania prac. Każde zlecenie realizowane jest następnie na uzgodnionych warunkach bez konieczności ponownych negocjacji.\\n\\nWspółpraca dystrybucyjna i handlowa. Producenci i dystrybutorzy zawierają umowę ramową regulującą zasady wprowadzania towarów do obrotu, ceny, rabaty, terytorium i wsparcie sprzedaży. Umowa ramowa stanowi podstawę długoterminowej relacji, w ramach której realizowane są kolejne zamówienia.\\n\\nPodwykonawstwo i współpraca projektowa. Generalni wykonawcy i podwykonawcy oraz firmy realizujące powtarzalne projekty zawierają umowę ramową określającą zasady zlecania prac, stawki i standardy jakości. Konkretne projekty zlecane są na podstawie zamówień lub umów wykonawczych.\\n\\nObsługa korporacyjna i zakupy. Duże przedsiębiorstwa zawierają umowy ramowe z dostawcami w ramach scentralizowanych zakupów, co pozwala ujednolicić warunki współpracy i uzyskać korzystniejsze ceny dzięki wolumenowi. Zamówienia składane są przez poszczególne jednostki organizacyjne na podstawie umowy ramowej.\\n\\nZabezpieczenie ciągłości i przewidywalności. Gdy stronom zależy na pewności co do warunków przyszłej współpracy — cen, dostępności, terminów — umowa ramowa zabezpiecza te elementy na uzgodniony okres, ograniczając ryzyko nagłych zmian i sporów.\\n\\nWspółpraca wymagająca poufności i zabezpieczeń. Przy długoterminowej współpracy obejmującej wymianę informacji handlowych lub know-how umowa ramowa porządkuje obowiązki poufności na podstawie ustawy o zwalczaniu nieuczciwej konkurencji oraz wprowadza zabezpieczenia wykonania, takie jak kary umowne za zwłokę czy gwarancje, co chroni interesy obu stron.\\n\\nUmowa ramowa o współpracy w Polsce powinna zawierać następujące elementy oparte na swobodzie umów z art. 353[1] Kodeksu cywilnego, aby jednoznacznie określić reguły długoterminowej współpracy.\\n\\nOznaczenie stron. Pełne dane obu przedsiębiorców: firma, adres siedziby, NIP, REGON, numer KRS dla spółek z Krajowego Rejestru Sądowego lub wpis do CEIDG dla jednoosobowej działalności. Precyzyjne oznaczenie stron jest podstawą ustalenia zakresu zobowiązań oraz prawidłowego fakturowania w toku współpracy.\\n\\nPrzedmiot współpracy ramowej. Określenie ogólnego zakresu współpracy i rodzaju świadczeń realizowanych na podstawie zamówień. Wskazanie, że umowa ramowa nie tworzy samodzielnego obowiązku świadczenia, lecz określa warunki realizacji zamówień jednostkowych. forms-legal.com zaleca jednoznaczne opisanie przedmiotu współpracy, co ułatwia stosowanie umowy w praktyce.\\n\\nRelacja umowy ramowej do zamówień jednostkowych. Określenie, które postanowienia mają pierwszeństwo w razie rozbieżności między umową ramową a zamówieniem jednostkowym. Jasne uregulowanie tej relacji zapobiega sporom o to, jakie warunki obowiązują przy realizacji konkretnej transakcji.\\n\\nTryb składania i potwierdzania zamówień. Zasady składania zamówień jednostkowych — forma (elektroniczna, pisemna), termin potwierdzenia, minimalna treść zamówienia obejmująca rodzaj, ilość, cenę i termin realizacji. Potwierdzenie zamówienia oznacza zawarcie umowy jednostkowej na warunkach umowy ramowej.\\n\\nWarunki cenowe i płatnicze. Zasady ustalania cen, rabatów ilościowych, terminów i sposobu płatności oraz reguły waloryzacji. Wskazanie, że do cen netto doliczany jest podatek VAT 23%, gdy strony są czynnymi podatnikami. Określenie skutków opóźnienia, w tym odsetek ustawowych za opóźnienie w transakcjach handlowych i rekompensaty za koszty odzyskiwania należności.\\n\\nStandardy jakości i odbioru. Postanowienia dotyczące wymaganej jakości świadczeń, sposobu odbioru oraz zgłaszania i usuwania wad. Element ten ma znaczenie zwłaszcza przy dostawach towarów i usługach wykonawczych, gdzie istotna jest zgodność świadczenia z umową.\\n\\nPoufność i tajemnica przedsiębiorstwa. Wzajemne zobowiązanie do zachowania w poufności informacji handlowych stanowiących tajemnicę przedsiębiorstwa w rozumieniu art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji, wraz z czasem obowiązywania i skutkami naruszenia.\\n\\nKary umowne i zabezpieczenia. Kary umowne za zwłokę w realizacji zamówień lub naruszenie obowiązków niepieniężnych zgodnie z art. 483 Kodeksu cywilnego, z określeniem limitu łącznego. Zabezpieczenia wykonania, takie jak gwarancje bankowe czy weksle. Należy pamiętać, że kary umownej nie zastrzega się za zobowiązania pieniężne, a kara rażąco wygórowana może być miarkowana (art. 484 § 2).\\n\\nCzas trwania i wypowiedzenie. Wskazanie, czy umowa ramowa jest na czas oznaczony czy nieoznaczony, oraz okresu i trybu wypowiedzenia. Określenie skutków wypowiedzenia dla zamówień jednostkowych przyjętych do realizacji przed datą rozwiązania, które zwykle wykonywane są na dotychczasowych warunkach.\\n\\nPostanowienia końcowe i rozstrzyganie sporów. Odesłanie do przepisów Kodeksu cywilnego w sprawach nieuregulowanych, wymóg formy pisemnej dla zmian, liczba egzemplarzy oraz klauzula wskazująca sąd właściwy, w sprawach gospodarczych — sąd gospodarczy właściwy dla siedziby jednej ze stron.\\n\\nUmowa ramowa o współpracy w Polsce wypełniana jest według kolejnych kroków, które zapewniają zgodność z art. 353[1] Kodeksu cywilnego oraz spójność z zamówieniami jednostkowymi.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane obu przedsiębiorców: firmę, adres, NIP, REGON, numer KRS lub wpis do CEIDG. Zweryfikuj status czynnego podatnika VAT na białej liście podatników VAT oraz reprezentację w Krajowym Rejestrze Sądowym (KRS).\\n\\nKrok 2 — opisz przedmiot współpracy. Określ ogólny zakres współpracy i rodzaj świadczeń realizowanych na podstawie zamówień. Wskaż wyraźnie, że umowa ramowa określa warunki realizacji zamówień jednostkowych, a nie tworzy samodzielnego obowiązku świadczenia.\\n\\nKrok 3 — ureguluj relację do zamówień. Wpisz, które postanowienia mają pierwszeństwo w razie rozbieżności między umową ramową a zamówieniem jednostkowym. Jasna hierarchia dokumentów zapobiega sporom o obowiązujące warunki transakcji.\\n\\nKrok 4 — określ tryb składania zamówień. Wpisz formę składania i potwierdzania zamówień, termin potwierdzenia oraz minimalną treść zamówienia obejmującą rodzaj, ilość, cenę i termin realizacji. Wskaż, że potwierdzenie zamówienia oznacza zawarcie umowy jednostkowej.\\n\\nKrok 5 — ustal warunki cenowe i płatnicze. Wpisz zasady kształtowania cen, rabaty ilościowe, terminy i sposób płatności oraz reguły waloryzacji. Wskaż, że do cen netto doliczany jest VAT 23%, gdy strony są czynnymi podatnikami, oraz określ skutki opóźnienia zgodnie z ustawą o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych.\\n\\nKrok 6 — dodaj klauzule zabezpieczające. Wpisz klauzulę poufności chroniącą tajemnicę przedsiębiorstwa oraz kary umowne za zwłokę lub naruszenie obowiązków niepieniężnych zgodnie z art. 483 Kodeksu cywilnego, z określeniem limitu łącznego. Rozważ zabezpieczenia wykonania, takie jak gwarancja bankowa.\\n\\nKrok 7 — ustal czas trwania i wypowiedzenie. Wpisz, czy umowa ramowa jest na czas oznaczony czy nieoznaczony, oraz okres i tryb wypowiedzenia. Określ, że wypowiedzenie nie wpływa na zamówienia jednostkowe przyjęte do realizacji przed datą rozwiązania.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę zawarcia oraz podpisz dokument w dwóch jednobrzmiących egzemplarzach. Dla spółek podpis składa osoba uprawniona do reprezentacji według wpisu w KRS. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego. Dołącz załączniki, na przykład cennik, jako integralną część umowy.\\n\\nUmowa ramowa o współpracy w Polsce podlega regulacji prawa cywilnego, prawa podatkowego oraz przepisów o przeciwdziałaniu zatorom płatniczym i ochronie konkurencji.\\n\\nSwoboda umów (art. 353[1] Kodeksu cywilnego). Umowa ramowa jest umową nienazwaną opartą na zasadzie swobody umów. Strony mogą ułożyć stosunek prawny według swego uznania, byleby jego treść lub cel nie sprzeciwiały się naturze stosunku, ustawie ani zasadom współżycia społecznego. Do poszczególnych umów jednostkowych zawieranych na podstawie umowy ramowej stosuje się przepisy właściwe dla danego typu umowy, na przykład o sprzedaży (art. 535 i nast.) lub o świadczeniu usług (art. 750 Kodeksu cywilnego).\\n\\nForma umowy. Umowa ramowa nie wymaga co do zasady formy szczególnej, jednak forma pisemna ma istotne znaczenie dowodowe i porządkujące, zwłaszcza przy klauzulach o karach umownych, poufności i zabezpieczeniach. Zmiany umowy zaleca się zastrzegać w formie pisemnej pod rygorem nieważności. Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego.\\n\\nKary umowne (art. 483–484 Kodeksu cywilnego). Strony mogą zastrzec karę umowną na wypadek niewykonania lub nienależytego wykonania zobowiązania niepieniężnego (art. 483 § 1). Kary umownej nie można zastrzec za zobowiązanie pieniężne, takie jak zapłata ceny — na to służą odsetki. Kara umowna należy się w zastrzeżonej wysokości bez względu na wysokość szkody (art. 484 § 1), jednak gdy zobowiązanie zostało w znacznej części wykonane lub kara jest rażąco wygórowana, dłużnik może żądać jej zmniejszenia (art. 484 § 2 — miarkowanie kary umownej).\\n\\nOdsetki i transakcje handlowe. W razie opóźnienia w zapłacie wierzycielowi przysługują odsetki ustawowe za opóźnienie zgodnie z art. 481 Kodeksu cywilnego, których wysokość odpowiada stopie referencyjnej Narodowego Banku Polskiego (NBP) powiększonej o ustawowy wskaźnik. W obrocie profesjonalnym zastosowanie ma ustawa z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych, przyznająca odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensatę za koszty odzyskiwania należności w wysokości równowartości 40, 70 lub 100 euro.\\n\\nPodatek od towarów i usług. Świadczenia realizowane na podstawie umowy ramowej przez czynnych podatników podlegają opodatkowaniu podatkiem VAT według stawki podstawowej 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług. Każda transakcja dokumentowana jest fakturą zawierającą obowiązkowe elementy z art. 106a–106q ustawy o VAT. Faktury ustrukturyzowane przekazywane są przez Krajowy System e-Faktur (KSeF).\\n\\nOchrona konkurencji. Umowy między przedsiębiorcami, zwłaszcza zawierające zobowiązania dotyczące cen, terytorium lub wyłączności, podlegają przepisom prawa konkurencji nadzorowanym przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK). Porozumienia ograniczające konkurencję, na przykład ustalanie cen odsprzedaży czy podział rynku, są zakazane i mogą być nieważne. Strony powinny tak ukształtować umowę ramową, aby nie naruszała zakazu porozumień ograniczających konkurencję.\\n\\nTajemnica przedsiębiorstwa. Informacje handlowe ujawniane w toku współpracy podlegają ochronie na podstawie ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Art. 11 tej ustawy uznaje za czyn nieuczciwej konkurencji ujawnienie lub wykorzystanie tajemnicy przedsiębiorstwa. Klauzula poufności w umowie wzmacnia tę ochronę.\\n\\nPrzedawnienie roszczeń. Roszczenia związane z prowadzeniem działalności gospodarczej przedawniają się co do zasady z upływem trzech lat zgodnie z art. 118 Kodeksu cywilnego, przy czym koniec terminu przypada na ostatni dzień roku kalendarzowego. Dla roszczeń z poszczególnych umów jednostkowych mogą obowiązywać terminy szczególne, na przykład dwuletni termin dla roszczeń ze sprzedaży w zakresie działalności przedsiębiorstwa sprzedawcy (art. 554 Kodeksu cywilnego).\\n\\nUmowa ramowa o współpracy w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć przy starannym jej sporządzeniu.\\n\\nBłąd 1 — niejasna relacja do zamówień jednostkowych. Brak określenia, które postanowienia mają pierwszeństwo w razie rozbieżności, rodzi spory o obowiązujące warunki transakcji. Zalecenie: jednoznacznie ustal hierarchię dokumentów i zasadę pierwszeństwa umowy ramowej lub zamówienia jednostkowego.\\n\\nBłąd 2 — traktowanie umowy ramowej jako źródła obowiązku dostaw. Założenie, że sama umowa ramowa zobowiązuje do określonych dostaw bez zamówień, prowadzi do nieporozumień co do zakresu zobowiązań. Zalecenie: wyraźnie wskaż, że umowa ramowa określa warunki realizacji zamówień, a obowiązek świadczenia powstaje po potwierdzeniu zamówienia jednostkowego.\\n\\nBłąd 3 — brak trybu składania i potwierdzania zamówień. Pominięcie zasad składania zamówień utrudnia ustalenie, kiedy dochodzi do zawarcia umowy jednostkowej. Zalecenie: określ formę, termin potwierdzenia i minimalną treść zamówienia obejmującą rodzaj, ilość, cenę i termin realizacji.\\n\\nBłąd 4 — kara umowna za świadczenie pieniężne. Zastrzeżenie kary umownej za opóźnienie w zapłacie jest nieskuteczne, ponieważ kary umownej nie zastrzega się za zobowiązanie pieniężne (art. 483 Kodeksu cywilnego). Zalecenie: kary umowne zastrzegaj za zobowiązania niepieniężne, takie jak zwłoka w dostawie, a na opóźnienie w zapłacie stosuj odsetki za opóźnienie.\\n\\nBłąd 5 — kara umowna bez limitu łącznego. Kara umowna bez górnego limitu może okazać się rażąco wygórowana i podlegać miarkowaniu przez sąd. Zalecenie: określ limit łączny kar umownych oraz pamiętaj o możliwości miarkowania na podstawie art. 484 § 2 Kodeksu cywilnego.\\n\\nBłąd 6 — pominięcie skutków wypowiedzenia dla zamówień w toku. Brak uregulowania losu zamówień przyjętych do realizacji przed wypowiedzeniem rodzi spory o ich wykonanie. Zalecenie: wskaż, że wypowiedzenie umowy ramowej nie wpływa na zamówienia jednostkowe przyjęte do realizacji przed datą rozwiązania.\\n\\nBłąd 7 — postanowienia naruszające prawo konkurencji. Zapisy o sztywnych cenach odsprzedaży, podziale rynku lub bezwzględnej wyłączności mogą naruszać zakaz porozumień ograniczających konkurencję nadzorowany przez Urząd Ochrony Konkurencji i Konsumentów (UOKiK). Zalecenie: ukształtuj warunki cenowe i terytorialne zgodnie z prawem konkurencji, unikając zakazanych porozumień.\\n\\nBłąd 8 — brak załączników jako integralnej części umowy. Powołanie się na cennik lub specyfikację bez ich załączenia osłabia jednoznaczność warunków. Zalecenie: dołącz załączniki, takie jak cennik czy standardy jakości, i wskaż, że stanowią integralną część umowy ramowej.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-ramowa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-57609cfe-6591-4bf8-a3fd-3943a8f1aa05",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the base template. The scenario direction is \"Umowa ramowa z tajemnicą przedsiębiorstwa i karą umowną\" - a framework agreement with trade secret protection and contractual penalty. Let me search for more specific provisions related to trade secrets (tajemnica przedsiębiorstwa) and contractual penalties (kara umowna) in the context of framework agreements.",
+   "tool_calls": [
+    {
+     "id": "call-c2b95014-152f-4380-8c10-bfa031d1dc97",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"tajemnica przedsiębiorstwa art. 11 ustawa o zwalczaniu nieuczciwej konkurencji klauzula poufności kara umowna\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo d ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 23. 1. Kto, wbrew ciążącemu na nim obowiązkowi w stosunku do przedsiębiorcy, ujawnia innej osobie lub wykorzystuje we własnej działalności gospodarczej informację stanowiącą tajemnicę przedsiębiorstwa, jeżeli wyrządza to poważną szkodę przedsiębiorcy, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. 2. Tej samej karze podlega, kto, uzyskawszy bezprawnie informację stanowiącą tajemnicę przedsiębiorstwa, ujawnia ją innej osobie lub wykorzystuje we w ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 18. 1. W razie dokonania czynu nieuczciwej konkurencji, przedsiębiorca, którego interes został zagrożony lub naruszony, może żądać: 1) zaniechania niedozwolonych działań; 2) usunięcia skutków niedozwolonych działań; 3) złożenia jednokrotnego lub wielokrotnego oświadczenia odpowiedniej treści i w odpowiedniej formie; 4) naprawienia wyrządzonej szkody, na zasadach ogólnych; 5) wydania bezpodstawnie uzyskanych korzyści, na zasadach ogólnych; 6) zasądzenia odpowiedniej sumy pieniężne ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_26\", \"source_id\": \"sejm_eli_du_2022_1233_art_26\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 26. 1. Kto rozpowszechnia nieprawdziwe lub wprowadzające w błąd wiadomości o przedsiębiorstwie, w szczególności o osobach kierujących przedsiębiorstwem, wytwarzanych towarach, świadczonych usługach lub stosowanych cenach albo o sytuacji gospodarczej lub prawnej przedsiębiorstwa, w celu szkodzenia przedsiębiorcy, podlega karze aresztu albo grzywny. 2. Tej samej karze podlega, kto, w celu przysporzenia korzyści majątkowej lub osobistej sobie, swojemu przedsiębiorstwu lub osobom trz ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_3\", \"source_id\": \"sejm_eli_du_2022_1233_art_3\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 3. 1. Czynem nieuczciwej konkurencji jest działanie sprzeczne z prawem lub dobrymi obyczajami, jeżeli zagraża lub narusza interes innego przedsiębiorcy lub klienta. 2. Czynami nieuczciwej konkurencji są w szczególności: wprowadzające w błąd oznaczenie przedsiębiorstwa, fałszywe lub oszukańcze oznaczenie pochodzenia geograficznego towarów albo usług, wprowadzające w błąd oznaczenie towarów lub usług, naruszenie tajemnicy przedsiębiorstwa, nakłanianie do rozwiązania lub niewykonani ...\"}]",
+   "tool_call_id": "call-c2b95014-152f-4380-8c10-bfa031d1dc97",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_0aefcf811f98432db0d3a7e9",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"kara umowna art. 483 KC naruszenie tajemnicy przedsiębiorstwa umowa ramowa limit kary\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_483\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 483. § 1. Można zastrzec w umowie, że naprawienie szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania niepieniężnego nastąpi przez zapłatę określonej sumy (kara umowna). § 2. Dłużnik nie może bez zgody wierzyciela zwolnić się z zobowiązania przez zapłatę kary umownej.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_484\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 484. § 1. W razie niewykonania lub nienależytego wykonania zobowiązania kara umowna należy się wierzycielowi w zastrzeżonej na ten wypadek wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły. § 2. Jeżeli zobowiązanie zostało w znacznej części wykonane, dłużnik może żądać zmniejszenia kary umownej; to samo dotyczy wypadku, g ...\"}, {\"chunk_id\": \"uokik_items:uokik_8150eaa87c5398d8\", \"source_id\": \"uokik_rejestr_klauzul_6050\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia zobowiązania do zachowania poufności, o którym mowa w ust.1 powyżej Klient zobowiązuje się zapłacić na rzecz (…) karę umowną w wysokości 100% środków wypłaconych na rzecz Klienta (słownie:…)\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_id\": \"sejm_eli_du_2022_1233_art_23\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 23. 1. Kto, wbrew ciążącemu na nim obowiązkowi w stosunku do przedsiębiorcy, ujawnia innej osobie lub wykorzystuje we własnej działalności gospodarczej informację stanowiącą tajemnicę przedsiębiorstwa, jeżeli wyrządza to poważną szkodę przedsiębiorcy, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. 2. Tej samej karze podlega, kto, uzyskawszy bezprawnie informację stanowiącą tajemnicę przedsiębiorstwa, ujawnia ją innej osobie lub wykorzystuje we w ...\"}, {\"chunk_id\": \"uokik_items:uokik_51ead5bbf9240b04\", \"source_id\": \"uokik_rejestr_klauzul_2959\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Użytkownicy Sklepu Internetowego zobowiązują się do nieprzekazywania osobom trzecim informacji dotyczących oferowanych przez Sprzedającego towarów, w szczególności dotyczących cen i udzielanych rabatów (tajemnica handlowa). W przypadku naruszenia tajemnicy handlowej przez Użytkownika zostanie on zobowiązany do zapłaty kary umownej w wysokości 30.0000 zł\"}]",
+   "tool_call_id": "call_0aefcf811f98432db0d3a7e9",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have the statutory provisions for trade secrets (art. 11 of the Unfair Competition Act) and contractual penalties (art. 483-484 KC). Let me also search for more specific provisions about trade secret clauses in framework agreements and contractual penalty limits.",
+   "tool_calls": [
+    {
+     "id": "call-471eeecb-0ff2-4d58-90aa-92aaa0e96d76",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa ramowa klauzula poufności tajemnica przedsiębiorstwa definicja zakres informacji chronionych zwrot niszczenie informacji\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo d ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_id\": \"sejm_eli_du_2022_1233_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 18. 1. W razie dokonania czynu nieuczciwej konkurencji, przedsiębiorca, którego interes został zagrożony lub naruszony, może żądać: 1) zaniechania niedozwolonych działań; 2) usunięcia skutków niedozwolonych działań; 3) złożenia jednokrotnego lub wielokrotnego oświadczenia odpowiedniej treści i w odpowiedniej formie; 4) naprawienia wyrządzonej szkody, na zasadach ogólnych; 5) wydania bezpodstawnie uzyskanych korzyści, na zasadach ogólnych; 6) zasądzenia odpowiedniej sumy pieniężne ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 119 . § 1. Na postanowienie w przedmiocie udzielenia informacji służy zażalenie do sądu drugiej instancji. § 2. Zażalenie obowiązanego w zakresie, w jakim powołuje się na prawo odmowy udzielenia informacji lub ochronę tajemnicy przedsiębiorstwa, sąd rozpoznaje na posiedzeniu niejawnym. Od uznania sądu zależy, czy na posiedzeniu wysłucha uprawnionego lub obowiązanego. § 3. Jeżeli obowiązany powołuje się na ochronę tajemnic ...\"}]",
+   "tool_call_id": "call-471eeecb-0ff2-4d58-90aa-92aaa0e96d76",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_53ae68e7543a483cad99e97f",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2022_1233_art_11\", \"sejm_eli_du_2024_1061_art_483\", \"sejm_eli_du_2024_1061_art_484\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_id\": \"sejm_eli_du_2022_1233_art_11\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 11. 1. Czynem nieuczciwej konkurencji jest ujawnienie, wykorzystanie lub pozyskanie cudzych informacji stanowiących tajemnicę przedsiębiorstwa. 2. Przez tajemnicę przedsiębiorstwa rozumie się informacje techniczne, technologiczne, organizacyjne przedsiębiorstwa lub inne informacje posiadające wartość gospodarczą, które jako całość lub w szczególnym zestawieniu i zbiorze ich elementów nie są powszechnie znane osobom zwykle zajmującym się tym rodzajem informacji albo nie są łatwo dostępne dla takich osób, o ile uprawniony do korzystania z informacji lub rozporządzania nimi podjął, przy zachowaniu należytej staranności, działania w celu utrzymania ich w poufności. 3. Pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji, w szczególności gdy następuje bez zgody uprawnionego do korzystania z informacji lub rozporządzania nimi i wynika z nieuprawnionego dostępu, przywłaszczenia, kopiowania dokumentów, przedmiotów, materiałów, substancji, plików elektronicznych obejmujących te informacje lub umożliwiających wnioskowanie o ich treści. 4. Wykorzystanie lub ujawnienie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji, w szczególności gdy następuje bez zgody uprawnionego do korzystania z informacji lub rozporządzania nimi i narusza obowiązek ograniczenia ich wykorzystywania lub ujawniania wynikający z ustawy, czynności prawnej lub z innego aktu albo gdy zostało dokonane przez osobę, która pozyskała te informacje, dokonując czynu nieuczciwej konkurencji. 5. Ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa stanowi czyn nieuczciwej konkurencji także wówczas, gdy w chwili ich ujawnienia, wykorzystania lub pozyskania osoba wiedziała lub przy zachowaniu należytej staranności mogła wiedzieć, że informacje zostały pozyskane bezpośrednio lub pośrednio od tego, kto wykorzystał lub ujawnił je w okolicznościach określonych w ust. 4. 6. Wykorzystywanie informacji stanowiących tajemnicę przedsiębiorstwa polegające na produkowaniu, oferowaniu, wprowadzaniu do obrotu, a także przywozie, wywozie i przechowywaniu w tych celach towarów stanowi czyn nieuczciwej konkurencji, jeżeli osoba dokonująca wskazanej czynności wiedziała lub przy zachowaniu należytej staranności mogła wiedzieć o tym, że właściwości towarów, w tym estetyczne lub funkcjonalne, proces ich wytwarzania lub zbywania zostały w znacznym stopniu ukształtowane w następstwie czynu określonego w ust. 1, dokonanego w okolicznościach określonych w ust. 4. 7. Pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa nie stanowi czynu nieuczciwej konkurencji, jeżeli nastąpiło w wyniku niezależnego odkrycia lub wytworzenia albo obserwacji, badania, rozłożenia na części, testowania przedmiotu dostępnego publicznie lub posiadanego zgodnie z prawem przez osobę, która pozyskała informacje i której uprawnienie do pozyskania informacji nie było ograniczone w chwili ich pozyskania. 8. Ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa nie stanowi czynu nieuczciwej konkurencji, gdy nastąpiło w celu ochrony uzasadnionego interesu chronionego prawem, w ramach korzystania ze swobody wypowiedzi lub w celu ujawnienia nieprawidłowości, uchybienia, działania z naruszeniem prawa dla ochrony interesu publicznego, lub gdy ujawnienie informacji stanowiących tajemnicę przedsiębiorstwa wobec przedstawicieli pracowników w związku z pełnieniem przez nich funkcji na podstawie przepisów prawa było niezbędne dla prawidłowego wykonywania tych funkcji.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_483\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 483. § 1. Można zastrzec w umowie, że naprawienie szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania niepieniężnego nastąpi przez zapłatę określonej sumy (kara umowna). § 2. Dłużnik nie może bez zgody wierzyciela zwolnić się z zobowiązania przez zapłatę kary umownej.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_484\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 484. § 1. W razie niewykonania lub nienależytego wykonania zobowiązania kara umowna należy się wierzycielowi w zastrzeżonej na ten wypadek wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły. § 2. Jeżeli zobowiązanie zostało w znacznej części wykonane, dłużnik może żądać zmniejszenia kary umownej; to samo dotyczy wypadku, gdy kara umowna jest rażąco wygórowana.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call_53ae68e7543a483cad99e97f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zawrzeć umowę ramową z kontrahentem, która będzie chroniła nasze tajemnice firmowe i przewidywała kary za ich ujawnienie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planujemy długoterminową współpracę z nowym partnerem biznesowym i będziemy mu przekazywać poufne informacje techniczne oraz dane klientów. Potrzebujemy umowy ramowej, która jasno zdefiniuje, co jest tajemnicą, jak ma być chroniona i jakie będą konsekwencje finansowe, jeśli ktoś te informacje wycieknie lub wykorzystuje nieuprawnienie."
+  }
+ ]
+}

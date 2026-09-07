@@ -1,0 +1,17 @@
+{
+ "run": 22,
+ "hint": "Darowizna z zastrzeżeniem prawa odwołania w razie rażącej niewdzięczności",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę obdarować córkę mieszkaniem, ale chcę mieć pewność, że jeśli potem będzie wobec mnie bardzo niewdzięczna, będę mógł to odwołać. Jak mogę to zabezpieczyć?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę przekazać mojemu synowi nasz dom, ale obawiam się, że po przeniesieniu własności zacznie mnie ignorować lub wręcz krzywdzić. Słyszałem, że można zrobić darowiznę z zabezpieczeniem na wypadek bardzo złego postępowania ze strony obdarowanego. Czy mogę sporządzić taki dokument, żeby w razie rażącej niewdzięczności, na przykład jeśli będzie na mnie krzyczał lub odmówi mi jakiejkolwiek pomocy, miałem prawo odwołać tę darowiznę i odzyskać dom?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_darowizny\"})\\nDRAFTER CALLED keyword_search({\"keywords\": [\"rażąca niewdzięczność\", \"odwołanie darowizny\", \"art. 899 KC\"]})\\nRESULT: [{\"doc_type\": \"umowa_darowizny\", \"kind\": \"structural_template\", \"text\": \"# Umowa darowizny nieruchomości\\nUmowa darowizny nieruchomości w Polsce to umowa, przez którą darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swego majątku, a jej przedmiotem jest przeniesienie własności nieruchomości — mieszkania, domu jednorodzinnego, działki gruntowej lub lokalu użytkowego. Instytucję darowizny regulują art. 888-902 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), zaś formę prawną przeniesienia własności nieruchomości określa art. 158 KC, wymagający formy aktu notarialnego pod rygorem nieważności.\\n\\nDarowizna nieruchomości różni się od sprzedaży tym, że jest bezpłatna — obdarowany nie jest zobowiązany do zapłaty ceny ani żadnego innego świadczenia wzajemnego. Celem darowizny jest wzbogacenie obdarowanego kosztem majątku darczyńcy, co wynika wprost z art. 888 par. 1 KC. Darowizna może być dokonana zarówno między osobami fizycznymi, w tym w ramach najbliższej rodziny, jak i między przedsiębiorcami lub innymi podmiotami prawnymi.\\n\\nKluczowym elementem odróżniającym darowiznę nieruchomości od innych umów przenoszących własność jest jej nieodpłatność. Darczyńca nie otrzymuje żadnego ekwiwalentu, co ma bezpośrednie konsekwencje podatkowe. Ustawa z dnia 28 lipca 1983 r. o podatku od spadków i darowizn przewiduje jednak szczególne zwolnienia dla nabywców z grupy zerowej, czyli małżonka, zstępnych, wstępnych, pasierba, rodzeństwa, ojczyma i macochy. Wymogiem zwolnienia jest zgłoszenie darowizny naczelnikowi urzędu skarbowego na formularzu SD-Z2 w ciągu 6 miesięc"
+}

@@ -1,0 +1,60 @@
+Umowa o zachowaniu poufności (NDA) jednostronna przy zleceniu wyceny
+Umowa o zachowaniu poufności dwustronna przy negocjacjach joint venture
+Umowa NDA z ochroną know-how technologicznego
+Umowa NDA z karą umowną za ujawnienie (art. 483 KC)
+Umowa NDA z odszkodowaniem za rzeczywistą szkodę (art. 11 KC / art. 24 KC)
+Umowa NDA z obowiązkiem poufności po wygaśnięciu przez 5 lat
+Umowa NDA z wyłączeniem informacji publicznie dostępnych
+Umowa NDA z wyłączeniem informacji od podmiotów trzecich (legalnie nabytych)
+Umowa NDA z obowiązkiem oznaczania dokumentów "POUFNE"
+Umowa NDA z zakazem kopiowania i powielania materiałów
+Umowa NDA z prawem ujawnienia na żądanie organu (z zastrzeżeniem)
+Umowa NDA z obowiązkiem poinformowania o naruszeniu (breach notice)
+Umowa NDA z terytorium obowiązywania na terenie UE
+Umowa NDA z czasem trwania 3 lata od zawarcia
+Umowa NDA z obowiązkiem nieujawniania danych osobowych (RODO)
+Umowa NDA z ochroną badań rynkowych i strategii cenowej
+Umowa NDA z obowiązkiem zniszczenia materiałów po zakończeniu (return/destroy)
+Umowa NDA z dostępem ograniczonym do pracowników need-to-know
+Umowa NDA z klauzulą o braku przeniesienia praw (no license implied)
+Umowa NDA z karą za pozyskanie pracownika drugiej strony (non-solicit)
+Umowa NDA z zakazem konkurencji informacyjnej
+Umowa NDA z obowiązkiem szkoleń z poufności dla personelu
+Umowa NDA z prawem do audytu przestrzegania (compliance check)
+Umowa NDA z sublicencją dostępu dla podwykonawców za zgodą
+Umowa NDA z zabezpieczeniem wekslowym (weksel in blanco)
+Umowa NDA z obowiązkiem zgłaszania nowych wynalazków (inventions)
+Umowa NDA z tajemnicą przedsiębiorstwa (art. 11 ust. 4 KC)
+Umowa NDA z odpowiedzialnością za czyny podwykonawców
+Umowa NDA z rozwiązaniem polubownym sporów (mediacja)
+Umowa NDA z sądem właściwym i językiem postępowania
+Umowa NDA z minimalnym okresem wypowiedzenia 30 dni
+Umowa NDA z obowiązkiem powiadomienia o żądaniu sądu
+Umowa NDA z klauzulą survival (przetrwania) kluczowych zapisów
+Umowa NDA z ochroną listy klientów i dostawców
+Umowa NDA z zakazem wykorzystania informacji do własnych celów
+Umowa NDA z obowiązkiem przechowywania w zabezpieczonym systemie
+Umowa NDA z dostępem zdalnym i logowaniem (IT security)
+Umowa NDA z karą za każde ujawnienie (per-breach)
+Umowa NDA z obowiązkiem poufności również dla zleceniobiorców
+Umowa NDA z wyłączeniem pracowników (już związanych umową)
+Umowa NDA z prawem do ujawnienia wspólnikowi (z ograniczeniem)
+Umowa NDA z ochroną algorytmu i kodu źródłowego
+Umowa NDA z obowiązkiem nieużywania znaków towarowych drugiej strony
+Umowa NDA z okresem przejściowym po rozwiązaniu współpracy
+Umowa NDA z minimalnym progiem szkody dla kary umownej
+Umowa NDA z obowiązkiem zwrotu nośników (USB, dyski)
+Umowa NDA z prawem do jednostronnego wypowiedzenia za 7 dni
+Umowa NDA z ochroną wzorów przemysłowych i użytkowych
+Umowa NDA z zakazem publikacji wyników badań
+Umowa NDA z obowiązkiem powiadomienia o incydencie (72h)
+Umowa NDA z dostępem do pomieszczeń strony (wizyty)
+Umowa NDA z obowiązkiem niedyskryminacji (równy dostęp)
+Umowa NDA z klauzulą najwyższego uprzywilejowania informacji
+Umowa NDA z prawem do wstrzymania współpracy przy naruszeniu
+Umowa NDA z obowiązkiem monitorowania przepływu informacji
+Umowa NDA z ochroną planów fuzji i przejęć (M&A)
+Umowa NDA z walutą odszkodowania EUR
+Umowa NDA z obowiązkiem niszczenia kopii zapasowych
+Umowa NDA z karą za podwyższenie ryzyka utraty tajemnicy
+Umowa NDA z wygaśnięciem automatycznym po zamknięciu projektu

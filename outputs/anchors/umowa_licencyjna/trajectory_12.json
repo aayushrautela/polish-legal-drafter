@@ -1,0 +1,285 @@
+{
+ "run": 14,
+ "hint": "Umowa licencyjna z karą umowną za wykroczenie poza pola (art. 483 KC)",
+ "scenario": "Umowa licencyjna z karą umowną za wykroczenie poza pola (art. 483 KC)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_licencyjna'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_bdfe937c32894a6aa31f2b23",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_licencyjna\"}"
+     }
+    },
+    {
+     "id": "call_273048d294de44cc8b991904",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"kara umowna\", \"pole eksploatacji\", \"wykroczenie poza pola\"]}"
+     }
+    },
+    {
+     "id": "call_74cefe02541b4e97995afc1c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 483 KC\", \"kara umowna\", \"umowa licencyjna\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_licencyjna\", \"kind\": \"structural_template\", \"text\": \"# Umowa licencyjna\\nUmowa licencyjna w Polsce to umowa, na podstawie której uprawniony z autorskich praw majątkowych (licencjodawca) upoważnia inny podmiot (licencjobiorcę) do korzystania z utworu na wymienionych w umowie polach eksploatacji, zachowując jednocześnie te prawa dla siebie. Podstawą prawną jest ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 1994 nr 24 poz. 83 ze zm.). W odróżnieniu od umowy o przeniesienie autorskich praw majątkowych, gdzie prawa przechodzą trwałe na nabywcę, licencja przyznaje jedynie uprawnienie do korzystania z utworu w określonym zakresie, czasie i na określonym terytorium, a sam tytuł prawny pozostaje przy twórcy lub innym uprawnionym.\\n\\nPrzedmiotem licencji jest utwór w rozumieniu art. 1 ustawy o prawie autorskim, czyli każdy przejaw działalności twórczej o indywidualnym charakterze, ustalony w jakiejkolwiek postaci. Utworem mogą być programy komputerowe, grafiki, logotypy, fotografie, teksty, utwory muzyczne, projekty architektoniczne czy bazy danych. Aby korzystanie było legalne, umowa musi precyzyjnie oznaczać utwór oraz wskazywać, czy licencjodawca dysponuje pełnią autorskich praw majątkowych pozwalających na udzielenie licencji w danym zakresie.\\n\\nUstawa rozróżnia dwa podstawowe rodzaje licencji. Licencja niewyłączna (art. 67 ust. 2 ustawy o prawie autorskim) pozwala licencjodawcy udzielać dalszych licencji innym podmiotom i nie wymaga formy szczególnej. Licencja wyłączna zapewnia licencjobiorcy wyłączność korzystania z utworu w określonym zakresie i — zgodnie z art. 67 ust. 5 ustawy o prawie autorskim — wymaga formy pisemnej pod rygorem nieważności. Tylko licencjobiorca wyłączny może, o ile umowa nie stanowi inaczej, dochodzić roszczeń z tytułu naruszenia praw autorskich w zakresie objętym licencją wyłączną.\\n\\nKluczowym elementem każdej umowy licencyjnej są pola eksploatacji. Zgodnie z art. 41 ust. 2 oraz art. 50 ustawy o prawie autorskim umowa obejmuje wyłącznie pola eksploatacji wyraźnie w niej wymienione. Pola eksploatacji obejmują między innymi utrwalanie i zwielokrotnianie utworu określoną techniką, wprowadzanie do obrotu, najem i użyczenie egzemplarzy, publiczne wykonanie, wyświetlenie, odtworzenie, nadawanie oraz publiczne udostępnianie w taki sposób, aby każdy mógł mieć dostęp do utworu w wybranym przez siebie miejscu i czasie (rozpowszechnianie online). Pominięcie istotnego pola eksploatacji oznacza, że licencjobiorca nie nabywa prawa do korzystania na tym polu.\\n\\nLicencja może być odpłatna lub nieodpłatna; w razie wątpliwości domniemywa się odpłatność (art. 43 ustawy o prawie autorskim). Wynagrodzenie (opłata licencyjna) może mieć formę jednorazową, okresową (tantiemy) lub uzależnioną od skali korzystania. Jeżeli licencjodawca jest czynnym podatnikiem, do wynagrodzenia netto dolicza się podatek od towarów i usług według stawki 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, a usługa dokumentowana jest fakturą.\\n\\nUmowa licencyjna ma duże znaczenie gospodarcze w branżach kreatywnych, wydawniczej, informatycznej i medialnej. Pozwala twórcy czerpać dochód z utworu bez wyzbywania się praw, a licencjobiorcy — legalnie korzystać z cudzej twórczości. Dobrze sporządzona umowa precyzyjnie określa utwór, rodzaj licencji, pola eksploatacji, terytorium, czas trwania, wynagrodzenie oraz zasady sublicencji i wypowiedzenia, dzięki czemu chroni obie strony przed sporami o zakres dozwolonego korzystania.\\n\\nUmowa licencyjna w Polsce jest potrzebna zawsze wtedy, gdy jeden podmiot chce korzystać z cudzego utworu chronionego prawem autorskim bez nabywania pełni autorskich praw majątkowych, na zasadach określonych w ustawie o prawie autorskim i prawach pokrewnych.\\n\\nKorzystanie z oprogramowania i kodu. Producenci i dostawcy oprogramowania udzielają licencji na korzystanie z programów komputerowych chronionych szczególnym reżimem art. 74 ustawy o prawie autorskim. Umowa licencyjna określa zakres korzystania, liczbę stanowisk, czas i terytorium oraz zasady aktualizacji i wsparcia.\\n\\nWykorzystanie grafiki, logo i identyfikacji wizualnej. Przedsiębiorcy korzystający z logotypów, ilustracji czy systemów identyfikacji wizualnej stworzonych przez grafików zawierają umowę licencyjną, gdy twórca nie przenosi praw, lecz udziela prawa do korzystania na polach takich jak druk, internet czy materiały reklamowe.\\n\\nLicencja na fotografie i materiały audiowizualne. Fotografowie, agencje fotograficzne i twórcy materiałów wideo udzielają licencji na publikację zdjęć i nagrań w mediach, na stronach internetowych i w kampaniach. Umowa precyzuje pola eksploatacji, czas i terytorium oraz to, czy licencja jest wyłączna.\\n\\nDziałalność wydawnicza i muzyczna. Wydawcy oraz nadawcy uzyskują licencje na korzystanie z tekstów, utworów muzycznych i innych dzieł. Umowa licencyjna porządkuje zakres rozpowszechniania, wynagrodzenie w formie tantiem oraz czas obowiązywania licencji.\\n\\nUdostępnianie treści w internecie i platformach. Twórcy treści cyfrowych udzielają platformom i przedsiębiorstwom licencji na publiczne udostępnianie utworów online. Umowa wskazuje pole eksploatacji polegające na udostępnianiu w taki sposób, aby każdy mógł mieć dostęp do utworu w wybranym miejscu i czasie.\\n\\nLicencjonowanie baz danych i materiałów szkoleniowych. Podmioty tworzące bazy danych, kursy, e-booki i materiały edukacyjne udzielają licencji na ich wykorzystanie. Umowa licencyjna określa dozwolony sposób korzystania oraz zakaz dalszego rozpowszechniania bez zgody.\\n\\nWspółpraca twórcza bez przenoszenia praw. Gdy twórca chce zachować prawa do utworu, a jednocześnie umożliwić odpłatne korzystanie z niego, umowa licencyjna jest właściwym narzędziem — w odróżnieniu od umowy o przeniesienie praw, która trwałe pozbawia twórcę autorskich praw majątkowych.\\n\\nUmowa licencyjna w Polsce powinna zawierać następujące elementy oparte na ustawie z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, aby jednoznacznie określić zakres dozwolonego korzystania z utworu i zabezpieczyć obie strony.\\n\\nOznaczenie stron. Pełne dane licencjodawcy i licencjobiorcy: imię i nazwisko lub firma, adres, NIP, REGON, numer KRS dla spółek albo PESEL i wpis do CEIDG dla osoby fizycznej. Prawidłowe oznaczenie pozwala ustalić podmiot uprawniony do udzielenia licencji oraz reprezentację zgodnie z Krajowym Rejestrem Sądowym (KRS).\\n\\nOświadczenie o prawach. Oświadczenie licencjodawcy, że przysługują mu autorskie prawa majątkowe do utworu (art. 17 ustawy o prawie autorskim) i że jest uprawniony do udzielenia licencji w objętym umową zakresie oraz że utwór jest wolny od wad prawnych. forms-legal.com zaleca dodanie zapewnienia, że korzystanie z utworu nie naruszy praw osób trzecich.\\n\\nOznaczenie utworu. Dokładny opis utworu w rozumieniu art. 1 ustawy o prawie autorskim — tytuł, postać, format, ewentualne załączniki. Precyzyjne oznaczenie eliminuje wątpliwości co do tego, do czego odnosi się licencja.\\n\\nRodzaj licencji. Wskazanie, czy licencja jest wyłączna czy niewyłączna. Licencja wyłączna zapewnia licencjobiorcy wyłączność korzystania i wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5). Licencja niewyłączna pozwala licencjodawcy udzielać dalszych licencji innym podmiotom.\\n\\nPola eksploatacji. Wyraźne wyliczenie pól eksploatacji, na których licencjobiorca może korzystać z utworu (art. 50 ustawy o prawie autorskim). Zgodnie z art. 41 ust. 2 licencja obejmuje wyłącznie pola w niej wymienione, dlatego pominięcie pola pozbawia licencjobiorcy prawa korzystania na nim.\\n\\nTerytorium i czas trwania. Określenie zasięgu terytorialnego oraz okresu licencji. W braku oznaczenia czasu licencja wygasa po pięciu latach (art. 66 ustawy o prawie autorskim). Licencja na czas nieoznaczony może być wypowiedziana zgodnie z art. 68 ustawy.\\n\\nWynagrodzenie. Wysokość i sposób zapłaty opłaty licencyjnej — jednorazowo, okresowo lub w formie tantiem. Domniemanie odpłatności wynika z art. 43 ustawy o prawie autorskim. Do wynagrodzenia netto dolicza się podatek VAT 23%, gdy licencjodawca jest czynnym podatnikiem zgodnie z ustawą o podatku od towarów i usług.\\n\\nSublicencja. Postanowienie o tym, czy licencjobiorca może udzielać dalszych licencji. Zgodnie z art. 67 ust. 3 ustawy o prawie autorskim sublicencja wymaga zgody licencjodawcy, jeżeli umowa nie stanowi inaczej.\\n\\nPrawa osobiste i wypowiedzenie. Zastrzeżenie, że autorskie prawa osobiste twórcy pozostają niezbywalne (art. 16 ustawy o prawie autorskim), oraz zasady wypowiedzenia umowy, w tym terminy z art. 68 i przypadki rozwiązania ze skutkiem natychmiastowym przy istotnym naruszeniu warunków licencji. Warto dodać klauzulę o sądzie właściwym dla rozstrzygania sporów, w sprawach gospodarczych — sądzie gospodarczym.\\n\\nUmowa licencyjna w Polsce wypełniana jest według kolejnych kroków zapewniających zgodność z ustawą o prawie autorskim i prawach pokrewnych oraz ochronę obu stron.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane licencjodawcy i licencjobiorcy: imię i nazwisko lub firmę, adres, NIP, REGON, numer KRS lub PESEL i wpis do CEIDG. Zweryfikuj reprezentację spółek w Krajowym Rejestrze Sądowym (KRS), aby umowa była zawarta przez osoby uprawnione.\\n\\nKrok 2 — opisz utwór. Oznacz dokładnie utwór będący przedmiotem licencji — tytuł, postać, format, ewentualne załączniki. Precyzja opisu ułatwia ustalenie zakresu uprawnień i ogranicza ryzyko sporu o przedmiot licencji.\\n\\nKrok 3 — wybierz rodzaj licencji. Wskaż, czy licencja jest wyłączna czy niewyłączna. Pamiętaj, że licencja wyłączna wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5 ustawy o prawie autorskim), a tylko licencjobiorca wyłączny może dochodzić roszczeń z tytułu naruszenia w objętym zakresie.\\n\\nKrok 4 — wymień pola eksploatacji. Wpisz pola eksploatacji, na których licencjobiorca może korzystać z utworu (art. 50). Pamiętaj, że licencja obejmuje wyłącznie pola wyraźnie wymienione (art. 41 ust. 2), dlatego wylicz wszystkie potrzebne sposoby korzystania, na przykład zwielokrotnianie, wprowadzanie do obrotu i udostępnianie online.\\n\\nKrok 5 — określ terytorium i czas. Wpisz zasięg terytorialny oraz okres licencji. Brak oznaczenia czasu oznacza wygaśnięcie licencji po pięciu latach (art. 66). Dla licencji na czas nieoznaczony uwzględnij zasady wypowiedzenia z art. 68 ustawy o prawie autorskim.\\n\\nKrok 6 — ustal wynagrodzenie. Wpisz wysokość i sposób zapłaty opłaty licencyjnej — jednorazowo, okresowo lub w formie tantiem. Wskaż, że do wynagrodzenia netto doliczany jest VAT 23%, gdy licencjodawca jest czynnym podatnikiem, a podstawą rozliczenia jest faktura.\\n\\nKrok 7 — ureguluj sublicencję i wypowiedzenie. Wskaż, czy licencjobiorca może udzielać dalszych licencji (art. 67 ust. 3) oraz zasady i terminy wypowiedzenia umowy, w tym możliwość rozwiązania ze skutkiem natychmiastowym przy istotnym naruszeniu warunków licencji.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę zawarcia oraz podpisz dokument w dwóch jednobrzmiących egzemplarzach. Dla spółek podpis składa osoba uprawniona do reprezentacji według wpisu w KRS. Dla licencji wyłącznej forma pisemna jest obowiązkowa; dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną na podstawie art. 78[1] Kodeksu cywilnego.\\n\\nUmowa licencyjna w Polsce podlega przepisom ustawy o prawie autorskim i prawach pokrewnych, uzupełnionym przepisami Kodeksu cywilnego oraz prawa podatkowego.\\n\\nForma umowy. Licencja niewyłączna nie wymaga formy szczególnej i może być udzielona także ustnie lub w sposób dorozumiany (art. 67 ust. 2 ustawy o prawie autorskim), jednak forma pisemna ma istotne znaczenie dowodowe. Licencja wyłączna wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5). Dopuszczalna jest forma elektroniczna z kwalifikowanym podpisem elektronicznym, zrównana z formą pisemną (art. 78[1] Kodeksu cywilnego).\\n\\nPola eksploatacji. Zgodnie z art. 41 ust. 2 oraz art. 50 ustawy o prawie autorskim umowa obejmuje wyłącznie pola eksploatacji w niej wymienione. Umowa nie może obejmować pól eksploatacji nieznanych w chwili jej zawarcia (art. 41 ust. 4). Brak wskazania pola oznacza, że licencjobiorca nie nabywa prawa do korzystania na tym polu.\\n\\nCzas trwania i wypowiedzenie. W braku oznaczenia czasu licencja wygasa po upływie pięciu lat (art. 66 ust. 1 ustawy o prawie autorskim). Licencji udzielonej na czas nieoznaczony można wypowiedzieć z zachowaniem terminów umownych, a w razie ich braku na rok naprzód, na koniec roku kalendarzowego (art. 68 ust. 1). Licencja udzielona na okres dłuższy niż pięć lat uważana jest po upływie tego okresu za udzieloną na czas nieoznaczony (art. 68 ust. 2).\\n\\nPrawa osobiste twórcy. Autorskie prawa osobiste, w szczególności prawo do autorstwa utworu i nienaruszalności jego treści i formy, są niezbywalne (art. 16 ustawy o prawie autorskim). Licencja nie może ich przenieść; możliwe jest jedynie zobowiązanie się do niewykonywania niektórych z tych praw w określonym zakresie.\\n\\nProgramy komputerowe. Do licencji na programy komputerowe stosuje się szczególne przepisy art. 74-77 ustawy o prawie autorskim. Korzystanie z programu zgodnie z jego przeznaczeniem może wynikać bezpośrednio z umowy licencyjnej, a niektóre czynności są dozwolone z mocy ustawy bez odrębnej zgody.\\n\\nWynagrodzenie i podatki. Domniemywa się, że udzielenie licencji jest odpłatne, jeżeli z umowy nie wynika inaczej (art. 43 ust. 1 ustawy o prawie autorskim). Jeżeli licencjodawca jest czynnym podatnikiem, do wynagrodzenia netto dolicza podatek od towarów i usług według stawki 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, dokumentując usługę fakturą.\\n\\nSublicencja. Zgodnie z art. 67 ust. 3 ustawy o prawie autorskim licencjobiorca może udzielić dalszej licencji (sublicencji) tylko za zgodą licencjodawcy, jeżeli umowa nie stanowi inaczej. Udzielenie sublicencji bez zgody stanowi naruszenie umowy.\\n\\nOdpowiedzialność i opóźnienia. W razie opóźnienia w zapłacie opłaty licencyjnej licencjodawcy przysługują odsetki ustawowe za opóźnienie (art. 481 Kodeksu cywilnego), a w transakcjach między przedsiębiorcami — odsetki i rekompensata na podstawie ustawy z dnia 8 marca 2013 r. o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych. Naruszenie warunków licencji może rodzić odpowiedzialność odszkodowawczą oraz, przy zobowiązaniach niepieniężnych, karę umowną (art. 483 Kodeksu cywilnego).\\n\\nUmowa licencyjna w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć przy starannym jej sporządzeniu.\\n\\nBłąd 1 — brak wyliczenia pól eksploatacji. Ogólne sformułowanie, że licencjobiorca może korzystać z utworu w pełnym zakresie, jest nieskuteczne, ponieważ licencja obejmuje wyłącznie pola wyraźnie wymienione (art. 41 ust. 2 ustawy o prawie autorskim). Zalecenie: wymień wszystkie konkretne pola eksploatacji, na przykład zwielokrotnianie, wprowadzanie do obrotu i udostępnianie online.\\n\\nBłąd 2 — licencja wyłączna bez formy pisemnej. Udzielenie licencji wyłącznej ustnie lub mailowo jest nieważne, ponieważ wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5). Zalecenie: zawrzyj licencję wyłączną na piśmie lub w formie elektronicznej z kwalifikowanym podpisem elektronicznym.\\n\\nBłąd 3 — pominięcie czasu trwania i terytorium. Brak oznaczenia czasu skutkuje wygaśnięciem licencji po pięciu latach (art. 66), co może zaskoczyć licencjobiorcę. Zalecenie: wyraźnie wskaż okres licencji i jej zasięg terytorialny oraz zasady przedłużenia.\\n\\nBłąd 4 — udzielenie sublicencji bez zgody. Licencjobiorca, który udziela dalszej licencji bez zgody licencjodawcy, narusza umowę (art. 67 ust. 3 ustawy o prawie autorskim). Zalecenie: jednoznacznie ureguluj, czy i na jakich warunkach dopuszczalna jest sublicencja.\\n\\nBłąd 5 — mylenie licencji z przeniesieniem praw. Strony często traktują licencję jak trwałe nabycie praw, co prowadzi do sporów po wygaśnięciu umowy. Zalecenie: jeżeli celem jest trwałe nabycie praw, zawrzyj umowę o przeniesienie autorskich praw majątkowych (art. 53 ustawy o prawie autorskim), a nie licencję.\\n\\nBłąd 6 — brak oświadczenia o prawach licencjodawcy. Pominięcie zapewnienia, że licencjodawca dysponuje prawami i że utwór jest wolny od wad prawnych, naraża licencjobiorcy na roszczenia osób trzecich. Zalecenie: zamieść oświadczenie o przysługiwaniu autorskich praw majątkowych oraz o braku obciążeń.\\n\\nBłąd 7 — kara umowna za opóźnienie w zapłacie. Zastrzeżenie kary umownej za opóźnienie w zapłacie opłaty licencyjnej jest nieskuteczne, ponieważ kary umownej nie zastrzega się za zobowiązanie pieniężne (art. 483 Kodeksu cywilnego). Zalecenie: kary umowne zastrzegaj za naruszenie zobowiązań niepieniężnych, a na opóźnienie w zapłacie stosuj odsetki za opóźnienie.\\n\\nBłąd 8 — niejasne wynagrodzenie i VAT. Brak wskazania, czy kwota jest netto czy brutto, oraz pominięcie stawki VAT 23% rodzi spory rozliczeniowe. Zalecenie: określ wysokość opłaty licencyjnej, wskaż kwotę netto i doliczenie VAT 23% oraz podstawę rozliczenia w postaci faktury.\\n\\nŹródło: https://forms-legal.com/pl/business/intellectual-property/umowa-licencyjna (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_bdfe937c32894a6aa31f2b23",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_484\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 484. § 1. W razie niewykonania lub nienależytego wykonania zobowiązania kara umowna należy się wierzycielowi w zastrzeżonej na ten wypadek wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły. § 2. Jeżeli zobowiązanie zostało w znacznej części wykonane, dłużnik może żądać zmniejszenia kary umownej; to samo dotyczy wypadku, g ...\"}, {\"chunk_id\": \"uokik_items:uokik_64ce6ce839ed90f7\", \"source_id\": \"uokik_rejestr_klauzul_2057\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia przez Abonenta zobowiązania, o którym mowa w Pkt III ppkt 2.1, Abonent będzie zobowiązany na pisemne żądanie (...) do naprawienia szkody poprzez zapłatę na jej rzecz kary umownej. Kara umowna dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację wynosi 900 zł. Kara umowna będzie pomniejszana w zależności od czasu, w jakim Abonent wykonał swoje zobowiązanie. Jeżeli naruszenie zobowiązania nastąpi do 12 miesiąca od daty aktywacji, Abonent zapłaci 100 % kary umownej. Jeżeli naruszenie zobowiązania nastąpi pomiędzy początkiem 13 a końcem 18 mie ...\"}, {\"chunk_id\": \"uokik_items:uokik_d6e15aac2ae84a4d\", \"source_id\": \"uokik_rejestr_klauzul_2205\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia przez Abonenta zobowiązania, o którym mowa w pkt III ppkt 2.1, Abonent będzie zobowiązany na pisemne żądanie (...)do naprawienia szkody poprzez zapłatę na jej rzecz kary umownej. Kara umowna dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację w cenie dla 1 oraz 2 Ofert wynosi 900 zł, natomiast dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację w cenie dla 3 i więcej Ofert oraz (...) wynosi 1200 zł. Kara umowna będzie pomniejszana w zależności od czasu, w jakim Abonent wykonywał zobowiązanie. Jeżeli narusz ...\"}, {\"chunk_id\": \"uokik_items:uokik_5360b5b6f00bdae5\", \"source_id\": \"uokik_rejestr_klauzul_3447\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za każdy dzień przerwy w świadczeniu usługi płatnej okresowo abonentowi na jego żądanie wypłacana jest kara umowna w wysokości 1/30 średniej opłaty miesięcznej liczonej według wysokości kwot netto na fakturach VAT z ostatnich trzech okresów rozliczeniowych w odniesieniu do łącza, na którym wystąpiła awaria. Kara umowna nie przysługuje, jeżeli w okresie rozliczeniowym łączny czas przerw wynikających z awarii był krótszy niż 36 godzin. Łączna wysokość kary umownej w danym okresie rozliczeniowym należnej z tytułu niewykonania lub nienależytego wykonania umowy na danym łączu nie może być wyższa, n ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_483\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 483. § 1. Można zastrzec w umowie, że naprawienie szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania niepieniężnego nastąpi przez zapłatę określonej sumy (kara umowna). § 2. Dłużnik nie może bez zgody wierzyciela zwolnić się z zobowiązania przez zapłatę kary umownej.\"}]",
+   "tool_call_id": "call_273048d294de44cc8b991904",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_484\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 484. § 1. W razie niewykonania lub nienależytego wykonania zobowiązania kara umowna należy się wierzycielowi w zastrzeżonej na ten wypadek wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły. § 2. Jeżeli zobowiązanie zostało w znacznej części wykonane, dłużnik może żądać zmniejszenia kary umownej; to samo dotyczy wypadku, g ...\"}, {\"chunk_id\": \"uokik_items:uokik_64ce6ce839ed90f7\", \"source_id\": \"uokik_rejestr_klauzul_2057\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia przez Abonenta zobowiązania, o którym mowa w Pkt III ppkt 2.1, Abonent będzie zobowiązany na pisemne żądanie (...) do naprawienia szkody poprzez zapłatę na jej rzecz kary umownej. Kara umowna dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację wynosi 900 zł. Kara umowna będzie pomniejszana w zależności od czasu, w jakim Abonent wykonał swoje zobowiązanie. Jeżeli naruszenie zobowiązania nastąpi do 12 miesiąca od daty aktywacji, Abonent zapłaci 100 % kary umownej. Jeżeli naruszenie zobowiązania nastąpi pomiędzy początkiem 13 a końcem 18 mie ...\"}, {\"chunk_id\": \"uokik_items:uokik_d6e15aac2ae84a4d\", \"source_id\": \"uokik_rejestr_klauzul_2205\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia przez Abonenta zobowiązania, o którym mowa w pkt III ppkt 2.1, Abonent będzie zobowiązany na pisemne żądanie (...)do naprawienia szkody poprzez zapłatę na jej rzecz kary umownej. Kara umowna dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację w cenie dla 1 oraz 2 Ofert wynosi 900 zł, natomiast dla Abonenta, który zakupił w niniejszej promocji aparat telefoniczny oraz aktywację w cenie dla 3 i więcej Ofert oraz (...) wynosi 1200 zł. Kara umowna będzie pomniejszana w zależności od czasu, w jakim Abonent wykonywał zobowiązanie. Jeżeli narusz ...\"}, {\"chunk_id\": \"uokik_items:uokik_5360b5b6f00bdae5\", \"source_id\": \"uokik_rejestr_klauzul_3447\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za każdy dzień przerwy w świadczeniu usługi płatnej okresowo abonentowi na jego żądanie wypłacana jest kara umowna w wysokości 1/30 średniej opłaty miesięcznej liczonej według wysokości kwot netto na fakturach VAT z ostatnich trzech okresów rozliczeniowych w odniesieniu do łącza, na którym wystąpiła awaria. Kara umowna nie przysługuje, jeżeli w okresie rozliczeniowym łączny czas przerw wynikających z awarii był krótszy niż 36 godzin. Łączna wysokość kary umownej w danym okresie rozliczeniowym należnej z tytułu niewykonania lub nienależytego wykonania umowy na danym łączu nie może być wyższa, n ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_66\", \"source_id\": \"sejm_eli_du_2025_24_art_66\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 66. 1.29) Umowa licencyjna uprawnia do korzystania z utworu w okresie pięciu lat na terytorium państwa, w którym licencjobiorca ma swoją siedzibę albo miejsce zamieszkania, chyba że w umowie postanowiono inaczej. 2. Po upływie terminu, o którym mowa w ust. 1, prawo uzyskane na podstawie umowy licencyjnej wygasa.\"}]",
+   "tool_call_id": "call_74cefe02541b4e97995afc1c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Now I have the base template and the key statutory provisions. Let me also search for more specific information about contractual penalties in licensing agreements, particularly regarding exceeding the scope of exploitation fields (pola eksploatacji). Let me search for more relevant material.",
+   "tool_calls": [
+    {
+     "id": "call-833c6bbd-8bea-4e8d-9e78-3ff1b2483760",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"kara umowna za przekroczenie pól eksploatacji licencji naruszenie zakresu licencji\"}"
+     }
+    },
+    {
+     "id": "call-873b8ef2-0de6-49ac-a8ac-93be3337aeec",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 41 ust. 2\", \"pola eksploatacji\", \"zakres licencji\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_67\", \"source_id\": \"sejm_eli_du_2025_24_art_67\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 67. 1. Twórca może udzielić upoważnienia do korzystania z utworu na wymienionych w umowie polach eksploatacji z określeniem zakresu, miejsca i czasu tego korzystania. 2. Jeżeli umowa nie zastrzega wyłączności korzystania z utworu w określony sposób (licencja wyłączna), udzielenie licencji nie ogranicza udzielenia przez twórcę upoważnienia innym osobom do korzystania z utworu na tym samym polu eksploatacji (licencja niewyłączna). 3. Jeżeli umowa nie stanowi inaczej, licencjobiorca nie może upoważnić innej osoby do korzy ...\"}, {\"chunk_id\": \"uokik_items:uokik_b741d88f0fae6bc4\", \"source_id\": \"uokik_rejestr_klauzul_5954\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia niniejszych Warunków, a w szczególności postanowień ustępu 8, osoba dopuszczająca się naruszenia będzie zobowiązana do zapłaty kary umownej o stałej wysokości pięciu tysięcy euro (5000 EUR) w celu pokrycia kosztów administracyjnych wynikających z naruszenia. (...) zastrzega sobie możliwość skorzystania z wszelkich pozostałych środków prawnych wedle własnego uznania\"}, {\"chunk_id\": \"uokik_items:uokik_d83bb9df58126b48\", \"source_id\": \"uokik_rejestr_klauzul_2069\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku stwierdzenia naruszenia przez Nadawcę powyższych postanowień zapłaci on karę umowną w wysokości pięciokrotnej kwoty należnej (...) z tytułu wykonania usługi\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_41\", \"source_id\": \"sejm_eli_du_2025_24_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 41. 1. Jeżeli ustawa nie stanowi inaczej: 1) autorskie prawa majątkowe mogą przejść na inne osoby w drodze dziedziczenia lub na podstawie umowy; 2) nabywca autorskich praw majątkowych może przenieść je na inne osoby, chyba że umowa stanowi inaczej. 2.22) Umowa o przeniesienie autorskich praw majątkowych lub licencja obejmują pola eksploat acji wyraźnie w nich wymienione. 3. Nieważna jest umowa w części dotyczącej wszystkich utworów lub wszystkich utworów określonego rodzaju tego samego twórcy mających powstać w przyszł ...\"}, {\"chunk_id\": \"uokik_items:uokik_73632a99013f4dfc\", \"source_id\": \"uokik_rejestr_klauzul_1790\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Zapisy § 2 ust 4,5,6 wiążą abonenta niezależnie od obowiązywania bądź nieobowiązywania umowy w każdym czasie w wypadku naruszenia postanowień § 2 ust 5,6 regulaminu przez abonenta niezależnie od przyczyn naruszenia, abonent uiści na rzecz operatora karę umowną w wysokości 600 zł (słownie sześćset złotych) za każdy przypadek naruszenia.\"}]",
+   "tool_call_id": "call-833c6bbd-8bea-4e8d-9e78-3ff1b2483760",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_29\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 29. 1. Przepisy art. 3 ust. 2b pkt 5a, art. 9 ust. 6, art. 17 ust. 1 pkt 3a, art. 21 ust. 1 pkt 105, art. 22 ust. 1m, art. 23 ust. 1 pkt 38, art. 24 ust. 24, art. 30a ust. 1, 2a, 4 i 6, art. 30b ust. 1, 2, 4 i 6-7a, art. 41 ust. 4d i 10, art. 42 ust. 8 oraz art. 45 ust. 3c ustawy zmienianej w art. 4, w brzmieniu nadanym niniejszą ustawą, mają zastosowanie do dochodów (przychodów) uzyskanych od dnia 1 stycznia 2024 r. 2. Prze ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_50\", \"source_id\": \"sejm_eli_du_2025_24_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 50. Odrębne pola eksploatacji stanowią w szczególności: 1) w zakresie utrwalania i zwielokrotniania utworu – wytwarzanie określoną techniką egzemplarzy utworu, w tym techniką drukarską, reprograficzną, zapisu magnetycznego oraz techniką cyfrową; 2) w zakresie obrotu oryginałem albo egzemplarzami, na których utwór utrwalono – wprowadzanie do obrotu, użyczenie lub najem oryginału albo egzemplarzy; 3) w zakresie rozpowszechniania utworu w sposób inny niż określony w pkt 2 – publiczne wykonanie, wystawienie, wyświetlenie,  ...\"}]",
+   "tool_call_id": "call-873b8ef2-0de6-49ac-a8ac-93be3337aeec",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA LICENCYJNA\n\nzawarta w dniu __________ r. w ___________, pomiędzy:\n\n________________________________________________________________________\n(imię i nazwisko / nazwa firmy, adres, NIP, REGON, numer KRS / PESEL i wpis do CEIDG)\nzwanym dalej „Licencjodawcą”,\n\na\n\n________________________________________________________________________\n(imię i nazwisko / nazwa firmy, adres, NIP, REGON, numer KRS / PESEL i wpis do CEIDG)\nzwanym dalej „Licencjobiorcą”.\n\n§ 1. Przedmiot umowy\n\n1. Licencjodawca oświadcza, że przysługują mu autorskie prawa majątkowe do utworu w rozumieniu art. 1 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 2025 poz. 24 ze zm.), zwanej dalej „ustawą o prawie autorskim”, oraz że utwór jest wolny od wad prawnych i obciążeń praw osób trzecich.\n\n2. Przedmiotem niniejszej umowy jest utwór: ________________________________________________________________________\n(tytuł, postać, format, ewentualne załączniki)\n\n3. Licencjodawca oświadcza, że dysponuje pełnią autorskich praw majątkowych do utworu, co umożliwia mu udzielenie licencji w zakresie objętym niniejszą umową.\n\n§ 2. Rodzaj licencji\n\n1. Licencja ma charakter wyłączny / niewyłączny*.\n\n2. W przypadku licencji wyłącznej, Licencjobiorca ma wyłączność korzystania z utworu w określonym zakresie, a Licencjodawca nie może udzielać dalszych licencji innym osobom na tych samych polach eksploatacji.\n\n3. Licencja wyłączna wymaga formy pisemnej pod rygorem nieważności zgodnie z art. 67 ust. 5 ustawy o prawie autorskim.\n\n§ 3. Pola eksploatacji\n\n1. Zgodnie z art. 41 ust. 2 oraz art. 50 ustawy o prawie autorskim, umowa obejmuje wyłącznie pola eksploatacji wyraźnie w niej wymienione.\n\n2. Licencjobiorca jest uprawniony do korzystania z utworu wyłącznie na następujących polach eksploatacji:\n   a) ________________________________________________________________________\n   b) ________________________________________________________________________\n   c) ________________________________________________________________________\n\n3. Pominięcie któregokolwiek pola eksploatacji oznacza, że Licencjobiorca nie nabywa prawa do korzystania z utworu na tym polu.\n\n4. Korzystanie z utworu na innych polach eksploatacji niż wskazane w ust. 2 powyżej stanowi wykroczenie poza pola eksploatacji i podlega odpowiedzialności określonej w § 6 niniejszej umowy.\n\n§ 4. Terytorium i czas trwania\n\n1. Licencja obejmuje terytorium: ________________________________________________________________________\n\n2. Licencja zostaje udzielona na okres: ________________________________________________________________________\n\n3. Zgodnie z art. 66 ust. 1 ustawy o prawie autorskim, w braku oznaczenia czasu licencja wygasa po upływie pięciu lat.\n\n4. Licencja udzielona na czas nieoznaczony może być wypowiedziana z zachowaniem terminów określonych w § 9.\n\n§ 5. Wynagrodzenie\n\n1. Zgodnie z art. 43 ust. 1 ustawy o prawie autorskim, udzielenie licencji jest odpłatne, chyba że umowa stanowi inaczej.\n\n2. Wynagrodzenie licencyjne wynosi: ________________________________________________________________________\n(kwota netto)\n\n3. Do kwoty netto dolicza się podatek od towarów i usług według stawki 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, jeżeli Licencjodawca jest czynnym podatnikiem.\n\n4. Wynagrodzenie płatne jest: jednorazowo / okresowo / w formie tantiem* w terminie: ________________________________________________________________________\n\n5. Podstawą rozliczenia jest faktura wystawiona przez Licencjodawcę.\n\n§ 6. Kara umowna za wykroczenie poza pola eksploatacji\n\n1. Strony postanawiają, że za niewykonanie lub nienależyte wykonanie zobowiązania niepieniężnego, polegającego na korzystaniu z utworu wyłącznie w granicach pól eksploatacji wskazanych w § 3 ust. 2, przysługuje Licencjodawcy kara umowna w wysokości ________________________________________________________________________ zł (słownie: ________________________________________________________________________ złotych) za każdy przypadek wykroczenia poza pola eksploatacji.\n\n2. Kara umowna przysługuje za każdy przypadek korzystania z utworu na polu eksploatacji nieobjętym licencją, niezależnie od czasu trwania takiego korzystania.\n\n3. Zgodnie z art. 483 § 1 Kodeksu cywilnego, kara umowna stanowi naprawienie szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania niepieniężnego.\n\n4. Zgodnie z art. 484 § 1 Kodeksu cywilnego, kara umowna należy się wierzycielowi w zastrzeżonej wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły.\n\n5. Strony postanawiają, że w przypadku gdy szkoda Licencjodawcy przewyższa wysokość zastrzeżonej kary umownej, Licencjodawca zachowuje prawo dochodzenia odszkodowania przewyższającego wysokość kary umownej w granicach ogólnej odpowiedzialności na podstawie art. 471 Kodeksu cywilnego.\n\n6. Zapłata kary umownej nie zwalnia Licencjobiorcy z obowiązku natychmiastowego zaprzestania korzystania z utworu poza polami eksploatacji ani z obowiązku naprawienia szkody w całości, jeżeli szkoda przewyższa wysokość kary umownej.\n\n7. Licencjobiorca zobowiązuje się do niezwłocznego pisemnego powiadomienia Licencjodawcy o każdym przypadku wykroczenia poza pola eksploatacji, nie później niż w terminie 7 dni od powstania takiego naruszenia.\n\n§ 7. Sublicencja\n\n1. Zgodnie z art. 67 ust. 3 ustawy o prawie autorskim, Licencjobiorca może udzielić dalszej licencji (sublicencji) tylko za zgodą Licencjodawcy, jeżeli umowa nie stanowi inaczej.\n\n2. Licencjobiorca nie jest uprawniony do udzielania sublicencji / Licencjobiorca jest uprawniony do udzielania sublicencji na następujących warunkach: ________________________________________________________________________*\n\n§ 8. Prawa osobiste twórcy\n\n1. Autorskie prawa osobiste twórcy, w szczególności prawo do autorstwa utworu i nienaruszalności jego treści i formy, są niezbywalne zgodnie z art. 16 ustawy o prawie autorskim.\n\n2. Licencja nie przenosi autorskich praw osobistych na Licencjobiorcę. Licencjobiorca zobowiązuje się do korzystania z utworu w sposób nieporzucający praw osobistych twórcy.\n\n§ 9. Wypowiedzenie umowy\n\n1. Każda ze stron może wypowiedzieć umowę z zachowaniem terminów określonych w art. 68 ustawy o prawie autorskim.\n\n2. W przypadku istotnego naruszenia warunków licencji przez Licencjobiorcę, w tym w szczególności wykroczenia poza pola eksploatacji, Licencjodawca może rozwiązać umowę ze skutkiem natychmiastowym.\n\n3. Wypowiedzenie umowy wymaga formy pisemnej pod rygorem nieważności.\n\n§ 10. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy ustawy o prawie autorskim i prawach pokrewnych oraz Kodeksu cywilnego.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd powszechny właściwy dla siedziby Licencjodawcy / sąd gospodarczy*.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n\n\n_________________________________                    _________________________________\n(Licencjodawca)                                    (Licencjobiorca)\n\n\n* niepotrzebne skreślić",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA LICENCYJNA\n\nzawarta w dniu __________ r. w ___________, pomiędzy:\n\n________________________________________________________________________\n(imię i nazwisko / nazwa firmy, adres, NIP, REGON, numer KRS / PESEL i wpis do CEIDG)\nzwanym dalej „Licencjodawcą”,\n\na\n\n________________________________________________________________________\n(imię i nazwisko / nazwa firmy, adres, NIP, REGON, numer KRS / PESEL i wpis do CEIDG)\nzwanym dalej „Licencjobiorcą”.\n\n§ 1. Przedmiot umowy\n\n1. Licencjodawca oświadcza, że przysługują mu autorskie prawa majątkowe do utworu w rozumieniu art. 1 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 2025 poz. 24 ze zm.), zwanej dalej „ustawą o prawie autorskim”, oraz że utwór jest wolny od wad prawnych i obciążeń praw osób trzecich.\n\n2. Przedmiotem niniejszej umowy jest utwór: ________________________________________________________________________\n(tytuł, postać, format, ewentualne załączniki)\n\n3. Licencjodawca oświadcza, że dysponuje pełnią autorskich praw majątkowych do utworu, co umożliwia mu udzielenie licencji w zakresie objętym niniejszą umową.\n\n§ 2. Rodzaj licencji\n\n1. Licencja ma charakter wyłączny / niewyłączny*.\n\n2. W przypadku licencji wyłącznej, Licencjobiorca ma wyłączność korzystania z utworu w określonym zakresie, a Licencjodawca nie może udzielać dalszych licencji innym osobom na tych samych polach eksploatacji.\n\n3. Licencja wyłączna wymaga formy pisemnej pod rygorem nieważności zgodnie z art. 67 ust. 5 ustawy o prawie autorskim.\n\n§ 3. Pola eksploatacji\n\n1. Zgodnie z art. 41 ust. 2 oraz art. 50 ustawy o prawie autorskim, umowa obejmuje wyłącznie pola eksploatacji wyraźnie w niej wymienione.\n\n2. Licencjobiorca jest uprawniony do korzystania z utworu wyłącznie na następujących polach eksploatacji:\n   a) ________________________________________________________________________\n   b) ________________________________________________________________________\n   c) ________________________________________________________________________\n\n3. Pominięcie któregokolwiek pola eksploatacji oznacza, że Licencjobiorca nie nabywa prawa do korzystania z utworu na tym polu.\n\n4. Korzystanie z utworu na innych polach eksploatacji niż wskazane w ust. 2 powyżej stanowi wykroczenie poza pola eksploatacji i podlega odpowiedzialności określonej w § 6 niniejszej umowy.\n\n§ 4. Terytorium i czas trwania\n\n1. Licencja obejmuje terytorium: ________________________________________________________________________\n\n2. Licencja zostaje udzielona na okres: ________________________________________________________________________\n\n3. Zgodnie z art. 66 ust. 1 ustawy o prawie autorskim, w braku oznaczenia czasu licencja wygasa po upływie pięciu lat.\n\n4. Licencja udzielona na czas nieoznaczony może być wypowiedziana z zachowaniem terminów określonych w § 9.\n\n§ 5. Wynagrodzenie\n\n1. Zgodnie z art. 43 ust. 1 ustawy o prawie autorskim, udzielenie licencji jest odpłatne, chyba że umowa stanowi inaczej.\n\n2. Wynagrodzenie licencyjne wynosi: ________________________________________________________________________\n(kwota netto)\n\n3. Do kwoty netto dolicza się podatek od towarów i usług według stawki 23% zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, jeżeli Licencjodawca jest czynnym podatnikiem.\n\n4. Wynagrodzenie płatne jest: jednorazowo / okresowo / w formie tantiem* w terminie: ________________________________________________________________________\n\n5. Podstawą rozliczenia jest faktura wystawiona przez Licencjodawcę.\n\n§ 6. Kara umowna za wykroczenie poza pola eksploatacji\n\n1. Strony postanawiają, że za niewykonanie lub nienależyte wykonanie zobowiązania niepieniężnego, polegającego na korzystaniu z utworu wyłącznie w granicach pól eksploatacji wskazanych w § 3 ust. 2, przysługuje Licencjodawcy kara umowna w wysokości ________________________________________________________________________ zł (słownie: ________________________________________________________________________ złotych) za każdy przypadek wykroczenia poza pola eksploatacji.\n\n2. Kara umowna przysługuje za każdy przypadek korzystania z utworu na polu eksploatacji nieobjętym licencją, niezależnie od czasu trwania takiego korzystania.\n\n3. Zgodnie z art. 483 § 1 Kodeksu cywilnego, kara umowna stanowi naprawienie szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania niepieniężnego.\n\n4. Zgodnie z art. 484 § 1 Kodeksu cywilnego, kara umowna należy się wierzycielowi w zastrzeżonej wysokości bez względu na wysokość poniesionej szkody. Żądanie odszkodowania przenoszącego wysokość zastrzeżonej kary nie jest dopuszczalne, chyba że strony inaczej postanowiły.\n\n5. Strony postanawiają, że w przypadku gdy szkoda Licencjodawcy przewyższa wysokość zastrzeżonej kary umownej, Licencjodawca zachowuje prawo dochodzenia odszkodowania przewyższającego wysokość kary umownej w granicach ogólnej odpowiedzialności na podstawie art. 471 Kodeksu cywilnego.\n\n6. Zapłata kary umownej nie zwalnia Licencjobiorcy z obowiązku natychmiastowego zaprzestania korzystania z utworu poza polami eksploatacji ani z obowiązku naprawienia szkody w całości, jeżeli szkoda przewyższa wysokość kary umownej.\n\n7. Licencjobiorca zobowiązuje się do niezwłocznego pisemnego powiadomienia Licencjodawcy o każdym przypadku wykroczenia poza pola eksploatacji, nie później niż w terminie 7 dni od powstania takiego naruszenia.\n\n§ 7. Sublicencja\n\n1. Zgodnie z art. 67 ust. 3 ustawy o prawie autorskim, Licencjobiorca może udzielić dalszej licencji (sublicencji) tylko za zgodą Licencjodawcy, jeżeli umowa nie stanowi inaczej.\n\n2. Licencjobiorca nie jest uprawniony do udzielania sublicencji / Licencjobiorca jest uprawniony do udzielania sublicencji na następujących warunkach: ________________________________________________________________________*\n\n§ 8. Prawa osobiste twórcy\n\n1. Autorskie prawa osobiste twórcy, w szczególności prawo do autorstwa utworu i nienaruszalności jego treści i formy, są niezbywalne zgodnie z art. 16 ustawy o prawie autorskim.\n\n2. Licencja nie przenosi autorskich praw osobistych na Licencjobiorcę. Licencjobiorca zobowiązuje się do korzystania z utworu w sposób nieporzucający praw osobistych twórcy.\n\n§ 9. Wypowiedzenie umowy\n\n1. Każda ze stron może wypowiedzieć umowę z zachowaniem terminów określonych w art. 68 ustawy o prawie autorskim.\n\n2. W przypadku istotnego naruszenia warunków licencji przez Licencjobiorcę, w tym w szczególności wykroczenia poza pola eksploatacji, Licencjodawca może rozwiązać umowę ze skutkiem natychmiastowym.\n\n3. Wypowiedzenie umowy wymaga formy pisemnej pod rygorem nieważności.\n\n§ 10. Postanowienia końcowe\n\n1. Wszelkie zmiany niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy ustawy o prawie autorskim i prawach pokrewnych oraz Kodeksu cywilnego.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd powszechny właściwy dla siedziby Licencjodawcy / sąd gospodarczy*.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n\n\n_________________________________                    _________________________________\n(Licencjodawca)                                    (Licencjobiorca)\n\n\n* niepotrzebne skreślić",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę udzielić licencji na mój utwór, ale chcę mieć pewność, że nie będzie on wykorzystywany poza określonym zakresem. Potrzebuję umowy, która jasno określa, do czego można go używać, i przewiduje karę, jeśli ktoś złamie te zasady."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem autorem oprogramowania i chcę udzielić licencji firmie, aby mogła go używać tylko w swoich wewnętrznych procesach biznesowych. Nie chcę, aby mogła je sprzedawać dalej ani udostępniać klientom. Chcę, żeby umowa jasno wymieniała, do czego można używać oprogramowania, i żeby była zapisana kara umowna, jeśli firma wykorzysta je w inny sposób, np. zacznie je odsprzedawać. Chcę też wiedzieć, jak długo licencja obowiązuje i na jakim terytorium."
+  }
+ ]
+}

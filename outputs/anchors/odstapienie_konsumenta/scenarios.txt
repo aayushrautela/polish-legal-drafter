@@ -1,0 +1,58 @@
+Odstąpienie od umowy zawartej na odległość (zakup online) w 14 dni
+Odstąpienie od umowy zawartej poza lokalem przedsiębiorstwa (door-to-door)
+Odstąpienie od umowy o świadczenie usług przez konsumenta przed wykonaniem
+Odstąpienie od umowy sprzedaży butów kupionych przez internet
+Odstąpienie od umowy o dostarczanie treści cyfrowych (aplikacja, e-book)
+Odstąpienie od umowy ubezpieczenia zawartej na odległość
+Odstąpienie od umowy o kredyt konsumencki w 14 dni
+Odstąpienie od umowy timeshare (wspólnego korzystania z lokalu)
+Odstąpienie od umowy o świadczenie usług finansowych na odległość
+Odstąpienie od umowy bez podania przyczyny po upływie 14 dni (wyjątek)
+Odstąpienie od umowy gdy przedsiębiorca nie poinformował o prawie odstąpienia
+Odstąpienie od umowy z żądaniem zwrotu kosztów dostawy standardowej
+Odstąpienie od umowy z brakiem zwrotu kosztów dostawy ekspresowej (wybór klienta)
+Odstąpienie od umowy z obowiązkiem zwrotu towaru w stanie niepogorszonym
+Odstąpienie od umowy gdy towar uległ zużyciu przez sprawdzenie (wyjątek)
+Odstąpienie od umowy o świadczenie usług częściowo wykonanych (zwrot części ceny)
+Odstąpienie od umowy zawartej na odległość po upływie 14 dni z winy przedsiębiorcy
+Odstąpienie od umowy z żądaniem zwrotu pieniędzy w ciągu 14 dni od oświadczenia
+Odstąpienie od umowy kupna mebli na wymiar przez internet
+Odstąpienie od umowy o dostarczanie wody butelkowanej (umowa na czas określony)
+Odstąpienie od umowy o dostęp do platformy edukacyjnej online
+Odstąpienie od umowy z przedsiębiorcą zagranicznym (UE)
+Odstąpienie od umowy o usługę hotelarską zarezerwowaną online
+Odstąpienie od umowy o organizację wycieczki (biuro podróży)
+Odstąpienie od umowy zakupu biletu na wydarzenie przez internet
+Odstąpienie od umowy o dostawę jedzenia (catering dietetyczny)
+Odstąpienie od umowy zawartej telefonicznie (telemarketing)
+Odstąpienie od umowy o naprawę pojazdu zawartej w warsztacie (lokal przedsiębiorstwa)
+Odstąpienie od umowy zawartej na pokładzie statku wycieczkowego
+Odstąpienie od umowy o dostarczanie prasy (subskrypcja)
+Odstąpienie od umowy o usługę telekomunikacyjną zawartą poza lokalem
+Odstąpienie od umowy z żądaniem zwrotu zaliczki przy braku realizacji
+Odstąpienie od umowy o świadczenie usług zdrowotnych prywatnych
+Odstąpienie od umowy o dostarczanie energii zawartej door-to-door
+Odstąpienie od umowy o budowę instalacji fotowoltaicznej online
+Odstąpienie od umowy o najem krótkoterminowy zawarty przez portal
+Odstąpienie od umowy zakupu gry komputerowej pudełkowej przez internet
+Odstąpienie od umowy o usługę architektoniczną zawartą na odległość
+Odstąpienie od umowy zakupu mebli ogrodowych z montażem
+Odstąpienie od umowy o świadczenie usług księgowych dla firmy (konsument właściciel)
+Odstąpienie od umowy zawartej na targach (stoisko przedsiębiorstwa)
+Odstąpienie od umowy o dostarczanie kwiatów subskrypcja
+Odstąpienie od umowy o usługę fitness (karnet roczny) zawartą online
+Odstąpienie od umowy o szkolenie stacjonarne zawarte przez telefon
+Odstąpienie od umowy o wynajem auta zawartej na odległość
+Odstąpienie od umowy zakupu biżuterii z grawerem przez internet
+Odstąpienie od umowy o usługę prawną (porada) zawartą na odległość
+Odstąpienie od umowy o dostarczanie posiłków dla dziecka (żłobek catering)
+Odstąpienie od umowy z żądaniem zwrotu pieniędzy na rachunek bankowy
+Odstąpienie od umowy o dostawę mebli z odbiorem osobistym (zamówienie online)
+Odstąpienie od umowy o świadczenie usług turystycznych po rozpoczęciu imprezy
+Odstąpienie od umowy zakupu oprogramowania z licencją dożywotnią
+Odstąpienie od umowy o usługę sprzątania mieszkania zawartą na odległość
+Odstąpienie od umowy z żądaniem zwrotu kosztów zwrotu towaru od sprzedawcy
+Odstąpienie od umowy o dostarczanie abonamentu medycznego
+Odstąpienie od umowy zakupu instrumentu muzycznego przez internet
+Odstąpienie od umowy o usługę rekrutacyjną (pośrednictwo pracy)
+Odstąpienie od umowy o dostarczanie butów na abonament

@@ -1,0 +1,306 @@
+{
+ "run": 30,
+ "hint": "Reklamacja towaru z tytułu niezgodności z umową (treść umowy zawarta mailowo)",
+ "scenario": "Reklamacja towaru z tytułu niezgodności z umową (treść umowy zawarta mailowo)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_f3b15662859e4efd938b23a5",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"reklamacja_konsumenta\"}"
+     }
+    },
+    {
+     "id": "call_ec3474b8ecb241aeb6cc6b9c",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa zawarta mailowo niezgodność towaru z umową reklamacja konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Reklamacja towaru niezgodnego z umową\\nReklamacja towaru niezgodnego z umową w Polsce to pisemne oświadczenie konsumenta skierowane do sprzedawcy, w którym konsument informuje o tym, że zakupiony towar nie odpowiada temu, co zostało uzgodnione w umowie, i zgłasza jedno z przysługujących mu żądań. Podstawę prawną tego dokumentu stanowi ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.), której przepisy wdrażają dyrektywę Parlamentu Europejskiego i Rady 2019/771 w sprawie umów sprzedaży towarów. Przepisy tej ustawy chronią konsumenta jako stronę słabszą w relacji z przedsiębiorcą i gwarantują mu konkretne uprawnienia w przypadku stwierdzenia niezgodności towaru z umową.\\n\\nNiezgodność towaru z umową zachodzi w szczególności wtedy, gdy towar nie ma właściwości, które towar tego rodzaju powinien mieć ze względu na cel w umowie lub w okolicznościach jej zawarcia, nie odpowiada opisowi, próbce lub wzorom przekazanym przed zawarciem umowy, nie ma właściwości, o których istnieniu przedsiębiorca zapewnił konsumenta lub które zostały zaprezentowane w reklamie, nie nadaje się do szczególnego celu, o którym konsument poinformował przedsiębiorcę przed zawarciem umowy i który ten zaakceptował, albo nie została dostarczona z akcesoriami i instrukcjami, których dostarczenia konsument mógł rozsądnie oczekiwać. Tak szeroka definicja obejmuje praktycznie każdą sytuację, w której zakupiony towar nie spełnia uzasadnionych oczekiwań konsumenta wynikających z umowy lub zapewnień sprzedawcy.\\n\\nOdpowiedzialność sprzedawcy za niezgodność towaru z umową jest odpowiedzialnością ustawową — przysługuje konsumentowi z mocy prawa, niezależnie od treści umowy, postanowień regulaminu sklepu lub wyłączeń przewidzianych przez sprzedawcę. Postanowień ustawy ograniczających prawa konsumenta nie można wyłączyć ani ograniczyć umową. Przestrzegania tych przepisów strzeże Urząd Ochrony Konkurencji i Konsumentów (UOKiK), który może nakładać kary na przedsiębiorców naruszających zbiorowe interesy konsumentów.\\n\\nNależy odróżnić reklamację towaru niezgodnego z umową od reklamacji z tytułu rękojmi uregulowanej w art. 556-576 Kodeksu cywilnego. Od 1 stycznia 2023 r. ustawa o prawach konsumenta przewiduje odrębny reżim odpowiedzialności sprzedawcy wobec konsumenta za niezgodność towaru z umową, który zastąpił w tej relacji stosowanie przepisów o rękojmi z Kodeksu cywilnego. Oznacza to, że konsument kupujący towar od przedsiębiorcy korzysta z ochrony ustawy o prawach konsumenta, natomiast przedsiębiorca kupujący od przedsiębiorcy stosuje przepisy Kodeksu cywilnego o rękojmi. Rozróżnienie to jest istotne przy wyborze właściwych przepisów i konstruowaniu reklamacji.\\n\\nTermin odpowiedzialności sprzedawcy za niezgodność towaru z umową wynosi dwa lata od dnia dostarczenia towaru konsumentowi. Przez pierwsze dwa lata obowiązuje korzystne dla konsumenta domniemanie: stwierdzona niezgodność jest uznawana za istniejącą w chwili dostarczenia towaru, chyba że sprzedawca udowodni inaczej lub domniemanie to nie pogodzi się z charakterem towaru albo rodzajem stwierdzonej niezgodności. Konsument, który stwierdził niezgodność towaru z umową, powinien poinformować o tym sprzedawcę bez zbędnej zwłoki i w terminie nie dłuższym niż dwa miesiące od stwierdzenia niezgodności — zachowanie tego terminu jest warunkiem skutecznego dochodzenia uprawnień. Sprzedawca jest zobowiązany odpowiedzieć na reklamację konsumenta w terminie 14 dni. Brak odpowiedzi w tym terminie uznawany jest za akceptację żądania konsumenta.\\n\\nReklamacja towaru niezgodnego z umową w Polsce jest potrzebna w każdej sytuacji, gdy konsument zakupił towar od przedsiębiorcy, a towar ten nie odpowiada temu, co zostało ustalone w umowie lub co zapewnił sprzedawca. Ustawa z dnia 30 maja 2014 r. o prawach konsumenta stanowi podstawę ochrony konsumenta w każdym kanale sprzedaży — zarówno w sklepach stacjonarnych, jak i w sklepach internetowych oraz na aukcjach internetowych.\\n\\nDokument jest przydatny, gdy zakupiony sprzęt elektroniczny nie działa zgodnie z opisem technicznym podanym przez sprzedawcę, gdy odzież lub obuwie rozpadają się przy normalnym użytkowaniu, gdy meble mają wady fabryczne uniemożliwiające ich prawidłowy montaż lub użytkowanie, gdy artykuły spożywcze nie mają parametrów wskazanych na opakowaniu, gdy zabawki nie spełniają norm bezpieczeństwa lub gdy oprogramowanie bundlowane z urządzeniem nie działa lub jest niekompletne. Każda z tych sytuacji wypełnia definicję niezgodności towaru z umową w rozumieniu ustawy o prawach konsumenta.\\n\\nReklamacja jest szczególnie potrzebna, gdy niezgodność ujawniła się w ciągu pierwszych dwóch lat od daty dostarczenia towaru. W tym czasie obowiązuje ustawowe domniemanie, że niezgodność istniała już w chwili dostarczenia towaru — konsument nie musi zatem dowodzić, że wada jest produkcyjna, a sprzedawca chcąc odrzucić reklamację, musi wykazać, że niezgodność powstała z winy konsumenta lub w wyniku nieprawidłowego używania towaru. Po upływie dwóch lat odpowiedzialność sprzedawcy wygasa.\\n\\nDokument jest potrzebny niezależnie od tego, czy sprzedawca udzielił gwarancji. Gwarancja jest zobowiązaniem dobrowolnym, często producenta, i może mieć inne warunki niż ustawowa odpowiedzialność sprzedawcy. Konsument może wybrać, z której formy ochrony skorzysta, przy czym reklamacja towaru niezgodnego z umową kierowana jest do sprzedawcy, a nie do producenta. Miejski lub powiatowy rzecznik konsumentów udziela bezpłatnej pomocy w sporach konsumenckich, a Urząd Ochrony Konkurencji i Konsumentów (UOKiK) przyjmuje zawiadomienia o praktykach naruszających zbiorowe interesy konsumentów.\\n\\nReklamacja jest potrzebna również wtedy, gdy sprzedawca utrudnia lub odmawia jej przyjęcia, powołując się na brak paragonu, brak oryinalnego opakowania lub inne warunki nieznajdujące oparcia w przepisach prawa. Konsument nie ma obowiązku posiadania paragonu jako jedynego dowodu zakupu — zakup można udowodnić w inny sposób, na przykład wyciągiem z rachunku bankowego lub potwierdzeniem zamówienia e-mail. Pisemna reklamacja chroni konsumenta i tworzy ślad dokumentowy niezbędny w razie ewentualnego postępowania przed Sądem Rejonowym lub w postępowaniu polubownym przed stałym polubownym sądem konsumenckim działającym przy Inspekcji Handlowej.\\n\\nPrawidłowo sporządzona reklamacja towaru niezgodnego z umową w Polsce powinna zawierać wszystkie elementy pozwalające jednoznacznie zidentyfikować konsumenta, sprzedawcę, towar, niezgodność i żądanie. Kompletna reklamacja przyspiesza postępowanie i wzmacnia pozycję prawną konsumenta.\\n\\nOznaczenie konsumenta: imię, nazwisko i adres zamieszkania konsumenta, adres e-mail do korespondencji oraz numer rachunku bankowego na wypadek ewentualnego zwrotu środków przy żądaniu obniżenia ceny lub odstąpieniu od umowy. Dane kontaktowe umożliwiają sprzedawcy terminowe ustosunkowanie się do reklamacji.\\n\\nOznaczenie sprzedawcy: pełna firma (nazwa) i adres sprzedawcy, do którego kierowana jest reklamacja. Reklamację kieruje się wyłącznie do sprzedawcy, u którego dokonano zakupu, a nie do producenta. Dane sprzedawcy widnieją na paragonie, fakturze, potwierdzeniu zamówienia lub w regulaminie sklepu.\\n\\nIdentyfikacja towaru i dowód zawarcia umowy: dokładne oznaczenie reklamowanego towaru, numer paragonu, faktury lub zamówienia oraz data zakupu lub dostarczenia towaru. Data dostarczenia jest kluczowa, ponieważ od niej liczy się dwuletni termin odpowiedzialności sprzedawcy wynikający z ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\\n\\nOpis niezgodności z umową: szczegółowy opis, na czym polega niezgodność towaru z umową — odwołanie do właściwości, które towar powinien mieć, lecz ich nie ma, do zapewnień sprzedawcy lub opisu towaru na stronie, a także wskazanie daty ujawnienia niezgodności. Precyzyjny opis ułatwia sprzedawcy ocenę zasadności reklamacji i jest kluczowy dowodowo.\\n\\nJednoznaczne żądanie konsumenta: wskazanie jednego z czterech uprawnień przysługujących konsumentowi na podstawie ustawy o prawach konsumenta — żądania naprawy, żądania wymiany towaru na nowy, oświadczenia o obniżeniu ceny z podaniem proponowanej kwoty albo oświadczenia o odstąpieniu od umowy przy istotnej niezgodności. Pierwsze żądania konsumenta powinno być skierowane na naprawę lub wymianę, a żądania pieniężne mogą być zgłoszone, jeżeli naprawa lub wymiana jest niemożliwa, nieproporcjonalna lub sprzedawca odmówił ich spełnienia.\\n\\nWezwanie do rozpatrzenia w terminie: wniosek o rozpatrzenie reklamacji w terminie 14 dni z zastrzeżeniem skutku milczącego uznania. Serwis forms-legal.com udostępnia gotowy wzór reklamacji towaru niezgodnego z umową, który spełnia wszystkie ustawowe wymagania i pozwala szybko i skutecznie dochodzić praw konsumenckich. Reklamację należy wysłać listem poleconym lub pocztą elektroniczną z żądaniem potwierdzenia odbioru i zachować dowód nadania — pozwoli to udowodnić zachowanie terminu 14 dni na zgłoszenie niezgodności liczonego od dnia jej stwierdzenia.\\n\\nWypełnianie reklamacji towaru niezgodnego z umową w Polsce zacznij od wpisania swoich danych jako konsumenta — imienia i nazwiska, adresu zamieszkania, adresu e-mail i numeru rachunku bankowego na wypadek zwrotu środków. Kompletne dane ułatwiają sprzedawcy kontakt i rozliczenie ewentualnego zwrotu.\\n\\nW polu sprzedawcy wpisz pełną firmę i adres przedsiębiorcy, u którego dokonano zakupu. Pamiętaj, że reklamację kierujesz do sprzedawcy, nie do producenta. Dane sprzedawcy znajdziesz na paragonie, fakturze, potwierdzeniu zamówienia lub w stopce regulaminu sklepu internetowego.\\n\\nW części dotyczącej towaru dokładnie opisz reklamowany produkt, podaj numer dowodu zakupu, na przykład \\\"faktura VAT nr 77/2025 z dnia 10.03.2025 r.\\\", oraz datę zakupu lub dostarczenia towaru. Ta data jest istotna, ponieważ od niej biegnie dwuletni termin odpowiedzialności sprzedawcy wynikający z ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\\n\\nW polu opisu niezgodności opisz możliwie szczegółowo, na czym polega niezgodność towaru z umową. Powołaj się na konkretne właściwości, których towar nie ma, albo na opis towaru lub zapewnienia sprzedawcy, które okazały się nieprawdziwe. Wskaż datę ujawnienia niezgodności — pamiętaj, że od jej stwierdzenia biegnie termin 14 dni na zgłoszenie reklamacji. Dokument niezgodności, na przykład zdjęcia lub nagranie wideo, znacznie wzmacniają reklamację.\\n\\nW sekcji żądania wybierz uprawnienię, którego chcesz dochodzić: naprawę towaru, wymianę na nowy zgodny z umową, obniżenie ceny lub, przy istotnej niezgodności, odstąpienie od umowy. Przy żądaniu obniżenia ceny wskaż proponowaną kwotę. Wypełnij miejscowość i datę, złóż podpis, dołącz kopię dowodu zakupu oraz dokumentację niezgodności i wyślij reklamację listem poleconym lub e-mailem z potwierdzeniem odbioru. Zachowaj dowód nadania — pozwoli to ustalić bieg 14-dniowego terminu na odpowiedź sprzedawcy.\\n\\nWymogi prawne reklamacji towaru niezgodnego z umową w Polsce wynikają przede wszystkim z ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.), która wdraża dyrektywę Parlamentu Europejskiego i Rady (UE) 2019/771 z dnia 20 maja 2019 r. w sprawie niektórych aspektów umów sprzedaży towarów. Przepisy te chronią wyłącznie konsumentów w rozumieniu art. 22¹ Kodeksu cywilnego, czyli osoby fizyczne dokonujące czynności prawnych niezwiązanych bezpośrednio z działalnością gospodarczą lub zawodową.\\n\\nSprzedawca ponosi odpowiedzialność za niezgodność towaru z umową istniejącą w chwili jego dostarczenia i ujawnioną w ciągu dwóch lat od tej chwili. Przez cały ten dwuletni okres obowiązuje domniemanie, że ujawniona niezgodność istniała już w momencie dostarczenia towaru, chyba że sprzedawca udowodni inaczej lub domniemanie to nie pogodzi się z charakterem towaru lub rodzajem niezgodności. Ciężar dowodowy leży zatem po stronie sprzedawcy, co stawia konsumenta w uprzywilejowanej pozycji.\\n\\nKonsument może żądać najpierw naprawy lub wymiany towaru. Sprzedawca obowiązany jest naprawić lub wymienić towar w rozsądnym czasie i bez nadmiernych niedogodności dla konsumenta, na swój koszt. Jeżeli naprawa lub wymiana jest niemożliwa, nieproporcjonalna, sprzedawca odmówił ich spełnienia lub nie spełnił żądania w odpowiednim czasie, konsument może złożyć oświadczenie o obniżeniu ceny albo, gdy niezgodność jest istotna, oświadczenie o odstąpieniu od umowy. Sprzedawca musi ustosunkować się do żądania konsumenta dotyczącego naprawy lub wymiany w terminie 14 dni od jego otrzymania. Brak odpowiedzi w tym terminie uznawany jest za akceptację żądania.\\n\\nPrzestrzegania przepisów o prawach konsumenta strzeże Prezes Urzędu Ochrony Konkurencji i Konsumentów (UOKiK), który może prowadzić postępowania w sprawach praktyk naruszających zbiorowe interesy konsumentów i nakładać administracyjne kary pieniężne na podstawie ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów. W razie sporu konsument może skorzystać z pomocy miejskiego lub powiatowego rzecznika konsumentów albo z postępowania polubownego przed stałym polubownym sądem konsumenckim działającym przy Inspekcji Handlowej lub przed Rzecznikiem Finansowym, jeżeli spór dotyczy instytucji finansowej.\\n\\nNajczęstsze błędy przy reklamacji towaru niezgodnego z umową w Polsce zaczynają się od mylenia adresata reklamacji. Konsumenci nierzadko kierują reklamację do producenta zamiast do sprzedawcy, u którego dokonali zakupu. Tymczasem odpowiedzialność za niezgodność towaru z umową na podstawie ustawy z dnia 30 maja 2014 r. o prawach konsumenta spoczywa na sprzedawcy — to on jest stroną umowy sprzedaży zawartej z konsumentem. Do producenta kieruje się reklamacje z gwarancji, jeżeli gwarancji udzielił producent.\\n\\nKolejnym błędem jest przekroczenie 14-dniowego terminu na zgłoszenie niezgodności od dnia jej stwierdzenia. Choć przepisy wymagają jedynie, by konsument poinformował sprzedawcę o niezgodności, opóźnienie może utrudnić skuteczne dochodzenie uprawnień i dać sprzedawcy argument, że niezgodność powstała wskutek nieprawidłowego używania towaru przez konsumenta. Reklamację najlepiej złożyć niezwłocznie po stwierdzeniu niezgodności.\\n\\nBłędem jest brak dokumentacji niezgodności. Samo słowne stwierdzenie \\\"towar nie działa\\\" bez podania, na czym dokładnie polega niezgodność z umową lub z zapewnieniami sprzedawcy, osłabia reklamację. Warto opisać niezgodność precyzyjnie, odwołując się do konkretnych właściwości lub opisu towaru, i dołączyć zdjęcia lub nagranie wideo dokumentujące usterkę.\\n\\nCzęstym uchybieniem jest żądanie odstąpienia od umowy przy nieistotnej niezgodności lub od razu, bez uprzedniego żądania naprawy lub wymiany. Przepisy ustawy o prawach konsumenta przewidują, że w pierwszej kolejności konsument powinien żądać naprawy lub wymiany, a oświadczenia o obniżeniu ceny lub odstąpieniu mogą być składane dopiero po spełnieniu przesłanek ustawowych, w tym przy odmowie lub bezskuteczności naprawy albo wymiany, lub gdy niezgodność jest istotna. Nieprawidłowe żądanie może przedłużyć postępowanie reklamacyjne.\\n\\nWrakoniec, konsumenci często nie zachowują dowodu złożenia reklamacji i daty jej nadania. Brak potwierdzenia nadania listu poleconego lub wiadomości e-mail utrudnia wykazanie daty złożenia reklamacji, od której biegnie 14-dniowy termin na odpowiedź sprzedawcy. W razie milczenia sprzedawcy konsument powinien być w stanie udowodnić, że reklamacja dotarła do sprzedawcy i kiedy upłynął termin do jej rozpatrzenia. W razie sporu konsument może skierować sprawę do Sądu Rejonowego lub skorzystać z bezpłatnej pomocy miejskiego rzecznika konsumentów.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/reklamacja-towaru-niezgodnego-z-umowa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_f3b15662859e4efd938b23a5",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_id\": \"sejm_eli_du_2024_1796_art_43e\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43e. 1. Jeżeli towar jest niezgodny z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) przedsiębiorca odmówił doprowadzenia towaru do zgodności z umową zgodnie z art. 43d ust. 2; 2) przedsiębiorca nie doprowadził towaru do zgodności z umową zgodnie z art. 43d ust. 4-6; 3) brak zgodności towaru z umową występuje nadal, mimo że przedsiębiorca próbował doprowadzić towar do zgodności z umową; 4) bra ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_id\": \"sejm_eli_du_2024_1796_art_43d\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43d. 1. Jeżeli towar jest niezgodny z umową, konsument może żądać jego naprawy lub wymiany. 2. Przedsiębiorca może dokonać wymiany, gdy konsument żąda naprawy, lub przedsiębiorca może dokonać naprawy, gdy konsument żąda wymiany, jeżeli doprowadzenie do zgodności towaru z umową w sposób wybrany przez konsumenta jest niemożliwe albo wymagałoby nadmiernych kosztów dla przedsiębiorcy. Jeżeli naprawa i wymiana są niemożliwe lub wymagałyby nadmi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43b. 1. Towar jest zgodny z umową, jeżeli zgodne z umową pozostają w szczególności jego: 1) opis, rodzaj, ilość, jakość, kompletność i funkcjonalność, a w odniesieniu do towarów z elementami cyfrowymi - również kompatybilność, interoperacyjność i dostępność aktualizacji; 2) przydatność do szczególnego celu, do którego jest potrzebny konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przeds ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43c\", \"source_id\": \"sejm_eli_du_2024_1796_art_43c\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43c. 1. Przedsiębiorca ponosi odpowiedzialność za brak zgodności towaru z umową istniejący w chwili jego dostarczenia i ujawniony w ciągu dwóch lat od tej chwili, chyba że termin przydatności towaru do użycia, określony przez przedsiębiorcę, jego poprzedników prawnych lub osoby działające w ich imieniu, jest dłuższy. Domniemywa się, że brak zgodności towaru z umową, który ujawnił się przed upływem dwóch lat od chwili dostarczenia towaru, i ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43n\", \"source_id\": \"sejm_eli_du_2024_1796_art_43n\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43n. 1. Jeżeli treść cyfrowa lub usługa cyfrowa są niezgodne z umową, konsument może złożyć oświadczenie o obniżeniu ceny albo odstąpieniu od umowy, gdy: 1) doprowadzenie do zgodności treści cyfrowej lub usługi cyfrowej z umową jest niemożliwe albo wymaga nadmiernych kosztów stosownie do art. 43m ust. 2 i 3; 2) przedsiębiorca nie doprowadził treści cyfrowej lub usługi cyfrowej do zgodności z umową zgodnie z art. 43m ust. 4; 3) brak zgodnoś ...\"}]",
+   "tool_call_id": "call_ec3474b8ecb241aeb6cc6b9c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Good, I have the base template and some relevant statutory provisions. Now I need to search for more specific provisions about:\n1. Contracts concluded via email (umowa zawarta mailowo)\n2. Proof of contract content when concluded via email\n3. The 14-day response deadline (art. 7a ustawy o prawach konsumenta)\n4. The 2-month deadline for reporting non-conformity\n\nLet me search for more specific provisions.",
+   "tool_calls": [
+    {
+     "id": "call-08f4c199-bf25-422c-83b0-143ea4955d79",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 7a\", \"termin 14 dni\", \"milczące uznanie\", \"umowa mailowo\", \"zawarcia umowy mailowo\"]}"
+     }
+    },
+    {
+     "id": "call-6678003e-2481-4a9b-978e-8abc6dae3bdf",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"dowód zawarcia umowy mailowo korespondencja e-mail reklamacja konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_3\", \"source_id\": \"sejm_eli_du_2024_1796_art_3\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 3. 1. Przepisów ustawy nie stosuje się do umów: 1) dotyczących usług socjalnych, mieszkań socjalnych, opieki nad dziećmi, wsparcia dla rodzin i osób znajdujących się stale lub czasowo w potrzebie, w tym opieki długoterminowej, z wyjątkiem art. 7a; 2) dotyczących gier hazardowych; 3) zawieranych z przedsiębiorcą dokonującym częstych i regularnych objazdów, podczas których przedsiębiorca dostarcza środki spożywcze, napoje i inne artykuły, pr ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_454\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 454 5 14) Dodany przez art. 7 pkt 2 ustawy, o której mowa w odnośniku 13. . § 1. W przypadku podjęcia przez zarząd uchwały o przyznaniu akcji uczestnicy depozytu papierów wartościowych przekazują spółce w terminie wskazanym przez podmiot, w którym obligacje zostały zarejestrowane, nazwiska i imiona albo firmy (nazwy) obligatariuszy oraz adresy ich miejsca zamieszkania albo siedziby albo inne adresy do doręczeń, albo adresy do doręczeń e ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_778\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 778 2 . Tytułowi egzekucyjnemu wydanemu przeciwko spółce, o której mowa w art. 7a ust. 1 ustawy z dnia 19 grudnia 2008 r. o partnerstwie publiczno-prywatnym ( Dz. U. z 2023 r. poz. 1637 ) , obejmującemu obowiązek zapłaty wynagrodzenia należnego podwykonawcy, sąd nadaje klauzulę wykonalności przeciwko partnerowi prywatnemu, jeżeli egzekucja przeciwko spółce okaże się bezskuteczna, jak również wtedy, gdy jest oczywiste, że egze ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_20\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 20. 1. Do linii bezpośrednich, wydzielonych jednostek wytwórczych i jednostek wytwórczych bezpośrednio dostarczających energię elektryczną za pośrednictwem linii bezpośredniej, które pierwszy raz dostarczyły lub wytworzyły energię elektryczną przed dniem wejścia w życie niniejszej ustawy, stosuje się przepisy dotychczasowe. 2. Do linii bezpośrednich, wydzielonych jednostek wytwórczych i jednostek wytwórczych bezpośrednio dostarczających energię e ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_7a\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 7a. 1. Przychody przedsiębiorstwa w spadku uznaje się za przychody ze źródła, o którym mowa w art. 10 ust. 1 pkt 3. 2. Powstanie przedsiębiorstwa w spadku nie jest traktowane jako rozpoczęcie działalności gospodarczej. 3. Równoznaczne z likwidacją działalności gospodarczej jest wygaśnięcie: 1) zarządu sukcesyjnego albo 2) uprawnienia do powołania zarządcy sukcesyjnego - w przypadku gdy zarząd sukcesyjny nie został ustanowion ...\"}]",
+   "tool_call_id": "call-08f4c199-bf25-422c-83b0-143ea4955d79",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_60a0f6b434446114\", \"source_id\": \"uokik_rejestr_klauzul_5685\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest przedstawienie przez Klienta dowodu zakupu towaru (dokument sprzedaży)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}, {\"chunk_id\": \"uokik_items:uokik_314cd509a5db2dfb\", \"source_id\": \"uokik_rejestr_klauzul_7021\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest przedstawienie przez Klienta dowodu zakupu towaru (paragon fiskalny lub faktura VAT).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}, {\"chunk_id\": \"uokik_items:uokik_4c5c9d5258d47e1a\", \"source_id\": \"uokik_rejestr_klauzul_4242\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podstawą przyjęcia reklamacji jest dowód zakupu towaru (paragon fiskalny lub faktura VAT)\"}]",
+   "tool_call_id": "call-6678003e-2481-4a9b-978e-8abc6dae3bdf",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "I need to find the specific article 7a of the Consumer Rights Act (ustawa o prawach konsumenta) which deals with the 14-day response deadline for complaints. Let me search for that specifically.",
+   "tool_calls": [
+    {
+     "id": "call-4e57d088-4d68-43f8-9d71-fa8f36e3dca3",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 7a ustawa o prawach konsumenta\", \"14 dni odpowiedź reklamacja\", \"milczące uznanie reklamacji\"]}"
+     }
+    },
+    {
+     "id": "call-bc673ac6-d7e2-4954-83be-e86dddfcfe9a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"art 7a ustawa o prawach konsumenta termin 14 dni na odpowiedź reklamacji milczące uznanie\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-4e57d088-4d68-43f8-9d71-fa8f36e3dca3",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_7a\", \"source_id\": \"sejm_eli_du_2024_1796_art_7a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 7a. 1. Jeżeli przepisy odrębne nie stanowią inaczej, przedsiębiorca jest obowiązany udzielić odpowiedzi na reklamację konsumenta w terminie 14 dni od dnia jej otrzymania. 2. Jeżeli przedsiębiorca nie udzielił odpowiedzi na reklamację w terminie, o którym mowa w ust. 1, uważa się, że uznał reklamację. 3. Odpowiedź na reklamację przedsiębiorca przekazuje konsumentowi na papierze lub innym trwałym nośniku.\"}, {\"chunk_id\": \"uokik_items:uokik_439b035a5ac49491\", \"source_id\": \"uokik_rejestr_klauzul_2216\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) obowiązana jest udzielić odpowiedzi na reklamację, w terminie 14 dni od daty jej otrzymania. W przypadku braku informacji niezbędnych do rozpoznania reklamacji, termin liczony jest od momentu ich uzyskania\"}, {\"chunk_id\": \"uokik_items:uokik_7b3ed738c6e57233\", \"source_id\": \"uokik_rejestr_klauzul_4825\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacja może zostać zgłoszona w ciągu 14 dni, licząc od momentu ujawnienia się przyczyn reklamacji\"}, {\"chunk_id\": \"uokik_items:uokik_308bba7052d8d46d\", \"source_id\": \"uokik_rejestr_klauzul_7217\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Termin rozpatrywania reklamacji wynosi 14 dni roboczych od dnia otrzymania przez(...)przesyłki zawierajacej reklamowany towar\"}, {\"chunk_id\": \"uokik_items:uokik_f46e989350ba9aab\", \"source_id\": \"uokik_rejestr_klauzul_4831\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacje i skargi mogą być zgłaszane w okresie 7 dni od zaistnienia okoliczności, która jest przyczyną reklamacji\"}]",
+   "tool_call_id": "call-bc673ac6-d7e2-4954-83be-e86dddfcfe9a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Reklamacja towaru niezgodnego z umową zawartą drogą mailową\n\n**Miejscowość, data:** ..............................................\n\n**1. Dane konsumenta (reklamującego)**\nImię i nazwisko: ..........................................................................\nAdres zamieszkania: ..........................................................................\nAdres e-mail do korespondencji: ..........................................................................\nNumer telefonu: ..........................................................................\nNumer rachunku bankowego (IBAN) – na wypadek zwrotu środków: ..........................................................................\n\n**2. Dane sprzedawcy (przedsiębiorcy)**\nPełna firma (nazwa): ..........................................................................\nAdres siedziby: ..........................................................................\nNIP: ..........................................................................\nAdres e-mail do korespondencji reklamacyjnej: ..........................................................................\n\n**3. Identyfikacja towaru i dowód zawarcia umowy mailowej**\nNazwa towaru: ..........................................................................\nMarka/model: ..........................................................................\nNumer seryjny / EAN / kod produktu (jeśli dotyczy): ..........................................................................\nData zawarcia umowy (data zamówienia mailowego): ..........................................................................\nData dostarczenia towaru: ..........................................................................\n\n**Dowód zawarcia umowy i zakupu:**\nUmowę sprzedaży zawarłem/zawarłam z przedsiębiorcą drogą mailową. Jako dowód zakupu i treści umowy wskazuję korespondencję e-mail z dnia .......................................................................... (wklej fragmenty lub opisz: numer zamówienia, potwierdzenie zamówienia, proformę, fakturę VAT, wyciąg z rachunku bankowego potwierdzający płatność). Kopię korespondencji mailowej oraz potwierdzenia płatności dołączam do niniejszej reklamacji.\n\n*Uwaga: Zgodnie z praktyką UOKiK (rejestr klauzul niedozwolonych), wymóg przedstawienia wyłącznie paragonu fiskalnego lub faktury VAT jako jedynego dowodu zakupu jest klauzulą niedozwoloną. Zakup można udowodnić każdym sposobem, w tym korespondencją mailową, wyciągiem bankowym lub potwierdzeniem zamówienia.*\n\n**4. Opis niezgodności towaru z umową**\nData stwierdzenia niezgodności: ..........................................................................\n\nSzczegółowy opis niezgodności (odwołując się do art. 43b ustawy o prawach konsumenta – towar nie zachowuje zgodności z umową co do opisu, rodzaju, jakości, kompletności, funkcjonalności, przydatności do szczególnego celu, zgodnie z zapewnieniami sprzedawcy zawartymi w ofercie/mailach):\n..........................................................................\n..........................................................................\n..........................................................................\n\nDołączam dokumentację niezgodności: zdjęcia / nagranie wideo / opinia serwisu / inne: ..........................................................................\n\n**5. Podstawa prawna reklamacji**\nNiniejszą reklamację złożam na podstawie ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.), w szczególności:\n- **Art. 43b** – definicja zgodności towaru z umową (opis, jakość, funkcjonalność, przydatność do celu, zapewnienia sprzedawcy);\n- **Art. 43c** – odpowiedzialność przedsiębiorcy za brak zgodności istniejącą w chwili dostarczenia i ujawnioną w ciągu 2 lat; domniemanie, że brak zgodności ujawniony w ciągu 2 lat istniał już przy dostarczeniu, chyba że przedsiębiorca udowodni inaczej;\n- **Art. 43d** – prawo do żądania naprawy lub wymiany towaru w rozsądnym czasie, bez nadmiernych niedogodności i na koszt przedsiębiorcy;\n- **Art. 43e** – prawo do oświadczenia o obniżeniu ceny lub odstąpieniu od umowy w przypadkach ustawowych;\n- **Art. 7a** – obowiązek przedsiębiorcy udzielenia odpowiedzi w terminie 14 dni od otrzymania reklamacji; milczące uznanie reklamacji w braku odpowiedzi;\n- **Art. 12 i 39** – obowiązki informacyjne przedsiębiorcy przy umowach na odległość (w tym mailowych).\n\n**6. Żądanie konsumenta**\nW oparciu o art. 43d ustawy o prawach konsumenta, w pierwszej kolejności żądam (wybrać jedno):\n☐ **NAPRAWY** towaru – doprowadzenia go do zgodności z umową w rozsądnym czasie, bez nadmiernych niedogodności i na koszt sprzedawcy;\n☐ **WYMIANY** towaru na nowy, zgodny z umową, w rozsądnym czasie, bez nadmiernych niedogodności i na koszt sprzedawcy.\n\n*Zastrzegam prawo do złożenia oświadczenia o obniżeniu ceny (art. 43e ust. 1 pkt 1-4) lub odstąpieniu od umowy (art. 43e ust. 1 pkt 4 – przy istotnej niezgodności), jeżeli:\n- sprzedawca odmówi naprawy/wymiany;\n- naprawa/wymiana jest niemożliwa lub nieproporcjonalna;\n- sprzedawca nie doprowadzi towaru do zgodności w rozsądnym czasie;\n- brak zgodności występuje nadal po próbie naprawy/wymiany.*\n\n**7. Wezwanie do rozpatrzenia w terminie ustawowym**\nNa podstawie **art. 7a ust. 1 i 2 ustawy o prawach konsumenta**, wezwam do rozpatrzenia niniejszej reklamacji i udzielenia odpowiedzi na papierze lub innym trwałym nośniku w terminie **14 dni od dnia jej otrzymania**.\n\n**Zastrzegam, że w przypadku braku odpowiedzi w terminie 14 dni, zgodnie z art. 7a ust. 2 ustawy o prawach konsumentu, uważa się, że sprzedawca uznał reklamację.**\n\n**8. Załączniki**\n1. Kopia korespondencji mailowej potwierdzającej zawarcie umowy i zakup.\n2. Kopia potwierdzenia płatności (wyciąg bankowy / potwierdzenie przelewu / inny).\n3. Dokumentacja niezgodności (zdjęcia, nagranie wideo, opinia serwisu).\n4. Inne: ..........................................................................\n\n**9. Podpis**\n..........................................................................\n(podpis własnoręczny konsumenta)\n\n---\n\n**Instrukcja nadania:**\nReklamację należy wysłać dwoma drogami jednocześnie:\n1. **Listem poleconym** z potwierdzeniem odbioru na adres siedziby sprzedawcy;\n2. **Pocztą elektroniczną** z żądaniem potwierdzenia odbioru (lub na adres e-mail podany w regulaminie/stopce sklepu) – zachować potwierdzenie wysyłki i doręczenia.\n\nZachować dowody nadania (potwierdzenie nadania listu poleconego, potwierdzenie doręczenia e-maila) – są one niezbędne do wykazania terminu 14 dni na odpowiedź sprzedawcy (art. 7a ustawy o prawach konsumenta).\n\n**Wskazówki:**\n- Reklamację złoż bez zbędnej zwłoki, nie później niż w ciągu 2 miesięcy od stwierdzenia niezgodności (zachowanie terminu jest warunkiem skutecznego dochodzenia uprawnień).\n- Odpowiedzialność sprzedawcy trwa 2 lata od dostarczenia towaru (art. 43c).\n- W ciągu pierwszych 2 lat obowiązuje domniemanie, że niezgodność istniała przy dostarczeniu – ciężar dowodu leży na sprzedawcy.\n- Reklamację kierujemy do **sprzedawcy**, a nie do producenta (odpowiedzialność za niezgodność z umową spoczywa na sprzedawcy).\n- W razie sporu: pomoc bezpłatna miejskiego/powiatowego rzecznika konsumentów, postępowanie polubowne przy Stałym Polubownym Sądzie Konsumenckim przy Inspekcji Handlowej, lub sąd rejonowy.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Reklamacja towaru niezgodnego z umową zawartą drogą mailową\n\n**Miejscowość, data:** ..............................................\n\n**1. Dane konsumenta (reklamującego)**\nImię i nazwisko: ..........................................................................\nAdres zamieszkania: ..........................................................................\nAdres e-mail do korespondencji: ..........................................................................\nNumer telefonu: ..........................................................................\nNumer rachunku bankowego (IBAN) – na wypadek zwrotu środków: ..........................................................................\n\n**2. Dane sprzedawcy (przedsiębiorcy)**\nPełna firma (nazwa): ..........................................................................\nAdres siedziby: ..........................................................................\nNIP: ..........................................................................\nAdres e-mail do korespondencji reklamacyjnej: ..........................................................................\n\n**3. Identyfikacja towaru i dowód zawarcia umowy mailowej**\nNazwa towaru: ..........................................................................\nMarka/model: ..........................................................................\nNumer seryjny / EAN / kod produktu (jeśli dotyczy): ..........................................................................\nData zawarcia umowy (data zamówienia mailowego): ..........................................................................\nData dostarczenia towaru: ..........................................................................\n\n**Dowód zawarcia umowy i zakupu:**\nUmowę sprzedaży zawarłem/zawarłam z przedsiębiorcą drogą mailową. Jako dowód zakupu i treści umowy wskazuję korespondencję e-mail z dnia .......................................................................... (wklej fragmenty lub opisz: numer zamówienia, potwierdzenie zamówienia, proformę, fakturę VAT, wyciąg z rachunku bankowego potwierdzający płatność). Kopię korespondencji mailowej oraz potwierdzenia płatności dołączam do niniejszej reklamacji.\n\n*Uwaga: Zgodnie z praktyką UOKiK (rejestr klauzul niedozwolonych), wymóg przedstawienia wyłącznie paragonu fiskalnego lub faktury VAT jako jedynego dowodu zakupu jest klauzulą niedozwoloną. Zakup można udowodnić każdym sposobem, w tym korespondencją mailową, wyciągiem bankowym lub potwierdzeniem zamówienia.*\n\n**4. Opis niezgodności towaru z umową**\nData stwierdzenia niezgodności: ..........................................................................\n\nSzczegółowy opis niezgodności (odwołując się do art. 43b ustawy o prawach konsumenta – towar nie zachowuje zgodności z umową co do opisu, rodzaju, jakości, kompletności, funkcjonalności, przydatności do szczególnego celu, zgodnie z zapewnieniami sprzedawcy zawartymi w ofercie/mailach):\n..........................................................................\n..........................................................................\n..........................................................................\n\nDołączam dokumentację niezgodności: zdjęcia / nagranie wideo / opinia serwisu / inne: ..........................................................................\n\n**5. Podstawa prawna reklamacji**\nNiniejszą reklamację złożam na podstawie ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796 ze zm.), w szczególności:\n- **Art. 43b** – definicja zgodności towaru z umową (opis, jakość, funkcjonalność, przydatność do celu, zapewnienia sprzedawcy);\n- **Art. 43c** – odpowiedzialność przedsiębiorcy za brak zgodności istniejącą w chwili dostarczenia i ujawnioną w ciągu 2 lat; domniemanie, że brak zgodności ujawniony w ciągu 2 lat istniał już przy dostarczeniu, chyba że przedsiębiorca udowodni inaczej;\n- **Art. 43d** – prawo do żądania naprawy lub wymiany towaru w rozsądnym czasie, bez nadmiernych niedogodności i na koszt przedsiębiorcy;\n- **Art. 43e** – prawo do oświadczenia o obniżeniu ceny lub odstąpieniu od umowy w przypadkach ustawowych;\n- **Art. 7a** – obowiązek przedsiębiorcy udzielenia odpowiedzi w terminie 14 dni od otrzymania reklamacji; milczące uznanie reklamacji w braku odpowiedzi;\n- **Art. 12 i 39** – obowiązki informacyjne przedsiębiorcy przy umowach na odległość (w tym mailowych).\n\n**6. Żądanie konsumenta**\nW oparciu o art. 43d ustawy o prawach konsumenta, w pierwszej kolejności żądam (wybrać jedno):\n☐ **NAPRAWY** towaru – doprowadzenia go do zgodności z umową w rozsądnym czasie, bez nadmiernych niedogodności i na koszt sprzedawcy;\n☐ **WYMIANY** towaru na nowy, zgodny z umową, w rozsądnym czasie, bez nadmiernych niedogodności i na koszt sprzedawcy.\n\n*Zastrzegam prawo do złożenia oświadczenia o obniżeniu ceny (art. 43e ust. 1 pkt 1-4) lub odstąpieniu od umowy (art. 43e ust. 1 pkt 4 – przy istotnej niezgodności), jeżeli:\n- sprzedawca odmówi naprawy/wymiany;\n- naprawa/wymiana jest niemożliwa lub nieproporcjonalna;\n- sprzedawca nie doprowadzi towaru do zgodności w rozsądnym czasie;\n- brak zgodności występuje nadal po próbie naprawy/wymiany.*\n\n**7. Wezwanie do rozpatrzenia w terminie ustawowym**\nNa podstawie **art. 7a ust. 1 i 2 ustawy o prawach konsumenta**, wezwam do rozpatrzenia niniejszej reklamacji i udzielenia odpowiedzi na papierze lub innym trwałym nośniku w terminie **14 dni od dnia jej otrzymania**.\n\n**Zastrzegam, że w przypadku braku odpowiedzi w terminie 14 dni, zgodnie z art. 7a ust. 2 ustawy o prawach konsumentu, uważa się, że sprzedawca uznał reklamację.**\n\n**8. Załączniki**\n1. Kopia korespondencji mailowej potwierdzającej zawarcie umowy i zakup.\n2. Kopia potwierdzenia płatności (wyciąg bankowy / potwierdzenie przelewu / inny).\n3. Dokumentacja niezgodności (zdjęcia, nagranie wideo, opinia serwisu).\n4. Inne: ..........................................................................\n\n**9. Podpis**\n..........................................................................\n(podpis własnoręczny konsumenta)\n\n---\n\n**Instrukcja nadania:**\nReklamację należy wysłać dwoma drogami jednocześnie:\n1. **Listem poleconym** z potwierdzeniem odbioru na adres siedziby sprzedawcy;\n2. **Pocztą elektroniczną** z żądaniem potwierdzenia odbioru (lub na adres e-mail podany w regulaminie/stopce sklepu) – zachować potwierdzenie wysyłki i doręczenia.\n\nZachować dowody nadania (potwierdzenie nadania listu poleconego, potwierdzenie doręczenia e-maila) – są one niezbędne do wykazania terminu 14 dni na odpowiedź sprzedawcy (art. 7a ustawy o prawach konsumenta).\n\n**Wskazówki:**\n- Reklamację złoż bez zbędnej zwłoki, nie później niż w ciągu 2 miesięcy od stwierdzenia niezgodności (zachowanie terminu jest warunkiem skutecznego dochodzenia uprawnień).\n- Odpowiedzialność sprzedawcy trwa 2 lata od dostarczenia towaru (art. 43c).\n- W ciągu pierwszych 2 lat obowiązuje domniemanie, że niezgodność istniała przy dostarczeniu – ciężar dowodu leży na sprzedawcy.\n- Reklamację kierujemy do **sprzedawcy**, a nie do producenta (odpowiedzialność za niezgodność z umową spoczywa na sprzedawcy).\n- W razie sporu: pomoc bezpłatna miejskiego/powiatowego rzecznika konsumentów, postępowanie polubowne przy Stałym Polubownym Sądzie Konsumenckim przy Inspekcji Handlowej, lub sąd rejonowy.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem towar przez e-mail, ale dostarczony produkt nie zgadza się z opisem i ma wady. Chcę złożyć reklamację i żądać naprawy lub wymiany."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Zamawiałem sprzęt mailowo od sprzedawcy, dostałem potwierdzenie zamówienia i fakturę na e-mail. Po odebraniu paczki okazało się, że urządzenie ma inne parametry niż w ofercie i nie działa tak, jak obiecywał sprzedawca. Mam całą korespondencję mailową, zdjęcia wad i wyciąg z płatności. Chcę napisać oficjalną reklamację, żeby sprzedawca naprawił to lub wymienił na nowe, ale nie wiem, jak to sformułować i co dołączyć."
+  }
+ ]
+}

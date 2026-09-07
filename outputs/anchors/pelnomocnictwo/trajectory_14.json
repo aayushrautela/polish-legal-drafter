@@ -1,0 +1,298 @@
+{
+ "run": 16,
+ "hint": "Prokura łączna lub oddziałowa (ograniczona)",
+ "scenario": "Prokura łączna lub oddziałowa (ograniczona)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_697025e87bf946248f02565d",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\"}"
+     }
+    },
+    {
+     "id": "call_9d3f15758bd846dd87704308",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"prokura łączna\", \"prokura oddziałowa\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do sprzedaży nieruchomości\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce to jednostronne oświadczenie woli właściciela nieruchomości (mocodawcy), przez które udziela on oznaczonej osobie (pełnomocnikowi) upoważnienia do dokonania w jego imieniu czynności prawnych związanych ze sprzedażą nieruchomości. Instytucję pełnomocnictwa regulują art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo do sprzedaży nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonej nieruchomości.\\n\\nArtykuł 99 par. 1 KC statuuje zasadę, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), pełnomocnictwo do sprzedaży nieruchomości musi być udzielone w formie aktu notarialnego przez notariusza. Pełnomocnictwo do sprzedaży nieruchomości sporządzone w zwykłej formie pisemnej lub ustnie jest nieważne i nie pozwoli pełnomocnikowi skutecznie zawrzeć umowy sprzedaży.\\n\\nZakres pełnomocnictwa musi być precyzyjnie określony. Pełnomocnictwo szczególne do sprzedaży nieruchomości powinno wskazywać: dane mocodawcy i pełnomocnika (z numerami PESEL i seriami dowodów osobistych), dokładny opis nieruchomości (adres, numer KW, numer działki ewidencyjnej i obręb), zakres umocowania (podpisanie umowy przedwstępnej, umowy przyrzeczonej w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku wieczystoksięgowego), ewentualną minimalną cenę sprzedaży oraz informację, czy pełnomocnik może udzielać dalszych pełnomocnictw (substytucja).\\n\\nPełnomocnictwo do sprzedaży nieruchomości jest typowo udzielane w następujących sytuacjach: właściciel przebywa za granicą lub jest chory i nie może osobiście stawić się u notariusza, właściciel jest osobą prawną reprezentowaną przez osobę trzecią, sprzedaż dotyczy udziałów kilku współwłaścicieli i jeden z nich udziela pełnomocnictwa innemu, transakcja wymaga zaangażowania profesjonalnego agenta lub adwokata.\\n\\nArtykuł 101 KC reguluje odwołanie pełnomocnictwa. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi. Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej lub udzielono go z klauzulą nieodwołalności na podstawie art. 101 par. 1 KC.\\n\\nW praktyce notarialnej kluczowe jest okazanie przez pełnomocnika aktualnego i ważnego pełnomocnictwa (notariusz kupującego weryfikuje jego autentyczność). Pełnomocnik działający na podstawie pełnomocnictwa notarialnego udzielonego za granicą musi zadbać o apostille lub legalizację dokumentu, jeżeli pochodzi z jurysdykcji spoza UE. Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa przedwstępna sprzedaży nieruchomości.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest potrzebne zawsze, gdy właściciel nieruchomości chce upoważnić inną osobę do zawarcia umowy sprzedaży w jego imieniu, bez konieczności osobistego stawiennictwa u notariusza. Poniżej opisano typowe sytuacje.\\n\\nWłaściciel przebywa za granicą. Polacy zamieszkali za granicą, którzy chcą sprzedać nieruchomość w Polsce, mogą udzielić pełnomocnictwa krewnemu lub prawnikowi przebywającemu w Polsce. Pełnomocnictwo może być udzielone u polskiego notariusza podczas wizyty w kraju lub u polskiego konsula albo miejscowego notariusza za granicą (z apostille). Jest to najczęstszy przypadek udzielenia pełnomocnictwa do sprzedaży nieruchomości.\\n\\nWłaściciel jest chory lub ma ograniczoną mobilność. Osoba starsza lub ciężko chora, która nie może osobiście stawić się w kancelarii notarialnej, udziela pełnomocnictwa zaufanej osobie — dziecku, małżonkowi lub prawnemu doradcy. Notariusz może sporządzić akt pełnomocnictwa poza kancelarią (w szpitalu lub w domu mocodawcy) za dodatkową opłatą.\\n\\nSprzedaż nieruchomości przez spółkę lub inną osobę prawną. Spółki z ograniczoną odpowiedzialnością, spółki akcyjne i inne osoby prawne sprzedają nieruchomości przez reprezentantów (zarząd) lub przez udzielone pełnomocnictwo. Zarząd upoważnia pełnomocnika, który podpisuje akt notarialny sprzedaży w imieniu spółki.\\n\\nKilku współwłaścicieli udziela pełnomocnictwa jednemu z nich. Gdy nieruchomość należy do kilku osób (np. rodzeństwo po rodzicach), a wszyscy nie mogą stawić się u notariusza, niektórzy z nich udzielają pełnomocnictwa jednemu ze współwłaścicieli lub wybranemu pełnomocnikowi do zawarcia umowy sprzedaży w ich imieniu.\\n\\nTransakcja wymaga profesjonalnego doradcy lub agenta. Inwestor realizujący wiele transakcji jednocześnie lub strona wymagająca reprezentacji prawnej udziela pełnomocnictwa adwokatowi, radcy prawnemu lub agentowi nieruchomości do przeprowadzenia transakcji sprzedaży.\\n\\nSprzedaż z pominięciem osobistego stawiennictwa przy podpisaniu aktu. Pełnomocnictwo umożliwia sprzedającemu uniknięcie konieczności stawiennictwa u notariusza kupującego, gdy sprzedaż odbywa się w innym mieście lub gdy terminy notarialne są niedogodne.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce musi zawierać elementy wymagane przez art. 95-109 KC i praktykę notarialną. Poniżej opisano kluczowe składniki.\\n\\nDane mocodawcy z numerem PESEL i dowodem osobistym. Notariusz sporządzający akt pełnomocnictwa jest zobowiązany do ustalenia tożsamości mocodawcy przez sprawdzenie dowodu osobistego lub paszportu. W treści pełnomocnictwa obowiązkowo wpisuje się imię, nazwisko, numer PESEL i serię numeru dowodu osobistego mocodawcy.\\n\\nDane pełnomocnika z numerem PESEL. Pełnomocnik musi być dokładnie oznaczony przez podanie imienia, nazwiska, numeru PESEL i adresu zamieszkania, a w praktyce notarialnej — serii i numeru dowodu osobistego. Jednoznaczna identyfikacja pełnomocnika zapobiega nadużyciom.\\n\\nDokładny opis nieruchomości. Pełnomocnictwo szczególne musi precyzyjnie opisywać nieruchomość, której dotyczy, przez podanie jej rodzaju, adresu lub położenia, numeru działki ewidencyjnej i obrębu oraz numeru księgi wieczystej, np. WA1M/00234567/8, prowadzonej przez Sąd Rejonowy (Sąd Wieczystoksięgowy). Opis nieruchomości ogranicza zakres pełnomocnictwa do tej konkretnej nieruchomości.\\n\\nZakres umocowania. Pełnomocnictwo musi precyzyjnie opisywać, jakie czynności pełnomocnik jest uprawniony wykonać: podpisanie umowy przedwstępnej sprzedaży, podpisanie umowy przyrzeczonej sprzedaży w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku o wpis prawa własności nabywcy w księdze wieczystej, składanie oświadczeń o stanie prawnym nieruchomości. Zbyt szerokie lub zbyt wąskie umocowanie może prowadzić do problemów przy zawieraniu umowy sprzedaży.\\n\\nEwentualna minimalna cena sprzedaży. Jeżeli mocodawca chce ograniczyć swobodę pełnomocnika, może wskazać minimalną cenę, za jaką pełnomocnik może sprzedać nieruchomość. Bez wskazania ceny minimalnej pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nPrawo do substytucji. Pełnomocnictwo może zawierać lub wykluczać prawo pełnomocnika do udzielenia dalszego pełnomocnictwa (substytucji). Substytucja pozwala pełnomocnikowi powierzyć część uprawnień innej osobie, co jest przydatne w transakcjach wymagających udziału adwokata lub notariusza.\\n\\nOkres ważności i odwołanie. Choć Kodeks cywilny nie wymaga wskazania terminu ważności, w praktyce pełnomocnictwa do sprzedaży nieruchomości udziela się na czas oznaczony lub ze wskazaniem, że wygasa po dokonaniu oznaczonej czynności. Mocodawca może odwołać pełnomocnictwo w każdym czasie (art. 101 KC). Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa zamiany nieruchomości.\\n\\nSporządzenie pełnomocnictwa do sprzedaży nieruchomości wymaga wizyty u notariusza i zebrania dokumentów obu stron. Poniżej opisano etapy.\\n\\nKrok 1 — zbierz dokumenty. Mocodawca przygotowuje swój dowód osobisty lub paszport, akt nabycia nieruchomości (akt notarialny zakupu lub darowizny), aktualny odpis z KW i dane pełnomocnika (imię, nazwisko, PESEL, adres, seria i numer dowodu osobistego).\\n\\nKrok 2 — zdecyduj o zakresie umocowania. Przed wizytą u notariusza precyzyjnie ustal, jakie czynności ma wykonać pełnomocnik: czy tylko podpisać akt notarialny sprzedaży, czy też zawrzeć umowę przedwstępną, odebrać cenę, wydać nieruchomość i złożyć wniosek wieczystoksięgowy. Im precyzyjniejszy zakres, tym mniejsze ryzyko nadużyć.\\n\\nKrok 3 — ustal minimalną cenę (jeśli dotyczy). Jeżeli chcesz ograniczyć swobodę pełnomocnika, wpisz minimalną cenę sprzedaży nieruchomości. Bez tej klauzuli pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nKrok 4 — zdecyduj o substytucji. Ustal, czy pełnomocnik ma prawo udzielić dalszego pełnomocnictwa innej osobie (substytucja). Substytucja jest przydatna, gdy pełnomocnikiem jest adwokat lub radca prawny, który może chcieć przekazać czynności notarialne współpracownikowi.\\n\\nKrok 5 — uzupełnij formularz i przygotuj wzór dla notariusza. Wpisz dane mocodawcy, pełnomocnika, opis nieruchomości i zakres umocowania. Wydrukowany wzór ułatwia rozmowę z notariuszem i zapobiega pominięciu ważnych elementów.\\n\\nKrok 6 — podpisz akt pełnomocnictwa u notariusza. Mocodawca osobiście stawia się u notariusza (lub przed konsulem za granicą). Notariusz weryfikuje tożsamość mocodawcy, sporządza akt pełnomocnictwa i przekazuje mocodawcy wypis aktu.\\n\\nKrok 7 — przekaż wypis pełnomocnikowi. Mocodawca przekazuje pełnomocnikowi wypis aktu notarialnego pełnomocnictwa. Przy transakcji notariusz kupującego weryfikuje autentyczność pełnomocnictwa.\\n\\nKrok 8 — odwołaj pełnomocnictwo niezwłocznie po transakcji lub gdy stosunek zaufania ustaje. Jeżeli pełnomocnik zawarł umowę sprzedaży, pełnomocnictwo wygasa z mocy prawa po dokonaniu czynności. Jeżeli transakcja nie doszła do skutku, mocodawca może odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce podlega ścisłym wymogom Kodeksu cywilnego.\\n\\nWymóg formy aktu notarialnego. Artykuł 99 par. 1 KC stanowi, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), dlatego pełnomocnictwo do sprzedaży nieruchomości musi być sporządzone przez notariusza. Pełnomocnictwo w formie pisemnej lub ustnej jest nieważne.\\n\\nRodzaj pełnomocnictwa. Pełnomocnictwo do sprzedaży konkretnej nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy poszczególnej czynności. Pełnomocnictwo rodzajowe obejmowałoby szereg czynności tego samego rodzaju; pełnomocnictwo ogólne obejmuje wyłącznie czynności zwykłego zarządu.\\n\\nSkutki działania pełnomocnika. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mocodawcy (art. 95 par. 2 KC). Umowa sprzedaży nieruchomości podpisana przez pełnomocnika działającego w granicach pełnomocnictwa notarialnego jest w pełni skuteczna i przenosi własność nieruchomości na nabywcę.\\n\\nOdwołanie i wygaśnięcie. Mocodawca może w każdym czasie odwołać pełnomocnictwo przez oświadczenie złożone pełnomocnikowi (art. 101 KC). Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, z chwilą odwołania lub po dokonaniu czynności, do której zostało udzielone. Klauzula nieodwołalności jest dopuszczalna jedynie wtedy, gdy umocowanie jest udzielone na czas oznaczony i z uzasadnionych przyczyn (art. 101 par. 1 KC).\\n\\nZakaz działania w imieniu własnym przy konflikcie interesów. Pełnomocnik nie może być drugą stroną czynności prawnej, której dokonuje w imieniu mocodawcy (zakaz samoumowy — art. 108 KC), chyba że mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść mocodawcy.\\n\\nPełnomocnictwo udzielone za granicą. Pełnomocnictwo sporządzone przez notariusza zagranicznego wymaga apostille zgodnie z Konwencją haską z 1961 r. lub legalizacji przez konsula, jeżeli pochodzi z kraju niebędącego stroną tej konwencji. Pełnomocnictwo udzielone przez polskiego konsula za granicą nie wymaga apostille.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest dokumentem wymagającym precyzji. Poniżej opisano najczęstsze błędy.\\n\\nBłąd 1 — pełnomocnictwo w formie pisemnej zamiast notarialnej. Mocodawcy niekiedy udzielają pełnomocnictwa do sprzedaży nieruchomości w zwykłej formie pisemnej, sądząc, że wystarczy podpis na kartce papieru. Takie pełnomocnictwo jest nieważne — art. 99 par. 1 KC w związku z art. 158 KC wymaga bezwzględnie formy aktu notarialnego. Notariusz kupującego odmówi przeprowadzenia transakcji na podstawie nieważnego pełnomocnictwa.\\n\\nBłąd 2 — zbyt ogólny lub zbyt wąski zakres umocowania. Pełnomocnictwo opisujące wyłącznie \\\"prawo do sprzedaży nieruchomości\\\" bez wskazania uprawnień do odbioru ceny, wydania nieruchomości i złożenia wniosku wieczystoksięgowego może nie obejmować wszystkich czynności niezbędnych do przeprowadzenia transakcji. Z drugiej strony pełnomocnictwo ogólne bez wskazania konkretnej nieruchomości jest zbyt szerokie i może być kwestionowane przez notariusza kupującego.\\n\\nBłąd 3 — brak danych pełnomocnika lub nieprawidłowy PESEL. Pełnomocnictwo bez numeru PESEL pełnomocnika lub z błędnymi danymi może uniemożliwić przeprowadzenie transakcji, gdyż notariusz kupującego nie będzie mógł zidentyfikować pełnomocnika.\\n\\nBłąd 4 — nieodwołanie pełnomocnictwa po rezygnacji z transakcji. Jeżeli właściciel zdecyduje się nie sprzedawać nieruchomości lub zaufanie do pełnomocnika ustaje, powinien niezwłocznie odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie. Brak odwołania naraża mocodawcę na ryzyko zawarcia transakcji przez nieuprawnionego pełnomocnika.\\n\\nBłąd 5 — pełnomocnictwo udzielone za granicą bez apostille. Pełnomocnictwo sporządzone przez zagranicznego notariusza wymaga apostille lub legalizacji, aby mogło być uznane przez polskiego notariusza. Brak apostille skutkuje odmową przyjęcia pełnomocnictwa i koniecznością ponownego sporządzenia dokumentu.\\n\\nŹródło: https://forms-legal.com/pl/real-estate/purchase-sale/pelnomocnictwo-do-sprzedazy-nieruchomosci (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_697025e87bf946248f02565d",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 5 . Prokurę można ograniczyć do zakresu spraw wpisanych do rejestru oddziału przedsiębiorstwa (prokura oddziałowa).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 4 . § 1. Prokura może być udzielona kilku osobom łącznie (prokura łączna) lub oddzielnie. § 1 1 . Prokura może obejmować umocowanie także albo wyłącznie do dokonywania czynności wspólnie z członkiem organu zarządzającego lub wspólnikiem uprawnionym do reprezentowania handlowej spółki osobowej. § 2. Kierowane do przedsiębiorcy oświadczenia lub doręczenia pism mogą być dokonywane wobec jednej z osób, którym udzielono prokury.\"}]",
+   "tool_call_id": "call_9d3f15758bd846dd87704308",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-be7a013ab9a7c779",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"prokura łączna oddziałowa art. 109 Kodeks cywilny ograniczenie zakresu\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 5 . Prokurę można ograniczyć do zakresu spraw wpisanych do rejestru oddziału przedsiębiorstwa (prokura oddziałowa).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 1 . § 1. Prokura jest pełnomocnictwem udzielonym przez przedsiębiorcę podlegającego obowiązkowi wpisu do Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo do rejestru przedsiębiorców Krajowego Rejestru Sądowego, które obejmuje umocowanie do czynności sądowych i pozasądowych, jakie są związane z prowadzeniem przedsiębiorstwa. § 2. Nie można ograniczyć prokury ze skutkiem wobec osób trzecich, chyba że przepis szczególny stanow ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 4 . § 1. Prokura może być udzielona kilku osobom łącznie (prokura łączna) lub oddzielnie. § 1 1 . Prokura może obejmować umocowanie także albo wyłącznie do dokonywania czynności wspólnie z członkiem organu zarządzającego lub wspólnikiem uprawnionym do reprezentowania handlowej spółki osobowej. § 2. Kierowane do przedsiębiorcy oświadczenia lub doręczenia pism mogą być dokonywane wobec jednej z osób, którym udzielono prokury.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 8 . § 1. Udzielenie i wygaśnięcie prokury przedsiębiorca powinien zgłosić do Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo rejestru przedsiębiorców Krajowego Rejestru Sądowego. § 2. Zgłoszenie o udzieleniu prokury powinno określać jej rodzaj, a w przypadku prokury łącznej oraz prokury, o której mowa w art. 109 4 § 1 1 , także sposób jej wykonywania.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 7 . § 1. Prokura może być w każdym czasie odwołana. § 2. Prokura wygasa wskutek wykreślenia przedsiębiorcy z Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo z rejestru przedsiębiorców Krajowego Rejestru Sądowego, a także ogłoszenia upadłości, otwarcia likwidacji oraz przekształcenia przedsiębiorcy. § 3. Prokura wygasa ze śmiercią prokurenta. § 3 1 . Prokura wygasa wskutek ustanowienia kuratora na podstawie art. 42 § 1. W o ...\"}]",
+   "tool_call_id": "chatcmpl-tool-be7a013ab9a7c779",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now I have the key provisions from the Civil Code regarding prokura (commercial power of attorney). Let me also search for more details about the specific articles and any additional relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-7b099d62-fc11-4349-bf75-5f692dbc591d",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_109\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 8 . § 1. Udzielenie i wygaśnięcie prokury przedsiębiorca powinien zgłosić do Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo rejestru przedsiębiorców Krajowego Rejestru Sądowego. § 2. Zgłoszenie o udzieleniu prokury powinno określać jej rodzaj, a w przypadku prokury łącznej oraz prokury, o której mowa w art. 109 4 § 1 1 , także sposób jej wykonywania.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call-7b099d62-fc11-4349-bf75-5f692dbc591d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about prokura, especially the full text of art. 109 and related articles.",
+   "tool_calls": [
+    {
+     "id": "call-c1e5226f-bb5d-4ca8-bcc3-efd3a5783468",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 109\", \"prokura\", \"prokurenta\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_37_art_657\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 657. § 1. Uprawnienia procesowe Prokuratora Generalnego przysługują również Zastępcy Prokuratora Generalnego do Spraw Wojskowych, jeżeli ustawa nie stanowi inaczej, a uprawnienia prokuratora okręgowego przysługują odpowiednio zastępcy prokuratora okręgowego do spraw wojskowych. § 2. Jeżeli niniejszy kodeks mówi o oskarżycielu publicznym lub prokuratorze, należy przez to rozumieć prokuratora powszechnej jednostki organizacyjnej prokur ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_109\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 109 7 . § 1. Prokura może być w każdym czasie odwołana. § 2. Prokura wygasa wskutek wykreślenia przedsiębiorcy z Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo z rejestru przedsiębiorców Krajowego Rejestru Sądowego, a także ogłoszenia upadłości, otwarcia likwidacji oraz przekształcenia przedsiębiorcy. § 3. Prokura wygasa ze śmiercią prokurenta. § 3 1 . Prokura wygasa wskutek ustanowienia kuratora na podstawie art. 42 § 1. W o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_326\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 326. § 1. Prokurator sprawuje nadzór nad postępowaniem przygotowawczym w zakresie, w jakim go sam nie prowadzi; prokurator może także objąć nadzorem postępowanie, o którym mowa w art. 307. § 2. Prokurator jest obowiązany czuwać nad prawidłowym i sprawnym przebiegiem całego nadzorowanego przez siebie postępowania. § 3. Z tytułu sprawowanego nadzoru prokurator może w szczególności: 1) zaznajamiać się z zamierzeniami prowadzącego postęp ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_615a\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 615a 166) Dodany przez art. 1 ustawy z dnia 27 października 2022 r. o zmianie ustawy - Kodeks postępowania karnego oraz ustawy - Prawo o prokuraturze (Dz. U. poz. 2582), która weszła w życie z dniem 27 grudnia 2022 r. . § 1. Przepisy rozdziałów 62, 62c, 62d, 63, 65b, 65d i 67, a także przepisy rozporządzenia Parlamentu Europejskiego i Rady 2018/1805 z dnia 14 listopada 2018 r. w sprawie wzajemnego uznawania nakazów zabezpieczenia i n ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_20\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 20. § 1. W razie rażącego naruszenia przez obrońcę lub pełnomocnika strony ich obowiązków procesowych sąd, a w postępowaniu przygotowawczym prokurator, zawiadamia o tym właściwą okręgową radę adwokacką lub radę okręgowej izby radców prawnych, żądając od dziekana właściwej rady nadesłania w wyznaczonym, nie krótszym niż 30 dni, terminie informacji o podjętych działaniach wynikających z zawiadomienia. Odpis zawiadomienia przesyła się M ...\"}]",
+   "tool_call_id": "call-c1e5226f-bb5d-4ca8-bcc3-efd3a5783468",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "AKT NOTARIALNY PROKURY ŁĄCZNEJ / ODDZIAŁOWEJ\n\nMiejscowość: ...........................................\nData: ...................................................\n\nNotariusz: ...........................................\nKancelaria: ...........................................\n\n§ 1. STRONY AKTU\n\n1. Mocodawca (Przedsiębiorca):\n   Imię i nazwisko / Nazwa spółki: ...........................................\n   Adres siedziby / Adres zamieszkania: ...........................................\n   NIP: ...........................................\n   REGON: ...........................................\n   Nr w CEIDG / KRS: ...........................................\n   Reprezentowany przez (jeżeli dotyczy): ...........................................\n\n2. Pełnomocnik / Prokurent (Prokurenci):\n   a) Imię i nazwisko: ...........................................\n      Adres zamieszkania: ...........................................\n      PESEL: ...........................................\n      Seria i numer dowodu osobistego: ...........................................\n   b) Imię i nazwisko: ...........................................\n      Adres zamieszkania: ...........................................\n      PESEL: ...........................................\n      Seria i numer dowodu osobistego: ...........................................\n   c) Imię i nazwisko: ...........................................\n      Adres zamieszkania: ...........................................\n      PESEL: ...........................................\n      Seria i numer dowodu osobistego: ...........................................\n\n§ 2. UDZIELENIE PROKURY\n\n1. Mocodawca, działając jako przedsiębiorca w rozumieniu art. 109 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061), udziela niniejszym prokury, która stanowi pełnomocnictwo obejmujące umocowanie do czynności sądowych i pozasądowych, jakie są związane z prowadzeniem przedsiębiorstwa Mocodawcy.\n\n2. Rodzaj prokury (zakreślić właściwe):\n\n   ☐ PROKURA ŁĄCZNA — prokura udzielona kilku osobom łącznie w rozumieniu art. 109 § 4 KC, przy czym osoby, którym udzielono prokury, są obowiązane do wykonywania umocowania wspólnie, łącznie. Oświadczenia i doręczenia pism kierowane do przedsiębiorcy mogą być dokonywane wobec każdej z osób, którym udzielono prokury.\n\n   ☐ PROKURA ODDZIAŁOWA (OGRANICZONA) — prokura ograniczona do zakresu spraw wpisanych do rejestru oddziału przedsiębiorstwa w rozumieniu art. 109 § 5 KC.\n\n3. W przypadku prokury łącznej, sposób jej wykonywania:\n   ☐ Wszyscy prokurenci działają wspólnie, łącznie — każde oświadczenie woli wymaga wspólnego podpisu wszystkich prokurentów.\n   ☐ Każdy z prokurentów działa oddzielnie — każdy z prokurentów może samodzielnie dokonywać czynności w zakresie prokury.\n\n4. W przypadku prokury łącznej, prokura może obejmować umocowanie także albo wyłącznie do dokonywania czynności wspólnie z członkiem organu zarządzającej lub wspólnikiem uprawnionym do reprezentowania handlowej spółki osobowej (art. 109 § 4¹ KC).\n\n§ 3. ZAKRES UMOCOWANIA\n\n1. Prokura obejmuje umocowanie do dokonywania wszystkich czynności sądowych i pozasądowych związanych z prowadzeniem przedsiębiorstwa Mocodawcy, w szczególności:\n\n   a) zawieranie i wykonywanie umów niezbędnych do działalności gospodarczej przedsiębiorstwa,\n   b) reprezentowanie przedsiębiorcy przed sądami, urzędami, instytucjami finansowymi i osobami trzecimi,\n   c) składanie oświadczeń woli i odbiór doręczeń w imieniu przedsiębiorcy,\n   d) dokonywanie płatności i rozliczeń związanych z działalnością przedsiębiorstwa,\n   e) prowadzenie korespondencji urzędowej i biznesowej w imieniu przedsiębiorcy,\n   f) składanie wniosków, podań i dokumentów do organów administracji publicznej.\n\n2. W przypadku prokury oddziałowej (ograniczonej), zakres umocowania obejmuje wyłącznie czynności związane z działalnością oddziału przedsiębiorstwa prowadzonego pod adresem: ...........................................\n\n3. Prokura NIE obejmuje następujących czynności (jeżeli Mocodawca dokonuje wyłączeń):\n   ☐ Zbywania i obciążania nieruchomościami,\n   ☐ Zbywania i obciążania prawem użytku wieczystego,\n   ☐ Składania oświadczeń woli w sprawach spadkowych (art. 109 § 6 KC),\n   ☐ Udzielania dalszych pełnomocnictw (substytucja),\n   ☐ Inne: ...........................................\n\n4. Ograniczenia prokury ze skutkiem wobec osób trzecich są dopuszczalne wyłącznie w przypadkach przewidzianych przez przepis szczególny (art. 109 § 2 KC).\n\n§ 4. PRAWO DO SUBSTYTUCJI\n\n1. Pełnomocnik:\n   ☐ ma prawo udzielać dalszych pełnomocnictw (substytucji),\n   ☐ nie ma prawa udzielać dalszych pełnomocnictw (substytucji).\n\n2. W przypadku udzielenia substytucji, pełnomocnik pozostaje odpowiedzialny za działania substytuty, chyba że Mocodawca wyraźnie zrezygnuje z tej odpowiedzialności.\n\n§ 5. OBOWIĄZEK ZGŁOSZENIA DO CEIDG / KRS\n\n1. Zgodnie z art. 109 § 8 KC, Mocodawca zobowiązuje się do zgłoszenia udzielenia prokury do Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo rejestru przedsiębiorców Krajowego Rejestru Sądowego.\n\n2. Zgłoszenie o udzieleniu prokury powinno określać jej rodzaj, a w przypadku prokury łącznej oraz prokury obejmującej umocowanie do dokonywania czynności wspólnie z członkiem organu zarządzającego lub wspólnikiem — także sposób jej wykonywania.\n\n3. Mocodawca zobowiązuje się również do zgłoszenia wygaśnięcia prokury do CEIDG / KRS w przypadku jej odwołania lub zaistnienia okoliczności skutkujących wygaśnięciem prokury.\n\n§ 6. ODWOŁANIE PROKURY\n\n1. Zgodnie z art. 109 § 7 KC, prokura może być w każdym czasie odwołana przez Mocodawcę.\n\n2. Odwołanie prokury wymaga formy pisemnej z podpisem notarialnie poświadconym, złożonej pełnomocnikowi.\n\n3. Odwołanie prokury nie ma skutku wobec osób trzecych od momentu zgłoszenia go do CEIDG / KRS, chyba że osoba trzecia wiedziała o odwołaniu w momencie dokonywania czynności.\n\n4. Mocodawca zastrzega sobie prawo odwołania prokury w każdym czasie bez konieczności podawania przyczyny.\n\n§ 7. WYGAŚNIĘCIE PROKURY\n\n1. Zgodnie z art. 109 § 7 KC, prokura wygasa:\n\n   a) wskutek odwołania,\n   b) wskutek wykreślenia przedsiębiorcy z CEIDG lub z rejestru przedsiębiorców KRS,\n   c) wskutek ogłoszenia upadłości przedsiębiorcy,\n   d) wskutek otwarcia likwidacji przedsiębiorcy,\n   e) wskutek przekształcenia przedsiębiorcy,\n   f) ze śmiercią prokurenta,\n   g) wskutek ustanowienia kuratora na podstawie art. 42 § 1 KC.\n\n2. Wygaśnięcie prokury nie ma skutku wobec osób trzecich od momentu zgłoszenia go do CEIDG / KRS, chyba że osoba trzecia wiedziała o wygaśnięciu w momencie dokonywania czynności.\n\n§ 8. OŚWIADCZENIA STRON\n\n1. Mocodawca oświadcza, że:\n   a) jest przedsiębiorcą w rozumieniu art. 109 § 1 KC, podlegającym obowiązkowi wpisu do CEIDG / KRS,\n   b) zapoznał się z postanowieniami niniejszego aktu i akceptuje jego treść,\n   c) udziela prokury dobrowolnie, z pełną świadomością skutków prawnych.\n\n2. Pełnomocnik / Prokurenci oświadczają, że:\n   a) zapoznali się z postanowieniami niniejszego aktu i akceptują jego treść,\b) przyjmują prokurę i zobowiązują się do wykonywania umocowania z należytą starannością,\n   c) nie mają przeciwwskazań do pełnienia funkcji prokurenta.\n\n§ 9. POSTANOWIENIA KOŃCOWE\n\n1. W sprawach nieuregulowanych niniejszym aktem mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 109 KC.\n\n2. Wszelkie zmiany niniejszego aktu wymagają formy aktu notarialnego.\n\n3. Akt sporządza się w dwóch jednobrzmiących egzemplarzach, po jednym dla Mocodawcy i dla Pełnomocnika / Prokurentów.\n\n§ 10. PODPISY\n\nMocodawca: ...........................................\n\n...........................................\n(podpis notarialnie poświadczony)\n\nPełnomocnik / Prokurent:\n\n1. ...........................................\n   (podpis notarialnie poświadczony)\n\n2. ...........................................\n   (podpis notarialnie poświadczony)\n\n3. ...........................................\n   (podpis notarialnie poświadczony)\n\n§ 11. KLAUZULA NOTARIALNA\n\nNotariusz stwierdza, że:\n\n1. tożsamość Mocodawcy i Pełnomocników została ustalona na podstawie dowodów osobistych / paszportów,\n2. Mocodawca oświadcza, że jest przedsiębiorcą wpisanym do CEIDG / KRS,\n3. treść aktu została odczytana, zatwierdzona i podpisana przez strony w obecności notariusza,\n4. strony zostały poinformowane o obowiązku zgłoszenia prokury do CEIDG / KRS oraz o skutkach jej niezgłoszenia.\n\n...........................................\n(podpis notariusza)\n\nPieczęć notarialna",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "AKT NOTARIALNY PROKURY ŁĄCZNEJ / ODDZIAŁOWEJ\n\nMiejscowość: ...........................................\nData: ...................................................\n\nNotariusz: ...........................................\nKancelaria: ...........................................\n\n§ 1. STRONY AKTU\n\n1. Mocodawca (Przedsiębiorca):\n   Imię i nazwisko / Nazwa spółki: ...........................................\n   Adres siedziby / Adres zamieszkania: ...........................................\n   NIP: ...........................................\n   REGON: ...........................................\n   Nr w CEIDG / KRS: ...........................................\n   Reprezentowany przez (jeżeli dotyczy): ...........................................\n\n2. Pełnomocnik / Prokurent (Prokurenci):\n   a) Imię i nazwisko: ...........................................\n      Adres zamieszkania: ...........................................\n      PESEL: ...........................................\n      Seria i numer dowodu osobistego: ...........................................\n   b) Imię i nazwisko: ...........................................\n      Adres zamieszkania: ...........................................\n      PESEL: ...........................................\n      Seria i numer dowodu osobistego: ...........................................\n   c) Imię i nazwisko: ...........................................\n      Adres zamieszkania: ...........................................\n      PESEL: ...........................................\n      Seria i numer dowodu osobistego: ...........................................\n\n§ 2. UDZIELENIE PROKURY\n\n1. Mocodawca, działając jako przedsiębiorca w rozumieniu art. 109 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061), udziela niniejszym prokury, która stanowi pełnomocnictwo obejmujące umocowanie do czynności sądowych i pozasądowych, jakie są związane z prowadzeniem przedsiębiorstwa Mocodawcy.\n\n2. Rodzaj prokury (zakreślić właściwe):\n\n   ☐ PROKURA ŁĄCZNA — prokura udzielona kilku osobom łącznie w rozumieniu art. 109 § 4 KC, przy czym osoby, którym udzielono prokury, są obowiązane do wykonywania umocowania wspólnie, łącznie. Oświadczenia i doręczenia pism kierowane do przedsiębiorcy mogą być dokonywane wobec każdej z osób, którym udzielono prokury.\n\n   ☐ PROKURA ODDZIAŁOWA (OGRANICZONA) — prokura ograniczona do zakresu spraw wpisanych do rejestru oddziału przedsiębiorstwa w rozumieniu art. 109 § 5 KC.\n\n3. W przypadku prokury łącznej, sposób jej wykonywania:\n   ☐ Wszyscy prokurenci działają wspólnie, łącznie — każde oświadczenie woli wymaga wspólnego podpisu wszystkich prokurentów.\n   ☐ Każdy z prokurentów działa oddzielnie — każdy z prokurentów może samodzielnie dokonywać czynności w zakresie prokury.\n\n4. W przypadku prokury łącznej, prokura może obejmować umocowanie także albo wyłącznie do dokonywania czynności wspólnie z członkiem organu zarządzającej lub wspólnikiem uprawnionym do reprezentowania handlowej spółki osobowej (art. 109 § 4¹ KC).\n\n§ 3. ZAKRES UMOCOWANIA\n\n1. Prokura obejmuje umocowanie do dokonywania wszystkich czynności sądowych i pozasądowych związanych z prowadzeniem przedsiębiorstwa Mocodawcy, w szczególności:\n\n   a) zawieranie i wykonywanie umów niezbędnych do działalności gospodarczej przedsiębiorstwa,\n   b) reprezentowanie przedsiębiorcy przed sądami, urzędami, instytucjami finansowymi i osobami trzecimi,\n   c) składanie oświadczeń woli i odbiór doręczeń w imieniu przedsiębiorcy,\n   d) dokonywanie płatności i rozliczeń związanych z działalnością przedsiębiorstwa,\n   e) prowadzenie korespondencji urzędowej i biznesowej w imieniu przedsiębiorcy,\n   f) składanie wniosków, podań i dokumentów do organów administracji publicznej.\n\n2. W przypadku prokury oddziałowej (ograniczonej), zakres umocowania obejmuje wyłącznie czynności związane z działalnością oddziału przedsiębiorstwa prowadzonego pod adresem: ...........................................\n\n3. Prokura NIE obejmuje następujących czynności (jeżeli Mocodawca dokonuje wyłączeń):\n   ☐ Zbywania i obciążania nieruchomościami,\n   ☐ Zbywania i obciążania prawem użytku wieczystego,\n   ☐ Składania oświadczeń woli w sprawach spadkowych (art. 109 § 6 KC),\n   ☐ Udzielania dalszych pełnomocnictw (substytucja),\n   ☐ Inne: ...........................................\n\n4. Ograniczenia prokury ze skutkiem wobec osób trzecich są dopuszczalne wyłącznie w przypadkach przewidzianych przez przepis szczególny (art. 109 § 2 KC).\n\n§ 4. PRAWO DO SUBSTYTUCJI\n\n1. Pełnomocnik:\n   ☐ ma prawo udzielać dalszych pełnomocnictw (substytucji),\n   ☐ nie ma prawa udzielać dalszych pełnomocnictw (substytucji).\n\n2. W przypadku udzielenia substytucji, pełnomocnik pozostaje odpowiedzialny za działania substytuty, chyba że Mocodawca wyraźnie zrezygnuje z tej odpowiedzialności.\n\n§ 5. OBOWIĄZEK ZGŁOSZENIA DO CEIDG / KRS\n\n1. Zgodnie z art. 109 § 8 KC, Mocodawca zobowiązuje się do zgłoszenia udzielenia prokury do Centralnej Ewidencji i Informacji o Działalności Gospodarczej albo rejestru przedsiębiorców Krajowego Rejestru Sądowego.\n\n2. Zgłoszenie o udzieleniu prokury powinno określać jej rodzaj, a w przypadku prokury łącznej oraz prokury obejmującej umocowanie do dokonywania czynności wspólnie z członkiem organu zarządzającego lub wspólnikiem — także sposób jej wykonywania.\n\n3. Mocodawca zobowiązuje się również do zgłoszenia wygaśnięcia prokury do CEIDG / KRS w przypadku jej odwołania lub zaistnienia okoliczności skutkujących wygaśnięciem prokury.\n\n§ 6. ODWOŁANIE PROKURY\n\n1. Zgodnie z art. 109 § 7 KC, prokura może być w każdym czasie odwołana przez Mocodawcę.\n\n2. Odwołanie prokury wymaga formy pisemnej z podpisem notarialnie poświadconym, złożonej pełnomocnikowi.\n\n3. Odwołanie prokury nie ma skutku wobec osób trzecych od momentu zgłoszenia go do CEIDG / KRS, chyba że osoba trzecia wiedziała o odwołaniu w momencie dokonywania czynności.\n\n4. Mocodawca zastrzega sobie prawo odwołania prokury w każdym czasie bez konieczności podawania przyczyny.\n\n§ 7. WYGAŚNIĘCIE PROKURY\n\n1. Zgodnie z art. 109 § 7 KC, prokura wygasa:\n\n   a) wskutek odwołania,\n   b) wskutek wykreślenia przedsiębiorcy z CEIDG lub z rejestru przedsiębiorców KRS,\n   c) wskutek ogłoszenia upadłości przedsiębiorcy,\n   d) wskutek otwarcia likwidacji przedsiębiorcy,\n   e) wskutek przekształcenia przedsiębiorcy,\n   f) ze śmiercią prokurenta,\n   g) wskutek ustanowienia kuratora na podstawie art. 42 § 1 KC.\n\n2. Wygaśnięcie prokury nie ma skutku wobec osób trzecich od momentu zgłoszenia go do CEIDG / KRS, chyba że osoba trzecia wiedziała o wygaśnięciu w momencie dokonywania czynności.\n\n§ 8. OŚWIADCZENIA STRON\n\n1. Mocodawca oświadcza, że:\n   a) jest przedsiębiorcą w rozumieniu art. 109 § 1 KC, podlegającym obowiązkowi wpisu do CEIDG / KRS,\n   b) zapoznał się z postanowieniami niniejszego aktu i akceptuje jego treść,\n   c) udziela prokury dobrowolnie, z pełną świadomością skutków prawnych.\n\n2. Pełnomocnik / Prokurenci oświadczają, że:\n   a) zapoznali się z postanowieniami niniejszego aktu i akceptują jego treść,\b) przyjmują prokurę i zobowiązują się do wykonywania umocowania z należytą starannością,\n   c) nie mają przeciwwskazań do pełnienia funkcji prokurenta.\n\n§ 9. POSTANOWIENIA KOŃCOWE\n\n1. W sprawach nieuregulowanych niniejszym aktem mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 109 KC.\n\n2. Wszelkie zmiany niniejszego aktu wymagają formy aktu notarialnego.\n\n3. Akt sporządza się w dwóch jednobrzmiących egzemplarzach, po jednym dla Mocodawcy i dla Pełnomocnika / Prokurentów.\n\n§ 10. PODPISY\n\nMocodawca: ...........................................\n\n...........................................\n(podpis notarialnie poświadczony)\n\nPełnomocnik / Prokurent:\n\n1. ...........................................\n   (podpis notarialnie poświadczony)\n\n2. ...........................................\n   (podpis notarialnie poświadczony)\n\n3. ...........................................\n   (podpis notarialnie poświadczony)\n\n§ 11. KLAUZULA NOTARIALNA\n\nNotariusz stwierdza, że:\n\n1. tożsamość Mocodawcy i Pełnomocników została ustalona na podstawie dowodów osobistych / paszportów,\n2. Mocodawca oświadcza, że jest przedsiębiorcą wpisanym do CEIDG / KRS,\n3. treść aktu została odczytana, zatwierdzona i podpisana przez strony w obecności notariusza,\n4. strony zostały poinformowane o obowiązku zgłoszenia prokury do CEIDG / KRS oraz o skutkach jej niezgłoszenia.\n\n...........................................\n(podpis notariusza)\n\nPieczęć notarialna",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Prowadzę firmę i chcę dać prokurę kilku osobom, żeby mogły załatwiać sprawy w urzędach i podpisywać umowy. Potrzebuję, żeby działali wspólnie lub każdy z osobna, w zależności od tego, co ustalimy."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam firmę i chcę udzielić prokury łącznej dwóm osobom, żeby mogły wspólnie reprezentować moją działalność. Zależy mi, żeby mogły podpisywać umowy z kontrahentami, składać wnioski do urzędów i załatwiać spraw w bankach, ale bez prawa do sprzedaży nieruchomości. Ważne jest też dla mnie, żebym mógł odwołać tę prokurę w dowolnym momencie, jeśli coś pójdzie nie tak."
+  }
+ ]
+}

@@ -1,0 +1,56 @@
+Zadatek przy rezerwacji zakupu mieszkania z rynku wtórnego
+Zadatek przy rezerwacji zakupu domu z działką
+Zaliczka przy zamówieniu mebli na wymiar
+Kaucja gwarancyjna przy umowie o roboty budowlane
+Kaucja zwrotna przy wynajmie lokalu mieszkalnego
+Zadatek przy rezerwacji zakupu samochodu używanego
+Zaliczka przy zleceniu wykonania strony internetowej
+Kaucja przy dzierżawie gruntu rolnego
+Zadatek przy umowie przedwstępnej sprzedaży działki budowlanej
+Zaliczka przy zamówieniu cateringu na wesele
+Kaucja przy wynajmie sprzętu budowlanego
+Zadatek przy rezerwacji apartamentu inwestycyjnego
+Zaliczka przy zleceniu usługi fotograficznej na ślub
+Kaucja gwarancyjna przy umowie dostawy oprogramowania
+Zadatek przy umowie przedwstępnej sprzedaży lokalu użytkowego
+Zaliczka przy zamówieniu produkcji mebli biurowych
+Kaucja przy najmie powierzchni handlowej w galerii
+Zadatek przy rezerwacji zakupu łodzi motorowej
+Zaliczka przy zleceniu wykonania instalacji fotowoltaicznej
+Kaucja przy wynajmie apartamentu na wakacje (krótkoterminowy)
+Zadatek przy umowie przedwstępnej sprzedaży garażu
+Zaliczka przy zamówieniu produkcji opakowań dla firmy
+Kaucja gwarancyjna przy umowie serwisu IT
+Zadatek przy rezerwacji zakupu działki rekreacyjnej
+Zaliczka przy zleceniu usługi szkoleniowej dla pracowników
+Kaucja przy dzierżawie lokalu gastronomicznego
+Zadatek przy umowie przedwstępnej sprzedaży udziału w nieruchomości
+Zaliczka przy zamówieniu wyrobu jubilerskiego na zamówienie
+Kaucja przy wynajmie samochodu z wypożyczalni
+Zadatek przy rezerwacji zakupu konia wyścigowego
+Zaliczka przy zleceniu wykonania kampanii marketingowej
+Kaucja gwarancyjna przy umowie o dostawę maszyn przemysłowych
+Zadatek przy umowie przedwstępnej sprzedaży warsztatu
+Zaliczka przy zamówieniu produkcji mebli ogrodowych
+Kaucja przy najmie powierzchni magazynowej
+Zadatek przy rezerwacji zakupu kolekcjonerskiego zegarka
+Zaliczka przy zleceniu wykonania projektu wnętrz
+Kaucja przy wynajmie sprzętu scenicznego na koncert
+Zadatek przy umowie przedwstępnej sprzedaży stajni
+Zaliczka przy zamówieniu produkcji opakowań premium
+Kaucja gwarancyjna przy umowie o wykonanie dachu
+Zadatek przy rezerwacji zakupu jachtu żaglowego
+Zaliczka przy zleceniu usługi tłumaczeniowej specjalistycznej
+Kaucja przy dzierżawie sadu owocowego
+Zadatek przy umowie przedwstępnej sprzedaży pensjonatu
+Zaliczka przy zamówieniu mebli medycznych dla kliniki
+Kaucja przy wynajmie kontenera magazynowego
+Zadatek przy rezerwacji zakupu dzieła sztuki
+Zaliczka przy zleceniu wykonania aplikacji mobilnej
+Kaucja gwarancyjna przy umowie o dostawę linii produkcyjnej
+Zadatek przy umowie przedwstępnej sprzedaży budynku gospodarczego
+Zaliczka przy zamówieniu produkcji mebli szkolnych
+Kaucja przy najmie biura co-workingowego
+Zaliczka przy zleceniu wykonania animacji reklamowej
+Zadatek przy rezerwacji zakupu kampera
+Zaliczka przy zamówieniu wyrobu ceramicznego na wymiar

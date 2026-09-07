@@ -1,0 +1,53 @@
+Sprzedaż używanego samochodu osobowego między osobami prywatnymi
+Sprzedaż nowego samochodu przez salon dealerski (sprzedawca przedsiębiorca)
+Sprzedaż samochodu na raty z zastrzeżeniem własności do zapłaty
+Sprzedaż motocykla z odbiorem osobistym
+Sprzedaż roweru elektrycznego konsumentowi
+Sprzedaż łodzi motorowej lub jachtu
+Sprzedaż kampera (samochodu kempingowego)
+Sprzedaż ciągnika rolniczego
+Sprzedaż samochodu ciężarowego firmie (B2B)
+Sprzedaż przyczepy samochodowej
+Sprzedaż mieszkania z rynku wtórnego (kupujący konsument)
+Sprzedaż domu jednorodzinnego z działką
+Sprzedaż działki budowlanej
+Sprzedaż garażu wolnostojącego
+Sprzedaż lokalu użytkowego lub pawilonu
+Umowa przedwstępna sprzedaży mieszkania z zadatkiem
+Sprzedaż nieruchomości w formie aktu notarialnego z wpisem do księgi wieczystej
+Sprzedaż udziału w nieruchomości (np. 1/2)
+Sprzedaż używanego telefonu komórkowego
+Sprzedaż laptopa lub komputera
+Sprzedaż telewizora
+Sprzedaż aparatu fotograficznego z obiektywem
+Sprzedaż konsoli do gier
+Sprzedaż pralki lub lodówki (AGD używane)
+Sprzedaż sprzętu komputerowego (monitory, peryferia)
+Sprzedaż drona
+Sprzedaż kompletu mebli wypoczynkowych
+Sprzedaż kuchni na wymiar (wbudowanej)
+Sprzedaż pianina lub fortepianu
+Sprzedaż wyposażenia mieszkania przy przeprowadzce (pakiet)
+Sprzedaż kolekcji książek lub płyt winylowych
+Sprzedaż maszyny produkcyjnej przedsiębiorstwu
+Sprzedaż narzędzi warsztatowych
+Sprzedaż sprzętu medycznego (fotel dentystyczny)
+Sprzedaż udziałów w spółce z o.o.
+Sprzedaż zorganizowanej części przedsiębiorstwa (restauracji z wyposażeniem)
+Sprzedaż salonu fryzjerskiego z wyposażeniem
+Sprzedaż przedsiębiorstwa wraz z goodwill i bazą klientów
+Sprzedaż klimatyzatora lub instalacji
+Sprzedaż agregatu prądotwórczego
+Sprzedaż psa rasowego z rodowodem
+Sprzedaż konia rekreacyjnego
+Sprzedaż bydła lub trzody chlewnej (inwentarz żywy)
+Sprzedaż owiec lub kóz hodowlanych
+Sprzedaż płodów rolnych (zboże, owoce) z gospodarstwa
+Sprzedaż obrazu lub dzieła sztuki
+Sprzedaż biżuterii lub zegarka
+Sprzedaż monety kolekcjonerskiej lub antyku
+Sprzedaż kolekcji win lub znaczków
+Sprzedaż instrumentu muzycznego (skrzypce, gitara)
+Sprzedaż z zaliczką (zwrotna przedpłata, nie zadatek)
+Sprzedaż zagranicznemu kupującemu (eksport, waluta obca)
+Sprzedaż ze zwolnieniem z rękojmi (B2B, ograniczona odpowiedzialność)

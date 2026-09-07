@@ -1,0 +1,17 @@
+{
+ "run": 28,
+ "hint": "Dzierżawa sadu lub nasadzeń wieloletnich",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wziąć w dzierżawę sad na kilka lat, ale nie wiem, jak to uregulować. Potrzebuję umowy, żeby mieć jasność co do moich praw i obowiązków."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Szukam umowy dzierżawy sadu jabłoniowego o powierzchni około 3 hektarów, chcę go wynająć na 12 lat. Zależy mi na tym, żeby w umowie było napisane, czy mogę sadzić nowe drzewa, kto płaci za nawozy i ochronę przed szkodnikami, oraz czy mogę budować tam małe budynki gospodarcze. Ważne jest też, żeby było wiadomo, jak będzie wyliczana opłata dzierżawna i czy mogę podzierżawić część gruntu."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_dzierzawy\", \"query\": \"dzierżawa sadu nasadzeń wieloletnich\"})\\nRESULT: [{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa dzierżawy maszyn rolniczych\\nUmowa dzierżawy maszyn rolniczych w Polsce to umowa uregulowana art. 693–709 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której wydzierżawiający — właściciel maszyn i urządzeń rolniczych — oddaje dzierżawcy te maszyny do używania i pobierania pożytków na czas oznaczony lub nieoznaczony, a dzierżawca zobowiązuje się płacić umówiony czynsz. Cechą charakterystyczną dzierżawy, odróżniającą ją od najmu, jest prawo do pobierania pożytków — w kontekście maszyn oznacza to prawo dzierżawcy do korzystania z nich w sposób przynoszący korzyści majątkowe (np. świadczenie usług agrotechnicznych osobom trzecim przy użyciu wydzierżawionej maszyny), chyba że umowa stanowi inaczej.\\n\\nDzierżawa maszyn rolniczych jest popularnym rozwiązaniem w polskim rolnictwie, szczególnie w sektorze małych i średnich gospodarstw, które nie mogą sobie pozwolić na zakup drogiego sprzętu — kombajnu zbożowego, ciągnika wysokiej mocy, rozsiewacza mineralnego, opryskiwacza polowego czy siewnika precyzyjnego. Koszt nowego kombajnu klasy średniej wynosi w Polsce od 600 000 do ponad 2 000 000 zł, co czyni dzierżawę od spółdzielni maszynowej, kółka rolniczego lub od większego sąsiada ekonomicznie uzasadnionym rozwiązaniem.\\n\\nW praktyce polskiego rolnictwa dzierżawa maszyn odbywa się w ramach kilku schematów. Po pierwsze, rolnik indywidualny dzierżawi maszyny od sąsiada lub znajomego rolnika — transakcja często nieformalna, ale powinna być udokumentowana umową pisemną dla celów podatkowych i ubezpieczeniowych. Po drugie, grupy producentów rolnych lub spółdz"
+}

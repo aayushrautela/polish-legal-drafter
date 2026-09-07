@@ -1,0 +1,17 @@
+{
+ "run": 34,
+ "hint": "Ubezpieczenie z karencją (okres karencji)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wykupić ubezpieczenie, ale słyszałem, że obowiązuje w nim okres karencji. Jak długo trzeba czekać, żeby polisa zaczęła działać i co się stanie, jeśli coś mi się wydarzy w tym czasie?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Rozważam zakup ubezpieczenia zdrowotnego, ale w umowie widzę informację o okresie karencji. Chciałbym dokładnie wiedzieć, ile miesięcy muszę poczekać, zanim będę mógł skorzystać z refundacji wizyt u specjalistów. Czy w razie wypadku lub nagłej choroby w tym czasie w ogóle nie dostanę żadnych pieniędzy, czy może tylko część kosztów będzie pokryta? Czy ten okres można jakoś skrócić, np. przez dopłatę?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_ubezpieczenia\", \"query\": \"ubezpieczenie z karencją okres karencji\"})\\nRESULT: [{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa o cyberbezpieczeństwo\\nUmowa o cyberbezpieczeństwo w Polsce to umowa, na podstawie której wyspecjalizowany dostawca usług bezpieczeństwa informatycznego (MSSP — Managed Security Services Provider) zobowiązuje się świadczyć na rzecz zamawiającego kompleksowe usługi ochrony systemów informatycznych przed cyberatakami, a zamawiający zobowiązuje się do zapłaty wynagrodzenia. Usługi cyberbezpieczeństwa obejmują monitoring zagrożeń, reagowanie na incydenty, testy penetracyjne, zarządzanie podatnościami, audyty bezpieczeństwa oraz szkolenia pracowników.\\n\\nPodstawę prawną umowy o cyberbezpieczeństwo stanowią: zasada swobody umów z art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przepisy o zleceniu (art. 734 i następne w zw. z art. 750) jako umowy starannego działania, a dla podmiotów objętych regulacjami — ustawa z dnia 5 lipca 2018 r. o krajowym systemie cyberbezpieczeństwa (ustawa o KSC, Dz.U. 2018 poz. 1560 ze zm.), która implementuje dyrektywę UE NIS (2016/1148) i określa obowiązki operatorów usług kluczowych i dostawców usług cyfrowych w zakresie bezpieczeństwa.\\n\\nUstawa o krajowym systemie cyberbezpieczeństwa (KSC) nakłada na operatorów usług kluczowych z sektorów energetyki, transportu, bankowości, ochrony zdrowia, zaopatrzenia w wodę i infrastruktury cyfrowej obowiązki w zakresie wdrożenia środków bezpieczeństwa, zarządzania incydentami i współpracy z CSIRT NASK (Computer Security Incident Response Team działającym przy Naukowej i Akademickiej Sieci Komputerowej — Państwowym Instytucie Badawczym). Operatorzy są zobowiązani do zgłaszani"
+}

@@ -1,0 +1,327 @@
+{
+ "run": 38,
+ "hint": "Umowa licencyjna z minimalnymi gwarantowanymi tantiemami (MG)",
+ "scenario": "Umowa licencyjna z minimalnymi gwarantowanymi tantiemami (MG)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_licencyjna'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a licensing agreement (umowa_licencyjna) with minimum guaranteed royalties (MG - minimalne gwarantowane tantiemy). I need to:\n\n1. First read the base template for umowa_licencyjna\n2. Then search for provisions relevant to minimum guaranteed royalties\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-e69dd043-20f5-48cb-8153-042594d23651",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_licencyjna\", \"query\": \"z minimalnymi gwarantowanymi tantiemami MG\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_licencyjna\", \"kind\": \"structural_template\", \"text\": \"# Umowa merchandisingowa (licencja na wizerunek i markę)\\nUmowa merchandisingowa w Polsce to umowa licencyjna, na mocy której właściciel chronionych oznaczeń — znaku towarowego, wizerunku, postaci lub innego rozpoznawalnego elementu marki — upoważnia producenta lub dystrybutora (Licencjobiorcę) do umieszczania tych oznaczeń na określonych produktach handlowych i czerpania z tego zysku w zamian za wynagrodzenie w formie tantiem (royalties). Umowa ta stanowi połączenie licencji na znak towarowy (art. 163 ustawy z dnia 30 czerwca 2000 r. — Prawo własności przemysłowej, Dz.U. 2001 nr 49 poz. 508 ze zm.) i licencji na elementy autorskie (art. 67 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych, Dz.U. 1994 nr 24 poz. 83 ze zm.) oraz umowy nienazwanej na podstawie art. 353¹ Kodeksu cywilnego.\\n\\nMerchandising w polskim obrocie handlowym obejmuje szerokie spektrum towarów: odzież, akcesoria, zabawki, artykuły papiernicze, kosmetyki, produkty spożywcze, elektronikę i wiele innych kategorii. Właścicielami licencjonowanych oznaczeń są przede wszystkim: kluby sportowe (ekstraklasa, reprezentacja narodowa), twórcy postaci z bajek i gier komputerowych, muzycy i artyści, firmy z rozpoznawalnymi logo i maskotkami oraz właściciele popularnych franczyz.\\n\\nW Polsce podstawą prawną ochrony znaków towarowych jest ustawa z dnia 30 czerwca 2000 r. — Prawo własności przemysłowej, a organem udzielającym praw ochronnych jest Urząd Patentowy Rzeczypospolitej Polskiej (UPRP). Znak zarejestrowany w UPRP jest chroniony na terytorium RP przez 10 lat z możliwością przedłużenia (art. 153 p.w.p.). Dla rynku Unii Europejskiej ochronę zapewnia unijny znak towarowy (EUTM) z Urzędu UE ds. Własności Intelektualnej (EUIPO). Merchandising na platformach e-commerce (Allegro, Amazon.pl) wymaga szczególnej uwagi, ponieważ platformy te posiadają własne procedury weryfikacji licencji i zwalczania nieautoryzowanych produktów.\\n\\nUmowa merchandisingowa wyróżnia się na tle innych umów licencyjnych kilkoma specyficznymi elementami: ścisłą kontrolą jakości produktów przez licencjodawcę, systemem zatwierdzania wzorów przed produkcją, minimalną gwarantowaną kwotą tantiem niezależnie od poziomu sprzedaży, prawem do audytu ksiąg rachunkowych licencjobiorcy oraz obowiązkiem prowadzenia ewidencji sprzedaży i składania kwartalnych raportów. forms-legal.com dostarcza profesjonalny wzór tej umowy zgodny z polskim prawem i standardami rynkowymi.\\n\\nTerytorialny zasięg umowy merchandisingowej ma kluczowe znaczenie. Licencja na terytorium RP nie uprawnia do dystrybucji produktów w innych krajach UE ani poza nią. Dla eksportu niezbędna jest albo rozszerzona licencja terytorialna, albo odrębne umowy dla każdego rynku. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) nadzoruje, czy klauzule licencyjne nie ograniczają konkurencji w sposób sprzeczny z prawem.\\n\\nUmowa merchandisingowa w Polsce jest potrzebna zawsze, gdy przedsiębiorca chce komercyjnie wykorzystać cudzy znak towarowy, wizerunek lub chronioną postać na produktach handlowych.\\n\\nKluby piłkarskie, hokejowe i inne organizacje sportowe. Polskie kluby sportowe (Ekstraklasa, PlusLiga, Tauron Liga) licencjonują swoje znaki towarowe producentom odzieży, sprzętu i gadżetów. Umowa merchandisingowa precyzuje zakres licencji, terytorium dystrybucji i stawkę tantiem, zabezpieczając klub przed nieautoryzowanym użyciem logo.\\n\\nTwórcy postaci i kreatorzy contentu. Rysownicy, twórcy komiksów, autorzy gier mobilnych i influencerzy sprzedają licencje na swoje postaci i logo producentom gadżetów. Przy braku pisemnej umowy dochodzenie tantiem lub ochrona przed pirackimi produktami jest znacznie utrudnione.\\n\\nProducenci filmowi i wydawcy. Wytwórnie filmowe i wydawnictwa licencjonują postacie z filmów i książek na akcesoria dla dzieci, kostiumy karnawałowe i zabawki. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) wskazuje, że produkty dla dzieci objęte licencją muszą spełniać szczególne normy bezpieczeństwa — umowa powinna nakładać te obowiązki na licencjobiorcę.\\n\\nMarki modowe i lifestyle'owe. Marki posiadające rozpoznawalne logo licencjonują je producentom kolekcji odzieży, akcesoriów i artykułów wnętrzarskich. Kontrola jakości i zatwierdzanie wzorów są kluczowe dla ochrony renomy marki.\\n\\nMuzea i instytucje kultury. Muzea Narodowe, Muzeum Powstania Warszawskiego czy Centrum Kopernika licencjonują elementy swoich kolekcji i logotypów producentom pamiątek i artykułów dekoracyjnych. Umowa reguluje standardy reprodukcji i zgodność z wizerunkiem instytucji.\\n\\nStartupy i marki e-commerce. Małe marki budujące rozpoznawalność przez social media (Instagram, TikTok) mogą licencjonować swój wizerunek na produktach fizycznych, generując przychody bez własnej produkcji. Umowa merchandisingowa umożliwia skalowanie bez nakładów inwestycyjnych.\\n\\nUmowa merchandisingowa w Polsce powinna zawierać następujące elementy, zapewniające skuteczną ochronę licencjonodawcy i precyzyjne określenie praw licencjobiorcy.\\n\\nDokładny opis licencjonowanych oznaczeń. Wskazanie konkretnych znaków towarowych (z numerami rejestracyjnymi UPRP lub EUIPO), wizerunków, postaci lub elementów graficznych objętych licencją. Dołączenie przykładów graficznych lub brand guidelines jako załącznika do umowy. Licencjobiorca może używać wyłącznie oznaczeń wymienionych — żadnych modyfikacji bez zgody Licencjodawcy.\\n\\nKategorie produktów. Precyzyjne wyliczenie kategorii Produktów, na których Licencjobiorca może umieszczać Licencjonowane Oznaczenia. Licencja nie rozciąga się na produkty spoza wymienionego katalogu. Przykładowo: licencja na koszulki nie obejmuje automatycznie spodni ani akcesoriów.\\n\\nTerytorium i wyłączność. Wskazanie terytorium obowiązywania licencji — Polska, UE lub świat. Określenie, czy licencja jest wyłączna (Licencjobiorca jest jedynym uprawnionym na danym terytorium) czy niewyłączna (Licencjodawca może udzielać licencji innym podmiotom). Licencja wyłączna na znak towarowy wymaga formy pisemnej pod rygorem nieważności (art. 163 ust. 2 p.w.p.) i daje Licencjobiorcy silną pozycję negocjacyjną.\\n\\nSystem tantiem (royalties). Stawka procentowa naliczana od wartości netto sprzedaży Produktów (nie od ceny brutto z VAT). Minimalna gwarantowana kwota roczna — należna niezależnie od osiągniętych obrotów. Kwartalne raporty sprzedaży i terminy płatności. Prawo Licencjodawcy do audytu ksiąg rachunkowych Licencjobiorcy. Do wartości tantiem netto doliczany jest VAT 23% (ustawa z dnia 11 marca 2004 r.).\\n\\nKontrola jakości i zatwierdzanie wzorów. Obowiązek Licencjobiorcy przestrzegania wytycznych marki (brand guidelines). Procedura zatwierdzania próbek i wzorów produktów przed produkcją seryjną. Prawo Licencjodawcy do wstrzymania dystrybucji Produktów niespełniających standardów. Obowiązek wskazania na Produktach informacji o posiadaniu licencji — na przykład \\\"Produced under license from [Licencjodawca]\\\". forms-legal.com zaleca dołączenie checklisty kontroli jakości jako załącznika.\\n\\nOchrona przed naruszeniami. Obowiązek Licencjobiorcy niezwłocznego informowania Licencjodawcy o zauważonych przypadkach naruszenia praw do Licencjonowanych Oznaczeń przez osoby trzecie. Licencjodawca decyduje o podjęciu kroków prawnych, w tym powiadomienia Krajowej Administracji Skarbowej (KAS) w celu zajęcia towarów naruszających prawa na granicy.\\n\\nRozwiązanie umowy i skutki wygaśnięcia. Prawo Licencjodawcy do natychmiastowego rozwiązania umowy w przypadku naruszeń jakościowych, zaległości płatniczych lub wszczęcia postępowania upadłościowego (KSH art. 270 i n. dla sp. z o.o.). Termin likwidacji zapasów Produktów po zakończeniu umowy — standardowo 90 dni na wyprzedaż istniejących zapasów.\\n\\nUmowę merchandisingową w Polsce wypełnia się według następujących kroków, uwzględniających wymogi prawa autorskiego i prawa własności przemysłowej.\\n\\nKrok 1 — zidentyfikuj strony. Wpisz pełne dane Licencjodawcy (właściciela marki lub wizerunku) i Licencjobiorcy (producenta lub dystrybutora). Zweryfikuj reprezentację spółek w Krajowym Rejestrze Sądowym (KRS). Upewnij się, że Licencjodawca jest faktycznym właścicielem licencjonowanych oznaczeń — sprawdź w rejestrze UPRP (uprp.gov.pl/baza-online) lub EUIPO.\\n\\nKrok 2 — opisz licencjonowane oznaczenia. Podaj precyzyjny opis wszystkich oznaczeń objętych licencją: nazwy, logotypy, postacie, wizerunki. Dla znaków towarowych zarejestrowanych w UPRP podaj numery świadectwa ochronnego. Dołącz pliki graficzne lub brand guidelines jako załącznik do umowy.\\n\\nKrok 3 — określ kategorie produktów. Wymień wszystkie kategorie produktów, na których Licencjobiorca może umieszczać licencjonowane oznaczenia. Bądź precyzyjny — zbyt szerokie sformułowania mogą narazić Licencjodawcę na utratę kontroli nad używaniem marki.\\n\\nKrok 4 — ustal terytorium i wyłączność. Wybierz terytorium obowiązywania licencji. Zdecyduj, czy licencja ma być wyłączna (wyższe tantiemy, ale Licencjodawca traci możliwość licencjonowania innym) czy niewyłączna (niższe tantiemy, ale elastyczność).\\n\\nKrok 5 — ustal tantiemy i minimum gwarantowane. Wpisz stawkę procentową tantiem od wartości netto sprzedaży (typowo 8–15%) i kwotę minimalną gwarantowaną rocznie. Minimalna kwota motywuje Licencjobiorcę do aktywnej dystrybucji i zapewnia Licencjodawcy przewidywalny dochód.\\n\\nKrok 6 — ureguluj kontrolę jakości. Zdecyduj, czy zatwierdzanie próbek odbywa się przed każdą nową serią produktów, czy jednorazowo przed wprowadzeniem kategorii do produkcji. Ustal termin na zatwierdzenie próbek przez Licencjodawcę (typowo 14 dni) i procedurę postępowania przy odmowie zatwierdzenia.\\n\\nKrok 7 — podpisz umowę. Licencja wyłączna na znak towarowy musi być zawarta w formie pisemnej pod rygorem nieważności (art. 163 ust. 2 p.w.p.). Licencja niewyłączna nie wymaga szczególnej formy, ale pisemna jest zalecana dla celów dowodowych. Podpisz dwa egzemplarze — po jednym dla każdej ze stron.\\n\\nUmowa merchandisingowa w Polsce podlega kilku reżimom prawnym równolegle, co wymaga starannego przygotowania dokumentu.\\n\\nLicencja na znak towarowy. Art. 163 ust. 1 p.w.p. stanowi, że uprawniony z prawa ochronnego może udzielić innej osobie upoważnienia do używania znaku — licencji. Art. 163 ust. 2 p.w.p. wymaga dla licencji wyłącznej formy pisemnej pod rygorem nieważności. Licencja musi być wpisana do rejestru UPRP, aby była skuteczna wobec osób trzecich (art. 163 ust. 4 p.w.p.).\\n\\nLicencja na elementy autorskie. Postacie, grafiki i inne elementy Produktów mogą podlegać ochronie prawa autorskiego (art. 1 pr. aut.). Licencja wyłączna na korzystanie z nich wymaga formy pisemnej pod rygorem nieważności (art. 67 ust. 5 pr. aut.). Licencja niewyłączna może być zawarta w dowolnej formie, lecz dla bezpieczeństwa prawnego wskazana jest forma pisemna.\\n\\nPrawo konsumentów i bezpieczeństwo produktów. Produkty licencjonowane przeznaczone dla konsumentów muszą spełniać wymogi ustawy z dnia 30 maja 2014 r. o prawach konsumenta oraz europejskich dyrektyw bezpieczeństwa produktów. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) nadzoruje rynek i może nakazać wycofanie niebezpiecznych produktów. Obowiązek spełnienia norm powinien być wyraźnie nałożony na Licencjobiorcę w umowie.\\n\\nVAT i rozliczenia podatkowe. Tantiemy z licencji merchandisingowej podlegają VAT 23% (usługa licencyjna). Licencjodawca wystawia faktury kwartalne na podstawie raportów sprzedaży Licencjobiorcy. Krajowa Administracja Skarbowa (KAS) może żądać dokumentacji potwierdzającej prawidłowość rozliczeń tantiem dla celów CIT lub PIT.\\n\\nUmowy merchandisingowe w Polsce są często sporządzane zbyt ogólnie, co prowadzi do sporów o zakres licencji, kwoty tantiem lub jakość produktów.\\n\\nBrak systemu zatwierdzania wzorów. Umowy bez procedury zatwierdzania próbek pozwalają Licencjobiorcy wprowadzać do obrotu Produkty niespełniające standardów jakości marki. Jeden wadliwy produkt może trwałe zaszkodzić reputacji Licencjodawcy, zwłaszcza gdy zarzuty dotyczą bezpieczeństwa (np. zabawki dla dzieci badane przez UOKiK).\\n\\nBrak minimalnego gwarantowanego wynagrodzenia. Umowa bez minimum gwarantowanego pozwala Licencjobiorcy zmonopolizować licencję (szczególnie wyłączną) i nie sprzedawać niczego, blokując Licencjodawcę. Minimum gwarantowane mobilizuje Licencjobiorcę i zapewnia Licencjodawcy przewidywalny przychód.\\n\\nZbyt szerokie wyliczenie produktów. Klauzule obejmujące \\\"wszelkie produkty konsumenckie\\\" lub \\\"wszystkie kategorie\\\" narażają Licencjodawcę na utratę kontroli nad marką. Licencja powinna precyzować kategorie, aby Licencjodawca mógł zachować inne kategorie dla siebie lub innych licencjobiorców.\\n\\nBrak prawa do audytu ksiąg. Bez prawa do audytu Licencjodawca jest zdany na raporty Licencjobiorcy. Klauzula o prawie do audytu kwartalnych rozliczeń przez niezależnego biegłego rewidentna koszt Licencjobiorcy — w razie rozbieżności przekraczającej 5% — jest standardem branżowym, szczególnie przy licencjach premium.\\n\\nPominięcie skutków naruszenia praw przez osoby trzecie. Bez postanowień o działaniach antypirackch licencja jest bez wartości, gdy rynek zaleje tańszymi nieautoryzowanymi kopiami. Umowa powinna nakładać na Licencjobiorcę obowiązek informowania Licencjodawcy o naruszeniach i umożliwiać wspólne podjęcie kroków prawnych, w tym zgłoszenia do Krajowej Administracji Skarbowej (KAS) w celu zajęcia towarów podrabianych.\\n\\nŹródło: https://forms-legal.com/pl/business/intellectual-property/umowa-merchandisingowa (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-e69dd043-20f5-48cb-8153-042594d23651",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_ee801c87e5f14a729a4fa1dd",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"minimalne gwarantowane tantiemy w umowie licencyjnej\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_7d81daece17d4b91907a6949",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"minimalne gwarantowane\", \"minimum gwarantowane\", \"MG tantiem\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0068_statute_fcda69ca35796cdf\", \"source_id\": \"sejm_eli_du_2024_226_art_22g\", \"source_type\": \"statute\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Wartość początkową praw majątkowych, w tym licencji i autorskich praw majątkowych, stanowi cena nabycia tych praw; jeżeli wynagrodzenie (opłaty) wynikające z umowy licencyjnej albo z umowy o przeniesienie innych praw majątkowych jest uzależnione od wysokości przychodów z licencji lub praw uzyskanych przez licencjobiorcę albo nabywcę - przy ustalaniu wartości początkowej praw majątkowych, w tym licencji, nie uwzględnia się tej części wynagrodzenia. 19. (uchylony) 20.\"}, {\"chunk_id\": \"uokik_abusive_clause_118\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku wycofania oferty w czasie trwania umowy, sprzedający zobowiązany jest do zapłaty kary umownej w wysokości 20% ceny gwarantowanej.\"}, {\"chunk_id\": \"uokik_items:uokik_4ef9a6b3fb3f3bcc\", \"source_id\": \"uokik_rejestr_klauzul_5995\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia od Umowy Kupujący zobowiązany będzie do zapłaty Sprzedawcy kwoty gwarancyjnej w wysokości stanowiącej równowartość zadatku wskazanego w ust. 1 powyżej, lecz nie mniejszej niż 5000 PLN\"}, {\"chunk_id\": \"uokik_items:uokik_2fa59b995d5ee509\", \"source_id\": \"uokik_rejestr_klauzul_307\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadkach umów Lat Minute (...) gwarantuje jedynie warunki podstawowe przewidziane w umowie\"}]",
+   "tool_call_id": "call_ee801c87e5f14a729a4fa1dd",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_7d81daece17d4b91907a6949",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results didn't directly find provisions about minimum guaranteed royalties. Let me search more specifically for this concept in licensing agreements.",
+   "tool_calls": [
+    {
+     "id": "call-512e7d0e-b5f0-42fd-a8c5-b1ee51ba7382",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"minimum gwarantowane tantiemy licencja roczną kwotę niezależnie od sprzedaży\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-8fa099a4-2ec2-4085-9298-6254a1f7c6d2",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"tantiemy minimalne\", \"gwarantowane roczne\", \"minimum roczne\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_01f788334d9eedaf\", \"source_id\": \"uokik_rejestr_klauzul_5148\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Powyższa kwota może ulec zmianie odpowiednio do uzyskanej ceny sprzedaży nieruchomości\"}, {\"chunk_id\": \"uokik_items:uokik_4ef9a6b3fb3f3bcc\", \"source_id\": \"uokik_rejestr_klauzul_5995\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku odstąpienia od Umowy Kupujący zobowiązany będzie do zapłaty Sprzedawcy kwoty gwarancyjnej w wysokości stanowiącej równowartość zadatku wskazanego w ust. 1 powyżej, lecz nie mniejszej niż 5000 PLN\"}, {\"chunk_id\": \"uokik_items:uokik_70ca1d999479b353\", \"source_id\": \"uokik_rejestr_klauzul_1466\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Partycypantowi przysługuje prawo do płacenia czynszu, który na podstawie ustawy nie może przekroczyć 4% wartości odtworzonej w skali roku.\"}, {\"chunk_id\": \"extractor_v9:broad_0142_judgment_43f13e7716221225\", \"source_id\": \"saos_judgment_100\", \"source_type\": \"judgment\", \"top_category\": \"other\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"civil_procedure\", \"contracts\", \"risk_checking\"], \"text\": \"Opierają się one bowiem założeniu , że po rozwiązaniu umowy licencyjnej pomiędzy stronami, sposób użycia przez pozwaną słowa „ (...) „ w stosowanych przez nią napojów energetyzujących nie jest użyciem pseudonimu powoda, albowiem określenie to nie wiąże się w żaden sposób z jego osobą, ergo nie może być kwalifikowane jako naruszenie dobra osobistego w tej w postaci. Ocena ta jest , podobnie jak w przypadku kwalifikacji roszczeń powoda opartych na poprzednio analizowanej normie , co najmniej przedwczesna i wobec tego wadliwa. Nie bierze bowiem pod uwagę konsekwencji jakie dla możliwości sięgnięc ...\"}, {\"chunk_id\": \"uokik_items:uokik_445f60e700953668\", \"source_id\": \"uokik_rejestr_klauzul_6301\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Postanowienia końcowe 1. Sądem właściwym dla rozpatrywania sporów wynikających z umowy sprzedaży jest sąd właściwy dla siedziby pozwanego\"}]",
+   "tool_call_id": "call-512e7d0e-b5f0-42fd-a8c5-b1ee51ba7382",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-8fa099a4-2ec2-4085-9298-6254a1f7c6d2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "The search results aren't finding specific provisions about minimum guaranteed royalties in licensing agreements. Let me try a different approach - search for \"minimum gwarantowane\" in the context of licensing, or look at the template more carefully. The template I got is for a merchandising agreement which mentions minimum guaranteed royalties. Let me search for more specific legal provisions.",
+   "tool_calls": [
+    {
+     "id": "call-d43b1b50-a439-47b0-a966-a3ced7d2a509",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa licencyjna minimum gwarantowane roczne tantiemy art 43 47 ustawy o prawie autorskim\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-cb4eb97d-4faa-4e5c-91d3-ee826926bf38",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 43\", \"art. 47\", \"art. 471\", \"tantiemy\", \"wynagrodzenie\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_43\", \"source_id\": \"sejm_eli_du_2025_24_art_43\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 43. 1. Jeżeli z umowy nie wynika, że przeniesienie autorskich praw majątkowych lub udzielenie licencji nastąpiło nieodpłatnie, twórcy przysługuje prawo do wynagrodzenia. 2.23) Wynagrodzenie musi być godziwe i odpowiednie do zakresu udzielonego prawa, charakteru i zakresu korzystania oraz korzyści wynikających z korzystania z utworu. 3.24) Domniemywa się, że wynagrodzenie proporcjonalne do przychodów z korzystania z utworu spełnia wymogi, o których mowa w ust. 2. 22) W brzmieniu ustalonym przez art. 1 pkt 13 ustawy, o k ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_1\", \"source_id\": \"sejm_eli_du_2025_24_art_1\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 1. 1. Przedmiotem prawa autorskiego jest każdy przejaw działalności twórczej o indywidualnym charakterze, ustalony w jakiejkolwiek postaci, niezależnie od wartości, przeznaczenia i sposobu wyrażenia (utwór). 2. W szczególności przedmiotem prawa autorskiego są utwory: 1) wyrażone słowem, symbolami matematycznymi, znakami graficznymi (literackie, publicystyczne, naukowe, kartograficzne oraz programy komputerowe); 2) plastyczne; 3) fotograficzne; 4) lutnicze; 5) wzornictwa przemysłowego; 6) architektoniczne, architektonic ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_45\", \"source_id\": \"sejm_eli_du_2025_24_art_45\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 45. Jeżeli umowa nie stanowi inaczej, twórcy przysługuje odrębne wynagrodzenie za korzystanie z utworu na każdym odrębnym polu eksploatacji.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_41\", \"source_id\": \"sejm_eli_du_2025_24_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 41. 1. Jeżeli ustawa nie stanowi inaczej: 1) autorskie prawa majątkowe mogą przejść na inne osoby w drodze dziedziczenia lub na podstawie umowy; 2) nabywca autorskich praw majątkowych może przenieść je na inne osoby, chyba że umowa stanowi inaczej. 2.22) Umowa o przeniesienie autorskich praw majątkowych lub licencja obejmują pola eksploat acji wyraźnie w nich wymienione. 3. Nieważna jest umowa w części dotyczącej wszystkich utworów lub wszystkich utworów określonego rodzaju tego samego twórcy mających powstać w przyszł ...\"}]",
+   "tool_call_id": "call-d43b1b50-a439-47b0-a966-a3ced7d2a509",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_81\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 81. § 1. Pracownikowi za czas niewykonywania pracy, jeżeli był gotów do jej wykonywania, a doznał przeszkód z przyczyn dotyczących pracodawcy, przysługuje wynagrodzenie wynikające z jego osobistego zaszeregowania, określonego stawką godzinową lub miesięczną, a jeżeli taki składnik wynagrodzenia nie został wyodrębniony przy określaniu warunków wynagradzania - 60% wynagrodzenia. W każdym przypadku wynagrodzenie to nie może być jednak niższe od wysok ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_55\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 55. 1. Zakłady pracy podwyższą pracownikom wynagrodzenie należne za styczeń 1992 r., przeliczając je w taki sposób, aby po potrąceniu podatku dochodowego od tego wynagrodzenia nie było ono niższe niż wynagrodzenie za ten miesiąc przed przeliczeniem, z zastrzeżeniem ust. 2-5. W wypadku gdy wynagrodzenie należne za styczeń 1992 r. zostanie wypłacone przed dniem 1 stycznia tego roku, zakład pracy podwyższa wynagrodzenie należne ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0380_statute_aac48d6ae451634b\", \"source_id\": \"sejm_eli_du_2024_226_art_55\", \"source_type\": \"statute\", \"top_category\": \"payment\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 55. 1. Zakłady pracy podwyższą pracownikom wynagrodzenie należne za styczeń 1992 r., przeliczając je w taki sposób, aby po potrąceniu podatku dochodowego od tego wynagrodzenia nie było ono niższe niż wynagrodzenie za ten miesiąc przed przeliczeniem, z zastrzeżeniem ust. 2-5. W wypadku gdy wynagrodzenie należne za styczeń 1992 r. zostanie wypłacone przed dniem 1 stycznia tego roku, zakład pracy podwyższa wynagrodzenie należne za luty 1992 r. 2. Za wynagrodzenie, o którym mowa w ust. 1, uważa się należne ze stosunku służbowego, stosunku pracy, spółdzielczego stosunku pracy oraz z tytułu umo ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_618f\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 618f. § 1 168) W brzmieniu ustalonym przez art. 9 pkt 23 ustawy, o której mowa w odnośniku 2. . Biegłemu i specjaliście niebędącemu funkcjonariuszem organów procesowych powołanym przez sąd lub organ prowadzący postępowanie przygotowawcze przysługuje wynagrodzenie za wykonaną pracę oraz zwrot poniesionych przez nich wydatków w zakresie, w jakim bezpośrednio dotyczyły one konkretnej opinii i były niezbędne dla jej wydania. § 2. Wysokoś ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_82\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 82. § 1. Za wadliwe wykonanie z winy pracownika produktów lub usług wynagrodzenie nie przysługuje. Jeżeli wskutek wadliwie wykonanej pracy z winy pracownika nastąpiło obniżenie jakości produktu lub usługi, wynagrodzenie ulega odpowiedniemu zmniejszeniu. § 2. Jeżeli wadliwość produktu lub usługi została usunięta przez pracownika, przysługuje mu wynagrodzenie odpowiednie do jakości produktu lub usługi, z tym że za czas pracy przy usuwaniu wady wynag ...\"}]",
+   "tool_call_id": "call-cb4eb97d-4faa-4e5c-91d3-ee826926bf38",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA LICENCYJNA MERCHANDISINGOWA\nz minimalnymi gwarantowanymi tantiemami (MG)\n\nzawarta w dniu ______________ w ______________ pomiędzy:\n\nLicencjodawcą:\n______________________________________________\n(nazwa lub imię i nazwisko)\nz siedzibą/adresem: ______________________________________________\nNIP: ______________ KRS/REGON: ______________\nreprezentowanym przez: ______________________________________________\n(działającym na podstawie ______________)\n\na\n\nLicencjobiorcą:\n______________________________________________\n(nazwa lub imię i nazwisko)\nz siedzibą/adresem: ______________________________________________\nNIP: ______________ KRS/REGON: ______________\nreprezentowanym przez: ______________________________________________\n(działającym na podstawie ______________)\n\nłącznie dalej jako \"Strony\" lub każda z osobna jako \"Strona\".\n\n§ 1. Definicje\n\n1.1. Licencjonowane Oznaczenia – znaki towarowe, wizerunki, postacie, logotypy i inne chronione elementy marki wymienione w Załączniku nr 1 do niniejszej Umowy, w tym znaki towarowe zarejestrowane w Urzędzie Patentowym RP (UPRP) lub Urzędzie UE ds. Własności Intelektualnej (EUIPO) wraz z numerami rejestracyjnymi.\n\n1.2. Produkty – określone kategorie produktów handlowych, na których Licencjobiorca może umieszczać Licencjonowane Oznaczenia, wymienione w Załączniku nr 2 do niniejszej Umowy.\n\n1.3. Terytorium – obszar geograficzny, na którym Licencjobiorca jest uprawniony do korzystania z Licencjonowanych Oznaczeń, określony w § 3 ust. 3.\n\n1.4. Tantiemy – wynagrodzenie wymagalne wobec Licencjobiorcy, obliczane jako procentowy udział w wartości netto sprzedaży Produktów, zgodnie z § 5.\n\n1.5. Minimalne Gwarantowane Tantiemy (MG) – gwarantowana kwota roczna należna Licencjodawcy niezależnie od poziomu sprzedaży, określona w § 5 ust. 3.\n\n1.6. Pole Eksploatacji – każdy odrębny sposób korzystania z utworu w rozumieniu art. 45 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (dalej: \"pr. aut.\"), w tym reprodukcja, obrót, wynajem, najem, udostępnianie publiczne.\n\n1.7. Brand Guidelines – wytyczne dotyczące wykorzystywania Licencjonowanych Oznaczeń określone w Załączniku nr 3.\n\n§ 2. Przedmiot Umowy\n\n2.1. Licencjodawca, działając jako właściciel Licencjonowanych Oznaczeń lub posiadający upoważnienie do ich licencjonowania, udziela Licencjobiorcy niewyłącznej/wyłącznej* licencji na korzystanie z Licencjonowanych Oznaczeń na Produktach na Terytorium, na zasadach określonych w niniejszej Umowie.\n\n2.2. Licencja obejmuje następujące Pola Eksploatacji:\n1) reprodukcję Licencjonowanych Oznaczeń na Produktach;\n2) wprowadzanie Produktów z Licencjonowanymi Oznaczeniami do obrotu;\n3) udostępnianie Produktów z Licencjonowanymi Oznaczeniami publicznie w celach promocyjnych i marketingowych;\n4) wynajem i najem Produktów z Licencjonowanymi Oznaczeniami.\n\n2.3. Licencja nie obejmuje prawa do modyfikacji Licencjonowanych Oznaczeń bez uprzedniej pisemnej zgody Licencjodawcy.\n\n2.4. Wszelkie prawa nie wyraźnie przyznane w niniejszej Umowie pozostają w majątku Licencjodawcy.\n\n§ 3. Zakres i Terytorium Licencji\n\n3.1. Licencja jest niewyłączna, co oznacza, że Licencjodawca zachowuje prawo do korzystania z Licencjonowanych Oznaczeń oraz do udzielania licencji innym podmiotom na tym samym Terytorium.\n\n3.2. Licencjobiorca nie jest uprawniony do udzielania sublicencji bez uprzedniej pisemnej zgody Licencjodawcy.\n\n3.3. Terytorium obowiązywania licencji obejmuje: ______________ (np. Rzeczpospolitą Polską, Unię Europejską, cały świat).\n\n3.4. Licencjobiorca nie wprowadzi Produktów z Licencjonowanymi Oznaczeniami do obrotu poza Terytorium bez pisemnej zgody Licencjodawcy.\n\n§ 4. Czas Trwania Umowy\n\n4.1. Umowa zostaje zawarta na czas określony/ nieokreślony* od dnia ______________ do dnia ______________.\n\n4.2. W przypadku umowy na czas nieokreślony, każda ze Stron może rozwiązać Umowę z zachowaniem 3-miesięcznego okresu wypowiedzenia, ze skutkiem na koniec miesiąca kalendarzowego.\n\n4.3. W przypadku umowy na czas określony, Strony mogą przedłużyć Umowę na kolejny okres poprzez zawarcie aneksu na piśmie.\n\n§ 5. Wynagrodzenie Licencyjne (Tantiemy i Minimalne Gwarantowane Tantiemy)\n\n5.1. Za korzystanie z licencji Licencjobiorca zapłaci Licencjodawcy wynagrodzenie składające się z:\n1) Tantiem proporcjonalnych – obliczanych jako ______________% (słownie: ______________ procent) wartości netto sprzedaży Produktów;\n2) Minimalnych Gwarantowanych Tantiem (MG) – kwoty rocznej w wysokości ______________ PLN (słownie: ______________ złotych) netto.\n\n5.2. Tantiemy proporcjonalne naliczane są od wartości netto sprzedaży Produktów (ceny sprzedaży bez podatku VAT). Do wartości netto doliczany jest podatek VAT w wysokości 23% (lub stawki obowiązującej w dniu wystawienia faktury).\n\n5.3. Minimalne Gwarantowane Tantiemy (MG) stanowią zaliczkę na poczet Tantiem proporcjonalnych i są należne Licencjodawcy niezależnie od poziomu sprzedaży Produktów w danym okresie rozliczeniowym.\n\n5.4. MG płatne jest w ratach kwartalnych z góry, do 15. dnia miesiąca poprzedzającego dany kwartał, według harmonogramu:\n- I kwartał: ______________ PLN netto – do 15 stycznia;\n- II kwartał: ______________ PLN netto – do 15 kwietnia;\n- III kwartał: ______________ PLN netto – do 15 lipca;\n- IV kwartał: ______________ PLN netto – do 15 października.\n\n5.5. Rozliczenie Tantiem proporcjonalnych następuje kwartalnie, w terminie 30 dni od zakończenia każdego kwartału kalendarzowego, na podstawie raportu sprzedaży zgodnie z § 6.\n\n5.6. Jeżeli w danym kwartale Tantiemy proporcjonalne przekroczą kwotę MG zapłaconą w tym kwartale, Licencjobiorca dopłaci różnicę w terminie 30 dni od zakończenia kwartału.\n\n5.7. Jeżeli w danym roku obrotowym Tantiemy proporcjonalne nie osiągną sumy MG, Licencjodawca zachowuje prawo do pobrania zapłaconych MG bez obowiązku zwrotu nadwyżki.\n\n5.8. Wszelkie płatności dokonywane są na rachunek bankowy Licencjodawcy nr: ______________.\n\n5.9. Licencjodawca wystawia faktury VAT w terminie 14 dni od otrzymania raportu sprzedaży, zgodnie z § 6.\n\n§ 6. Raportowanie i Prawo do Audytu\n\n6.1. Licencjobiorca zobowiązuje się do prowadzenia szczegółowej ewidencji sprzedaży Produktów, z podziałem na kategorie Produktów, ilości sprzedanych sztuk, ceny jednostkowej oraz wartości netto i brutto sprzedaży.\n\n6.2. Licencjobiorca przekazuje Licencjodawcy kwartalne raporty sprzedaży w terminie 20 dni od zakończenia każdego kwartału kalendarzowego, w formie określonej w Załączniku nr 4.\n\n6.3. Licencjodawca lub przez niego upoważniony niezależny biegły rewident ma prawo do przeprowadzenia audytu ksiąg rachunkowych i dokumentacji Licencjobiorcy w zakresie niezbędnym do weryfikacji prawidłowości rozliczeń Tantiem.\n\n6.4. Audyt przeprowadzany jest po uprzednim powiadomieniu Licencjobiorcy na 10 dni roboczych, w godzinach pracy Licencjobiorcy, z zachowaniem poufności informacji.\n\n6.5. Koszty audytu ponosi Licencjodawca, chyba że wykryte rozbieżności przekroczą 5% należnych Tantiem – wówczas koszty audytu obciążają Licencjobiorcę.\n\n6.6. W przypadku stwierdzenia zaniżenia Tantiem o więcej niż 5%, Licencjobiorca pokryje koszty audytu oraz zapłaci odsetki ustawowe za opóźnienie od kwoty należnej.\n\n§ 7. Kontrola Jakości i Zatwierdzanie Wzorów\n\n7.1. Licencjobiorca zobowiązuje się do przestrzegania Brand Guidelines przy projektowaniu, produkcji i dystrybucji Produktów.\n\n7.2. Przed rozpoczęciem produkcji seryjnej Licencjobiorca przedstawi Licencjodawcy próbki Produktów do zatwierdzenia.\n\n7.3. Licencjodawca rozpatrzy wniosek o zatwierdzenie w terminie 14 dni roboczych od otrzymania próbki. Brak odpowiedzi w tym terminie uznaje się za zatwierdzenie.\n\n7.4. Licencjodawca ma prawo odmówić zatwierdzenia Produktów niespełniających standardów jakości określonych w Brand Guidelines, wskazując w pisemnym uzasadnieniu wymagane poprawki.\n\n7.5. Licencjobiorca umieści na Produktach informację o posiadaniu licencji w formie: \"Produced under license from [nazwa Licencjodawcy]\" lub innej uzgodnionej.\n\n7.6. Licencjodawca ma prawo do wstrzymania dystrybucji Produktów niespełniających standardów jakości, do czasu usunięcia wad przez Licencjobiorcę.\n\n§ 8. Ochrona Praw Intelektualnych\n\n8.1. Licencjobiorca zobowiązuje się do niezwłocznego informowania Licencjodawcy o wszelkich przypadkach naruszenia praw do Licencjonowanych Oznaczeń przez osoby trzecie.\n\n8.2. Licencjodawca podejmuje decyzję o podjęciu kroków prawnych przeciwko naruszicom, w tym zgłoszenie do Krajowej Administracji Skarbowej (KAS) w celu zajęcia towarów naruszających prawa na granicy.\n\n8.3. Licencjobiorca nie może bez pisemnej zgody Licencjodawcy zrzec się praw do Licencjonowanych Oznaczeń ani ich przenosić na osoby trzecie.\n\n8.4. Wszelkie prawa do Licencjonowanych Oznaczeń, w tym prawa do modyfikacji i adaptacji, pozostają wyłącznie w majątku Licencjodawcy.\n\n§ 9. Odpowiedzialność i Gwarancje\n\n9.1. Licencjodawca gwarantuje, że jest właścicielem lub posiada upoważnienie do licencjonowania Licencjonowanych Oznaczeń na określonych w Umowie zasadach.\n\n9.2. Licencjobiorca ponosi pełną odpowiedzialność za zgodność Produktów z obowiązującymi przepisami prawa, w tym ustawą z dnia 30 maja 2014 r. o prawach konsumenta oraz przepisami dotyczącymi bezpieczeństwa produktów.\n\n9.3. Licencjobiorca zobowiązuje się do posiadania wszelkich wymaganych certyfikatów, deklaracji zgodności i zezwoleń niezbędnych do wprowadzenia Produktów do obrotu.\n\n9.4. Licencjobiorca zobowiązuje się do pokrycia wszelkich kosztów związanych z wycofaniem Produktów z rynku w przypadku stwierdzenia ich niezgodności z przepisami prawa.\n\n§ 10. Rozwiązanie Umowy\n\n10.1. Licencjodawca ma prawo do natychmiastowego rozwiązania Umowy w przypadku:\n1) zaległości płatniczych Licencjobiorcy przekraczających 30 dni;\n2) rażącego naruszenia standardów jakości Produktów;\n3) wszczęcia postępowania upadłościowego lub likwidacyjnego wobec Licencjobiorcy;\n4) naruszenia przez Licencjobiorcę zakazu udzielania sublicencji;\n5) zaniżenia rozliczeń Tantiem o więcej niż 10% w okresie 12 miesięcy.\n\n10.2. Licencjobiorca ma prawo do rozwiązania Umowy w przypadku, gdy Licencjodawca nie wywiązuje się z obowiązków określonych w § 7 w sposób uniemożliwiający realizację Umowy.\n\n10.3. Po rozwiązaniu Umowy Licencjobiorca ma prawo do sprzedaży istniejących zapasów Produktów przez okres 90 dni, pod warunkiem:\n1) zapłaty należnych Tantiem i MG za ten okres;\n2) przestrzegania standardów jakości;\n3) usunięcia Licencjonowanych Oznaczeń z Produktów, które nie zostaną sprzedane w tym terminie.\n\n10.4. Po upływie okresu likwidacji zapasów Licencjobiorca zniszczy pozostałe Produkty z Licencjonowanymi Oznaczeniami i przedstawi Licencjodawcy pisemne potwierdzenie zniszczenia.\n\n§ 11. Postanowienia Końcowe\n\n11.1. Wszelkie zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n11.2. W sprawach nieuregulowanych niniejszą Umową mają zastosowanie przepisy Kodeksu cywilnego, ustawy z dnia 30 czerwca 2000 r. – Prawo własności przemysłowej (w szczególności art. 163 w zakresie formy licencji wyłącznej na znak towarowy) oraz ustawy o prawie autorskim i prawach pokrewnych (w szczególności art. 43 w zakresie godziwego wynagrodzenia, art. 45 w zakresie odrębnego wynagrodzenia za pole eksploatacji, art. 67 w zakresie formy licencji wyłącznej na utwór).\n\n11.3. Wszelkie spory wynikające z niniejszej Umowy Strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby Licencjodawcy.\n\n11.4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n11.5. Załączniki do Umowy stanowią jej integralną część:\n- Załącznik nr 1: Opis Licencjonowanych Oznaczeń z numerami rejestracyjnymi;\n- Załącznik nr 2: Katalog Produktów;\n- Załącznik nr 3: Brand Guidelines;\n- Załącznik nr 4: Wzór raportu sprzedaży.\n\nStrony:\n\nLicencjodawca: ______________________________\n(data i podpis osoby uprawnionej)\n\nLicencjobiorca: ______________________________\n(data i podpis osoby uprawnionej)\n\n\n*Uwaga: Właściwą opcję należy zaznaczyć i wybrać odpowiednią formę licencji (wyłączna/niewyłączna) oraz czas trwania (określny/nieokreślny). Licencja wyłączna na znak towarowy wymaga formy pisemnej pod rygorem nieważności (art. 163 ust. 2 PWP). Licencja wyłączna na utwór wymaga również formy pisemnej pod rygorem nieważności (art. 67 ust. 5 pr. aut.).*",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA LICENCYJNA MERCHANDISINGOWA\nz minimalnymi gwarantowanymi tantiemami (MG)\n\nzawarta w dniu ______________ w ______________ pomiędzy:\n\nLicencjodawcą:\n______________________________________________\n(nazwa lub imię i nazwisko)\nz siedzibą/adresem: ______________________________________________\nNIP: ______________ KRS/REGON: ______________\nreprezentowanym przez: ______________________________________________\n(działającym na podstawie ______________)\n\na\n\nLicencjobiorcą:\n______________________________________________\n(nazwa lub imię i nazwisko)\nz siedzibą/adresem: ______________________________________________\nNIP: ______________ KRS/REGON: ______________\nreprezentowanym przez: ______________________________________________\n(działającym na podstawie ______________)\n\nłącznie dalej jako \"Strony\" lub każda z osobna jako \"Strona\".\n\n§ 1. Definicje\n\n1.1. Licencjonowane Oznaczenia – znaki towarowe, wizerunki, postacie, logotypy i inne chronione elementy marki wymienione w Załączniku nr 1 do niniejszej Umowy, w tym znaki towarowe zarejestrowane w Urzędzie Patentowym RP (UPRP) lub Urzędzie UE ds. Własności Intelektualnej (EUIPO) wraz z numerami rejestracyjnymi.\n\n1.2. Produkty – określone kategorie produktów handlowych, na których Licencjobiorca może umieszczać Licencjonowane Oznaczenia, wymienione w Załączniku nr 2 do niniejszej Umowy.\n\n1.3. Terytorium – obszar geograficzny, na którym Licencjobiorca jest uprawniony do korzystania z Licencjonowanych Oznaczeń, określony w § 3 ust. 3.\n\n1.4. Tantiemy – wynagrodzenie wymagalne wobec Licencjobiorcy, obliczane jako procentowy udział w wartości netto sprzedaży Produktów, zgodnie z § 5.\n\n1.5. Minimalne Gwarantowane Tantiemy (MG) – gwarantowana kwota roczna należna Licencjodawcy niezależnie od poziomu sprzedaży, określona w § 5 ust. 3.\n\n1.6. Pole Eksploatacji – każdy odrębny sposób korzystania z utworu w rozumieniu art. 45 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (dalej: \"pr. aut.\"), w tym reprodukcja, obrót, wynajem, najem, udostępnianie publiczne.\n\n1.7. Brand Guidelines – wytyczne dotyczące wykorzystywania Licencjonowanych Oznaczeń określone w Załączniku nr 3.\n\n§ 2. Przedmiot Umowy\n\n2.1. Licencjodawca, działając jako właściciel Licencjonowanych Oznaczeń lub posiadający upoważnienie do ich licencjonowania, udziela Licencjobiorcy niewyłącznej/wyłącznej* licencji na korzystanie z Licencjonowanych Oznaczeń na Produktach na Terytorium, na zasadach określonych w niniejszej Umowie.\n\n2.2. Licencja obejmuje następujące Pola Eksploatacji:\n1) reprodukcję Licencjonowanych Oznaczeń na Produktach;\n2) wprowadzanie Produktów z Licencjonowanymi Oznaczeniami do obrotu;\n3) udostępnianie Produktów z Licencjonowanymi Oznaczeniami publicznie w celach promocyjnych i marketingowych;\n4) wynajem i najem Produktów z Licencjonowanymi Oznaczeniami.\n\n2.3. Licencja nie obejmuje prawa do modyfikacji Licencjonowanych Oznaczeń bez uprzedniej pisemnej zgody Licencjodawcy.\n\n2.4. Wszelkie prawa nie wyraźnie przyznane w niniejszej Umowie pozostają w majątku Licencjodawcy.\n\n§ 3. Zakres i Terytorium Licencji\n\n3.1. Licencja jest niewyłączna, co oznacza, że Licencjodawca zachowuje prawo do korzystania z Licencjonowanych Oznaczeń oraz do udzielania licencji innym podmiotom na tym samym Terytorium.\n\n3.2. Licencjobiorca nie jest uprawniony do udzielania sublicencji bez uprzedniej pisemnej zgody Licencjodawcy.\n\n3.3. Terytorium obowiązywania licencji obejmuje: ______________ (np. Rzeczpospolitą Polską, Unię Europejską, cały świat).\n\n3.4. Licencjobiorca nie wprowadzi Produktów z Licencjonowanymi Oznaczeniami do obrotu poza Terytorium bez pisemnej zgody Licencjodawcy.\n\n§ 4. Czas Trwania Umowy\n\n4.1. Umowa zostaje zawarta na czas określony/ nieokreślony* od dnia ______________ do dnia ______________.\n\n4.2. W przypadku umowy na czas nieokreślony, każda ze Stron może rozwiązać Umowę z zachowaniem 3-miesięcznego okresu wypowiedzenia, ze skutkiem na koniec miesiąca kalendarzowego.\n\n4.3. W przypadku umowy na czas określony, Strony mogą przedłużyć Umowę na kolejny okres poprzez zawarcie aneksu na piśmie.\n\n§ 5. Wynagrodzenie Licencyjne (Tantiemy i Minimalne Gwarantowane Tantiemy)\n\n5.1. Za korzystanie z licencji Licencjobiorca zapłaci Licencjodawcy wynagrodzenie składające się z:\n1) Tantiem proporcjonalnych – obliczanych jako ______________% (słownie: ______________ procent) wartości netto sprzedaży Produktów;\n2) Minimalnych Gwarantowanych Tantiem (MG) – kwoty rocznej w wysokości ______________ PLN (słownie: ______________ złotych) netto.\n\n5.2. Tantiemy proporcjonalne naliczane są od wartości netto sprzedaży Produktów (ceny sprzedaży bez podatku VAT). Do wartości netto doliczany jest podatek VAT w wysokości 23% (lub stawki obowiązującej w dniu wystawienia faktury).\n\n5.3. Minimalne Gwarantowane Tantiemy (MG) stanowią zaliczkę na poczet Tantiem proporcjonalnych i są należne Licencjodawcy niezależnie od poziomu sprzedaży Produktów w danym okresie rozliczeniowym.\n\n5.4. MG płatne jest w ratach kwartalnych z góry, do 15. dnia miesiąca poprzedzającego dany kwartał, według harmonogramu:\n- I kwartał: ______________ PLN netto – do 15 stycznia;\n- II kwartał: ______________ PLN netto – do 15 kwietnia;\n- III kwartał: ______________ PLN netto – do 15 lipca;\n- IV kwartał: ______________ PLN netto – do 15 października.\n\n5.5. Rozliczenie Tantiem proporcjonalnych następuje kwartalnie, w terminie 30 dni od zakończenia każdego kwartału kalendarzowego, na podstawie raportu sprzedaży zgodnie z § 6.\n\n5.6. Jeżeli w danym kwartale Tantiemy proporcjonalne przekroczą kwotę MG zapłaconą w tym kwartale, Licencjobiorca dopłaci różnicę w terminie 30 dni od zakończenia kwartału.\n\n5.7. Jeżeli w danym roku obrotowym Tantiemy proporcjonalne nie osiągną sumy MG, Licencjodawca zachowuje prawo do pobrania zapłaconych MG bez obowiązku zwrotu nadwyżki.\n\n5.8. Wszelkie płatności dokonywane są na rachunek bankowy Licencjodawcy nr: ______________.\n\n5.9. Licencjodawca wystawia faktury VAT w terminie 14 dni od otrzymania raportu sprzedaży, zgodnie z § 6.\n\n§ 6. Raportowanie i Prawo do Audytu\n\n6.1. Licencjobiorca zobowiązuje się do prowadzenia szczegółowej ewidencji sprzedaży Produktów, z podziałem na kategorie Produktów, ilości sprzedanych sztuk, ceny jednostkowej oraz wartości netto i brutto sprzedaży.\n\n6.2. Licencjobiorca przekazuje Licencjodawcy kwartalne raporty sprzedaży w terminie 20 dni od zakończenia każdego kwartału kalendarzowego, w formie określonej w Załączniku nr 4.\n\n6.3. Licencjodawca lub przez niego upoważniony niezależny biegły rewident ma prawo do przeprowadzenia audytu ksiąg rachunkowych i dokumentacji Licencjobiorcy w zakresie niezbędnym do weryfikacji prawidłowości rozliczeń Tantiem.\n\n6.4. Audyt przeprowadzany jest po uprzednim powiadomieniu Licencjobiorcy na 10 dni roboczych, w godzinach pracy Licencjobiorcy, z zachowaniem poufności informacji.\n\n6.5. Koszty audytu ponosi Licencjodawca, chyba że wykryte rozbieżności przekroczą 5% należnych Tantiem – wówczas koszty audytu obciążają Licencjobiorcę.\n\n6.6. W przypadku stwierdzenia zaniżenia Tantiem o więcej niż 5%, Licencjobiorca pokryje koszty audytu oraz zapłaci odsetki ustawowe za opóźnienie od kwoty należnej.\n\n§ 7. Kontrola Jakości i Zatwierdzanie Wzorów\n\n7.1. Licencjobiorca zobowiązuje się do przestrzegania Brand Guidelines przy projektowaniu, produkcji i dystrybucji Produktów.\n\n7.2. Przed rozpoczęciem produkcji seryjnej Licencjobiorca przedstawi Licencjodawcy próbki Produktów do zatwierdzenia.\n\n7.3. Licencjodawca rozpatrzy wniosek o zatwierdzenie w terminie 14 dni roboczych od otrzymania próbki. Brak odpowiedzi w tym terminie uznaje się za zatwierdzenie.\n\n7.4. Licencjodawca ma prawo odmówić zatwierdzenia Produktów niespełniających standardów jakości określonych w Brand Guidelines, wskazując w pisemnym uzasadnieniu wymagane poprawki.\n\n7.5. Licencjobiorca umieści na Produktach informację o posiadaniu licencji w formie: \"Produced under license from [nazwa Licencjodawcy]\" lub innej uzgodnionej.\n\n7.6. Licencjodawca ma prawo do wstrzymania dystrybucji Produktów niespełniających standardów jakości, do czasu usunięcia wad przez Licencjobiorcę.\n\n§ 8. Ochrona Praw Intelektualnych\n\n8.1. Licencjobiorca zobowiązuje się do niezwłocznego informowania Licencjodawcy o wszelkich przypadkach naruszenia praw do Licencjonowanych Oznaczeń przez osoby trzecie.\n\n8.2. Licencjodawca podejmuje decyzję o podjęciu kroków prawnych przeciwko naruszicom, w tym zgłoszenie do Krajowej Administracji Skarbowej (KAS) w celu zajęcia towarów naruszających prawa na granicy.\n\n8.3. Licencjobiorca nie może bez pisemnej zgody Licencjodawcy zrzec się praw do Licencjonowanych Oznaczeń ani ich przenosić na osoby trzecie.\n\n8.4. Wszelkie prawa do Licencjonowanych Oznaczeń, w tym prawa do modyfikacji i adaptacji, pozostają wyłącznie w majątku Licencjodawcy.\n\n§ 9. Odpowiedzialność i Gwarancje\n\n9.1. Licencjodawca gwarantuje, że jest właścicielem lub posiada upoważnienie do licencjonowania Licencjonowanych Oznaczeń na określonych w Umowie zasadach.\n\n9.2. Licencjobiorca ponosi pełną odpowiedzialność za zgodność Produktów z obowiązującymi przepisami prawa, w tym ustawą z dnia 30 maja 2014 r. o prawach konsumenta oraz przepisami dotyczącymi bezpieczeństwa produktów.\n\n9.3. Licencjobiorca zobowiązuje się do posiadania wszelkich wymaganych certyfikatów, deklaracji zgodności i zezwoleń niezbędnych do wprowadzenia Produktów do obrotu.\n\n9.4. Licencjobiorca zobowiązuje się do pokrycia wszelkich kosztów związanych z wycofaniem Produktów z rynku w przypadku stwierdzenia ich niezgodności z przepisami prawa.\n\n§ 10. Rozwiązanie Umowy\n\n10.1. Licencjodawca ma prawo do natychmiastowego rozwiązania Umowy w przypadku:\n1) zaległości płatniczych Licencjobiorcy przekraczających 30 dni;\n2) rażącego naruszenia standardów jakości Produktów;\n3) wszczęcia postępowania upadłościowego lub likwidacyjnego wobec Licencjobiorcy;\n4) naruszenia przez Licencjobiorcę zakazu udzielania sublicencji;\n5) zaniżenia rozliczeń Tantiem o więcej niż 10% w okresie 12 miesięcy.\n\n10.2. Licencjobiorca ma prawo do rozwiązania Umowy w przypadku, gdy Licencjodawca nie wywiązuje się z obowiązków określonych w § 7 w sposób uniemożliwiający realizację Umowy.\n\n10.3. Po rozwiązaniu Umowy Licencjobiorca ma prawo do sprzedaży istniejących zapasów Produktów przez okres 90 dni, pod warunkiem:\n1) zapłaty należnych Tantiem i MG za ten okres;\n2) przestrzegania standardów jakości;\n3) usunięcia Licencjonowanych Oznaczeń z Produktów, które nie zostaną sprzedane w tym terminie.\n\n10.4. Po upływie okresu likwidacji zapasów Licencjobiorca zniszczy pozostałe Produkty z Licencjonowanymi Oznaczeniami i przedstawi Licencjodawcy pisemne potwierdzenie zniszczenia.\n\n§ 11. Postanowienia Końcowe\n\n11.1. Wszelkie zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n11.2. W sprawach nieuregulowanych niniejszą Umową mają zastosowanie przepisy Kodeksu cywilnego, ustawy z dnia 30 czerwca 2000 r. – Prawo własności przemysłowej (w szczególności art. 163 w zakresie formy licencji wyłącznej na znak towarowy) oraz ustawy o prawie autorskim i prawach pokrewnych (w szczególności art. 43 w zakresie godziwego wynagrodzenia, art. 45 w zakresie odrębnego wynagrodzenia za pole eksploatacji, art. 67 w zakresie formy licencji wyłącznej na utwór).\n\n11.3. Wszelkie spory wynikające z niniejszej Umowy Strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby Licencjodawcy.\n\n11.4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n11.5. Załączniki do Umowy stanowią jej integralną część:\n- Załącznik nr 1: Opis Licencjonowanych Oznaczeń z numerami rejestracyjnymi;\n- Załącznik nr 2: Katalog Produktów;\n- Załącznik nr 3: Brand Guidelines;\n- Załącznik nr 4: Wzór raportu sprzedaży.\n\nStrony:\n\nLicencjodawca: ______________________________\n(data i podpis osoby uprawnionej)\n\nLicencjobiorca: ______________________________\n(data i podpis osoby uprawnionej)\n\n\n*Uwaga: Właściwą opcję należy zaznaczyć i wybrać odpowiednią formę licencji (wyłączna/niewyłączna) oraz czas trwania (określny/nieokreślny). Licencja wyłączna na znak towarowy wymaga formy pisemnej pod rygorem nieważności (art. 163 ust. 2 PWP). Licencja wyłączna na utwór wymaga również formy pisemnej pod rygorem nieważności (art. 67 ust. 5 pr. aut.).*",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę uzyskać licencję na umieszczanie logo i postaci znanej marki na moich produktach (np. koszulki, kubki, gadżety) i sprzedawać je w Polsce. Potrzebuję umowy, która ustali procent od sprzedaży oraz minimalną roczną opłatę, którą zapłacę niezależnie od wyników."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję produkować linię odzieży i akcesoriów z wizerunkiem popularnej postaci z bajki i chcę podpisać umowę licencyjną na terytorium Polski na 3 lata. Zależy mi na jasnych zasadach: jaki procent od ceny netto produktów zapłacę jako tantiemy, jaka będzie minimalna gwarantowana kwota roczna (MG) i jak będzie wyglądał harmonogram płatności kwartalnych z góry. Potrzebuję też procedury zatwierdzania wzorów przed produkcją, wzór raportu sprzedaży do składania co kwartał oraz zasady likwidacji zapasów po zakończeniu umowy."
+  }
+ ]
+}

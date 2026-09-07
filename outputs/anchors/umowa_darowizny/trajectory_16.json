@@ -1,0 +1,327 @@
+{
+ "run": 15,
+ "hint": "Darowizna wierzytelności (cesja darowna) na rzecz osoby trzeciej",
+ "scenario": "Darowizna wierzytelności (cesja darowna) na rzecz osoby trzeciej",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_darowizny'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a donation contract (umowa_darowizny) specifically for \"Darowizna wierzytelności (cesja darowna) na rzecz osoby trzeciej\" - donation of a claim/receivable (donation assignment) to a third party.\n\nLet me start by reading the base template for umowa_darowizny, then search for relevant provisions about donation of claims/cesja darowna.",
+   "tool_calls": [
+    {
+     "id": "call-85bc9a40-f4f1-4921-8079-caafec8187a9",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_darowizny\", \"query\": \"darowizna wierzytelności cesja darowna na rzecz osoby trzeciej\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_darowizny\", \"kind\": \"structural_template\", \"text\": \"# Umowa cesji wierzytelności\\nCesja wierzytelności (przelew wierzytelności) w Polsce to czynność prawna uregulowana w art. 509-518 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), polegająca na przeniesieniu wierzytelności przez dotychczasowego wierzyciela (cedenta, zbywcę) na osobę trzecią (cesjonariusza, nabywcę) bez konieczności uzyskania zgody dłużnika. Zgodnie z art. 509 § 1 Kodeksu cywilnego wierzyciel może bez zgody dłużnika przenieść wierzytelność na osobę trzecią, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu albo właściwości zobowiązania. Cesja jest zatem zasadą — możliwość przeniesienia wierzytelności bez zgody dłużnika jest regułą, a ograniczenia stanowią wyjątek.\\n\\nZakres cesji jest bardzo szeroki: zgodnie z art. 509 § 2 Kodeksu cywilnego wraz z wierzytelnością przechodzą na nabywcę wszelkie związane z nią prawa, w szczególności roszczenie o zaległe odsetki, prawa z zabezpieczeń (hipoteka, zastaw, poręczenie), prawa z umów ubezpieczenia oraz wszelkie roszczenia akcesoryjne. Nabywca wierzytelności wstępuje zatem w pełen zespół praw przysługujących dotychczasowemu wierzycielowi — w tym prawo do dochodzenia zaległych odsetek ustawowych za opóźnienie naliczanych zgodnie z art. 481 Kodeksu cywilnego.\\n\\nGłówną cechą cesji odróżniającą ją od innych instytucji prawnych jest brak wymogu zgody dłużnika. Dłużnik musi jedynie zostać zawiadomiony o zmianie wierzyciela. Zgodnie z art. 512 Kodeksu cywilnego dopóki zbywca nie zawiadomi dłużnika o cesji, spełnienie świadczenia do rąk poprzedniego wierzyciela ma skutek względem nabywcy. Dopiero po skutecznym zawiadomieniu dłużnik obowiązany jest spełniać świadczenie na rzecz nowego wierzyciela — nabywcy.\\n\\nForma cesji jest uregulowana w art. 511 Kodeksu cywilnego: jeżeli wierzytelność jest stwierdzona pismem, przelew powinien być również stwierdzony pismem. Jest to wymóg formy ad probationem — dla celów dowodowych, nie pod rygorem nieważności. Cesja wierzytelności niestwierdzonej pismem może być dokonana nawet ustnie, choć pisemna forma jest zawsze zalecana.\\n\\nOdpowiedzialność zbywcy jest kluczowym elementem cesji: art. 516 Kodeksu cywilnego stanowi, że zbywca ponosi odpowiedzialność względem nabywcy za to, że wierzytelność mu przysługuje. Jest to odpowiedzialność za istnienie wierzytelności (tzw. veritas nominis), nie zaś za wypłacalność dłużnika — zbywca nie odpowiada domyślnie za to, czy dłużnik wierzytelność spłaci (bonitas nominis). Strony mogą jednak rozszerzyć odpowiedzialność zbywcy o gwarancję wypłacalności dłużnika, co w praktyce obrotu wierzytelności (szczególnie przy sprzedaży portfeli wierzytelności przez banki i firmy windykacyjne) jest częstym postanowieniem umownym.\\n\\nCesja wierzytelności jest instrumentem bardzo często stosowanym w polskim obrocie gospodarczym i finansowym — przez firmy windykacyjne, fundusze sekurytyzacyjne, banki, instytucje pożyczkowe, przedsiębiorców dochodzących należności handlowych i osoby fizyczne. Nadzór nad rynkiem obrotu wierzytelnościami sprawuje m.in. Prezes UOKiK w zakresie praktyk naruszających zbiorowe interesy konsumentów oraz Rzecznik Finansowy w sporach z instytucjami finansowymi.\\n\\nCesja wierzytelności w Polsce jest potrzebna we wszystkich sytuacjach, gdy dotychczasowy wierzyciel chce przenieść przysługujące mu roszczenie na osobę trzecią — bez konieczności uzyskania zgody dłużnika.\\n\\nNajpowszechniejszym przypadkiem jest sprzedaż wierzytelności handlowych przez przedsiębiorców trudniących się działalnością gospodarczą — dostawca towarów lub usług (wpisany w CEIDG lub KRS) może zbyć nieprzeterminowane lub przeterminowane faktury na rzecz faktora (umowa faktoringu) lub firmy windykacyjnej, zamiast czekać na spłatę od dłużnika lub angażować się w kosztowne postępowanie przed sądem rejonowym.\\n\\nCesja jest niezbędna przy faktoringu — instytucji polegającej na regularnym zbywaniu wierzytelności handlowych przez przedsiębiorców na rzecz faktora (banku lub instytucji faktoringowej), który przejmuje ryzyko niewypłacalności dłużników i zapewnia finansowanie.\\n\\nDokument jest potrzebny przy refinansowaniu kredytów i pożyczek — bank lub instytucja pożyczkowa może przenieść wierzytelność z tytułu niespłaconego kredytu na fundusz sekurytyzacyjny lub firmę windykacyjną, co zwalnia bank z obowiązku dalszego dochodzenia roszczenia we własnym zakresie.\\n\\nCesja jest stosowana przy zabezpieczaniu wierzytelności — dłużnik przenosi na wierzyciela (jako zabezpieczenie pożyczki lub kredytu) wierzytelności przysługujące mu od osób trzecich (cesja na zabezpieczenie). Mechanizm ten pozwala wierzycielowi zaspokoić się z przelanej wierzytelności, jeżeli dłużnik nie spłaci długu.\\n\\nDokument jest też potrzebny przy umowach deweloperskich i budowlanych, gdy zamawiający lub deweloper przenosi na banki wierzytelności z rachunków powierniczych, oraz przy umowach ubezpieczenia, gdy ubezpieczony ceduje prawa z polisy na wierzyciela (cesja praw z polisy). W obrocie prywatnym cesja jest używana do przeniesienia wierzytelności między osobami fizycznymi — np. gdy wierzyciel chce podarować dług osobie trzeciej lub gdy wierzytelność stanowi składnik majątku zbywanego w ramach przedsiębiorstwa.\\n\\nPrawidłowa umowa cesji wierzytelności w Polsce, oparta na art. 509-518 Kodeksu cywilnego, powinna zawierać kluczowe elementy zapewniające jej skuteczność i precyzję.\\n\\nOznaczenie stron: pełne dane zbywcy (cedenta) i nabywcy (cesjonariusza) — imiona i nazwiska lub firmy, numery PESEL i NIP, adresy. Przy podmiotach wpisanych w Krajowy Rejestr Sądowy (KRS) należy wskazać organ reprezentacji. Podanie danych dłużnika (imię i nazwisko lub firma, adres) jest konieczne do prawidłowego skierowania zawiadomienia.\\n\\nDokładny opis cedowanej wierzytelności: rodzaj wierzytelności (zapłata ceny, zwrot pożyczki, odszkodowanie), podstawa prawna (umowa, faktura VAT, wyrok sądu), kwota na dzień zawarcia umowy (kapitał plus zaległe odsetki), termin wymagalności, numer dokumentu (np. faktury). Im dokładniejszy opis, tym mniejsze ryzyko sporu co do tożsamości przenoszonej wierzytelności. Jeżeli wierzytelność jest stwierdzona pismem, pisemna forma cesji jest wymagana na podstawie art. 511 Kodeksu cywilnego.\\n\\nOświadczenie zbywcy o istnieniu wierzytelności: klauzula odpowiedzialności zbywcy za istnienie wierzytelności (art. 516 Kodeksu cywilnego) — zbywca oświadcza, że wierzytelność faktycznie przysługuje mu wobec dłużnika, jest wymagalna, nie jest przedawniona, nie jest obciążona prawami osób trzecich i nie jest przedmiotem zajęcia komorniczego ani postępowania egzekucyjnego.\\n\\nWynagrodzenie: cena nabycia wierzytelności wyrażona cyfrowo i słownie, termin i sposób zapłaty (przelew na rachunek zbywcy). Przy cesji nieodpłatnej (np. darowizna wierzytelności) należy wskazać brak wynagrodzenia. Przy cesji na zabezpieczenie — opis wierzytelności własnej nabywcy, dla której cesja stanowi zabezpieczenie.\\n\\nObowiązek zawiadomienia dłużnika: wyraźne postanowienie wskazujące, która ze stron (zazwyczaj zbywca) ma obowiązek zawiadomienia dłużnika o cesji, w jakim terminie i w jakiej formie (list polecony). Do czasu zawiadomienia spełnienie świadczenia do rąk zbywcy jest skuteczne wobec nabywcy (art. 512 Kodeksu cywilnego).\\n\\nPrzekazanie dokumentacji: klauzula o przekazaniu nabywcy przez zbywcę wszelkiej dokumentacji związanej z wierzytelnością (umów, faktur, korespondencji, dowodów doręczenia wezwań do zapłaty), niezbędnej do dochodzenia wierzytelności przez nabywcę przed sądem rejonowym lub komornikiem sądowym.\\n\\nPostanowienia końcowe: forma pisemna dla zmian, sąd właściwy dla sporów, liczba egzemplarzy, data i miejsce zawarcia. Wzór umowy cesji dostępny na forms-legal.com obejmuje wszystkie niezbędne elementy. Przy cesji portfeli wierzytelności konsumenckich należy uwzględnić wymogi ustawy z dnia 9 października 2015 r. o działalności w zakresie usługowego prowadzenia ksiąg rachunkowych i nadzór Komisji Nadzoru Finansowego nad firmami zarządzającymi sekurytyzowanymi wierzytelnościami.\\n\\nWypełnienie umowy cesji wierzytelności w Polsce należy rozpocząć od oznaczenia stron. Wpisz pełne dane zbywcy (cedenta) — imię i nazwisko lub firmę, PESEL lub NIP, adres. Następnie wpisz analogiczne dane nabywcy (cesjonariusza). Podaj też dane dłużnika cedowanej wierzytelności — imię i nazwisko lub firmę oraz adres, na który zostanie wysłane zawiadomienie.\\n\\nW sekcji dotyczącej przenoszonej wierzytelności podaj jak najprecyzyjniejszy opis: rodzaj wierzytelności (np. \\\"wierzytelność o zapłatę ceny z tytułu umowy sprzedaży\\\"), podstawę prawną (np. \\\"faktura VAT nr FV/2026/01 z dnia 15.01.2026 r.\\\"), kwotę na dzień zawarcia umowy (kapitał plus zaległe odsetki ustawowe za opóźnienie obliczane zgodnie z art. 481 Kodeksu cywilnego, podane cyfrowo i słownie) oraz termin wymagalności.\\n\\nWpisz cenę nabycia wierzytelności — kwotę, którą nabywca płaci zbywcy za przeniesienie wierzytelności, cyfrowo i słownie. Przy cesji na zabezpieczenie zamiast ceny wpisz: \\\"cesja w celu zabezpieczenia wierzytelności [opis wierzytelności własnej nabywcy]\\\". Przy cesji nieodpłatnej (np. darowizna) wpisz: \\\"cesja nieodpłatna\\\".\\n\\nUpewnij się, że oświadczenie zbywcy o istnieniu wierzytelności jest kompletne: wierzytelność istnieje, nie jest przedawniona, nie jest zajęta komorniczo, nie jest przedmiotem sporu sądowego, nie jest obciążona prawami osób trzecich. Zbywca ponosi odpowiedzialność za prawdziwość tych oświadczeń na podstawie art. 516 Kodeksu cywilnego.\\n\\nWpisz miejscowość i datę zawarcia. Obaj podpisujący składają własnoręczne podpisy. Sporządź dwa egzemplarze. Zbywca niezwłocznie — nie później niż w terminie wskazanym w umowie — wysyła listem poleconym zawiadomienie dłużnika o cesji, z prośbą o dalsze płatności wyłącznie na rzecz nabywcy i podaniem jego danych kontaktowych oraz rachunku bankowego.\\n\\nWymogi prawne cesji wierzytelności w Polsce wynikają przede wszystkim z art. 509-518 Kodeksu cywilnego.\\n\\nArt. 509 § 1 Kodeksu cywilnego dopuszcza cesję bez zgody dłużnika, chyba że sprzeciwiałoby się to: ustawie (np. zakaz przelewu roszczeń alimentacyjnych), zastrzeżeniu umownemu (klauzula pactum de non cedendo w umowie podstawowej) albo właściwości zobowiązania (roszczenia ściśle związane z osobą wierzyciela, np. prawa autorskie majątkowe bez zgody twórcy). Naruszenie zakazu cesji wynikającego z umowy jest skuteczne wobec dłużnika, ale cedent ponosi odpowiedzialność wobec dłużnika za naruszenie umowy.\\n\\nForma cesji (art. 511 Kodeksu cywilnego): jeżeli wierzytelność jest stwierdzona pismem, przelew musi być też stwierdzony pismem — forma ad probationem dla celów dowodowych. Brak pisemności nie unieważnia cesji, lecz ogranicza możliwości dowodowe.\\n\\nOdpowiedzialność zbywcy (art. 516 Kodeksu cywilnego): zbywca odpowiada za istnienie wierzytelności w chwili przelewu — nie za wypłacalność dłużnika (chyba że tak postanowiono). Jeżeli wierzytelność nie istnieje (np. wygasła przed cesją), nabywca może żądać odszkodowania od zbywcy.\\n\\nZawiadomienie dłużnika (art. 512 Kodeksu cywilnego): do czasu zawiadomienia dłużnika spełnienie świadczenia do rąk zbywcy jest skuteczne wobec nabywcy. Po zawiadomieniu dłużnik musi spełniać świadczenie wyłącznie na rzecz nabywcy. Zawiadomienia dokonuje zbywca lub nabywca — ważne, by dotarło do dłużnika.\\n\\nPrzedawnienie cedowanej wierzytelności: cesja nie przerywa biegu przedawnienia. Nabywca nabywa wierzytelność w takim stanie, w jakim się ona znajduje — w tym z uwzględnieniem bieżącego terminu przedawnienia (art. 118 Kodeksu cywilnego). Wierzytelność przedawniona jest nadal zbywalna, ale dłużnik może skutecznie uchylić się od jej zaspokojenia zarzutem przedawnienia przed sądem. Sąd bada przedawnienie z urzędu przy roszczeniach wobec konsumentów (art. 117 § 2¹ Kodeksu cywilnego). Konsument będący dłużnikiem cedowanej wierzytelności korzysta z ochrony przed firmami windykacyjnymi zapewnianej przez Prezesa UOKiK i Rzecznika Finansowego — niedozwolone praktyki wobec konsumentów są sankcjonowane na podstawie ustawy o ochronie konkurencji i konsumentów.\\n\\nNajczęstsze błędy przy umowie cesji wierzytelności w Polsce dotyczą nieprecyzyjnego opisu wierzytelności, braku zawiadomienia dłużnika i nieuwzględnienia ograniczeń cesji.\\n\\nNieprecyzyjny opis cedowanej wierzytelności. Cesja opisana ogólnikowo — np. \\\"wszelkie wierzytelności zbywcy wobec dłużnika\\\" — może być nieważna lub skuteczna jedynie częściowo. Sąd Najwyższy wskazuje, że cedowana wierzytelność musi być oznaczona lub co najmniej oznaczalna. Każda cedowana wierzytelność powinna mieć wskazaną podstawę prawną, kwotę i termin wymagalności.\\n\\nBrak lub opóźnione zawiadomienie dłużnika. Pominięcie obowiązku zawiadomienia dłużnika o cesji powoduje, że płatności dokonane przez dłużnika na rzecz zbywcy (cedenta) po dacie cesji są skuteczne wobec nabywcy (cesjonariusza) i zbywca musi przekazać te środki nabywcy. Dłużnik dowiadując się o cesji od nabywcy może kwestionować jej datę i skuteczność, jeżeli nie otrzymał zawiadomienia od zbywcy.\\n\\nIgnorowanie zakazu cesji wynikającego z umowy. Jeżeli umowa zawarta między zbywcą a dłużnikiem zawiera klauzulę zakazującą cesji wierzytelności (pactum de non cedendo), cesja dokonana bez zgody dłużnika jest wobec niego bezskuteczna — dłużnik może nadal spełniać świadczenie do rąk pierwotnego wierzyciela. Nabywca nie nabywa skutecznie wierzytelności i ponosi stratę. Przed cesją należy sprawdzić umowę podstawową.\\n\\nCesja wierzytelności przedawnionej bez uprzedzenia nabywcy. Zbywca, który sprzedaje wierzytelność przedawnioną bez poinformowania nabywcy o fakcie przedawnienia, narażą się na roszczenie odszkodowawcze z art. 516 Kodeksu cywilnego (odpowiedzialność za istnienie wierzytelności). Wierzytelność przedawniona \\\"istnieje\\\" formalnie, ale jest dotknięta wadą, którą nabywca może uznać za naruszenie gwarancji zbywcy.\\n\\nPominięcie przekazania dokumentacji. Bez dokumentów potwierdzających istnienie wierzytelności (umowy, faktur, potwierdzeń doręczenia wezwań do zapłaty) nabywca nie będzie mógł skutecznie dochodzić roszczenia przed sądem rejonowym lub w elektronicznym postępowaniu upominawczym (e-sąd, Sąd Rejonowy Lublin-Zachód w Lublinie). Klauzula o przekazaniu dokumentacji jest niezbędna.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/cesja-wierzytelnosci (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-85bc9a40-f4f1-4921-8079-caafec8187a9",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I got the base template which is actually about cesja wierzytelności (assignment of claims). Now I need to search for provisions specifically about \"darowizna wierzytelności\" or \"cesja darowna\" - donation of a claim. Let me search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-a18bfc64b34fb143",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"darowizna wierzytelności cesja darowna art. 888 KC art. 509 KC przelew wierzytelności nieodpłatny\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_509\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 509. § 1. Wierzyciel może bez zgody dłużnika przenieść wierzytelność na osobę trzecią (przelew), chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu albo właściwości zobowiązania. § 2. Wraz z wierzytelnością przechodzą na nabywcę wszelkie związane z nią prawa, w szczególności roszczenie o zaległe odsetki.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_510\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 510. § 1. Umowa sprzedaży, zamiany, darowizny lub inna umowa zobowiązująca do przeniesienia wierzytelności przenosi wierzytelność na nabywcę, chyba że przepis szczególny stanowi inaczej albo że strony inaczej postanowiły. § 2. Jeżeli zawarcie umowy przelewu następuje w wykonaniu zobowiązania wynikającego z uprzednio zawartej umowy zobowiązującej do przeniesienia wierzytelności, z zapisu zwykłego, z bezpodstawnego wzbogacenia lub z innego zdarzen ...\"}, {\"chunk_id\": \"uokik_items:uokik_31a7acab43fe8f38\", \"source_id\": \"uokik_rejestr_klauzul_1501\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Nabywca może dokonać przelewu wierzytelności wynikających z niniejszej umowy za zgodą spółki.\"}, {\"chunk_id\": \"uokik_items:uokik_fcdcd8bb53e7d1a6\", \"source_id\": \"uokik_rejestr_klauzul_3802\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony zgodnie oświadczają, że przelew przez Klienta jakiejkolwiek jego wierzytelności, wynikającej lub mogącej powstać z niniejszej umowy, nie może nastąpić bez pisemnej zgody (...), zastrzeżonej pod rygorem nieważności\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_888\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 888. § 1. Przez umowę darowizny darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swego majątku. § 2. (uchylony)\"}]",
+   "tool_call_id": "chatcmpl-tool-a18bfc64b34fb143",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I found relevant articles. Let me search for more specific provisions about donation of claims (darowizna wierzytelności) and the form requirements, as well as tax implications.",
+   "tool_calls": [
+    {
+     "id": "call-d50df0d3-5d09-49a0-8978-61d10bc3c62a",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"darowizna wierzytelności\", \"cesja darowna\", \"art. 890\", \"art. 511\", \"formę pisemną\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_73\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 73. § 1. Jeżeli ustawa zastrzega dla czynności prawnej formę pisemną, dokumentową albo elektroniczną, czynność dokonana bez zachowania zastrzeżonej formy jest nieważna tylko wtedy, gdy ustawa przewiduje rygor nieważności. § 2. Jeżeli ustawa zastrzega dla czynności prawnej inną formę szczególną, czynność dokonana bez zachowania tej formy jest nieważna. Nie dotyczy to jednak wypadków, gdy zachowanie formy szczególnej jest zastrzeżone jedynie dla w ...\"}, {\"chunk_id\": \"uokik_items:uokik_e33f8eaf6922b20b\", \"source_id\": \"uokik_rejestr_klauzul_6164\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Oświadczenie o odstąpieniu powinno mieć formę pisemną i zostać wysłane do (...) przed upływem 10-dniowego terminu, o którym mowa w zdaniu poprzednim. W przypadku odstąpienia od umowy zapłacona przez Dystrybutora kwota, pomniejszona o koszty wysyłki, podlega zwrotowi w terminie 7 dni od dnia otrzymania przez (...) towaru\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_511\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 511. Jeżeli wierzytelność jest stwierdzona pismem, przelew tej wierzytelności powinien być również pismem stwierdzony.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_890\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 890. § 1. Oświadczenie darczyńcy powinno być złożone w formie aktu notarialnego. Jednakże umowa darowizny zawarta bez zachowania tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione. § 2. Przepisy powyższe nie uchybiają przepisom, które ze względu na przedmiot darowizny wymagają zachowania szczególnej formy dla oświadczeń obu stron.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_511\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 511. § 1. Wniosek o wszczęcie postępowania powinien czynić zadość przepisom o pozwie, z tą zmianą, że zamiast pozwanego należy wymienić zainteresowanych w sprawie. § 2. Do wniosków prokuratora o wszczęcie postępowania nie stosuje się przepisów art. 55 i 56.\"}]",
+   "tool_call_id": "call-d50df0d3-5d09-49a0-8978-61d10bc3c62a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_85965b6b622847a4b162f22f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"darowizna wierzytelności forma pisemna art. 890 KC art. 511 KC skuteczność darowizny bez formy notarialnej zawiadomienie dłużnika\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_890\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 890. § 1. Oświadczenie darczyńcy powinno być złożone w formie aktu notarialnego. Jednakże umowa darowizny zawarta bez zachowania tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione. § 2. Przepisy powyższe nie uchybiają przepisom, które ze względu na przedmiot darowizny wymagają zachowania szczególnej formy dla oświadczeń obu stron.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_896\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 896. § 1. Do egzekucji z wierzytelności komornik przystępuje przez jej zajęcie. W celu zajęcia komornik: 1) zawiadomi dłużnika, że nie wolno mu odbierać żadnego świadczenia ani rozporządzać zajętą wierzytelnością i ustanowionym dla niej zabezpieczeniem; 1 1 ) zawiadomi dłużnika wierzytelności o charakterze egzekwowanych świadczeń, jeżeli egzekucja dotyczy świadczeń, o których mowa w art. 773 § 2 1 ; 2) wezwie dłużnika wierzyt ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_890\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 890. § 1. Zajęcie wierzytelności z rachunku bankowego dłużnika jest dokonane z chwilą doręczenia bankowi zawiadomienia o zakazie wypłat z tego rachunku i obejmuje również kwoty: 1) których nie było na rachunku bankowym w chwili jego zajęcia, a zostały wpłacone na ten rachunek po dokonaniu zajęcia; 2) które zostały wpłacone na inny rachunek, otwarty po dokonaniu zajęcia. § 1 1 . Zajęcie wierzytelności z rachunku bankowego nie  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_515\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 515. Jeżeli dłużnik, który otrzymał o przelewie pisemne zawiadomienie pochodzące od zbywcy, spełnił świadczenie do rąk nabywcy wierzytelności, zbywca może powołać się wobec dłużnika na nieważność przelewu albo na zarzuty wynikające z jego podstawy prawnej tylko wtedy, gdy w chwili spełnienia świadczenia były one dłużnikowi wiadome. Przepis ten stosuje się odpowiednio do innych czynności prawnych dokonanych między dłużnikiem a nabywcą wierzytelno ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_514\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 514. Jeżeli wierzytelność jest stwierdzona pismem, zastrzeżenie umowne, iż przelew nie może nastąpić bez zgody dłużnika, jest skuteczne względem nabywcy tylko wtedy, gdy pismo zawiera wzmiankę o tym zastrzeżeniu, chyba że nabywca w chwili przelewu o zastrzeżeniu wiedział.\"}]",
+   "tool_call_id": "call_85965b6b622847a4b162f22f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Now let me search for tax implications of donation of claims (darowizna wierzytelności) - specifically the inheritance and gift tax act (ustawa o podatku od spadków i darowizn).",
+   "tool_calls": [
+    {
+     "id": "call-01f9e2d7-76b3-473c-a3ef-e2b4ce92925a",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"podatek od spadków i darowizn\", \"darowizna wierzytelności\", \"SD-Z2\", \"grupa zerowa\", \"zwolnienie podatkowe\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-01f9e2d7-76b3-473c-a3ef-e2b4ce92925a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "No results. Let me try a different search for tax provisions.",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-ae7ecd0f77a4c4f7",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"darowizna wierzytelności podatek od spadków i darowizn zwolnienie grupa zerowa SD-Z2 SD-3\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_226_art_52n\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52n. 1. Od podstawy obliczenia podatku ustalonej zgodnie z art. 26 ust. 1 lub art. 30c ust. 2 w celu obliczenia podatku lub zaliczki podatnik może odliczyć darowizny przekazane od dnia 1 stycznia 2020 r. do końca miesiąca, w którym odwołano stan epidemii ogłoszony z powodu COVID-19, na przeciwdziałanie COVID-19, o którym mowa w art. 2 ust. 2 ustawy o COVID-19: 1) podmiotom wykonującym działalność leczniczą, wpisanym do ogłos ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_1039\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 1039. § 1. Jeżeli w razie dziedziczenia ustawowego dział spadku następuje między zstępnymi albo między zstępnymi i małżonkiem, spadkobiercy ci są wzajemnie zobowiązani do zaliczenia na schedę spadkową otrzymanych od spadkodawcy darowizn oraz zapisów windykacyjnych, chyba że z oświadczenia spadkodawcy lub z okoliczności wynika, że darowizna lub zapis windykacyjny zostały dokonane ze zwolnieniem od obowiązku zaliczenia. § 2. Spadkodawca może włoży ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_994\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 994. § 1. Przy obliczaniu zachowku nie dolicza się do spadku drobnych darowizn, zwyczajowo w danych stosunkach przyjętych, ani dokonanych przed więcej niż dziesięciu laty, licząc wstecz od otwarcia spadku, darowizn na rzecz osób niebędących spadkobiercami albo uprawnionymi do zachowku. § 2. Przy obliczaniu zachowku należnego zstępnemu nie dolicza się do spadku darowizn uczynionych przez spadkodawcę w czasie, kiedy nie miał zstępnych. Nie dotyczy ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52y\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52y. W przypadku darowizn, o których mowa w art. 52n i art. 52x, kwota przekazanej darowizny wykazywanej w zeznaniu, o której mowa w art. 26 ust. 6b, odpowiada kwocie określonej zgodnie odpowiednio z art. 52n ust. 2 oraz art. 52x ust. 4.\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_52x\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 52x. 1. Od podstawy obliczenia podatku ustalonej zgodnie z art. 26 ust. 1 lub art. 30c ust. 2, w celu obliczenia podatku lub zaliczki, podatnik może odliczyć darowizny rzeczowe, których przedmiotem są komputery przenośne będące laptopami lub tabletami, przekazane od dnia 1 stycznia 2020 r. do końca miesiąca, w którym odwołano stan epidemii ogłoszony z powodu COVID-19: 1) organom prowadzącym placówki oświatowe; 2) organizacjo ...\"}]",
+   "tool_call_id": "chatcmpl-tool-ae7ecd0f77a4c4f7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA DAROWIZNY WIERZYTELNOŚCI (CESJA DAROWNA)\n\nzawarta w dniu [DATA] r. w [MIEJSCOWOŚĆ], pomiędzy:\n\n1. Darczyńcą / Zbywcą (Cedent):\n[IMIĘ I NAZWISKO / NAZWA FIRMY]\nadres: [ADRES]\nPESEL / NIP: [NUMER]\nw imieniu którego działa / który działa osobiście: [OKREŚLIEJ REPREZENTACJI JEŚLI DOTYCZY]\n\na\n\n2. Obdarowanym / Nabywcą (Cesjonariusz):\n[IMIĘ I NAZWISKO / NAZWA FIRMY]\nadres: [ADRES]\nPESEL / NIP: [NUMER]\nw imieniu którego działa / który działa osobiście: [OKREŚLIEJ REPREZENTACJI JEŚLI DOTYCZY]\n\nwzględem Dłużnika:\n[IMIĘ I NAZWISKO / NAZWA FIRMY]\nadres: [ADRES]\nPESEL / NIP: [NUMER]\n\n§ 1. Przedmiot umowy\n\n1. Darczyńca oświadcza, że przysługuje mu wobec Dłużnika wierzytelność w wysokości [KWOTA CYFROWO] zł ([KWOTA SŁOWNIE] złotych), w tym kapitał w wysokości [KWOTA KAPITAŁU] zł oraz odsetki zaległe w wysokości [KWOTA ODSETEK] zł, naliczone zgodnie z art. 481 Kodeksu cywilnego.\n\n2. Wierzytelność wynika z [PODSTAWA PRAWNA, np. umowy sprzedaży z dnia..., faktury VAT nr... z dnia..., wyroku sądu z dnia...] (dalej: „Wierzytelność”).\n\n3. Termin wymagalności Wierzytelności upłynął dnia [DATA] / upłynie dnia [DATA].\n\n4. Darczyńca oświadcza, że Wierzytelność jest wymagalna, nie jest przedawniona, nie jest obciążona prawami osób trzecich, nie jest przedmiotem zajęcia komorniczego ani postępowania egzekucyjnego, a także nie jest przedmiotem sporu sądowego.\n\n§ 2. Darowizna\n\n1. Darczyńca, działając dobrowolnie i bez wynagrodzenia, zobowiązuje się do bezpłatnego przeniesienia Wierzytelności na rzecz Obdarowanego kosztem swego majątku, a Obdarowany przyjmuje Wierzytelność w drodze darowizny.\n\n2. Strony potwierdzają, że umowa niniejsza jest zawarta nieodpłatnie – Obdarowany nie śadczy ani nie zobowiązuje się do świadczenia wzajemnego za przeniesienie Wierzytelności.\n\n3. Strony zgodnie oświadczają, że zawarcie umowy darowizny w formie pisemnej spełnia wymóg formy ad probationem wynikający z art. 511 Kodeksu cywilnego, jako że Wierzytelność jest stwierdzona pismem (faktura / umowa / wyrok).\n\n4. Strony zwracają uwagę, że zgodnie z art. 890 § 1 Kodeksu cywilnego oświadczenie darczyńcy powinno być złożone w formie aktu notarialnego, jednakże umowa darowizny zawarta bez zachowania tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione. Strony potwierdzają, że spełnienie świadczenia nastąpi przez złożenie oświadczenia o przelewie i przekazanie dokumentacji, o czym mowa w § 4 i § 6.\n\n§ 3. Przeniesienie wierzytelności\n\n1. W momencie zawarcia niniejszej umowy Darczyńca przenosi Wierzytelność na Obdarowanego, a Obdarowany wstępuje we wszelkie prawa związane z Wierzytelnością, w szczególności:\n   a) roszczenie o zaległe odsetki,\n   b) prawa z zabezpieczeń (hipoteka, zastaw, poręczenie), jeżeli są obciążone Wierzytelnością,\n   c) prawa z umów ubezpieczenia, jeżeli Wierzytelność jest ubezpieczona,\n   d) wszelkie roszczenia akcesoryjne.\n\n2. Przeniesienie Wierzytelności następuje bez konieczności uzyskania zgody Dłużnika, zgodnie z art. 509 § 1 Kodeksu cywilnego, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu albo właściwości zobowiązania.\n\n3. Darczyńca oświadcza, że umowa podstawowa zawarta między Darczyńcą a Dłużnikiem nie zawiera klauzuli zakazującej cesji wierzytelności (pactum de non cedendo) lub – jeżeli zawiera – że Dłużnik wyraził zgodę na przeniesienie Wierzytelności.\n\n§ 4. Zawiadomienie Dłużnika\n\n1. Darczyńca zobowiązuje się do niezwłocznego, nie później niż w terminie [LICZBA] dni od dnia zawarcia niniejszej umowy, zawiadomić Dłużnika o przeniesieniu Wierzytelności na rzecz Obdarowanego.\n\n2. Zawiadomienie zostanie dokonane w formie pisemnej, listem poleconym za zwrotnym potwierdzeniem odbioru, skierowanym na adres Dłużnika wskazany w niniejszej umowie.\n\n3. W zawiadomieniu Dłużnik zostanie poinformowany o:\n   a) przeniesieniu Wierzytelności na rzecz Obdarowanego,\n   b) konieczności dalszego spełniania świadczeń wyłącznie na rzecz Obdarowanego,\n   c) danych kontaktowych Obdarowanego oraz numerze rachunku bankowego, na który należy dokonywać płatności.\n\n4. Do czasu skutecznego zawiadomienia Dłużnika o przelewie, spełnienie świadczenia do rąk Darczyńcy ma skutek względem Obdarowanego, zgodnie z art. 512 Kodeksu cywilnego. Darczyńca zobowiązuje się do niezwłocznego przekazania Obdarowanych wszelkich świadczeń otrzymanych od Dłużnika po dacie zawarcia umowy.\n\n5. Strony mogą postanowić, że zawiadomienia dokona Obdarowany – w takim przypadku Darczyńca wyraża zgodę na wystąpienie Obdarowanego do Dłużnika z zawiadomieniem w imieniu Darczyńcy.\n\n§ 5. Odpowiedzialność Darczyńcy\n\n1. Darczyńca ponosi odpowiedzialność względem Obdarowanego za to, że Wierzytelność mu przysługuje w chwili przelewu, zgodnie z art. 516 Kodeksu cywilnego (odpowiedzialność za istnienie wierzytelności – veritas nominis).\n\n2. Darczyńca nie ponosi odpowiedzialności za wypłacalność Dłużnika (bonitas nominis), chyba że strony postanowią inaczej.\n\n3. W przypadku stwierdzenia, że Wierzytelność nie istnieje lub istnieje z wadą (np. jest przedawniona, zajęta komorniczo, obciążona prawami osób trzecich), Obdarowany jest uprawniony do żądania od Darczyńcy odszkodowania na zasadach ogólnych.\n\n§ 6. Przekazanie dokumentacji\n\n1. Darczyńca zobowiązuje się do przekazaniu Obdarowanych, nie później niż w terminie [LICZBA] dni od dnia zawarcia umowy, wszelkiej dokumentacji związanej z Wierzytelnością, w szczególności:\n   a) kopii umowy podstawowej,\n   b) kopii faktur / dokumentów potwierdzających powstanie Wierzytelności,\n   c) korespondencji z Dłużnikiem (wezwań do zapłaty, przypomnienia),\n   d) dowodów doręczenia wezwań do zapłaty,\n   e) dokumentów potwierdzających zabezpieczenia Wierzytelności (jeżeli istnieją).\n\n2. Dokumenty zostaną przekazane w formie kopii, przy czym Darczyńca oświadcza, że kopie są zgodne z oryginałami.\n\n3. Przekazanie dokumentacji potwierdzi się protokółem zdawczo-odbiorczym podpisanym przez obie strony.\n\n§ 7. Oświadczenia i gwarancje\n\n1. Darczyńca oświadcza, że:\n   a) Wierzytelność istnieje i jest wymagalna,\n   b) Wierzytelność nie jest przedawniona (bieg przedawnienia nie został zakończony),\n   c) Wierzytelność nie jest obciążona prawami osób trzecich,\n   d) Wierzytelność nie jest przedmiotem zajęcia komorniczego ani postępowania egzekucyjnego,\n   e) Wierzytelność nie jest przedmiotem toczącego się postępowania sądowego,\n   f) umowa podstawowa nie zakazuje cesji Wierzytelności lub – jeżeli zakazuje – Dłużnik wyraził zgodę,\n   g) nie złożył oświadczenia o odrzuceniu spadku ani nie ma podstaw do odrzucenia spadku, które mogłoby wpłynąć na ważność darowizny.\n\n2. Obdarowany oświadcza, że:\n   a) zapoznał się z umową podstawową i dokumentacją Wierzytelności,\b) przyjmuje Wierzytelność w takim stanie, w jakim się ona znajduje,\n   c) zna ryzyko związane z niewypłacalnością Dłużnika i nie zrzuca odpowiedzialności na Darczyńcę za wypłacalność Dłużnika.\n\n§ 8. Koszty i podatki\n\n1. Wszelkie koszty związane z zawarciem niniejszej umowy, w tym ewentualne koszty notarialne, opłaty sądowe oraz koszty zawiadomienia Dłużnika, ponosi Obdarowany / Darczyńca / Strony po połowie – [WYBRAJ WŁAŚCIWĄ OPCJĘ].\n\n2. Strony zobowiązują się do samodzielnego rozliczenia podatku od spadków i darowizn zgodnie z ustawą o podatku od spadków i darowizn, jeżeli obowiązek taki wynika z przepisów prawa.\n\n3. Strony oświadczają, że znają przepisy ustawy o podatku od spadków i darowizn i ponoszą odpowiedzialność za ewentualne zobowiązania podatkowe wynikające z niniejszej darowizny.\n\n§ 9. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 509-518 Kodeksu cywilnego (cesja wierzytelności) oraz art. 888-900 Kodeksu cywilnego (darowizna).\n\n3. Wszelkie spory wynikające z niniejszej umowy strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby Darczyńcy / Obdarowanego / Miejsca zawarcia umowy – [WYBRAJ WŁAŚCIWĄ OPCJĘ].\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n5. Podpisy stron:\n\n\n_________________________\nDarczyńca / Zbywca\n\n\n_________________________\nObdarowany / Nabywca\n\n\nZałączniki:\n1. Kopia umowy podstawowej\n2. Kopia faktury / dokumentu potwierdzającego wierzytelność\n3. Protokół zdawczo-odbiorczy dokumentacji\n\n\nUWAGI PRAKTYCZNE:\n\n1. Przed zawarciem umowy należy sprawdzić umowę podstawową zawartą między Darczyńcą a Dłużnikiem pod kątem ewentualnego zakazu cesji (pactum de non cedendo). Jeżeli umowa zawiera klauzulę zakazującą cesji, przeniesienie Wierzytelności bez zgody Dłużnika jest wobec niego bezskuteczne.\n\n2. Należy bezwzględnie zawiadomić Dłużnika o przeniesieniu Wierzytelności – do czasu zawiadomienia spełnienie świadczenia do rąk Darczyńcy jest skuteczne wobec Obdarowanego (art. 512 KC).\n\n3. Należy przekazać Obdarowany pełną dokumentację Wierzytelności – bez dokumentów Obdarowany nie będzie mógł skutecznie dochodzić roszczenia przed sądem rejonowym lub w elektronicznym postępowaniu upominawczym.\n\n4. Należy pamiętać, że cesja nie przerywa biegu przedawnienia – Obdarowany nabywa Wierzytelność w takim stanie, w jakim się ona znajduje, w tym z uwzględnieniem bieżącego terminu przedawnienia (art. 118 KC).\n\n5. W przypadku darowizny wierzytelności na rzecz osoby najbliższej (grupa zerowa podatku od spadków i darowizn) obowiązek podatkowy może nie powstać, jednak Obdarowany powinien złożyć oświadczenie SD-Z2 w urzędzie skarbowym w terminie 6 miesięcy od dnia powstania zobowiązania podatkowego.\n\n6. Jeżeli Wierzytelność jest stwierdzona pismem (faktura, umowa, wyrok), forma pisemna cesji jest wymogiem ad probationem (art. 511 KC) – brak pisemnej formy nie unieważnia cesji, lecz ogranicza możliwości dowodowe.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA DAROWIZNY WIERZYTELNOŚCI (CESJA DAROWNA)\n\nzawarta w dniu [DATA] r. w [MIEJSCOWOŚĆ], pomiędzy:\n\n1. Darczyńcą / Zbywcą (Cedent):\n[IMIĘ I NAZWISKO / NAZWA FIRMY]\nadres: [ADRES]\nPESEL / NIP: [NUMER]\nw imieniu którego działa / który działa osobiście: [OKREŚLIEJ REPREZENTACJI JEŚLI DOTYCZY]\n\na\n\n2. Obdarowanym / Nabywcą (Cesjonariusz):\n[IMIĘ I NAZWISKO / NAZWA FIRMY]\nadres: [ADRES]\nPESEL / NIP: [NUMER]\nw imieniu którego działa / który działa osobiście: [OKREŚLIEJ REPREZENTACJI JEŚLI DOTYCZY]\n\nwzględem Dłużnika:\n[IMIĘ I NAZWISKO / NAZWA FIRMY]\nadres: [ADRES]\nPESEL / NIP: [NUMER]\n\n§ 1. Przedmiot umowy\n\n1. Darczyńca oświadcza, że przysługuje mu wobec Dłużnika wierzytelność w wysokości [KWOTA CYFROWO] zł ([KWOTA SŁOWNIE] złotych), w tym kapitał w wysokości [KWOTA KAPITAŁU] zł oraz odsetki zaległe w wysokości [KWOTA ODSETEK] zł, naliczone zgodnie z art. 481 Kodeksu cywilnego.\n\n2. Wierzytelność wynika z [PODSTAWA PRAWNA, np. umowy sprzedaży z dnia..., faktury VAT nr... z dnia..., wyroku sądu z dnia...] (dalej: „Wierzytelność”).\n\n3. Termin wymagalności Wierzytelności upłynął dnia [DATA] / upłynie dnia [DATA].\n\n4. Darczyńca oświadcza, że Wierzytelność jest wymagalna, nie jest przedawniona, nie jest obciążona prawami osób trzecich, nie jest przedmiotem zajęcia komorniczego ani postępowania egzekucyjnego, a także nie jest przedmiotem sporu sądowego.\n\n§ 2. Darowizna\n\n1. Darczyńca, działając dobrowolnie i bez wynagrodzenia, zobowiązuje się do bezpłatnego przeniesienia Wierzytelności na rzecz Obdarowanego kosztem swego majątku, a Obdarowany przyjmuje Wierzytelność w drodze darowizny.\n\n2. Strony potwierdzają, że umowa niniejsza jest zawarta nieodpłatnie – Obdarowany nie śadczy ani nie zobowiązuje się do świadczenia wzajemnego za przeniesienie Wierzytelności.\n\n3. Strony zgodnie oświadczają, że zawarcie umowy darowizny w formie pisemnej spełnia wymóg formy ad probationem wynikający z art. 511 Kodeksu cywilnego, jako że Wierzytelność jest stwierdzona pismem (faktura / umowa / wyrok).\n\n4. Strony zwracają uwagę, że zgodnie z art. 890 § 1 Kodeksu cywilnego oświadczenie darczyńcy powinno być złożone w formie aktu notarialnego, jednakże umowa darowizny zawarta bez zachowania tej formy staje się ważna, jeżeli przyrzeczone świadczenie zostało spełnione. Strony potwierdzają, że spełnienie świadczenia nastąpi przez złożenie oświadczenia o przelewie i przekazanie dokumentacji, o czym mowa w § 4 i § 6.\n\n§ 3. Przeniesienie wierzytelności\n\n1. W momencie zawarcia niniejszej umowy Darczyńca przenosi Wierzytelność na Obdarowanego, a Obdarowany wstępuje we wszelkie prawa związane z Wierzytelnością, w szczególności:\n   a) roszczenie o zaległe odsetki,\n   b) prawa z zabezpieczeń (hipoteka, zastaw, poręczenie), jeżeli są obciążone Wierzytelnością,\n   c) prawa z umów ubezpieczenia, jeżeli Wierzytelność jest ubezpieczona,\n   d) wszelkie roszczenia akcesoryjne.\n\n2. Przeniesienie Wierzytelności następuje bez konieczności uzyskania zgody Dłużnika, zgodnie z art. 509 § 1 Kodeksu cywilnego, chyba że sprzeciwiałoby się to ustawie, zastrzeżeniu umownemu albo właściwości zobowiązania.\n\n3. Darczyńca oświadcza, że umowa podstawowa zawarta między Darczyńcą a Dłużnikiem nie zawiera klauzuli zakazującej cesji wierzytelności (pactum de non cedendo) lub – jeżeli zawiera – że Dłużnik wyraził zgodę na przeniesienie Wierzytelności.\n\n§ 4. Zawiadomienie Dłużnika\n\n1. Darczyńca zobowiązuje się do niezwłocznego, nie później niż w terminie [LICZBA] dni od dnia zawarcia niniejszej umowy, zawiadomić Dłużnika o przeniesieniu Wierzytelności na rzecz Obdarowanego.\n\n2. Zawiadomienie zostanie dokonane w formie pisemnej, listem poleconym za zwrotnym potwierdzeniem odbioru, skierowanym na adres Dłużnika wskazany w niniejszej umowie.\n\n3. W zawiadomieniu Dłużnik zostanie poinformowany o:\n   a) przeniesieniu Wierzytelności na rzecz Obdarowanego,\n   b) konieczności dalszego spełniania świadczeń wyłącznie na rzecz Obdarowanego,\n   c) danych kontaktowych Obdarowanego oraz numerze rachunku bankowego, na który należy dokonywać płatności.\n\n4. Do czasu skutecznego zawiadomienia Dłużnika o przelewie, spełnienie świadczenia do rąk Darczyńcy ma skutek względem Obdarowanego, zgodnie z art. 512 Kodeksu cywilnego. Darczyńca zobowiązuje się do niezwłocznego przekazania Obdarowanych wszelkich świadczeń otrzymanych od Dłużnika po dacie zawarcia umowy.\n\n5. Strony mogą postanowić, że zawiadomienia dokona Obdarowany – w takim przypadku Darczyńca wyraża zgodę na wystąpienie Obdarowanego do Dłużnika z zawiadomieniem w imieniu Darczyńcy.\n\n§ 5. Odpowiedzialność Darczyńcy\n\n1. Darczyńca ponosi odpowiedzialność względem Obdarowanego za to, że Wierzytelność mu przysługuje w chwili przelewu, zgodnie z art. 516 Kodeksu cywilnego (odpowiedzialność za istnienie wierzytelności – veritas nominis).\n\n2. Darczyńca nie ponosi odpowiedzialności za wypłacalność Dłużnika (bonitas nominis), chyba że strony postanowią inaczej.\n\n3. W przypadku stwierdzenia, że Wierzytelność nie istnieje lub istnieje z wadą (np. jest przedawniona, zajęta komorniczo, obciążona prawami osób trzecich), Obdarowany jest uprawniony do żądania od Darczyńcy odszkodowania na zasadach ogólnych.\n\n§ 6. Przekazanie dokumentacji\n\n1. Darczyńca zobowiązuje się do przekazaniu Obdarowanych, nie później niż w terminie [LICZBA] dni od dnia zawarcia umowy, wszelkiej dokumentacji związanej z Wierzytelnością, w szczególności:\n   a) kopii umowy podstawowej,\n   b) kopii faktur / dokumentów potwierdzających powstanie Wierzytelności,\n   c) korespondencji z Dłużnikiem (wezwań do zapłaty, przypomnienia),\n   d) dowodów doręczenia wezwań do zapłaty,\n   e) dokumentów potwierdzających zabezpieczenia Wierzytelności (jeżeli istnieją).\n\n2. Dokumenty zostaną przekazane w formie kopii, przy czym Darczyńca oświadcza, że kopie są zgodne z oryginałami.\n\n3. Przekazanie dokumentacji potwierdzi się protokółem zdawczo-odbiorczym podpisanym przez obie strony.\n\n§ 7. Oświadczenia i gwarancje\n\n1. Darczyńca oświadcza, że:\n   a) Wierzytelność istnieje i jest wymagalna,\n   b) Wierzytelność nie jest przedawniona (bieg przedawnienia nie został zakończony),\n   c) Wierzytelność nie jest obciążona prawami osób trzecich,\n   d) Wierzytelność nie jest przedmiotem zajęcia komorniczego ani postępowania egzekucyjnego,\n   e) Wierzytelność nie jest przedmiotem toczącego się postępowania sądowego,\n   f) umowa podstawowa nie zakazuje cesji Wierzytelności lub – jeżeli zakazuje – Dłużnik wyraził zgodę,\n   g) nie złożył oświadczenia o odrzuceniu spadku ani nie ma podstaw do odrzucenia spadku, które mogłoby wpłynąć na ważność darowizny.\n\n2. Obdarowany oświadcza, że:\n   a) zapoznał się z umową podstawową i dokumentacją Wierzytelności,\b) przyjmuje Wierzytelność w takim stanie, w jakim się ona znajduje,\n   c) zna ryzyko związane z niewypłacalnością Dłużnika i nie zrzuca odpowiedzialności na Darczyńcę za wypłacalność Dłużnika.\n\n§ 8. Koszty i podatki\n\n1. Wszelkie koszty związane z zawarciem niniejszej umowy, w tym ewentualne koszty notarialne, opłaty sądowe oraz koszty zawiadomienia Dłużnika, ponosi Obdarowany / Darczyńca / Strony po połowie – [WYBRAJ WŁAŚCIWĄ OPCJĘ].\n\n2. Strony zobowiązują się do samodzielnego rozliczenia podatku od spadków i darowizn zgodnie z ustawą o podatku od spadków i darowizn, jeżeli obowiązek taki wynika z przepisów prawa.\n\n3. Strony oświadczają, że znają przepisy ustawy o podatku od spadków i darowizn i ponoszą odpowiedzialność za ewentualne zobowiązania podatkowe wynikające z niniejszej darowizny.\n\n§ 9. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 509-518 Kodeksu cywilnego (cesja wierzytelności) oraz art. 888-900 Kodeksu cywilnego (darowizna).\n\n3. Wszelkie spory wynikające z niniejszej umowy strony poddają rozstrzygnięciu sądu powszechnego właściwego dla siedziby Darczyńcy / Obdarowanego / Miejsca zawarcia umowy – [WYBRAJ WŁAŚCIWĄ OPCJĘ].\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n5. Podpisy stron:\n\n\n_________________________\nDarczyńca / Zbywca\n\n\n_________________________\nObdarowany / Nabywca\n\n\nZałączniki:\n1. Kopia umowy podstawowej\n2. Kopia faktury / dokumentu potwierdzającego wierzytelność\n3. Protokół zdawczo-odbiorczy dokumentacji\n\n\nUWAGI PRAKTYCZNE:\n\n1. Przed zawarciem umowy należy sprawdzić umowę podstawową zawartą między Darczyńcą a Dłużnikiem pod kątem ewentualnego zakazu cesji (pactum de non cedendo). Jeżeli umowa zawiera klauzulę zakazującą cesji, przeniesienie Wierzytelności bez zgody Dłużnika jest wobec niego bezskuteczne.\n\n2. Należy bezwzględnie zawiadomić Dłużnika o przeniesieniu Wierzytelności – do czasu zawiadomienia spełnienie świadczenia do rąk Darczyńcy jest skuteczne wobec Obdarowanego (art. 512 KC).\n\n3. Należy przekazać Obdarowany pełną dokumentację Wierzytelności – bez dokumentów Obdarowany nie będzie mógł skutecznie dochodzić roszczenia przed sądem rejonowym lub w elektronicznym postępowaniu upominawczym.\n\n4. Należy pamiętać, że cesja nie przerywa biegu przedawnienia – Obdarowany nabywa Wierzytelność w takim stanie, w jakim się ona znajduje, w tym z uwzględnieniem bieżącego terminu przedawnienia (art. 118 KC).\n\n5. W przypadku darowizny wierzytelności na rzecz osoby najbliższej (grupa zerowa podatku od spadków i darowizn) obowiązek podatkowy może nie powstać, jednak Obdarowany powinien złożyć oświadczenie SD-Z2 w urzędzie skarbowym w terminie 6 miesięcy od dnia powstania zobowiązania podatkowego.\n\n6. Jeżeli Wierzytelność jest stwierdzona pismem (faktura, umowa, wyrok), forma pisemna cesji jest wymogiem ad probationem (art. 511 KC) – brak pisemnej formy nie unieważnia cesji, lecz ogranicza możliwości dowodowe.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Mam dług od kontrahenta i chcę go przekazać mojej siostrze jako prezent. Jak mogę to sformalizować?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam fakturę na 20 000 zł od firmy, z którą współpracowałem, ale chcę ten dług przekazać mojemu synowi. Nie chcę nic w zamian, to ma być darowizna. Muszę powiadomić tego dłużnika o tym, że teraz to syn będzie wymagał zapłaty? Jakie dokumenty muszę przekazać synowi, żeby mógł dochodzić tego długu? Czy muszę się martwić o to, że dłużnik może nie być wypłacalny?"
+  }
+ ]
+}

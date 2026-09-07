@@ -1,0 +1,297 @@
+{
+ "run": 38,
+ "hint": "Pełnomocnictwo rodzajowe do sprzedaży określonej kategorii towarów",
+ "scenario": "Pełnomocnictwo rodzajowe do sprzedaży określonej kategorii towarów",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_6a6802641dc449bd96212daf",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\"}"
+     }
+    },
+    {
+     "id": "call_93fd9b9c9e4a4041a05d8dd0",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"pełnomocnictwo rodzajowe\", \"sprzedaż towarów\", \"art. 98 KC\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do sprzedaży nieruchomości\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce to jednostronne oświadczenie woli właściciela nieruchomości (mocodawcy), przez które udziela on oznaczonej osobie (pełnomocnikowi) upoważnienia do dokonania w jego imieniu czynności prawnych związanych ze sprzedażą nieruchomości. Instytucję pełnomocnictwa regulują art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo do sprzedaży nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonej nieruchomości.\\n\\nArtykuł 99 par. 1 KC statuuje zasadę, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), pełnomocnictwo do sprzedaży nieruchomości musi być udzielone w formie aktu notarialnego przez notariusza. Pełnomocnictwo do sprzedaży nieruchomości sporządzone w zwykłej formie pisemnej lub ustnie jest nieważne i nie pozwoli pełnomocnikowi skutecznie zawrzeć umowy sprzedaży.\\n\\nZakres pełnomocnictwa musi być precyzyjnie określony. Pełnomocnictwo szczególne do sprzedaży nieruchomości powinno wskazywać: dane mocodawcy i pełnomocnika (z numerami PESEL i seriami dowodów osobistych), dokładny opis nieruchomości (adres, numer KW, numer działki ewidencyjnej i obręb), zakres umocowania (podpisanie umowy przedwstępnej, umowy przyrzeczonej w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku wieczystoksięgowego), ewentualną minimalną cenę sprzedaży oraz informację, czy pełnomocnik może udzielać dalszych pełnomocnictw (substytucja).\\n\\nPełnomocnictwo do sprzedaży nieruchomości jest typowo udzielane w następujących sytuacjach: właściciel przebywa za granicą lub jest chory i nie może osobiście stawić się u notariusza, właściciel jest osobą prawną reprezentowaną przez osobę trzecią, sprzedaż dotyczy udziałów kilku współwłaścicieli i jeden z nich udziela pełnomocnictwa innemu, transakcja wymaga zaangażowania profesjonalnego agenta lub adwokata.\\n\\nArtykuł 101 KC reguluje odwołanie pełnomocnictwa. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi. Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej lub udzielono go z klauzulą nieodwołalności na podstawie art. 101 par. 1 KC.\\n\\nW praktyce notarialnej kluczowe jest okazanie przez pełnomocnika aktualnego i ważnego pełnomocnictwa (notariusz kupującego weryfikuje jego autentyczność). Pełnomocnik działający na podstawie pełnomocnictwa notarialnego udzielonego za granicą musi zadbać o apostille lub legalizację dokumentu, jeżeli pochodzi z jurysdykcji spoza UE. Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa przedwstępna sprzedaży nieruchomości.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest potrzebne zawsze, gdy właściciel nieruchomości chce upoważnić inną osobę do zawarcia umowy sprzedaży w jego imieniu, bez konieczności osobistego stawiennictwa u notariusza. Poniżej opisano typowe sytuacje.\\n\\nWłaściciel przebywa za granicą. Polacy zamieszkali za granicą, którzy chcą sprzedać nieruchomość w Polsce, mogą udzielić pełnomocnictwa krewnemu lub prawnikowi przebywającemu w Polsce. Pełnomocnictwo może być udzielone u polskiego notariusza podczas wizyty w kraju lub u polskiego konsula albo miejscowego notariusza za granicą (z apostille). Jest to najczęstszy przypadek udzielenia pełnomocnictwa do sprzedaży nieruchomości.\\n\\nWłaściciel jest chory lub ma ograniczoną mobilność. Osoba starsza lub ciężko chora, która nie może osobiście stawić się w kancelarii notarialnej, udziela pełnomocnictwa zaufanej osobie — dziecku, małżonkowi lub prawnemu doradcy. Notariusz może sporządzić akt pełnomocnictwa poza kancelarią (w szpitalu lub w domu mocodawcy) za dodatkową opłatą.\\n\\nSprzedaż nieruchomości przez spółkę lub inną osobę prawną. Spółki z ograniczoną odpowiedzialnością, spółki akcyjne i inne osoby prawne sprzedają nieruchomości przez reprezentantów (zarząd) lub przez udzielone pełnomocnictwo. Zarząd upoważnia pełnomocnika, który podpisuje akt notarialny sprzedaży w imieniu spółki.\\n\\nKilku współwłaścicieli udziela pełnomocnictwa jednemu z nich. Gdy nieruchomość należy do kilku osób (np. rodzeństwo po rodzicach), a wszyscy nie mogą stawić się u notariusza, niektórzy z nich udzielają pełnomocnictwa jednemu ze współwłaścicieli lub wybranemu pełnomocnikowi do zawarcia umowy sprzedaży w ich imieniu.\\n\\nTransakcja wymaga profesjonalnego doradcy lub agenta. Inwestor realizujący wiele transakcji jednocześnie lub strona wymagająca reprezentacji prawnej udziela pełnomocnictwa adwokatowi, radcy prawnemu lub agentowi nieruchomości do przeprowadzenia transakcji sprzedaży.\\n\\nSprzedaż z pominięciem osobistego stawiennictwa przy podpisaniu aktu. Pełnomocnictwo umożliwia sprzedającemu uniknięcie konieczności stawiennictwa u notariusza kupującego, gdy sprzedaż odbywa się w innym mieście lub gdy terminy notarialne są niedogodne.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce musi zawierać elementy wymagane przez art. 95-109 KC i praktykę notarialną. Poniżej opisano kluczowe składniki.\\n\\nDane mocodawcy z numerem PESEL i dowodem osobistym. Notariusz sporządzający akt pełnomocnictwa jest zobowiązany do ustalenia tożsamości mocodawcy przez sprawdzenie dowodu osobistego lub paszportu. W treści pełnomocnictwa obowiązkowo wpisuje się imię, nazwisko, numer PESEL i serię numeru dowodu osobistego mocodawcy.\\n\\nDane pełnomocnika z numerem PESEL. Pełnomocnik musi być dokładnie oznaczony przez podanie imienia, nazwiska, numeru PESEL i adresu zamieszkania, a w praktyce notarialnej — serii i numeru dowodu osobistego. Jednoznaczna identyfikacja pełnomocnika zapobiega nadużyciom.\\n\\nDokładny opis nieruchomości. Pełnomocnictwo szczególne musi precyzyjnie opisywać nieruchomość, której dotyczy, przez podanie jej rodzaju, adresu lub położenia, numeru działki ewidencyjnej i obrębu oraz numeru księgi wieczystej, np. WA1M/00234567/8, prowadzonej przez Sąd Rejonowy (Sąd Wieczystoksięgowy). Opis nieruchomości ogranicza zakres pełnomocnictwa do tej konkretnej nieruchomości.\\n\\nZakres umocowania. Pełnomocnictwo musi precyzyjnie opisywać, jakie czynności pełnomocnik jest uprawniony wykonać: podpisanie umowy przedwstępnej sprzedaży, podpisanie umowy przyrzeczonej sprzedaży w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku o wpis prawa własności nabywcy w księdze wieczystej, składanie oświadczeń o stanie prawnym nieruchomości. Zbyt szerokie lub zbyt wąskie umocowanie może prowadzić do problemów przy zawieraniu umowy sprzedaży.\\n\\nEwentualna minimalna cena sprzedaży. Jeżeli mocodawca chce ograniczyć swobodę pełnomocnika, może wskazać minimalną cenę, za jaką pełnomocnik może sprzedać nieruchomość. Bez wskazania ceny minimalnej pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nPrawo do substytucji. Pełnomocnictwo może zawierać lub wykluczać prawo pełnomocnika do udzielenia dalszego pełnomocnictwa (substytucji). Substytucja pozwala pełnomocnikowi powierzyć część uprawnień innej osobie, co jest przydatne w transakcjach wymagających udziału adwokata lub notariusza.\\n\\nOkres ważności i odwołanie. Choć Kodeks cywilny nie wymaga wskazania terminu ważności, w praktyce pełnomocnictwa do sprzedaży nieruchomości udziela się na czas oznaczony lub ze wskazaniem, że wygasa po dokonaniu oznaczonej czynności. Mocodawca może odwołać pełnomocnictwo w każdym czasie (art. 101 KC). Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa zamiany nieruchomości.\\n\\nSporządzenie pełnomocnictwa do sprzedaży nieruchomości wymaga wizyty u notariusza i zebrania dokumentów obu stron. Poniżej opisano etapy.\\n\\nKrok 1 — zbierz dokumenty. Mocodawca przygotowuje swój dowód osobisty lub paszport, akt nabycia nieruchomości (akt notarialny zakupu lub darowizny), aktualny odpis z KW i dane pełnomocnika (imię, nazwisko, PESEL, adres, seria i numer dowodu osobistego).\\n\\nKrok 2 — zdecyduj o zakresie umocowania. Przed wizytą u notariusza precyzyjnie ustal, jakie czynności ma wykonać pełnomocnik: czy tylko podpisać akt notarialny sprzedaży, czy też zawrzeć umowę przedwstępną, odebrać cenę, wydać nieruchomość i złożyć wniosek wieczystoksięgowy. Im precyzyjniejszy zakres, tym mniejsze ryzyko nadużyć.\\n\\nKrok 3 — ustal minimalną cenę (jeśli dotyczy). Jeżeli chcesz ograniczyć swobodę pełnomocnika, wpisz minimalną cenę sprzedaży nieruchomości. Bez tej klauzuli pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nKrok 4 — zdecyduj o substytucji. Ustal, czy pełnomocnik ma prawo udzielić dalszego pełnomocnictwa innej osobie (substytucja). Substytucja jest przydatna, gdy pełnomocnikiem jest adwokat lub radca prawny, który może chcieć przekazać czynności notarialne współpracownikowi.\\n\\nKrok 5 — uzupełnij formularz i przygotuj wzór dla notariusza. Wpisz dane mocodawcy, pełnomocnika, opis nieruchomości i zakres umocowania. Wydrukowany wzór ułatwia rozmowę z notariuszem i zapobiega pominięciu ważnych elementów.\\n\\nKrok 6 — podpisz akt pełnomocnictwa u notariusza. Mocodawca osobiście stawia się u notariusza (lub przed konsulem za granicą). Notariusz weryfikuje tożsamość mocodawcy, sporządza akt pełnomocnictwa i przekazuje mocodawcy wypis aktu.\\n\\nKrok 7 — przekaż wypis pełnomocnikowi. Mocodawca przekazuje pełnomocnikowi wypis aktu notarialnego pełnomocnictwa. Przy transakcji notariusz kupującego weryfikuje autentyczność pełnomocnictwa.\\n\\nKrok 8 — odwołaj pełnomocnictwo niezwłocznie po transakcji lub gdy stosunek zaufania ustaje. Jeżeli pełnomocnik zawarł umowę sprzedaży, pełnomocnictwo wygasa z mocy prawa po dokonaniu czynności. Jeżeli transakcja nie doszła do skutku, mocodawca może odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce podlega ścisłym wymogom Kodeksu cywilnego.\\n\\nWymóg formy aktu notarialnego. Artykuł 99 par. 1 KC stanowi, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), dlatego pełnomocnictwo do sprzedaży nieruchomości musi być sporządzone przez notariusza. Pełnomocnictwo w formie pisemnej lub ustnej jest nieważne.\\n\\nRodzaj pełnomocnictwa. Pełnomocnictwo do sprzedaży konkretnej nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy poszczególnej czynności. Pełnomocnictwo rodzajowe obejmowałoby szereg czynności tego samego rodzaju; pełnomocnictwo ogólne obejmuje wyłącznie czynności zwykłego zarządu.\\n\\nSkutki działania pełnomocnika. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mocodawcy (art. 95 par. 2 KC). Umowa sprzedaży nieruchomości podpisana przez pełnomocnika działającego w granicach pełnomocnictwa notarialnego jest w pełni skuteczna i przenosi własność nieruchomości na nabywcę.\\n\\nOdwołanie i wygaśnięcie. Mocodawca może w każdym czasie odwołać pełnomocnictwo przez oświadczenie złożone pełnomocnikowi (art. 101 KC). Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, z chwilą odwołania lub po dokonaniu czynności, do której zostało udzielone. Klauzula nieodwołalności jest dopuszczalna jedynie wtedy, gdy umocowanie jest udzielone na czas oznaczony i z uzasadnionych przyczyn (art. 101 par. 1 KC).\\n\\nZakaz działania w imieniu własnym przy konflikcie interesów. Pełnomocnik nie może być drugą stroną czynności prawnej, której dokonuje w imieniu mocodawcy (zakaz samoumowy — art. 108 KC), chyba że mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść mocodawcy.\\n\\nPełnomocnictwo udzielone za granicą. Pełnomocnictwo sporządzone przez notariusza zagranicznego wymaga apostille zgodnie z Konwencją haską z 1961 r. lub legalizacji przez konsula, jeżeli pochodzi z kraju niebędącego stroną tej konwencji. Pełnomocnictwo udzielone przez polskiego konsula za granicą nie wymaga apostille.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest dokumentem wymagającym precyzji. Poniżej opisano najczęstsze błędy.\\n\\nBłąd 1 — pełnomocnictwo w formie pisemnej zamiast notarialnej. Mocodawcy niekiedy udzielają pełnomocnictwa do sprzedaży nieruchomości w zwykłej formie pisemnej, sądząc, że wystarczy podpis na kartce papieru. Takie pełnomocnictwo jest nieważne — art. 99 par. 1 KC w związku z art. 158 KC wymaga bezwzględnie formy aktu notarialnego. Notariusz kupującego odmówi przeprowadzenia transakcji na podstawie nieważnego pełnomocnictwa.\\n\\nBłąd 2 — zbyt ogólny lub zbyt wąski zakres umocowania. Pełnomocnictwo opisujące wyłącznie \\\"prawo do sprzedaży nieruchomości\\\" bez wskazania uprawnień do odbioru ceny, wydania nieruchomości i złożenia wniosku wieczystoksięgowego może nie obejmować wszystkich czynności niezbędnych do przeprowadzenia transakcji. Z drugiej strony pełnomocnictwo ogólne bez wskazania konkretnej nieruchomości jest zbyt szerokie i może być kwestionowane przez notariusza kupującego.\\n\\nBłąd 3 — brak danych pełnomocnika lub nieprawidłowy PESEL. Pełnomocnictwo bez numeru PESEL pełnomocnika lub z błędnymi danymi może uniemożliwić przeprowadzenie transakcji, gdyż notariusz kupującego nie będzie mógł zidentyfikować pełnomocnika.\\n\\nBłąd 4 — nieodwołanie pełnomocnictwa po rezygnacji z transakcji. Jeżeli właściciel zdecyduje się nie sprzedawać nieruchomości lub zaufanie do pełnomocnika ustaje, powinien niezwłocznie odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie. Brak odwołania naraża mocodawcę na ryzyko zawarcia transakcji przez nieuprawnionego pełnomocnika.\\n\\nBłąd 5 — pełnomocnictwo udzielone za granicą bez apostille. Pełnomocnictwo sporządzone przez zagranicznego notariusza wymaga apostille lub legalizacji, aby mogło być uznane przez polskiego notariusza. Brak apostille skutkuje odmową przyjęcia pełnomocnictwa i koniecznością ponownego sporządzenia dokumentu.\\n\\nŹródło: https://forms-legal.com/pl/real-estate/purchase-sale/pelnomocnictwo-do-sprzedazy-nieruchomosci (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_6a6802641dc449bd96212daf",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_15\", \"source_id\": \"sejm_eli_du_2022_1233_art_15\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 15. 1. Czynem nieuczciwej konkurencji jest utrudnianie innym przedsiębiorcom dostępu do rynku, w szczególności przez: 1) sprzedaż towarów lub usług poniżej kosztów ich wytworzenia lub świadczenia albo ich odprzedaż poniżej kosztów zakupu w celu eliminacji innych przedsiębiorców; 2) nakłanianie osób trzecich do odmowy sprzedaży innym przedsiębiorcom albo niedokonywania zakupu towarów lub usług od innych przedsiębiorców; 3) rzeczowo nieuzasadnione, zróżnicowane traktowanie niektóry ...\"}, {\"chunk_id\": \"uokik_items:uokik_f8cf9fa6a08d8f6a\", \"source_id\": \"uokik_rejestr_klauzul_6329\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strona kupująca oświadcza, że: (…) ustanawia Spółkę (...) a w zakresie postępowania administracyjnego osobę uprawnioną do reprezentacji tej Spółki (…) do (…) wyrażenia zgody (zwanej dalej również zgodą na prowadzenie dwowolnej działalności) na prowadzenie w znajdujących się w Budynku lokalach o przeznaczeniu innym niż mieszkanie, oznaczonych numerami od (...)do (...) dowolnej, zgodnej z przepisami prawa w tym względzie obowiązującymi, działalności gospodarczej ( w tym na sprzedaż wyrobów alkoholowych w ramach tej działalności) oraz uzyskiwanie dla tej działalności niezbędnych koncesji, zgód i  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}]",
+   "tool_call_id": "call_93fd9b9c9e4a4041a05d8dd0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_6e7faada7c734a50ad870161",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 98 KC\", \"pełnomocnictwo rodzajowe\", \"sprzedaż towarów\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2022_1233_art_15\", \"source_id\": \"sejm_eli_du_2022_1233_art_15\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 15. 1. Czynem nieuczciwej konkurencji jest utrudnianie innym przedsiębiorcom dostępu do rynku, w szczególności przez: 1) sprzedaż towarów lub usług poniżej kosztów ich wytworzenia lub świadczenia albo ich odprzedaż poniżej kosztów zakupu w celu eliminacji innych przedsiębiorców; 2) nakłanianie osób trzecich do odmowy sprzedaży innym przedsiębiorcom albo niedokonywania zakupu towarów lub usług od innych przedsiębiorców; 3) rzeczowo nieuzasadnione, zróżnicowane traktowanie niektóry ...\"}, {\"chunk_id\": \"uokik_items:uokik_f8cf9fa6a08d8f6a\", \"source_id\": \"uokik_rejestr_klauzul_6329\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strona kupująca oświadcza, że: (…) ustanawia Spółkę (...) a w zakresie postępowania administracyjnego osobę uprawnioną do reprezentacji tej Spółki (…) do (…) wyrażenia zgody (zwanej dalej również zgodą na prowadzenie dwowolnej działalności) na prowadzenie w znajdujących się w Budynku lokalach o przeznaczeniu innym niż mieszkanie, oznaczonych numerami od (...)do (...) dowolnej, zgodnej z przepisami prawa w tym względzie obowiązującymi, działalności gospodarczej ( w tym na sprzedaż wyrobów alkoholowych w ramach tej działalności) oraz uzyskiwanie dla tej działalności niezbędnych koncesji, zgód i  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}]",
+   "tool_call_id": "call_6e7faada7c734a50ad870161",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-a5bfd714bfb7ee4e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo rodzajowe art. 98 KC sprzedaż towarów kategoria\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"uokik_items:uokik_f8cf9fa6a08d8f6a\", \"source_id\": \"uokik_rejestr_klauzul_6329\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strona kupująca oświadcza, że: (…) ustanawia Spółkę (...) a w zakresie postępowania administracyjnego osobę uprawnioną do reprezentacji tej Spółki (…) do (…) wyrażenia zgody (zwanej dalej również zgodą na prowadzenie dwowolnej działalności) na prowadzenie w znajdujących się w Budynku lokalach o przeznaczeniu innym niż mieszkanie, oznaczonych numerami od (...)do (...) dowolnej, zgodnej z przepisami prawa w tym względzie obowiązującymi, działalności gospodarczej ( w tym na sprzedaż wyrobów alkoholowych w ramach tej działalności) oraz uzyskiwanie dla tej działalności niezbędnych koncesji, zgód i  ...\"}, {\"chunk_id\": \"uokik_items:uokik_60d14c50bda65b84\", \"source_id\": \"uokik_rejestr_klauzul_2958\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ewentualne spory powstałe w związku ze sprzedażą towarów i usług przez (...) rozstrzygać będzie sąd powszechny właściwy miejscowo dla(...)\"}, {\"chunk_id\": \"uokik_items:uokik_66c8c4c8f5e70e05\", \"source_id\": \"uokik_rejestr_klauzul_2449\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ewentualne spory powstałe w związku ze sprzedażą towarów i usług przez (...). rozstrzygać będzie sąd powszechny właściwy miejscowo dla (...)\"}, {\"chunk_id\": \"uokik_items:uokik_4a166697979fecef\", \"source_id\": \"uokik_rejestr_klauzul_4551\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 6 ust. 1 - Kupujący udzielają Spółce pełnomocnictwa, do zawarcia w Ich imieniu umowy Sprzedaży, za cenę i na warunkach określonych w niniejszym akcie\"}]",
+   "tool_call_id": "chatcmpl-tool-a5bfd714bfb7ee4e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I found the key article - Art. 98 KC. Let me also search for more specific provisions about \"pełnomocnictwo rodzajowe\" and the form requirements for selling goods.",
+   "tool_calls": [
+    {
+     "id": "call-ae5efa59-3f2e-4404-8272-e102a69c031a",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo rodzajowe sprzedaż towarów forma pisemna art. 99 KC\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"uokik_items:uokik_f81c9ab409ce908c\", \"source_id\": \"uokik_rejestr_klauzul_820\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa jest zawierana przez (…) Abonenta osobiście lub działającego w jego imieniu i na jego rzecz przedstawiciela lub pełnomocnika. Osoba umocowana obowiązana jest potwierdzić swoją tożsamość wobec Operatora oraz przedstawić dokument potwierdzający umocowanie. Pełnomocnictwo powinno być udzielone w formie pisemnej pod rygorem nieważności, przy czym upoważniony pracownik Operatora, Notariusz, a poza granicami kraju polska placówka dyplomatyczna poświadcza własnoręczność podpisu Mocodawcy\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_412\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 412 1 . § 1. Pełnomocnictwo do uczestniczenia w walnym zgromadzeniu i wykonywania prawa głosu wymaga formy pisemnej pod rygorem nieważności. § 2. Pełnomocnictwo do uczestniczenia w walnym zgromadzeniu spółki publicznej i wykonywania prawa głosu wymaga udzielenia na piśmie lub w postaci elektronicznej. Udzielenie pełnomocnictwa w postaci elektronicznej nie wymaga opatrzenia kwalifikowanym podpisem elektronicznym. § 3. Statut nie może wpr ...\"}, {\"chunk_id\": \"uokik_abusive_clause_206\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...)zrealizowania przedmiotu niniejszej umowy, klient którego dane osobowe określone zostały na pierwszej stronie umowy przez jego zawarcie przekazuje na rzecz (...). nieodwołalne i nie wygasające nawet po śmierci lub upadłości klienta pełnomocnictwo na okres formalnego istnienia zespołu aż do ostatecznego rozliczenia. Pełnomocnictwo to obejmuje prawo (...) do równoprawnego rozwiązywania spraw dotyczących klientów, w tym spowodowanych okolicznościami siły wyższej, a które mogłyby przynieść szkody programowi i zespołowi\"}]",
+   "tool_call_id": "call-ae5efa59-3f2e-4404-8272-e102a69c031a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Pełnomocnictwo rodzajowe do sprzedaży określonej kategorii towarów\n\n**Mocodawca:**\nImię i nazwisko / Nazwa: _______________________________________________\nAdres zamieszkania / siedziby: ___________________________________________\nPESEL / NIP / KRS: _____________________________________________________\nSeria i numer dowodu osobistego (dla osób fizycznych): _____________________\n\n**Pełnomocnik:**\nImię i nazwisko / Nazwa: _______________________________________________\nAdres zamieszkania / siedziby: ___________________________________________\nPESEL / NIP / KRS: _____________________________________________________\nSeria i numer dowodu osobistego (dla osób fizycznych): _____________________\n\n§ 1\nMocodawca niniejszym udziela Pełnomocnikowi pełnomocnictwo rodzajowe w rozumieniu art. 98 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.) do dokonania w imieniu Mocodawcy czynności prawnych związanych ze sprzedażą towarów należących do poniżej określonej kategorii.\n\n§ 2\nKategorią towarów objętych niniejszym pełnomocnictwem są:\n________________________________________________________________________\n________________________________________________________________________\n________________________________________________________________________\n(Opis precise kategorii towarów, np. rodzaj, marka, model, parametry techniczne, stan nowość/używane, sposób identyfikacji).\n\n§ 3\nZakres umocowania Pełnomocnika obejmuje w szczególności:\n1) zawieranie w imieniu Mocodawcy umów sprzedaży towarów z kategorii określonej w § 2, w tym negocjowanie warunków cenowych, terminów i sposobu dostawy;\n2) składanie oświadczeń woli w imieniu Mocodawcy niezbędnych do zawarcia i wykonania umów sprzedaży;\n3) odbieranie ceny lub zaliczek od nabywców, wystawianie potwierdzeń zapłaty, faktur lub innych dokumentów księgowych;\n4) wydawanie towarów nabywcom, sporządzanie protokołów wydania/odbioru;\n5) reprezentowanie Mocodawcy przed organami administracji publicznej, urzędami celnymi i instytucjami finansowymi w sprawach związanych z realizacją sprzedaży;\n6) _________________________________________________________________ (inne uprawnienia, jeśli dotyczy).\n\n§ 4\nPełnomocnik nie jest uprawniony do:\n1) sprzedaży towarów poniżej ceny minimalnej ustalonej na kwotę: ______________ (w walucie: _______) za jednostkę / za partię / łącznie (zakreślić niepotrzebne);\n2) udzielania dalszych pełnomocnictw (substytucji) — Mocodawca *wyraża zgodę / nie wyraża zgody* (zakreślić niepotrzebne) na substytucję na zasadach art. 100 KC;\n3) zawarcia umów sprzedaży z osobami lub podmiotami powiązanymi z Pełnomocnikiem (zakaz samoumowy — art. 108 KC), chyba że Mocodawca wyrazi na to pisemną zgodę;\n4) _________________________________________________________________ (inne ograniczenia, jeśli dotyczy).\n\n§ 5\nNiniejsze pełnomocnictwo udzielone jest w formie pisemnej na podstawie art. 99 § 2 KC (zastosowanie analogiczne do pełnomocnictwa rodzajowego), co jest wystarczające dla czynności sprzedaży towarów ruchomych, które nie wymagają szczególnej formy pod rygorem nieważności.\n\n§ 6\nPełnomocnictwo wchodzi w życie z dniem __________________ i waży do dnia __________________ lub do momentu wykonania wszystkich czynności, do których zostało udzielone, w zależności od tego, co nastąpi wcześniej.\n\n§ 7\nMocodawca zastrzega sobie prawo do odwołania niniejszego pełnomocnictwa w każdym czasie w formie pisemnej, złożonej Pełnomocnikowi, zgodnie z art. 101 § 1 KC. Odwołanie staje się skuteczne z chwilą doręczenia Pełnomocnikowi.\n\n§ 8\nPełnomocnictwo wygasa z mocy prawa w przypadku:\n1) śmierci Mocodawcy lub Pełnomocnika;\n2) utraty zdolności do czynności prawnych przez Mocodawcę lub Pełnomocnika;\n3) upadłości Mocodawcy lub Pełnomocnika;\n4) wykonania czynności, do których zostało udzielone;\n5) upływu czasu, na jaki zostało udzielone.\n\n§ 9\nPo wygaśnięciu lub odwołaniu pełnomocnictwa Pełnomocnik jest zobowiązany niezwłocznie zwrócić Mocodawcy oryginał niniejszego dokumentu oraz wszystkie dokumenty i przedmioty otrzymane w związku z pełnieniem umocowania.\n\n§ 10\nWszelkie spory wynikające z niniejszego pełnomocnictwa rozstrzygane będą przez sąd powszechny właściwy dla siedziby / zamieszkania Mocodawcy.\n\n§ 11\nNiniejsze pełnomocnictwo sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n__________________________, dnia __________________\n\n___________________________________________\n(Podpis Mocodawcy)\n\n___________________________________________\n(Podpis Pełnomocnika — potwierdzenie odbioru)\n\n---\n**Uwagi do formularza:**\n1. Pełnomocnictwo rodzajowe (art. 98 KC) upoważnia do czynności określonego rodzaju (tu: sprzedaż określonej kategorii towarów), a nie do jednej konkretnej czynności (pełnomocnictwo szczególne) ani do czynności zwykłego zarządu (pełnomocnictwo ogólne).\n2. Forma pisemna jest wystarczająca, ponieważ sprzedaż towarów ruchomych jako taka nie wymaga formy szczególnej (art. 99 § 1 KC). Jeśli jednak konkretna umowa sprzedaży wymaga formy szczególnej (np. akt notarialny przy sprzedaży statku wpisanego do rejestru, forma pisemna pod rygorem nieważności w umowach konsumenckich na odległość), pełnomocnictwo do jej zawarcia musi być udzielone w tej samej formie.\n3. Należy precyzyjnie zdefiniować kategorię towarów w § 2, aby uniknąć wątpliwości co do zakresu uprawnień.\n4. Klauzula minimalnej ceny (§ 4 pkt 1) jest opcjonalna, ale zalecana w celu ochrony interesów Mocodawcy.\n5. Zgoda na substytucję (§ 4 pkt 2) powinna być świadoma — w przypadku zgody Pełnomocnik może udzielić dalszego pełnomocnictwa innej osobie (art. 100 KC).\n6. Zakaz samoumowy (art. 108 KC) ma charakter bezwzględny, chyba że Mocodawca wyrazi na to zgodę lub czynność jest wyłącznie na korzyść Mocodawcy.\n7. Odwołanie pełnomocnictwa (art. 101 KC) może nastąpić w każdym czasie, niezależnie od ustalonego terminu ważności.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Pełnomocnictwo rodzajowe do sprzedaży określonej kategorii towarów\n\n**Mocodawca:**\nImię i nazwisko / Nazwa: _______________________________________________\nAdres zamieszkania / siedziby: ___________________________________________\nPESEL / NIP / KRS: _____________________________________________________\nSeria i numer dowodu osobistego (dla osób fizycznych): _____________________\n\n**Pełnomocnik:**\nImię i nazwisko / Nazwa: _______________________________________________\nAdres zamieszkania / siedziby: ___________________________________________\nPESEL / NIP / KRS: _____________________________________________________\nSeria i numer dowodu osobistego (dla osób fizycznych): _____________________\n\n§ 1\nMocodawca niniejszym udziela Pełnomocnikowi pełnomocnictwo rodzajowe w rozumieniu art. 98 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.) do dokonania w imieniu Mocodawcy czynności prawnych związanych ze sprzedażą towarów należących do poniżej określonej kategorii.\n\n§ 2\nKategorią towarów objętych niniejszym pełnomocnictwem są:\n________________________________________________________________________\n________________________________________________________________________\n________________________________________________________________________\n(Opis precise kategorii towarów, np. rodzaj, marka, model, parametry techniczne, stan nowość/używane, sposób identyfikacji).\n\n§ 3\nZakres umocowania Pełnomocnika obejmuje w szczególności:\n1) zawieranie w imieniu Mocodawcy umów sprzedaży towarów z kategorii określonej w § 2, w tym negocjowanie warunków cenowych, terminów i sposobu dostawy;\n2) składanie oświadczeń woli w imieniu Mocodawcy niezbędnych do zawarcia i wykonania umów sprzedaży;\n3) odbieranie ceny lub zaliczek od nabywców, wystawianie potwierdzeń zapłaty, faktur lub innych dokumentów księgowych;\n4) wydawanie towarów nabywcom, sporządzanie protokołów wydania/odbioru;\n5) reprezentowanie Mocodawcy przed organami administracji publicznej, urzędami celnymi i instytucjami finansowymi w sprawach związanych z realizacją sprzedaży;\n6) _________________________________________________________________ (inne uprawnienia, jeśli dotyczy).\n\n§ 4\nPełnomocnik nie jest uprawniony do:\n1) sprzedaży towarów poniżej ceny minimalnej ustalonej na kwotę: ______________ (w walucie: _______) za jednostkę / za partię / łącznie (zakreślić niepotrzebne);\n2) udzielania dalszych pełnomocnictw (substytucji) — Mocodawca *wyraża zgodę / nie wyraża zgody* (zakreślić niepotrzebne) na substytucję na zasadach art. 100 KC;\n3) zawarcia umów sprzedaży z osobami lub podmiotami powiązanymi z Pełnomocnikiem (zakaz samoumowy — art. 108 KC), chyba że Mocodawca wyrazi na to pisemną zgodę;\n4) _________________________________________________________________ (inne ograniczenia, jeśli dotyczy).\n\n§ 5\nNiniejsze pełnomocnictwo udzielone jest w formie pisemnej na podstawie art. 99 § 2 KC (zastosowanie analogiczne do pełnomocnictwa rodzajowego), co jest wystarczające dla czynności sprzedaży towarów ruchomych, które nie wymagają szczególnej formy pod rygorem nieważności.\n\n§ 6\nPełnomocnictwo wchodzi w życie z dniem __________________ i waży do dnia __________________ lub do momentu wykonania wszystkich czynności, do których zostało udzielone, w zależności od tego, co nastąpi wcześniej.\n\n§ 7\nMocodawca zastrzega sobie prawo do odwołania niniejszego pełnomocnictwa w każdym czasie w formie pisemnej, złożonej Pełnomocnikowi, zgodnie z art. 101 § 1 KC. Odwołanie staje się skuteczne z chwilą doręczenia Pełnomocnikowi.\n\n§ 8\nPełnomocnictwo wygasa z mocy prawa w przypadku:\n1) śmierci Mocodawcy lub Pełnomocnika;\n2) utraty zdolności do czynności prawnych przez Mocodawcę lub Pełnomocnika;\n3) upadłości Mocodawcy lub Pełnomocnika;\n4) wykonania czynności, do których zostało udzielone;\n5) upływu czasu, na jaki zostało udzielone.\n\n§ 9\nPo wygaśnięciu lub odwołaniu pełnomocnictwa Pełnomocnik jest zobowiązany niezwłocznie zwrócić Mocodawcy oryginał niniejszego dokumentu oraz wszystkie dokumenty i przedmioty otrzymane w związku z pełnieniem umocowania.\n\n§ 10\nWszelkie spory wynikające z niniejszego pełnomocnictwa rozstrzygane będą przez sąd powszechny właściwy dla siedziby / zamieszkania Mocodawcy.\n\n§ 11\nNiniejsze pełnomocnictwo sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n__________________________, dnia __________________\n\n___________________________________________\n(Podpis Mocodawcy)\n\n___________________________________________\n(Podpis Pełnomocnika — potwierdzenie odbioru)\n\n---\n**Uwagi do formularza:**\n1. Pełnomocnictwo rodzajowe (art. 98 KC) upoważnia do czynności określonego rodzaju (tu: sprzedaż określonej kategorii towarów), a nie do jednej konkretnej czynności (pełnomocnictwo szczególne) ani do czynności zwykłego zarządu (pełnomocnictwo ogólne).\n2. Forma pisemna jest wystarczająca, ponieważ sprzedaż towarów ruchomych jako taka nie wymaga formy szczególnej (art. 99 § 1 KC). Jeśli jednak konkretna umowa sprzedaży wymaga formy szczególnej (np. akt notarialny przy sprzedaży statku wpisanego do rejestru, forma pisemna pod rygorem nieważności w umowach konsumenckich na odległość), pełnomocnictwo do jej zawarcia musi być udzielone w tej samej formie.\n3. Należy precyzyjnie zdefiniować kategorię towarów w § 2, aby uniknąć wątpliwości co do zakresu uprawnień.\n4. Klauzula minimalnej ceny (§ 4 pkt 1) jest opcjonalna, ale zalecana w celu ochrony interesów Mocodawcy.\n5. Zgoda na substytucję (§ 4 pkt 2) powinna być świadoma — w przypadku zgody Pełnomocnik może udzielić dalszego pełnomocnictwa innej osobie (art. 100 KC).\n6. Zakaz samoumowy (art. 108 KC) ma charakter bezwzględny, chyba że Mocodawca wyrazi na to zgodę lub czynność jest wyłącznie na korzyść Mocodawcy.\n7. Odwołanie pełnomocnictwa (art. 101 KC) może nastąpić w każdym czasie, niezależnie od ustalonego terminu ważności.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dać komuś uprawnienia, żeby w moim imieniu sprzedawał moje towary z określonej kategorii, np. elektronikę lub odzież. Potrzebuję dokumentu, który to umożliwi i ustali granice jego uprawnień."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam firmę handlową i chcę upoważnić swojego pracownika do podpisywania umów sprzedaży, negocjowania cen i wystawiania faktur dla naszych produktów z kategorii sprzętu AGD. Ważne, żeby nie mógł sprzedawać poniżej ustalonej ceny minimalnej ani przekazywać uprawnień innym osobom. Potrzebuję pełnomocnictwa na konkretny okres, z możliwością odwołania w każdej chwili."
+  }
+ ]
+}

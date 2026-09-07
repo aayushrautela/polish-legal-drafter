@@ -1,0 +1,53 @@
+Pożyczka pieniężna prywatna między osobami fizycznymi (nieoprocentowana, rodzinna)
+Pożyczka pieniężna oprocentowana z przelewem bankowym
+Pożyczka gotówkowa z protokołem przekazania
+Pożyczka w ratach miesięcznych z harmonogramem spłat
+Pożyczka z oprocentowaniem i prowizją
+Pożyczka w walucie obcej (np. euro)
+Pożyczka rzeczowa (rzeczy oznaczonych co do gatunku, np. zboże, paliwo)
+Pożyczka z wekslem in blanco i deklaracją wekslową
+Pożyczka z poręczeniem cywilnym osoby trzeciej (solidarnym)
+Pożyczka z poręczeniem subsydiarnym
+Pożyczka z hipoteką na nieruchomości i poddaniem się egzekucji (akt notarialny)
+Pożyczka z zastawem rejestrowym na pojeździe
+Pożyczka z zastawem zwykłym na ruchomości
+Pożyczka z przewłaszczeniem na zabezpieczenie
+Pożyczka z cesją wierzytelności na zabezpieczenie
+Pożyczka dla przedsiębiorcy z zabezpieczeniem (B2B)
+Pożyczka między spółkami z o.o. (podmioty powiązane, ceny transferowe)
+Pożyczka udzielona przez spółkę wspólnikowi
+Pożyczka bankowa (kredyt bankowy z oprocentowaniem)
+Pożyczka z odsetkami maksymalnymi (limit ustawowy)
+Pożyczka konsumentowi z ostrzeżeniem o klauzulach abuzywnych (art. 720.3 k.c.)
+Pożyczka osobie fizycznej nieprowadzącej działalności z zabezpieczeniem (ograniczenia art. 720.3)
+Pożyczka bez określonego terminu zwrotu (wypowiedzenie, 6 tygodni)
+Pożyczka z możliwością wcześniejszej spłaty bez opłat
+Pożyczka z odsetkami ustawowymi za opóźnienie
+Pożyczka z poddaniem się rygorowi egzekucji (akt notarialny, art. 777 k.p.c.)
+Pożyczka podlegająca PCC (zgłoszenie PCC-3 przez pożyczkobiorcę)
+Pożyczka w formie aktu notarialnego (wysoka kwota)
+Pożyczka z zabezpieczeniem hipotecznym i klauzulą wykonalności
+Pożyczka na cele remontowe / mieszkaniowe
+Pożyczka na cele inwestycyjne (rozwój działalności)
+Pożyczka z umorzeniem części kwoty
+Pożyczka z umorzeniem całości (darowizna, przychód pożyczkobiorcy)
+Pożyczka ze spłatą jednorazową (jedna data)
+Pożyczka w transzach (wypłata wielokrotna)
+Pożyczka z oprocentowaniem zmiennym (WIBOR/WIRON + marża)
+Pożyczka z oprocentowaniem stałym
+Pożyczka z karą umowną za opóźnienie
+Pożyczka z wypowiedzeniem w razie braku spłaty
+Pożyczka z ustanowieniem zabezpieczenia w określonym terminie (odstąpienie przy braku)
+Pożyczka dokumentowa (wartość powyżej 1000 zł)
+Pożyczka z podpisem notarialnie poświadczonym
+Pożyczka dla rolnika (na zakup maszyny rolniczej)
+Pożyczka od znajomego (pisemna dla celów dowodowych)
+Pożyczka z zabezpieczeniem na udziałach w spółce
+Pożyczka z zastrzeżeniem przeznaczenia (cel pożyczki)
+Pożyczka z cesją praw z polisy ubezpieczeniowej
+Pożyczka z wieloma poręczycielami
+Pożyczka z ograniczeniem sumy zabezpieczenia (art. 720.3 § 2 k.c.)
+Pożyczka z obowiązkiem ubezpieczenia przedmiotu zabezpieczenia
+Pożyczka z harmonogramem i nadpłatami (zaliczenie na kapitał)
+Pożyczka na zakup pojazdu (z zastawem rejestrowym)
+Pożyczka ze zgłoszeniem PCC po terminie (czynny żal, uniknięcie sankcji 20%)

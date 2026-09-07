@@ -1,0 +1,50 @@
+Najem lokalu użytkowego pod biuro w centrum miasta
+Najem lokalu użytkowego pod sklep odzieżowy
+Najem lokalu użytkowego pod restaurację lub lokal gastronomiczny
+Najem lokalu użytkowego pod kawiarnię
+Najem powierzchni magazynowej
+Najem lokalu użytkowego pod salon kosmetyczny lub fryzjerski
+Najem lokalu użytkowego pod gabinet lekarski lub stomatologiczny
+Najem lokalu użytkowego pod przedszkole lub żłobek
+Najem lokalu użytkowego pod siłownię lub klub fitness
+Najem lokalu użytkowego pod salon fryzjerski
+Najem powierzchni biurowej w modelu coworkingu (pokoje i biurka)
+Najem lokalu użytkowego pod aptekę
+Najem lokalu użytkowego pod warsztat samochodowy
+Najem lokalu użytkowego pod showroom meblowy
+Najem lokalu użytkowego pod kwiaciarnię
+Najem części hali produkcyjnej jako powierzchnia produkcyjna
+Najem lokalu użytkowego pod kancelarię prawną
+Najem lokalu użytkowego pod sklep spożywczy typu convenience
+Najem lokalu użytkowego pod piekarnię
+Najem lokalu użytkowego pod hotel lub pensjonat (pokoje noclegowe)
+Najem powierzchni handlowej w galerii
+Najem lokalu użytkowego pod klub muzyczny lub pub
+Najem lokalu użytkowego pod salon tatuażu
+Najem lokalu użytkowego pod biuro rachunkowe
+Najem lokalu użytkowego pod gabinet fizjoterapii lub masażu
+Najem okazjonalny mieszkania dwupokojowego
+Najem okazjonalny kawalerki
+Najem okazjonalny domu jednorodzinnego
+Najem okazjonalny pokoju w mieszkaniu współdzielonym
+Najem okazjonalny mieszkania dla studenta
+Najem okazjonalny apartamentu
+Najem okazjonalny mieszkania z prawem do trzymania zwierząt
+Najem okazjonalny lokalu z przypisanym miejscem parkingowym
+Najem tradycyjny mieszkania na czas określony bez trybu okazjonalnego
+Najem mieszkania na czas nieokreślony
+Najem instytucjonalny mieszkania przez firmę zajmującą się najmem
+Najem pokoju studenckiego
+Najem mieszkania z opcją podnajmu
+Najem umeblowanego mieszkania na krótki termin (kilka miesięcy)
+Najem części mieszkania w trybie współnajmu
+Najem garażu wolnostojącego
+Najem miejsca parkingowego w garażu podziemnym
+Najem garażu blaszanego na działce
+Najem komórki lokatorskiej lub piwnicy
+Najem miejsca postojowego przy budynku
+Najem lokalu mieszkalnego na rzecz spółki (wynajmujący osobą prywatną, najemca sp. z o.o.)
+Najem biura wynajętego spółce przez jej udziałowca
+Najem lokalu użytkowego z opcją przedłużenia i wykupu
+Najem lokalu użytkowego z remontem i okresem bezczynszowym (wakacje czynszowe)
+Najem straganu lub boksu na targowisku miejskim

@@ -1,0 +1,55 @@
+Zaprojektowanie logo i pełnej identyfikacji wizualnej dla nowej kawiarni
+Wykonanie samego logo dla startupu technologicznego
+Opracowanie księgi znaku (brand booku) dla marki odzieżowej
+Zaprojektowanie opakowania dla kosmetyku
+Przygotowanie grafiki menu dla restauracji
+Wykonanie zestawu infografik wyjaśniających usługę
+Przygotowanie szablonów postów i stories na social media
+Zaprojektowanie okładki książki dla autora self-publishingu
+Zaprojektowanie grafiki stoiska targowego
+Narysowanie ilustracji na koszulki dla zespołu muzycznego
+Wykonanie prostej strony internetowej z formularzem kontaktowym dla kliniki
+Przygotowanie landing page'a pod premierę produktu
+Postawienie sklepu internetowego na gotowej platformie
+Wykonanie MVP aplikacji mobilnej dla osiedlowego sklepu
+Zaprojektowanie i zbudowanie panelu dla firmy
+Przebudowa strony na WordPressie
+Integracja API między dwoma systemami
+Wykonanie MVP rozszerzenia do przeglądarki
+Przygotowanie schematu bazy danych i jego implementacja dla małej firmy
+Zaprojektowanie i budowa chatbota
+Napisanie specjalistycznego raportu technicznego o maszynach
+Przygotowanie cyklu 10 artykułów na bloga
+Ghostwriting artykułów eksperckich na LinkedIn
+Redakcja i korekta pracy magisterskiej
+Tłumaczenie instrukcji technicznej z angielskiego na polski
+Tłumaczenie umowy z polskiego na angielski
+Napisanie tekstów sprzedażowych (copywritingu) na stronę www
+Przygotowanie komunikatu prasowego o produkcie
+Napisanie 50 opisów produktów zoptymalizowanych pod SEO
+Opracowanie white papera dla firmy B2B
+Namalowanie portretu na podstawie fotografii
+Sesja zdjęciowa z konferencji
+Sesja zdjęciowa produktów do sklepu internetowego
+Nagranie i montaż krótkiego filmu promocyjnego z własnym jinglem
+Przygotowanie intro i outro do podcastu
+Nagranie i montaż materiału z drona prezentującego nieruchomość
+Realizacja wideo ze ślubu
+Nagranie lektora i montaż dźwięku
+Wykonanie animowanego filmu wyjaśniającego (2 min)
+Przygotowanie oprawy dźwiękowej do prototypu gry
+Projekt dobudowy garażu do domu
+Projekt aranżacji wnętrz mieszkania
+Projekt ogrodu i zagospodarowania terenu
+Obliczenia statyczne dla małego budynku
+Projekt instalacji elektrycznej w warsztacie
+Projekt wentylacji i klimatyzacji w biurze
+Wykonanie zestawu rysunków technicznych części maszyny
+Model BIM do remontu
+Sporządzenie świadectwa charakterystyki energetycznej budynku
+Wykonanie fragmentu mapy geodezyjnej działki
+Przygotowanie pakietu materiałów szkoleniowych (slajdy + podręcznik)
+Napisanie scenariusza i slajdów kursu online z umiejętności
+Przygotowanie modułu e-learningowego (SCORM)
+Opracowanie raportu z badań na podstawie dostarczonych danych
+Zaprojektowanie ankiety i opracowanie raportu z analizy

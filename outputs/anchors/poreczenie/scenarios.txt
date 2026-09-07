@@ -1,0 +1,57 @@
+Poręczenie cywilne solidarne za spłatę kredytu hipotecznego
+Poręczenie cywilne subsydiarne za zobowiązanie najemcy
+Poręczenie za spłatę pożyczki prywatnej od osoby trzeciej
+Poręczenie za wykonanie umowy dostawy towaru (zapłatę faktury)
+Poręczenie za zobowiązania z tytułu dzierżawy gruntu
+Poręczenie za spłatę karty kredytowej współmałżonka
+Poręczenie za zobowiązania spółki przez wspólnika (poręczenie cywilne)
+Poręczenie za zapłatę czynszu przez najemcę lokalu biurowego
+Poręczenie za wykonanie robót budowlanych (rozliczenie inwestora)
+Poręczenie za zobowiązanie z tytułu leasingu operacyjnego
+Poręczenie ograniczone do określonej kwoty (suma poręczenia)
+Poręczenie na czas oznaczony (do dnia określonego)
+Poręczenie do momentu całkowitej spłaty długu głównego
+Poręczenie z wieloma poręczycielami (solidarne współporęczenie)
+Poręczenie z klauzulą o doręczeniu odpisu pozwu poręczycielowi
+Poręczenie z oświadczeniem o solidarnej odpowiedzialności majątkiem
+Poręczenie jako zabezpieczenie transakcji handlowej z kontrahentem
+Poręczenie za zobowiązania z tytułu umowy franchisingowej
+Poręczenie za zapłatę za zamówienie towaru przez kontrahenta
+Poręczenie za wykonanie usługi transportowej (zapłata frachtu)
+Poręczenie konsumenta za zobowiązania przedsiębiorstwa (ochrona poręczyciela)
+Poręczenie z zastrzeżeniem wymagalności po wezwaniu dłużnika
+Poręczenie za zobowiązanie z tytułu pożyczki na raty
+Poręczenie za zapłatę za usługę szkoleniową przez pracodawcę
+Poręczenie za zobowiązania z tytułu umowy o roboty remontowe
+Poręczenie za spłatę zobowiązania podatkowego przedsiębiorcy
+Poręczenie za zapłatę za dostawę energii elektrycznej
+Poręczenie za zobowiązanie z tytułu ugody sądowej
+Poręczenie za zapłatę za wykonany projekt architektoniczny
+Poręczenie za zobowiązania z tytułu umowy najmu powierzchni handlowej
+Poręczenie z oświadczeniem o przystąpieniu do długu
+Poręczenie za zobowiązanie z tytułu umowy kredytu samochodowego
+Poręczenie za zapłatę za usługę informatyczną wdrożeniową
+Poręczenie za zobowiązania z tytułu umowy o dzieło (wykonawca)
+Poręczenie z ograniczeniem czasowym do jednego roku
+Poręczenie za zobowiązanie z tytułu weksla własnego
+Poręczenie za zapłatę za usługę cateringową na imprezę
+Poręczenie za zobowiązania z tytułu umowy leasingu finansowego
+Poręczenie za spłatę mikropożyczki przez przedsiębiorcę
+Poręczenie za zobowiązanie z tytułu umowy o dostawę wody i odprowadzanie ścieków
+Poręczenie z żądaniem zwolnienia poręczyciela po spłacie części długu
+Poręczenie za zobowiązanie z tytułu umowy o roboty ziemne
+Poręczenie za zapłatę za dostawę surowca dla fabryki
+Poręczenie za zobowiązania z tytułu umowy o świadczenie usług prawnych
+Poręczenie z klauzulą o ograniczeniu odpowiedzialności do odsetek
+Poręczenie za zobowiązanie z tytułu umowy sprzedaży z odroczonym terminem płatności
+Poręczenie za zapłatę za usługę Medyczną (szpital) przez pacjenta
+Poręczenie za zobowiązania z tytułu umowy najmu sprzętu budowlanego
+Poręczenie z oświadczeniem o przystąpieniu do długu wierzytelności przyszłej
+Poręczenie za zobowiązanie z tytułu umowy o przechowanie towaru
+Poręczenie za zapłatę za usługę turystyczną biura podróży
+Poręczenie za zobowiązania z tytułu umowy o dostarczanie oprogramowania SaaS
+Poręczenie z zastrzeżeniem formy aktu notarialnego
+Poręczenie za zobowiązanie z tytułu umowy o wykonanie instalacji HVAC
+Poręczenie za zapłatę za usługę detektywistyczną przez klienta
+Poręczenie za zobowiązania z tytułu umowy o najem maszyn rolniczych
+Poręczenie z klauzulą o solidarnej odpowiedzialności z dłużnikiem głównym

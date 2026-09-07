@@ -1,0 +1,299 @@
+{
+ "run": 47,
+ "hint": "Kaucja przy wynajmie kontenera magazynowego",
+ "scenario": "Kaucja przy wynajmie kontenera magazynowego",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_3d4ae9d929964f3c8943394e",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"kaucja_zaliczka\", \"query\": \"wynajem kontenera magazynowego\"}"
+     }
+    },
+    {
+     "id": "call_a915cde907924ba98ebecb1d",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"kaucja zabezpieczająca wynajem kontenera magazynowego ruchomości\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_0be266585f4241f2b7b7682b",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"kontener magazynowy\", \"wynajem kontenera\", \"kaucja zabezpieczająca\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Wezwanie do zwrotu kaucji\\nWezwanie do zwrotu kaucji w Polsce to pisemne żądanie najemcy skierowane do wynajmującego, w którym najemca domaga się zwrotu kaucji mieszkaniowej po zakończeniu stosunku najmu i wydaniu lokalu. Podstawą prawną jest art. 6 ust. 4 ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego (Dz.U. 2001 nr 71 poz. 733 ze zm.), zgodnie z którym kaucja podlega zwrotowi w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę, po potrąceniu należności wynajmującego z tytułu najmu. Dopełnieniem jest art. 455 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.) dotyczący wymagalności świadczeń bezterminowych oraz art. 481 KC o odsetkach za opóźnienie.\\n\\nKaucja przy najmie lokalu mieszkalnego pełni funkcję zabezpieczenia roszczeń wynajmującego na wypadek, gdyby najemca nie uregulował czynszu lub innych należności albo wyrządził szkodę w lokalu ponad normalne zużycie. Zgodnie z art. 6 ust. 1 ustawy o ochronie praw lokatorów kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. W przypadku najmu okazjonalnego dopuszczalna kaucja wynosi sześciokrotność miesięcznego czynszu. Kaucja jest depozytem zwrotnym — po zakończeniu najmu i rozliczeniu ewentualnych roszczeń wynajmujący ma obowiązek zwrócić ją najemcy w ustawowym terminie.\\n\\nJeżeli wynajmujący nie zwróci kaucji w ciągu miesiąca od opróżnienia lokalu, najemca powinien wezwać go pisemnie, wskazując termin i rachunek bankowy do zwrotu. Takie wezwanie stawia zobowiązanie do zwrotu kaucji w stan wymagalności na gruncie art. 455 KC i otwiera bieg naliczania odsetek za opóźnienie zgodnie z art. 481 KC. Odsetki ustawowe za opóźnienie (stopa referencyjna NBP plus 5,5 punktu procentowego) są należne od dnia następnego po upływie terminu zwrotu, tj. od dnia po upływie miesiąca od opróżnienia lokalu, bez konieczności wzywania.\\n\\nWezwanie do zwrotu kaucji różni się od żądania rozliczenia kaucji (gdzie najemca kwestionuje tylko częściowe potrącenia). W niniejszym piśmie najemca żąda zwrotu pełnej kwoty, ewentualnie powołując się na to, że lokal był zdany w stanie prawidłowym, bez szkód uzasadniających potrącenia. Spory o kaucję trafiają często przed Sąd Rejonowy (wydział cywilny) właściwy dla miejsca zamieszkania pozwanego lub miejsca położenia lokalu. Ze względu na niską wartość sporu (kaucja zazwyczaj nieprzekraczająca kilkunastu tysięcy złotych) sprawy te rozpatrywane są w trybie uproszczonym, co skraca czas postępowania.\\n\\nNajemca powinien pamiętać, że wynajmujący ma prawo potrącić z kaucji udokumentowane należności z tytułu niezapłaconego czynszu lub opłat eksploatacyjnych, a także koszty napraw szkód przekraczających normalne zużycie lokalu. Normalne zużycie rzeczy w ramach prawidłowego używania nie jest podstawą potrącenia z kaucji. Art. 6a ustawy o ochronie praw lokatorów nakłada na wynajmującego obowiązki dotyczące stanu technicznego lokalu. Spory o zakres normalnego zużycia są częste i rozstrzygane przez Sąd Rejonowy na podstawie protokołów zdawczo-odbiorczych, fotografii i opinii biegłych.\\n\\nWezwanie do zwrotu kaucji w Polsce jest potrzebne zawsze, gdy wynajmujący nie zwrócił kaucji w ciągu miesiąca od opróżnienia lokalu, choć art. 6 ust. 4 ustawy o ochronie praw lokatorów nakłada na niego taki obowiązek.\\n\\nDokument jest niezbędny, gdy minął ustawowy termin zwrotu kaucji, a wynajmujący nie podjął kontaktu, milczy lub odmawia zwrotu bez podania przyczyny. Formalne wezwanie dokumentuje żądanie najemcy, wyznacza dodatkowy termin i zapowiada postępowanie sądowe, co często mobilizuje wynajmującego do działania bez konieczności wnoszenia pozwu.\\n\\nWezwanie jest potrzebne, gdy wynajmujący zwrócił tylko część kaucji, a zdaniem najemcy potrącenia były nieuzasadnione. W takim przypadku wezwanie może obejmować żądanie zwrotu tej różnicy, z powołaniem się na to, że lokal był zdany w stanie odpowiadającym normalnemu zużyciu, a protokół zdawczo-odbiorczy nie dokumentował szkód uzasadniających potrącenia.\\n\\nPismo jest konieczne, gdy najemca nie posiada potwierdzenia rozliczenia kaucji. W praktyce wynajmujący, szczególnie prywatni, niekiedy zwlekają z rozliczeniem, licząc na bierność najemcy. Pisemne wezwanie formalizuje sytuację i tworzy ślad dokumentacyjny, który będzie niezbędny w ewentualnym postępowaniu sądowym przed Sądem Rejonowym.\\n\\nWezwanie do zwrotu kaucji jest ważne z punktu widzenia terminów przedawnienia. Roszczenie najemcy o zwrot kaucji przedawnia się na zasadach ogólnych — z upływem sześciu lat lub trzech lat przy roszczeniach związanych z działalnością gospodarczą (art. 118 KC). Wysłanie wezwania dokumentuje, od kiedy najemca aktywnie dochodził zwrotu, i pozwala ustalić termin, od którego biegną odsetki za opóźnienie. Przy wysyłaniu wezwania warto korzystać z pomocy miejskiego lub powiatowego rzecznika konsumentów, który bezpłatnie wspiera najemców w sporach z wynajmującymi będącymi przedsiębiorcami.\\n\\nPrawidłowe wezwanie do zwrotu kaucji w Polsce, oparte na art. 6 ust. 4 ustawy o ochronie praw lokatorów i art. 455 Kodeksu cywilnego, powinno zawierać następujące elementy.\\n\\nOznaczenie stron: imię i nazwisko najemcy (wzywającego) oraz wynajmującego (wzywanego), adresy obu stron, a w przypadku wynajmującego będącego przedsiębiorcą — NIP i numer KRS lub CEIDG.\\n\\nOdniesienie do umowy najmu: data zawarcia umowy najmu, adres wynajmowanego lokalu, data zakończenia najmu lub data opróżnienia lokalu. Data opróżnienia lokalu jest kluczowa, bo od niej liczy się ustawowy miesięczny termin zwrotu kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów.\\n\\nKwota kaucji i data wpłaty: wezwanie musi precyzyjnie wskazywać kwotę wpłaconej kaucji (cyfrowo i słownie), datę jej wpłaty i ewentualny sposób wpłaty (przelew bankowy z podaniem numeru transakcji lub gotówka z podaniem pokwitowania). To kluczowe dla wykazania, że kaucja rzeczywiście została wpłacona.\\n\\nStan lokalu przy zdaniu: krótkie wskazanie, że lokal był zdany w stanie prawidłowym lub z usterkami wynikającymi jedynie z normalnego zużycia, z powołaniem się na protokół zdawczo-odbiorczy. Jeżeli protokół nie dokumentuje szkód uzasadniających potrącenia, argument ten wzmacnia żądanie zwrotu pełnej kwoty.\\n\\nTermin i rachunek do zwrotu: konkretny termin zwrotu kaucji (rekomendowane 14 dni od doręczenia wezwania) oraz numer rachunku bankowego, na który ma nastąpić przelew. Dodatkowe wymaganie odsetkowe: odsetki ustawowe za opóźnienie naliczone zgodnie z art. 481 KC od dnia upływu ustawowego terminu zwrotu do dnia faktycznej zapłaty.\\n\\nSkutki braku zwrotu: zapowiedź skierowania sprawy do Sądu Rejonowego z powództwem o zapłatę. Serwis forms-legal.com udostępnia gotowy wzór wezwania do zwrotu kaucji. Pismo należy wysłać listem poleconym za potwierdzeniem odbioru lub doręczyć osobiście za pokwitowaniem, zachowując dowód doręczenia.\\n\\nWypełnianie wezwania do zwrotu kaucji w Polsce zacznij od precyzyjnego oznaczenia stron. W sekcji najemcy wpisz swoje imię i nazwisko, aktualny adres korespondencyjny (nie adres wynajmowanego lokalu, bo możesz się już wyprowadzić) oraz numer rachunku bankowego, na który wynajmujący ma przelać zwrot. W sekcji wynajmującego podaj jego imię i nazwisko lub firmę, adres zamieszkania lub siedziby.\\n\\nW sekcji szczegółów najmu i kaucji podaj adres wynajmowanego lokalu, datę zawarcia umowy najmu i datę zakończenia najmu lub opróżnienia lokalu. Data opróżnienia lokalu jest kluczowa — od niej liczy się ustawowy miesiąc na zwrot kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów. Wpisz kwotę kaucji cyfrowo i słownie oraz datę jej wpłaty.\\n\\nW polu dotyczącym stanu lokalu przy zdaniu wybierz odpowiednią opcję. Jeżeli lokal był zdany bez usterek lub z normalnymi śladami użytkowania potwierdzonymi protokołem zdawczo-odbiorczym, zaznacz to wyraźnie — to wzmacnia żądanie pełnego zwrotu kaucji. Jeżeli protokół był sporny lub są nieporozumienia co do zakresu usterek, wskaż to, sygnalizując gotowość do rozmów.\\n\\nWyznacz termin zwrotu — rekomendowane 14 dni od otrzymania wezwania. Wskaż wyraźnie numer rachunku bankowego i tytuł przelewu. Poinformuj o należnych odsetkach za opóźnienie zgodnie z art. 481 KC, licząc je od upływu ustawowego terminu miesięcznego.\\n\\nNa koniec wpisz miejscowość i datę oraz złóż podpis. Wyślij wezwanie listem poleconym za potwierdzeniem odbioru. Zachowaj kopię pisma, dowód nadania i potwierdzenie odbioru. W przypadku dalszego braku zwrotu będziesz mógł(-a) złożyć pozew do Sądu Rejonowego lub skorzystać z pomocy miejskiego rzecznika konsumentów, jeżeli wynajmujący jest przedsiębiorcą.\\n\\nWymogi prawne wezwania do zwrotu kaucji w Polsce wynikają przede wszystkim z ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego, a uzupełniająco z Kodeksu cywilnego. Kluczowy przepis to art. 6 ust. 4 ustawy o ochronie praw lokatorów, który nakłada na wynajmującego bezwzględny obowiązek zwrotu kaucji w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę. Termin miesięczny jest terminem ustawowym i nie może być skrócony ani wyłączony przez umowę w stosunku do najemcy będącego konsumentem.\\n\\nZwrot kaucji następuje po potrąceniu należności wynajmującego z tytułu najmu. Wynajmujący może potrącić: niezapłacony czynsz i inne opłaty należne za czas najmu, a także koszty napraw szkód wyrządzonych przez najemcę lub przekraczających normalne zużycie lokalu. Normalne zużycie wynikające z prawidłowego używania lokalu nie uprawnia do potrącenia z kaucji. Ciężar udowodnienia zasadności potrącenia spoczywa na wynajmującym — powinien on przedstawić najemcy rozliczenie kaucji z dokumentacją (protokół zdawczo-odbiorczy, faktury za naprawy, kosztorysy).\\n\\nJeżeli wynajmujący nie zwróci kaucji lub jej części w terminie miesięcznym, od dnia następnego po tym terminie naliczane są odsetki ustawowe za opóźnienie zgodnie z art. 481 § 1 Kodeksu cywilnego, niezależnie od wysłania wezwania. Wezwanie otwiera dodatkowy termin i dokumentuje żądanie najemcy, ale nie jest warunkiem sine qua non naliczenia odsetek — te biegną z mocy prawa.\\n\\nOgraniczenia kaucji: art. 6 ust. 1 ustawy o ochronie praw lokatorów stanowi, że kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu. Postanowienia umowy najmu ustalające wyższą kaucję są nieważne w zakresie nadwyżki. Przy najmie okazjonalnym (art. 19a ustawy) kaucja nie może przekraczać sześciokrotności czynszu. Spory o zwrot kaucji rozpatruje Sąd Rejonowy właściwy dla miejsca zamieszkania pozwanego (wynajmującego) lub miejsca położenia lokalu. Przy wartości sporu do 20 000 zł można skorzystać z postępowania uproszczonego lub elektronicznego postępowania upominawczego przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie, VI Wydział Cywilny). Nieodpłatną pomoc prawną dla konsumentów w sporach z przedsiębiorcami oferuje miejski lub powiatowy rzecznik konsumentów.\\n\\nNajczęstsze błędy przy wezwaniu do zwrotu kaucji w Polsce zaczynają się od nieustalenia dokładnej daty opróżnienia lokalu. Termin miesięczny na zwrot kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów liczy się od dnia opróżnienia lokalu, a nie od daty wypowiedzenia umowy najmu. Najemca powinien dysponować dowodem oddania kluczy — protokołem zdawczo-odbiorczym podpisanym przez obie strony z datą. Bez tego dowodu trudno precyzyjnie ustalić, od kiedy biegnie termin zwrotu.\\n\\nKolejnym błędem jest brak dowodu wpłaty kaucji. Najemca, który domaga się zwrotu kaucji, musi być w stanie udowodnić, że ją wpłacił. Potwierdzenie przelewu bankowego lub pokwitowanie gotówkowe z podpisem wynajmującego są niezbędnymi dowodami. Bez nich wynajmujący może kwestionować fakt wpłaty lub jej wysokość.\\n\\nBłędem jest też wysłanie wezwania bez numeru rachunku bankowego do zwrotu. Wynajmujący może twierdzić, że nie wiedział, na jaki rachunek przelać kaucję, co opóźnia zwrot i komplikuje sprawę. Numer rachunku powinien być wyraźnie wskazany w wezwaniu.\\n\\nCzęstym uchybieniem jest nieoprotestowanie nieuzasadnionych potrąceń z kaucji. Jeżeli wynajmujący zwrócił tylko część kaucji, podając jako przyczynę normalne zużycie lokalu, najemca powinien w wezwaniu zakwestionować te potrącenia i żądać zwrotu różnicy. Normalne zużycie (farba ścian, drobne rysy na podłodze) nie jest podstawą potrącenia — wynajmujący musi udowodnić, że szkody przekraczały normalną eksploatację. Dokumentacja fotograficzna lokalu wykonana przy objęciu i przy zdaniu lokalu jest kluczowym dowodem.\\n\\nBłędem jest też czekanie zbyt długo z wezwaniem. Choć roszczenie o zwrot kaucji przedawnia się po sześciu latach, odsetki za opóźnienie biegną dopiero od dnia upływu miesięcznego terminu, a nie od daty wysłania wezwania. Im wcześniej najemca wyśle wezwanie i — w razie potrzeby — wniesie pozew, tym szybciej uzyska zwrot pieniędzy. Spory o kaucję przed Sądem Rejonowym trwają zazwyczaj od kilku tygodni (w trybie upominawczym) do kilku miesięcy (przy sprzeciwie dłużnika), a koszty opłaty sądowej (5% wartości przedmiotu sporu) są niskie przy typowych kwotach kaucji.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/wezwanie-do-zwrotu-kaucji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_3d4ae9d929964f3c8943394e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_670\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 670. § 1. Dla zabezpieczenia czynszu oraz świadczeń dodatkowych, z którymi najemca zalega nie dłużej niż rok, przysługuje wynajmującemu ustawowe prawo zastawu na rzeczach ruchomych najemcy wniesionych do przedmiotu najmu, chyba że rzeczy te nie podlegają zajęciu. § 2. (uchylony)\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_6\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 6. 1. Zawarcie umowy najmu może być uzależnione od wpłacenia przez najemcę kaucji zabezpieczającej pokrycie należności z tytułu najmu lokalu, przysługujących wynajmującemu w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. 2. Kaucji nie pobiera się ...\"}, {\"chunk_id\": \"curated:tenant_act_article_6_residential_deposit\", \"source_id\": \"curated:tenant_act_article_6_residential_deposit\", \"source_type\": \"statute_summary\", \"top_category\": \"deposit_or_advance\", \"title\": \"Ustawa o ochronie praw lokatorów art. 6 - kaucja mieszkaniowa\", \"display_address\": \"Ustawa o ochronie praw lokatorów art. 6 - kaucja mieszkaniowa\", \"legal_area\": [\"contracts\", \"housing\"], \"text\": \"Ustawa o ochronie praw lokatorów art. 6 - kaucja mieszkaniowa\\nW zwykłym najmie lokalu mieszkalnego kaucja zabezpiecza należności z tytułu najmu istniejące w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal i podlega zwrotowi w ciągu miesiąca od opróżnienia lokalu albo nabycia jego własności przez najemcę, po potrąceniu należności wynajmującego.\"}, {\"chunk_id\": \"extractor_v9:filtered_0293_statute_bd690c22c32a8621\", \"source_id\": \"sejm_eli_du_2023_725_art_6\", \"source_type\": \"statute\", \"top_category\": \"deposit_or_advance\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Kaucja podlega zwrotowi w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę, po potrąceniu należności wynajmującego z tytułu najmu lokalu.\"}, {\"chunk_id\": \"extractor_v9:broad_0049_statute_d3fbe8d932015aac\", \"source_id\": \"sejm_eli_du_2023_725_art_6\", \"source_type\": \"statute\", \"top_category\": \"deposit_or_advance\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Art. 6. 1. Zawarcie umowy najmu może być uzależnione od wpłacenia przez najemcę kaucji zabezpieczającej pokrycie należności z tytułu najmu lokalu, przysługujących wynajmującemu w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. 2. Kaucji nie pobiera się, jeżeli umowa: 1) dotyczy najmu lokalu zamiennego lub najmu socjalnego lokalu; 2) jest zawierana w związku z zamianą lokalu, a najemca uzyskał zwrot kaucji bez dokonania jej waloryzacji. 3. Zwrot zwaloryzowanej  ...\"}]",
+   "tool_call_id": "call_a915cde907924ba98ebecb1d",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_0be266585f4241f2b7b7682b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "The search results show the base template is about \"wezwanie do zwrotu kaucji\" (demand for return of deposit) for residential tenancy, not the actual contract template for kaucja_zaliczka. Let me search for more relevant materials about storage container rental (wynajem kontenera magazynowego) and security deposits for movable property rental.\n\nLet me search for:\n1. Wynajem rzeczy ruchomych (rental of movable property) - art. 659-674 KC\n2. Kaucja zabezpieczająca przy najmie ruchomości\n3. Kontener magazynowy / self-storage\n4. Protokół zdawczo-odbiorczy for containers",
+   "tool_calls": [
+    {
+     "id": "call-df417fb5-cf7f-4daf-8bf8-158befbc0c7e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"wynajem kontenera magazynowego self-storage kaucja zabezpieczająca umowa\"}"
+     }
+    },
+    {
+     "id": "call-886532f8-ee19-4c6d-983b-72bee9acfea9",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"wynajem rzeczy ruchomych\", \"art. 659\", \"art. 660\", \"kaucja ruchomości\"]}"
+     }
+    },
+    {
+     "id": "call-ae154996-70cd-4961-b863-2535e3a94f00",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"protokół zdawczo-odbiorczy kontener magazynowy uszkodzenia normalne zużycie\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_725_art_6\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 6. 1. Zawarcie umowy najmu może być uzależnione od wpłacenia przez najemcę kaucji zabezpieczającej pokrycie należności z tytułu najmu lokalu, przysługujących wynajmującemu w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. 2. Kaucji nie pobiera się ...\"}, {\"chunk_id\": \"extractor_v9:broad_0049_statute_d3fbe8d932015aac\", \"source_id\": \"sejm_eli_du_2023_725_art_6\", \"source_type\": \"statute\", \"top_category\": \"deposit_or_advance\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Art. 6. 1. Zawarcie umowy najmu może być uzależnione od wpłacenia przez najemcę kaucji zabezpieczającej pokrycie należności z tytułu najmu lokalu, przysługujących wynajmującemu w dniu opróżnienia lokalu. Kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. 2. Kaucji nie pobiera się, jeżeli umowa: 1) dotyczy najmu lokalu zamiennego lub najmu socjalnego lokalu; 2) jest zawierana w związku z zamianą lokalu, a najemca uzyskał zwrot kaucji bez dokonania jej waloryzacji. 3. Zwrot zwaloryzowanej  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19f. 1. Umową najmu instytucjonalnego lokalu jest umowa najmu lokalu mieszkalnego zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną niebędącą osobą prawną, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali. 2. Umowa najmu instytucjonalnego lokalu zawierana jest na czas oznaczony. Przepisu art. 661 § 1 ustawy z dnia 23 kwietnia 1964 r. - Kodek ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19a\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19a. 1. Umową najmu okazjonalnego lokalu jest umowa najmu lokalu mieszkalnego, którego właściciel, będący osobą fizyczną, nie prowadzi działalności gospodarczej w zakresie wynajmowania lokali, zawarta na czas oznaczony, nie dłuższy niż 10 lat. 1a. (uchylony) 2. Do umowy najmu okazjonalnego lokalu załącza się w szczególności: 1) oświadczenie najemcy w formie aktu notarialnego, w kt ...\"}, {\"chunk_id\": \"uokik_items:uokik_cb5493aeaf86a7af\", \"source_id\": \"uokik_rejestr_klauzul_5656\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Za niedotrzymanie któregokolwiek punktu z niniejszego Regulaminu nastąpi przepadek kaucji oraz może być naliczona kara umowna w wysokości od 10- do 30-krotności dobowej stawki najmu; (pkt. 20 wzorca)\"}]",
+   "tool_call_id": "call-df417fb5-cf7f-4daf-8bf8-158befbc0c7e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_659\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 659. § 1. Przez umowę najmu wynajmujący zobowiązuje się oddać najemcy rzecz do używania przez czas oznaczony lub nieoznaczony, a najemca zobowiązuje się płacić wynajmującemu umówiony czynsz. § 2. Czynsz może być oznaczony w pieniądzach lub w świadczeniach innego rodzaju.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_660\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 660. Umowa najmu nieruchomości lub pomieszczenia na czas dłuższy niż rok powinna być zawarta na piśmie. W razie niezachowania tej formy poczytuje się umowę za zawartą na czas nieoznaczony.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_659\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 659. Spadkobierca, który swym obowiązkom nie uczynił zadość, może spełnić je jeszcze na posiedzeniu. W związku z materiałem przedstawionym przez spadkobiercę sąd oraz uczestnicy mogą zadawać spadkobiercy pytania.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_660\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 660. § 1. W razie niedopełnienia przez spadkobiercę jego obowiązków lub odmowy odpowiedzi na stawiane mu pytania, sąd stosuje środki przymusu według przepisów o egzekucji świadczeń niepieniężnych. § 2. O skutkach tych należy spadkobiercę uprzedzić w wezwaniu do spełnienia obowiązków objętych postanowieniem o wyjawieniu przedmiotów spadkowych. Rozdział 5 Przesłuchanie świadków testamentu ustnego\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_658\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 658. § 1. Prokurator wojskowy odmawia wszczęcia postępowania o przestępstwo ścigane na wniosek dowódcy jednostki wojskowej, jeżeli wobec sprawcy zastosowano już środki przewidziane w wojskowych przepisach dyscyplinarnych. § 2. Nie dotyczy to wypadku, w którym wniosek o ściganie składa wyższy dowódca po uchyleniu kary dyscyplinarnej albo prokurator wojskowy korzysta z uprawnienia przewidzianego w art. 660. § 3. Przepisu art. 12 § 3 ni ...\"}]",
+   "tool_call_id": "call-886532f8-ee19-4c6d-983b-72bee9acfea9",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_9c57dbeeb97b1279\", \"source_id\": \"uokik_rejestr_klauzul_5332\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podczas odbioru towaru, Kupujący jest obowiązany do sprawdzenia stanu przesyłki. Jeśli jej stan sugeruje wcześniejsze otwarcie lub zniszczenie zawartości, Kupujący winien sporządzić protokół w obecności pracownika (…). Reklamacje dotyczące uszkodzeń podczas transportu będą rozpatrywane jedynie w przypadku przedstawienia protokołu uszkodzenia podpisanego przez w/w pracownika\"}, {\"chunk_id\": \"uokik_items:uokik_f218406b5c280c92\", \"source_id\": \"uokik_rejestr_klauzul_2428\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku zastrzeżeń do stanu przesyłki lub ilości, Zamawiający występuje do pracownika (...) firmy kurierskiej lub spedytorskiej z żądaniem sporządzenia protokołu. Powinna w nim być podana data i godzina doręczenia przesyłki oraz opis uszkodzenia lub ubytku. Protokół powinien być potwierdzony czytelnymi odręcznymi podpisami przedstawiciela (...) lub firmy kurierskiej lub spedycyjnej oraz Zamawiajacego\\\".\"}, {\"chunk_id\": \"uokik_items:uokik_479751df278ed064\", \"source_id\": \"uokik_rejestr_klauzul_6517\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Podczas odbioru paczki należy ją rozpakować i sprawdzić czy produkty są w stanie nienaruszonym. Kurier ma obowiązek poczekać aż Klient sprawdzi zawartość paczki. W przypadku uszkodzenia części lub całości towaru należy spisać protokół, na którego podstawie możliwa jest dalsza reklamacja. Bez spisanego protokołu reklamacja dotycząca uszkodzenia paczki podczas transportu nie będzie uwzględniona\"}, {\"chunk_id\": \"uokik_items:uokik_48f865aea1eccb75\", \"source_id\": \"uokik_rejestr_klauzul_4719\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Przy uszkodzeniach powstałych podczas dostawy należy dołączyć protokół potwierdzający zaistnienie takiego uszkodzenia, podpisany przez pracownika firmy dostarczającej przesyłkę\"}, {\"chunk_id\": \"uokik_items:uokik_e0c14283367ff70b\", \"source_id\": \"uokik_rejestr_klauzul_6885\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacje dotyczące uszkodzeń powstałych podczas transportu muszą być zgłaszane na podstawie pisemnego protokołu uszkodzenia/ rozbieżności zawartości przesyłki. Protokół taki musi być sporządzony w momencie odbioru towaru w obecności kuriera, winien zawierać dokładny opis uszkodzenia/ braku datę, godzinę i czytelny podpis kuriera.\"}]",
+   "tool_call_id": "call-ae154996-70cd-4961-b863-2535e3a94f00",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA KAUCJI ZABEZPIECZAJĄCEJ\nprzy umowie wynajmu kontenera magazynowego\n\nZawarta w dniu …………………… r. w ……………………… między:\n\n1. WYNAJMUJĄCYM:\n   ……………………………………………………………………………………… (nazwa/firma)\n   siedziba/adres: ………………………………………………………………………\n   NIP: ………………………  KRS/CEIDG: ………………………\n   zwanym dalej „Wynajmujący”, a także\n\n2. NAJEMCĄ:\n   ……………………………………………………………………………………… (imię i nazwisko/nazwa)\n   adres zamieszkania/siedziby: ………………………………………………………\n   PESEL/NIP: ………………………\n   zwanym dalej „Najemca”,\n\nrazem zwanymi „Strony”, postanawiają co następuje:\n\n§ 1\nPRZEDMIOT KAUCJI\n\n1. Na zabezpieczenie roszczeń Wynajmującego wynikających z Umowy wynajmu kontenera magazynowego nr ………………… zawartej w dniu ………………… r. („Umowa wynajmu”), Najemca wpłaca kaucję zabezpieczającą w kwocie ………………… zł (słownie: ………………………………………………………………… złotych).\n2. Kaucja zabezpiecza pokrycie należności Wynajmującego przysługujących w dniu zwrotu kontenera, w szczególności:\n   a) niezapłacone czynsze za wynajem kontenera oraz opłaty dodatkowe;\n   b) koszty napraw uszkodzeń kontenera przekraczających normalne zużycie;\n   c) koszty oczyszczenia lub dezynfekcji kontenera po zakończeniu wynajmu;\n   d) inne roszczenia wynikające z Umowy wynajmu.\n3. Kwota kaucji nie może przekraczać dwunastokrotności miesięcznego czynszu za wynajem kontenera, obliczonego według stawki obowiązującej w dniu zawarcia Umowy wynajmu (zastosowanie analogiczne art. 6 ust. 1 Ustawy o ochronie praw lokatorów).\n\n§ 2\nFORMA I TERMIN WPŁATY\n\n1. Kaucja zostaje wpłacona przelewem bankowym na rachunek Wynajmującego:\n   Bank: …………………………………………………………………………………\n   Numer rachunku (IBAN): ……………………………………………………………\n   Tytuł przelewu: „Kaucja – wynajem kontenera nr ………………… – [Najemca]”.\n2. Wpłata kaucji ma nastąpić nie później niż w dniu ………………… r., a w każdym razie przed oddaniem kontenera do użytkowania.\n3. Potwierdzeniem wpłaty jest potwierdzenie przelewu bankowego lub pokwitowanie wystawione przez Wynajmującego.\n\n§ 3\nPROTOKÓŁ ZDAWCZO-ODBIORCZY KONTENERA\n\n1. Przed oddaniem kontenera do użytkowania Strony sporządzają Protokoł zdawczo-odbiorczy kontenera (załącznik nr 1 do niniejszej Umowy), w którym ustalają stan techniczny i czystościowy kontenera, w tym ewentualne wady, uszkodzenia lub zanieczyszczenia istniejące w dniu rozpoczęcia wynajmu.\n2. Protokół podpisują obie Strony. Każda Strona otrzymuje po jednym egzemplarzu.\n3. Brak protokołu lub odmowa jego podpisania przez którąś ze Stron nie zwalnia Najemcę z odpowiedzialności za uszkodzenia powstałe w trakcie wynajmu, jednak utrudnia ustalenie stanu początkowego.\n4. Przy zwrocie kontenera Strony sporządzają drugi Protokoł zdawczo-odbiorczy, w którym porównują stan kontenera ze stanem z protokołu początkowego.\n\n§ 4\nNORMALNE ZUŻYCIE A USZKODZENIA\n\n1. Normalne zużycie kontenera wynikające z prawidłowego użytkowania zgodnie z przeznaczeniem (drobne rysy na podłodze, naturalne matowanie farby, ślady montażu regałów) nie stanowi podstawy do potrącenia z kaucji.\n2. Uszkodzeniami przekraczającymi normalne zużycie, które uprawniają do potrącenia z kaucji, są w szczególności:\n   a) przebicia, duże wgniecenia lub pęknięcia ścian, sufitu lub podłogi;\n   b) uszkodzenia drzwi, zamków, uszczelek, systemu wentylacji;\n   c) zanieczyszczenia chemiczne, olejowe, trudne do usunięcia;\n   d) uszkodzenia instalacji elektrycznej (jeśli kontener ją posiada);\n   e) korozja wywołana przechowywaniem substancji wilgociowych lub żrących bez zabezpieczenia.\n3. Ciężar udowodnienia, że uszkodzenia przekraczają normalne zużycie, spoczywa na Wynajmującym.\n\n§ 5\nZWROT KAUCJI\n\n1. Kaucja podlega zwrotowi w ciągu 30 dni kalendarzowych od dnia zwrotu kontenera (opróżnienia i oddania kluczy) Wynajmującemu, po potrąceniu uzasadnionych należności Wynajmującego (zastosowanie analogiczne art. 6 ust. 4 Ustawy o ochronie praw lokatorów oraz art. 455 Kodeksu cywilnego).\n2. Zwrot następuje przelewem na rachunek bankowy wskazany przez Najemcę w wezwaniu o zwrot kaucji lub w aneksie do niniejszej Umowy.\n3. W przypadku potrąceń z kaucji, Wynajmujący obowiązuje się doręczyć Najemcy pisemne rozliczenie kaucji z dokumentacją (protokół końcowy, faktury za naprawy, kosztorysy, zdjęcia) w terminie do 14 dni od dnia potrącenia.\n4. Jeżeli Wynajmujący nie zwróci kaucji ani jej części w terminie 30-dniowym, od dnia następnego po upływie terminu naliczane są odsetki ustawowe za opóźnienie zgodnie z art. 481 § 1 Kodeksu cywilnego, niezależnie od wysłania wezwania.\n\n§ 6\nZAKAZ KAR UMOWNYCH I PRZEPADKU KAUCJI\n\n1. Strony wykluczają przepadek kaucji oraz kary umowne za naruszenie regulaminu lub przepisów Umowy wynajmu. Wszelkie roszczenia Wynajmującego realizowane są na zasadach ogólnych – poprzez potrącenie udokumentowanych kosztów lub dochodzenie roszczeń w drodze sądowej.\n2. Klauzule przewidujące automatyczny przepadek kaucji lub kary umowne wielokrotności czynszu za naruszenie przepisów regulaminu są niedozwolone (zgodnie z linią orzeczniczą UOKIK, m.in. wpisy w rejestrze klauzul niedozwolonych: uokik_cb5493aeaf86a7af).\n\n§ 7\nPRAWO ZASTAWU USTAWOWEGO\n\n1. Dla zabezpieczenia czynszu oraz świadczeń dodatkowych, z którymi Najemca zalega nie dłużej niż rok, przysługuje Wynajmującemu ustawowe prawo zastawu na rzeczach ruchomych Najemcy wniesionych do kontenera, chyba że rzeczy te nie podlegają zajęciu (art. 670 § 1 Kodeksu cywilnego).\n2. Prawo to nie wyklucza prawa do potrącenia z kaucji.\n\n§ 8\nROZSTRZYGANIE SPORÓW\n\n1. Spory wynikające z niniejszej Umowy rozstrzyga sąd powszechny właściwy dla siedziby Wynajmującego.\n2. Strony zachęcają do przedsięwzięcia mediacji przed złożeniem pozewu.\n\n§ 9\nPOSTANOWIENIA KOŃCOWE\n\n1. Niniejsza Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej Strony.\n2. Zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n3. W sprawach nieuregulowanych w niniejszej Umowie mają zastosowanie przepisy Kodeksu cywilnego o najmie rzeczy ruchomych (art. 659–668 KC) oraz o zabezpieczeniach.\n4. Anaksy do niniejszej Umowy: Załącznik nr 1 – Wzór protokołu zdawczo-odbiorczego kontenera.\n\n……………………………………….., dnia ………………… r.\n\n....................................................\n(Wynajmujący – podpis)\n\n....................................................\n(Najemca – podpis)\n\n---\n\nZAŁĄCZNIK NR 1\nWZÓR PROTOKOŁU ZDAWCZO-ODBIORCZEGO KONTENERA MAGAZYNOWEGO\n\nProtokół nr ………\nMiejsce: ………………………\nData: ………………………\n\nStrony:\nWynajmujący: ……………………………………………………………………………\nNajemca: …………………………………………………………………………………\n\nKontener magazynowy nr: …………………\nLokalizacja: ……………………………………………………………………………\n\nSTAN KONTENERA PRZY ODDANIU / ODBIORZE *\n\n1. Ściany boczne (zewnętrzne/wewnętrzne): ……………………………………………\n2. Sufit: …………………………………………………………………………………\n3. Podłoga: ………………………………………………………………………………\n4. Drzwi (zamek, uszczelki, zawiasy, uchwyt): …………………………………………\n5. Wentylacja / otwory wentylacyjne: ……………………………………………………\n6. Instalacja elektryczna (jeśli dotyczy): ………………………………………………\n7. Podstawa / podkładka kontenera: ……………………………………………………\n8. Stan czystościowy wewnątrz: …………………………………………………………\n9. Inne uwagi / istniejące uszkodzenia (opis szczegółowy, zdjęcia): …………………\n   ……………………………………………………………………………………………\n   ……………………………………………………………………………………………\n\nZdjęcia wykonane: TAK / NIE (dołączone jako załącznik do protokołu)\n\nOświadczamy, że protokół odzwierciedla stan faktyczny kontenera w dniu ………………… r.\n\n....................................................\n(Wynajmujący – podpis)\n\n....................................................\n(Najemca – podpis)\n\n* Wykreślić niepotrzebne: PRZY ODDANIU (początek wynajmu) / PRZY ODBIORZE (koniec wynajmu).",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA KAUCJI ZABEZPIECZAJĄCEJ\nprzy umowie wynajmu kontenera magazynowego\n\nZawarta w dniu …………………… r. w ……………………… między:\n\n1. WYNAJMUJĄCYM:\n   ……………………………………………………………………………………… (nazwa/firma)\n   siedziba/adres: ………………………………………………………………………\n   NIP: ………………………  KRS/CEIDG: ………………………\n   zwanym dalej „Wynajmujący”, a także\n\n2. NAJEMCĄ:\n   ……………………………………………………………………………………… (imię i nazwisko/nazwa)\n   adres zamieszkania/siedziby: ………………………………………………………\n   PESEL/NIP: ………………………\n   zwanym dalej „Najemca”,\n\nrazem zwanymi „Strony”, postanawiają co następuje:\n\n§ 1\nPRZEDMIOT KAUCJI\n\n1. Na zabezpieczenie roszczeń Wynajmującego wynikających z Umowy wynajmu kontenera magazynowego nr ………………… zawartej w dniu ………………… r. („Umowa wynajmu”), Najemca wpłaca kaucję zabezpieczającą w kwocie ………………… zł (słownie: ………………………………………………………………… złotych).\n2. Kaucja zabezpiecza pokrycie należności Wynajmującego przysługujących w dniu zwrotu kontenera, w szczególności:\n   a) niezapłacone czynsze za wynajem kontenera oraz opłaty dodatkowe;\n   b) koszty napraw uszkodzeń kontenera przekraczających normalne zużycie;\n   c) koszty oczyszczenia lub dezynfekcji kontenera po zakończeniu wynajmu;\n   d) inne roszczenia wynikające z Umowy wynajmu.\n3. Kwota kaucji nie może przekraczać dwunastokrotności miesięcznego czynszu za wynajem kontenera, obliczonego według stawki obowiązującej w dniu zawarcia Umowy wynajmu (zastosowanie analogiczne art. 6 ust. 1 Ustawy o ochronie praw lokatorów).\n\n§ 2\nFORMA I TERMIN WPŁATY\n\n1. Kaucja zostaje wpłacona przelewem bankowym na rachunek Wynajmującego:\n   Bank: …………………………………………………………………………………\n   Numer rachunku (IBAN): ……………………………………………………………\n   Tytuł przelewu: „Kaucja – wynajem kontenera nr ………………… – [Najemca]”.\n2. Wpłata kaucji ma nastąpić nie później niż w dniu ………………… r., a w każdym razie przed oddaniem kontenera do użytkowania.\n3. Potwierdzeniem wpłaty jest potwierdzenie przelewu bankowego lub pokwitowanie wystawione przez Wynajmującego.\n\n§ 3\nPROTOKÓŁ ZDAWCZO-ODBIORCZY KONTENERA\n\n1. Przed oddaniem kontenera do użytkowania Strony sporządzają Protokoł zdawczo-odbiorczy kontenera (załącznik nr 1 do niniejszej Umowy), w którym ustalają stan techniczny i czystościowy kontenera, w tym ewentualne wady, uszkodzenia lub zanieczyszczenia istniejące w dniu rozpoczęcia wynajmu.\n2. Protokół podpisują obie Strony. Każda Strona otrzymuje po jednym egzemplarzu.\n3. Brak protokołu lub odmowa jego podpisania przez którąś ze Stron nie zwalnia Najemcę z odpowiedzialności za uszkodzenia powstałe w trakcie wynajmu, jednak utrudnia ustalenie stanu początkowego.\n4. Przy zwrocie kontenera Strony sporządzają drugi Protokoł zdawczo-odbiorczy, w którym porównują stan kontenera ze stanem z protokołu początkowego.\n\n§ 4\nNORMALNE ZUŻYCIE A USZKODZENIA\n\n1. Normalne zużycie kontenera wynikające z prawidłowego użytkowania zgodnie z przeznaczeniem (drobne rysy na podłodze, naturalne matowanie farby, ślady montażu regałów) nie stanowi podstawy do potrącenia z kaucji.\n2. Uszkodzeniami przekraczającymi normalne zużycie, które uprawniają do potrącenia z kaucji, są w szczególności:\n   a) przebicia, duże wgniecenia lub pęknięcia ścian, sufitu lub podłogi;\n   b) uszkodzenia drzwi, zamków, uszczelek, systemu wentylacji;\n   c) zanieczyszczenia chemiczne, olejowe, trudne do usunięcia;\n   d) uszkodzenia instalacji elektrycznej (jeśli kontener ją posiada);\n   e) korozja wywołana przechowywaniem substancji wilgociowych lub żrących bez zabezpieczenia.\n3. Ciężar udowodnienia, że uszkodzenia przekraczają normalne zużycie, spoczywa na Wynajmującym.\n\n§ 5\nZWROT KAUCJI\n\n1. Kaucja podlega zwrotowi w ciągu 30 dni kalendarzowych od dnia zwrotu kontenera (opróżnienia i oddania kluczy) Wynajmującemu, po potrąceniu uzasadnionych należności Wynajmującego (zastosowanie analogiczne art. 6 ust. 4 Ustawy o ochronie praw lokatorów oraz art. 455 Kodeksu cywilnego).\n2. Zwrot następuje przelewem na rachunek bankowy wskazany przez Najemcę w wezwaniu o zwrot kaucji lub w aneksie do niniejszej Umowy.\n3. W przypadku potrąceń z kaucji, Wynajmujący obowiązuje się doręczyć Najemcy pisemne rozliczenie kaucji z dokumentacją (protokół końcowy, faktury za naprawy, kosztorysy, zdjęcia) w terminie do 14 dni od dnia potrącenia.\n4. Jeżeli Wynajmujący nie zwróci kaucji ani jej części w terminie 30-dniowym, od dnia następnego po upływie terminu naliczane są odsetki ustawowe za opóźnienie zgodnie z art. 481 § 1 Kodeksu cywilnego, niezależnie od wysłania wezwania.\n\n§ 6\nZAKAZ KAR UMOWNYCH I PRZEPADKU KAUCJI\n\n1. Strony wykluczają przepadek kaucji oraz kary umowne za naruszenie regulaminu lub przepisów Umowy wynajmu. Wszelkie roszczenia Wynajmującego realizowane są na zasadach ogólnych – poprzez potrącenie udokumentowanych kosztów lub dochodzenie roszczeń w drodze sądowej.\n2. Klauzule przewidujące automatyczny przepadek kaucji lub kary umowne wielokrotności czynszu za naruszenie przepisów regulaminu są niedozwolone (zgodnie z linią orzeczniczą UOKIK, m.in. wpisy w rejestrze klauzul niedozwolonych: uokik_cb5493aeaf86a7af).\n\n§ 7\nPRAWO ZASTAWU USTAWOWEGO\n\n1. Dla zabezpieczenia czynszu oraz świadczeń dodatkowych, z którymi Najemca zalega nie dłużej niż rok, przysługuje Wynajmującemu ustawowe prawo zastawu na rzeczach ruchomych Najemcy wniesionych do kontenera, chyba że rzeczy te nie podlegają zajęciu (art. 670 § 1 Kodeksu cywilnego).\n2. Prawo to nie wyklucza prawa do potrącenia z kaucji.\n\n§ 8\nROZSTRZYGANIE SPORÓW\n\n1. Spory wynikające z niniejszej Umowy rozstrzyga sąd powszechny właściwy dla siedziby Wynajmującego.\n2. Strony zachęcają do przedsięwzięcia mediacji przed złożeniem pozewu.\n\n§ 9\nPOSTANOWIENIA KOŃCOWE\n\n1. Niniejsza Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej Strony.\n2. Zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n3. W sprawach nieuregulowanych w niniejszej Umowie mają zastosowanie przepisy Kodeksu cywilnego o najmie rzeczy ruchomych (art. 659–668 KC) oraz o zabezpieczeniach.\n4. Anaksy do niniejszej Umowy: Załącznik nr 1 – Wzór protokołu zdawczo-odbiorczego kontenera.\n\n……………………………………….., dnia ………………… r.\n\n....................................................\n(Wynajmujący – podpis)\n\n....................................................\n(Najemca – podpis)\n\n---\n\nZAŁĄCZNIK NR 1\nWZÓR PROTOKOŁU ZDAWCZO-ODBIORCZEGO KONTENERA MAGAZYNOWEGO\n\nProtokół nr ………\nMiejsce: ………………………\nData: ………………………\n\nStrony:\nWynajmujący: ……………………………………………………………………………\nNajemca: …………………………………………………………………………………\n\nKontener magazynowy nr: …………………\nLokalizacja: ……………………………………………………………………………\n\nSTAN KONTENERA PRZY ODDANIU / ODBIORZE *\n\n1. Ściany boczne (zewnętrzne/wewnętrzne): ……………………………………………\n2. Sufit: …………………………………………………………………………………\n3. Podłoga: ………………………………………………………………………………\n4. Drzwi (zamek, uszczelki, zawiasy, uchwyt): …………………………………………\n5. Wentylacja / otwory wentylacyjne: ……………………………………………………\n6. Instalacja elektryczna (jeśli dotyczy): ………………………………………………\n7. Podstawa / podkładka kontenera: ……………………………………………………\n8. Stan czystościowy wewnątrz: …………………………………………………………\n9. Inne uwagi / istniejące uszkodzenia (opis szczegółowy, zdjęcia): …………………\n   ……………………………………………………………………………………………\n   ……………………………………………………………………………………………\n\nZdjęcia wykonane: TAK / NIE (dołączone jako załącznik do protokołu)\n\nOświadczamy, że protokół odzwierciedla stan faktyczny kontenera w dniu ………………… r.\n\n....................................................\n(Wynajmujący – podpis)\n\n....................................................\n(Najemca – podpis)\n\n* Wykreślić niepotrzebne: PRZY ODDANIU (początek wynajmu) / PRZY ODBIORZE (koniec wynajmu).",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Wynajmuję kontener magazynowy i wynajmujący żąda wpłaty kaucji. Potrzebuję umowy, która ureguluje kwotę kaucji, sposób wpłaty i warunki jej zwrotu po zakończeniu wynajmu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Podpisałem umowę wynajmu kontenera magazynowego i teraz muszę wpłacić kaucję zabezpieczającą. Chcę, żeby dokładnie było określone, co uznaje się za normalne zużycie kontenera, a jakie uszkodzenia mogą zostać potrącone z kaucji. Zależy mi też na tym, żeby kaucja została mi zwrócona w konkretnym terminie po oddaniu kontenera, z pisemnym rozliczeniem ewentualnych potrąceń. Nie chcę, żeby umowa zawierała klauzulę automatycznego przepadku kaucji za drobne naruszenia regulaminu."
+  }
+ ]
+}

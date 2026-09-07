@@ -1,0 +1,307 @@
+{
+ "run": 26,
+ "hint": "Opieka nad zwierzętami i wyprowadzanie psów dla stałego klienta",
+ "scenario": "Opieka nad zwierzętami i wyprowadzanie psów dla stałego klienta",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_zlecenia'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of an \"umowa_zlecenia\" (contract of mandate) for pet care and dog walking services for a regular client. I need to:\n\n1. First read the base template for umowa_zlecenia\n2. Then search for relevant provisions related to pet care, dog walking, recurring services, etc.\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-2b44bc67-d05a-4d2f-aa31-acee8e889e98",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_zlecenia\", \"query\": \"pet care dog walking recurring services\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_zlecenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa o opiekę nad zwierzęciem\\nUmowa o opiekę nad zwierzęciem w Polsce to umowa o świadczenie usług lub umowa zlecenia, na podstawie której właściciel psa, kota lub innego zwierzęcia domowego powierza tymczasową opiekę nad swoim pupilem osobie trzeciej — opiekunowi, pet-sitterowi lub \\\"dozorowcy\\\". Podstawę prawną stanowi art. 750 w zw. z art. 734 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) — do umów o świadczenie usług nieuregulowanych odrębnymi przepisami stosuje się odpowiednio przepisy o zleceniu.\\n\\nW Polsce rynek usług pet-sitting dynamicznie rośnie. Właściciele zwierząt korzystają z usług opiekunów podczas urlopów, wyjazdów służbowych lub hospitalizacji. Pet-sitterzy działają jako osoby fizyczne lub w ramach działalności gospodarczej (CEIDG), coraz częściej za pośrednictwem platform internetowych takich jak Pawshake, DogBuddy czy rodzimego serwisu Opiekunpsa.pl. Niezależnie od formy działalności opiekuna, pisemna umowa o opiekę nad zwierzęciem w Polsce chroni obie strony.\\n\\nKluczowy aspekt prawny to odpowiedzialność za szkodę wyrządzoną przez zwierzę. Art. 431 Kodeksu cywilnego stanowi, że kto zwierzę chowa lub się nim posługuje, obowiązany jest do naprawienia wyrządzonej przez nie szkody niezależnie od winy — jest to odpowiedzialność obiektywna. W czasie sprawowania tymczasowej opieki to opiekun, jako faktyczny posiadacz zwierzęcia, ponosi tę odpowiedzialność wobec osób trzecich. Oznacza to, że gdy pies opiekuna ugryzi przechodnia podczas spaceru, poszkodowany może dochodzić odszkodowania od opiekuna przed Sądem Rejonowym.\\n\\nUstawa z dnia 21 sierpnia 1997 r. o ochronie zwierząt nakłada na osobę sprawującą opiekę nad zwierzęciem obowiązki analogiczne do tych nałożonych na właściciela. Art. 5 ustawy wymaga zapewnienia właściwych warunków bytowania, wyżywienia i opieki weterynaryjnej. Naruszenie tych obowiązków może skutkować interwencją Powiatowego Lekarza Weterynarii lub Policji. Dobrze sporządzona umowa o opiekę nad zwierzęciem w Polsce precyzuje wytyczne żywienia, harmonogram spacerów, zakres uprawnień do interwencji weterynaryjnej i podział kosztów, co eliminuje ryzyko sporów po powrocie właściciela.\\n\\nUmowa o opiekę nad zwierzęciem w Polsce jest potrzebna zawsze, gdy właściciel powierza tymczasową opiekę nad zwierzęciem osobie trzeciej, zwłaszcza gdy opieka jest odpłatna lub trwa dłużej niż kilka dni.\\n\\nUrlop lub wyjazd służbowy. Właściciel psa lub kota wyjeżdżający na urlop przez 1-3 tygodnie potrzebuje pisemnej umowy z pet-sitterem lub pet-hotelem. Umowa określa wytyczne żywienia, harmonogram spacerów, kontakt alarmowy do lekarza weterynarii i zakres uprawnień do interwencji medycznej.\\n\\nHospitalizacja lub choroba właściciela. W nagłych przypadkach zdrowotnych pisemna umowa umożliwia szybkie przekazanie opieki zaufanej osobie z pełną informacją o potrzebach zwierzęcia, lekach i specyficznych wymaganiach gatunkowych.\\n\\nPet-sitting jako działalność zawodowa. Osoby świadczące usługi opiekunów zwierząt w ramach własnej firmy (działalność gospodarcza, CEIDG) lub za pośrednictwem platform cyfrowych powinny stosować pisemne umowy dla każdego zlecenia. Umowa chroni przed roszczeniami właściciela o uszkodzenie zwierzęcia lub szkodę wyrządzoną przez psa podczas spaceru.\\n\\nOpieka w hotelu dla zwierząt lub u rodziny. Kliniki weterynaryjne i hotele dla zwierząt oferujące boarding stosują własne wzory umów, jednak właściciel powinien wymagać pisemnego potwierdzenia warunków opieki. Przy powierzeniu zwierzęcia rodzinie lub znajomemu na czas wakacji nawet nieformalna umowa chroni relację i wyjaśnia oczekiwania co do standardów opieki.\\n\\nOpieka nad egzotycznym zwierzęciem. Psy i koty to nie jedyne zwierzęta domowe wymagające umowy — dotyczy to również ptaków ozdobnych (papugi, kakadu), gryzoni, gadów i zwierząt akwariowych. Specyficzne wymagania gatunkowe (temperatura, wilgotność, specjalistyczna karma) wymagają szczegółowych wytycznych zawartych w umowie.\\n\\nWizyta u weterynarza lub trening psa. Gdy inna osoba odprowadza psa do weterynarza lub prowadzi treningi, upoważnienie zawarte w umowie o opiekę upraszcza procedury weterynaryjne i ubezpieczeniowe.\\n\\nUmowa o opiekę nad zwierzęciem w Polsce powinna zawierać elementy zapewniające klarowny podział obowiązków i ochronę prawną obu stron.\\n\\nDokładny opis zwierzęcia. Gatunek i rasa, imię, data urodzenia, numer mikroczipa (ISO 11784/11785), płeć i ewentualne cechy szczególne (choroby przewlekłe, leki, fobia dźwięków). Precyzyjny opis zwierzęcia jest podstawą identyfikacji w razie zaginięcia lub wypadku — umożliwia zgłoszenie do Policji, schroniska miejskiego lub Powiatowego Lekarza Weterynarii.\\n\\nOkres opieki. Dokładne daty i godziny przekazania zwierzęcia i odbioru po zakończeniu opieki. Precyzyjne określenie okresu ma znaczenie dla ustalenia odpowiedzialności opiekuna na podstawie art. 431 KC — odpowiada on za szkody wyrządzone przez zwierzę tylko w czasie faktycznego sprawowania opieki.\\n\\nWytyczne dotyczące żywienia i pielęgnacji. Szczegółowe instrukcje: rodzaj i ilość karmy, harmonogram posiłków, harmonogram spacerów i długość tras, zabiegi pielęgnacyjne (szczotkowanie, kąpiel), leki z dawkowaniem i harmonogramem podawania. Wytyczne właściciela są wiążące dla opiekuna — ich naruszenie rodzi odpowiedzialność z art. 471 KC (niewykonanie lub nienależyte wykonanie zobowiązania).\\n\\nZakres uprawnień weterynaryjnych. Jasne określenie, do jakiej kwoty opiekun może samodzielnie podjąć interwencję weterynaryjną bez uprzedniej zgody właściciela. W nagłych przypadkach zagrożenia życia opiekun powinien mieć prawo działać natychmiast. forms-legal.com udostępnia warianty z progami kwotowymi (np. do 500 zł bez zgody, powyżej — po kontakcie z właścicielem).\\n\\nKoszty weterynaryjne i ich rozliczenie. Kto ponosi koszty rutynowych wizyt, a kto nagłe koszty leczenia? Obowiązek zachowania rachunków i przedstawienia ich do rozliczenia po zakończeniu opieki. Przy opiece zawodowej opiekun może ubezpieczyć się od odpowiedzialności cywilnej za szkody w zwierzęciu (polisa OC dla pet-sitterów).\\n\\nWynagrodzenie i warunki płatności. Kwota wynagrodzenia dzienna lub łączna, forma płatności (gotówka, przelew). Przy opiece nieodpłatnej wyraźna adnotacja — inaczej Urząd Skarbowy może kwalifikować nieodpłatne korzyści jako przychód. Profesjonalni pet-sitterzy pobierają wynagrodzenie i wystawiają rachunek lub fakturę.\\n\\nOdpowiedzialność za szkody i ubezpieczenie. Kto ponosi odpowiedzialność za szkodę wyrządzoną przez zwierzę osobom trzecim podczas opieki (art. 431 KC) i za szkodę wyrządzoną zwierzęciu przez zaniedbanie opiekuna. Warto zastanowić się nad polisą OC właściciela lub opiekuna — polskie towarzystwa ubezpieczeniowe oferują rozszerzenia polis domowych obejmujące szkody wyrządzone przez zwierzęta.\\n\\nUmowa o opiekę nad zwierzęciem w Polsce jest wypełniana przez obie strony przed przekazaniem zwierzęcia.\\n\\nKrok 1 — dane stron. Wpisz pełne imię i nazwisko, adres i numer PESEL właściciela oraz opiekuna. Jeżeli opiekun prowadzi działalność gospodarczą (pet-sitter zawodowy), wpisz nazwę firmy, NIP i numer CEIDG lub KRS.\\n\\nKrok 2 — opis zwierzęcia. Przepisz ze szczepionnika lub dokumentacji weterynaryjnej: gatunek, rasę, imię, datę urodzenia, numer mikroczipa, stan szczepień i ewentualne schorzenia przewlekłe (cukrzyca, epilepsja, alergie). Dołącz kopię książeczki szczepień jako załącznik.\\n\\nKrok 3 — okres opieki. Wpisz dokładne daty od–do, uwzględniając godziny przekazania i odbioru. Ustal, co się stanie, jeśli właściciel nie odbierze zwierzęcia w terminie — ewentualne przedłużenie opieki za dodatkowym wynagrodzeniem.\\n\\nKrok 4 — wytyczne żywienia i pielęgnacji. Opisz szczegółowo: markę i ilość karmy, godziny posiłków, częstotliwość i długość spacerów, leki z precyzyjnym dawkowaniem i porami podawania, specjalne zakazy (np. niektóre przysmaki groźne dla psów o alergiach pokarmowych).\\n\\nKrok 5 — uprawnienia weterynaryjne i koszty. Zdecyduj, do jakiej kwoty opiekun może samodzielnie interweniować, i wpisz nazwę zaufanej kliniki weterynaryjnej oraz kontakt do lekarza weterynarii. Ustal, kto w pierwszej kolejności ponosi koszt interwencji nagłej.\\n\\nKrok 6 — wynagrodzenie. Wpisz kwotę lub adnotację o nieodpłatności. Przy odpłatnej usłudze ustal termin płatności i numer rachunku bankowego.\\n\\nKrok 7 — podpisanie. Obie strony podpisują umowę w dniu przekazania zwierzęcia. Właściciel przekazuje opiekunowi kluczowe dokumenty: książeczkę zdrowia psa z aktualnym szczepieniem na wściekliznę i numer telefonu do swojego lekarza weterynarii.\\n\\nUmowa o opiekę nad zwierzęciem w Polsce podlega przepisom Kodeksu cywilnego, ustawy o ochronie zwierząt i przepisom podatkowym.\\n\\nKodeks cywilny — zlecenie i usługi (art. 734, 750 KC). Odpłatna opieka nad zwierzęciem jest umową o świadczenie usług, do której stosuje się przepisy o zleceniu (art. 734–751 KC). Art. 740 KC zobowiązuje zleceniobiorcę do informowania zleceniodawcy na żądanie o przebiegu sprawy. Art. 742 KC nakłada obowiązek naprawienia szkody wynikłej z wadliwego wykonania zlecenia. Art. 746 KC reguluje wypowiedzenie umowy zlecenia przez każdą ze stron.\\n\\nOdpowiedzialność za szkody (art. 431 KC). Kto zwierzę chowa lub się nim posługuje, odpowiada za szkodę wyrządzoną przez zwierzę. Odpowiedzialność ma charakter obiektywny — nie jest wymagane wykazanie winy. W czasie sprawowania opieki tymczasowej to opiekun, jako faktyczny posiadacz zwierzęcia, ponosi tę odpowiedzialność wobec osób trzecich. Poszkodowany przez psa może wnosić powództwo do Sądu Rejonowego właściwego miejscowo.\\n\\nUstawa o ochronie zwierząt (art. 5 i nast.). Art. 5 nakłada na każdą osobę sprawującą opiekę nad zwierzęciem obowiązek zapewnienia mu właściwych warunków bytowania. Naruszenie tych obowiązków może skutkować interwencją Powiatowego Lekarza Weterynarii lub Policji i odpowiedzialnością na podstawie art. 35 ustawy o ochronie zwierząt (kara ograniczenia wolności lub grzywny za znęcanie się nad zwierzętami).\\n\\nPrzepisy podatkowe. Jeżeli opiekun świadczy usługę odpłatnie i jest osobą fizyczną nieprowadzącą działalności gospodarczej, wynagrodzenie podlega opodatkowaniu podatkiem dochodowym od osób fizycznych (PIT) jako przychód z innych źródeł. Jeżeli pet-sitter prowadzi działalność gospodarczą (CEIDG), wynagrodzenie podlega VAT (jeśli jest płatnikiem VAT) i rozliczeniu w ramach PIT lub ryczałtu. Właściciel płacący wynagrodzenie osobie fizycznej nieprowadzącej działalności gospodarczej nie jest w Polsce zobowiązany do poboru zaliczki na podatek, chyba że wynagrodzenie przekracza 200 zł — wtedy stosuje się art. 30 ust. 1 pkt 5a ustawy o PIT.\\n\\nUbezpieczenie OC. Polskie towarzystwa ubezpieczeniowe (PZU, Warta, Allianz, Generali) oferują rozszerzenia polis mieszkaniowych lub OC w życiu prywatnym obejmujące szkody wyrządzone przez psy i inne zwierzęta domowe. Zawodowi opiekunowie powinni posiadać odrębną polisę OC dla pet-sitterów lub zawrzeć umowę z klauzulą OC działalności.\\n\\nUmowa o opiekę nad zwierzęciem w Polsce bywa wadliwa z powodu poniższych błędów, których można uniknąć dzięki starannemu sporządzeniu dokumentu.\\n\\nBłąd 1 — brak wytycznych dotyczących żywienia. Opiekun nie wie, jaką karmę podawać, w jakich ilościach i o jakich porach. Szczenięta, psy z alergiami lub chorobami metabolicznymi wymagają ściśle zdefiniowanej diety. Bez wytycznych zmiana karmy może wywołać biegunkę lub poważniejsze problemy zdrowotne, a właściciel może żądać odszkodowania od opiekuna za niedbałość.\\n\\nBłąd 2 — niejasny zakres uprawnień weterynaryjnych. Gdy pies zachoruje, opiekun nie wie, czy ma prawo zabrać zwierzę do lekarza weterynarii, do jakiej kwoty może to zrobić samodzielnie i w jakiej klinice. Precyzja w tym zakresie jest kluczowa dla dobrostanu zwierzęcia i rozliczeń finansowych.\\n\\nBłąd 3 — brak klauzuli odpowiedzialności. Bez wyraźnego określenia, kto odpowiada za szkodę wyrządzoną przez psa podczas spaceru, właściciel i opiekun mogą toczyć spór, kto pokryje roszczenie poszkodowanego przechodnia. Art. 431 KC przypisuje odpowiedzialność posiadaczowi, jednak doprecyzowanie w umowie ogranicza spory.\\n\\nBłąd 4 — nieokreślony czas opieki. Bez dokładnych dat i godzin przekazania i odbioru zwierzęcia niemożliwe jest ustalenie, za jaki okres opiekun ponosi odpowiedzialność. Opóźnienie odbioru przez właściciela bez uzgodnienia zasad przedłużenia prowadzi do nieporozumień.\\n\\nBłąd 5 — brak informacji o specjalnych potrzebach. Pominięcie informacji o lekach, fobiach (grzmoty, fajerwerki), schorzeniach przewlekłych lub zachowaniach reaktywnych psa wobec innych zwierząt naraża opiekuna i osoby trzecie na szkodę.\\n\\nBłąd 6 — pomyłka przy wynagrodzeniu. Wpisanie \\\"wg uzgodnienia\\\" zamiast konkretnej kwoty rodzi spory o wysokość wynagrodzenia. W przypadku opieki nieodpłatnej należy wyraźnie zaznaczyć tę okoliczność, by uniknąć kłopotów podatkowych.\\n\\nŹródło: https://forms-legal.com/pl/business/services/umowa-o-opieke-nad-zwierzeciem (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-2b44bc67-d05a-4d2f-aa31-acee8e889e98",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "This is a great template for pet care services. Now I need to search for additional relevant provisions, particularly around:\n1. Recurring/regular services (since this is for a \"stały klient\" - regular client)\n2. Dog walking specifics\n3. Minimum hourly wage provisions (since this is an umowa zlecenia)\n4. Liability for animals (art. 431 KC)\n5. Animal protection act provisions\n6. Key handover/access provisions\n7. Emergency veterinary care provisions\n\nLet me search for more specific provisions.",
+   "tool_calls": [
+    {
+     "id": "call-049b3a07-0332-49c8-ac50-057b536f1be4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"umowa zlecenia opieka nad psem wyprowadzanie psów regularna usługa harmonogram klucze dostęp do mieszkania\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}, {\"chunk_id\": \"curated:kc_zlecenie_due_care_750\", \"source_id\": \"curated:kc_zlecenie_due_care_750\", \"source_type\": \"statute_summary\", \"top_category\": \"service_quality\", \"title\": \"KC art. 734-751 i art. 750 - zlecenie i usługi\", \"display_address\": \"KC art. 734-751 i art. 750 - zlecenie i usługi\", \"legal_area\": [\"contracts\"], \"text\": \"KC art. 734-751 i art. 750 - zlecenie i usługi\\nPrzy umowie zlecenia i zwykłej umowie o świadczenie usług stosuje się reżim starannego działania. Art. 750 KC nakazuje odpowiednie stosowanie przepisów o zleceniu do usług nieuregulowanych innymi przepisami. Bez wyraźnego ustalenia rezultatu jakość usług należy opisywać przez należytą staranność, standard wykonania, współdziałanie stron, procedurę zgłoszenia zastrzeżeń i poprawę usługi.\"}, {\"chunk_id\": \"extractor_v9:broad_0046_statute_b522ee4d1ba32a38\", \"source_id\": \"sejm_eli_du_2023_725_art_19m\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"1, zawiera w szczególności: 1) określenie stron, miejsca i daty podpisania umowy; 2) oznaczenie przedmiotu umowy; 3) czynsz najmu, opłaty niezależne od właściciela oraz inne opłaty związane z korzystaniem z lokalu mieszkalnego; 4) cenę sprzedaży lokalu mieszkalnego; 5) harmonogram określający wysokość i terminy płatności poszczególnych rat ceny sprzedaży; 6) zobowiązanie właściciela do przeniesienia prawa własności lokalu mieszkalnego wraz z prawami niezbędnymi do korzystania z tego lokalu po zapłaceniu całej ceny; 7) zobowiązanie najemcy do zapłaty całej ceny za lokal mieszkalny w sposób okre ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_3\", \"source_id\": \"sejm_eli_du_2024_1796_art_3\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 3. 1. Przepisów ustawy nie stosuje się do umów: 1) dotyczących usług socjalnych, mieszkań socjalnych, opieki nad dziećmi, wsparcia dla rodzin i osób znajdujących się stale lub czasowo w potrzebie, w tym opieki długoterminowej, z wyjątkiem art. 7a; 2) dotyczących gier hazardowych; 3) zawieranych z przedsiębiorcą dokonującym częstych i regularnych objazdów, podczas których przedsiębiorca dostarcza środki spożywcze, napoje i inne artykuły, pr ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43k\", \"source_id\": \"sejm_eli_du_2024_1796_art_43k\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43k. 1. Treść cyfrowa lub usługa cyfrowa są zgodne z umową, jeżeli zgodne z umową pozostają w szczególności ich: 1) opis, rodzaj, ilość, jakość, kompletność, funkcjonalność, kompatybilność, interoperacyjność oraz dostępność wsparcia technicznego i aktualizacji; 2) przydatność do szczególnego celu, do którego są potrzebne konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przedsiębiorca zaa ...\"}]",
+   "tool_call_id": "call-049b3a07-0332-49c8-ac50-057b536f1be4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search results aren't very specific to pet care. Let me search for more specific provisions related to recurring services, key handover, and animal liability.",
+   "tool_calls": [
+    {
+     "id": "call-c5ba906d-8e3c-40a2-b7d6-bee0661c2e9e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 431\", \"odpowiedzialność za zwierzę\", \"opieka nad zwierzęciem\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_441\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 441. § 1. Podwyższenie kapitału zakładowego zarząd zgłasza do sądu rejestrowego. § 2. Do zgłoszenia należy dołączyć: 1) uchwałę walnego zgromadzenia o podwyższeniu kapitału zakładowego bądź uchwałę zarządu, o której mowa w art. 446 § 1; 2) ogłoszenie i wzór zapisu, jeżeli podwyższenie kapitału nastąpiło w drodze subskrypcji zamkniętej albo otwartej; 3) spis nabywców akcji z uwidocznieniem liczby akcji, przypadających na każdego z nich,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_431\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 431. § 1. Kto zwierzę chowa albo się nim posługuje, obowiązany jest do naprawienia wyrządzonej przez nie szkody niezależnie od tego, czy było pod jego nadzorem, czy też zabłąkało się lub uciekło, chyba że ani on, ani osoba, za którą ponosi odpowiedzialność, nie ponoszą winy. § 2. Chociażby osoba, która zwierzę chowa lub się nim posługuje, nie była odpowiedzialna według przepisów paragrafu poprzedzającego, poszkodowany może od niej żądać całkowit ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_431\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 431. W sprawach przewidzianych w niniejszym rozdziale rozstrzygnięcia nie można oprzeć wyłącznie na uznaniu powództwa lub przyznaniu faktów. W sprawach tych nie stosuje się art. 339 § 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_431\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 431. § 1. Środek odwoławczy można cofnąć. § 2. Oskarżony może cofnąć wniesiony na jego korzyść środek odwoławczy, chyba że wniósł go oskarżyciel publiczny lub zachodzi wypadek przewidziany w art. 79. § 3. Środka odwoławczego wniesionego na korzyść oskarżonego nie można bez jego zgody cofnąć.\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_539f\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 539f. Przepisy art. 425 § 3 i 4, art. 428 § 1, art. 431, art. 432, art. 435, art. 436, art. 442 § 1 i 3, art. 457 § 1 i 3, art. 525 § 1, art. 526, art. 527 § 1-4, art. 528 § 1, art. 530 § 2 i 3, art. 531, art. 534 § 1 i art. 536, a także przepisy wydane na podstawie art. 527 § 5 stosuje się odpowiednio. Rozdział 56 Wznowienie postępowania\"}]",
+   "tool_call_id": "call-c5ba906d-8e3c-40a2-b7d6-bee0661c2e9e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I found the art. 431 KC text. Now let me search for more specific provisions related to recurring services, key handover, and the Animal Protection Act.",
+   "tool_calls": [
+    {
+     "id": "call-2fb90079-2b4a-495c-9991-98e1ec8d2f92",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ustawa o ochronie zwierząt\", \"art. 5\", \"opieka nad zwierzęciem\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_725_art_48\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 48. Ustawa wchodzi w życie po upływie 14 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 6 lit. b, pkt 7 lit. f w zakresie art. 5 ust. 3b oraz lit. i w zakresie art. 5 ust. 4e oraz pkt 14 lit. d, które wchodzą w życie po upływie 2 miesięcy od dnia ogłoszenia; 2) art. 1 pkt 7 lit. f w zakresie art. 5 ust. 3a oraz pkt 7 lit. m w zakresie art. 5 ust. 6ca pkt 1 lit. a, a także art. 22, które wchodzą w życie po upływie 6 miesięcy od dnia ogłoszenia ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_59i\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 59i. 1. W przypadku stwierdzenia użytkowania obiektu budowlanego lub jego części z naruszeniem przepisów art. 54 i art. 55 organ nadzoru budowlanego poucza inwestora lub właściciela, że obiekt budowlany nie może być użytkowany bez uzyskania decyzji o pozwoleniu na użytkowanie lub dokonania skutecznego zawiadomienia o zakończeniu budowy. 2. Organ nadzoru budowlanego potwierdza pouczenie wpisem w protokole kontroli, a w przypadku nieobecności inwes ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_516\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 516 15 . § 1 73) W brzmieniu ustalonym przez art. 1 pkt 26 lit. a ustawy, o której mowa w odnośniku 3. . Jeżeli spółka przejmująca posiada w spółce albo spółkach przejmowanych wszystkie udziały, akcje i inne papiery wartościowe, zapewniające prawo do głosowania na zgromadzeniu wspólników albo walnym zgromadzeniu spółki albo spółek przejmowanych, albo w przypadku gdy połączenie transgraniczne przez przejęcie jest przeprowadzane przez spó ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_539f\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 539f. Przepisy art. 425 § 3 i 4, art. 428 § 1, art. 431, art. 432, art. 435, art. 436, art. 442 § 1 i 3, art. 457 § 1 i 3, art. 525 § 1, art. 526, art. 527 § 1-4, art. 528 § 1, art. 530 § 2 i 3, art. 531, art. 534 § 1 i art. 536, a także przepisy wydane na podstawie art. 527 § 5 stosuje się odpowiednio. Rozdział 56 Wznowienie postępowania\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_665\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 665 5 . § 1. W sprawach ograniczenia zarządu sukcesyjnego majątkiem osoby, która nie ma zdolności do czynności prawnych albo której zdolność do czynności prawnych jest ograniczona, właściwy jest sąd opiekuńczy. § 2. W sprawach, o których mowa w § 1, przepisy art. 568, art. 569, art. 570, art. 570 1 § 1-2, art. 572-577, art. 578 § 1, art. 578 1 , art. 579 oraz art. 582 stosuje się odpowiednio. Rozdział 7 Zarząd spadku nieobjęt ...\"}]",
+   "tool_call_id": "call-2fb90079-2b4a-495c-9991-98e1ec8d2f92",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The search didn't find the Animal Protection Act. Let me try a different search approach.",
+   "tool_calls": [
+    {
+     "id": "call-c0053211-408d-4107-ab37-9d15b25ff914",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ustawa o ochronie zwierząt art 5 obowiązki opiekuna warunki bytowania wyżywienie weterynarz\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_590\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 590. Obejmując opiekę opiekun składa następujące przyrzeczenie: „Przyrzekam, że powierzone mi obowiązki opiekuna wykonam z całą sumiennością i zgodnie z interesem społecznym, mając zawsze na względzie dobro osoby podlegającej mojej pieczy”.\"}, {\"chunk_id\": \"sejm_eli_du_2023_2809_art_128\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 128. Obowiązek dostarczania środków utrzymania, a w miarę potrzeby także środków wychowania (obowiązek alimentacyjny) obciąża krewnych w linii prostej oraz rodzeństwo.\"}, {\"chunk_id\": \"sejm_eli_du_2019_1000_art_7\", \"source_id\": \"sejm_eli_du_2019_1000_art_7\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 7. Zwalnia się od opłaty skarbowej: 1) pod warunkiem wzajemności, państwa obce, ich przedstawicielstwa dyplomatyczne, urzędy konsularne i siły zbrojne, międzynarodowe organizacje i instytucje oraz ich oddziały i przedstawicielstwa, korzystające na podstawie ustaw, umów lub powszechnie uznanych zwyczajów międzynarodowych z przywilejów i immunitetów, a także członków ich personelu i inne osoby zrównane z nimi, jeżeli nie są one obywatelami polskimi i nie mają miejsca stałego pobytu na terytoriu ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_591\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 591. § 1. Po złożeniu przyrzeczenia przez opiekuna sąd opiekuńczy wydaje mu zaświadczenie. § 2. Po zwolnieniu opiekuna lub ustaniu opieki opiekun obowiązany jest zwrócić sądowi opiekuńczemu otrzymane zaświadczenie.\"}, {\"chunk_id\": \"sejm_eli_du_2023_2809_art_152\", \"source_id\": \"sejm_eli_du_2023_2809\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\", \"display_address\": \"Dz.U. 2023 poz. 2809\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks rodzinny i opiekuńczy\\nArt. 152. Każdy, kogo sąd opiekuńczy ustanowi opiekunem, obowiązany jest opiekę objąć. Z ważnych powodów sąd opiekuńczy może zwolnić od tego obowiązku.\"}]",
+   "tool_call_id": "call-c0053211-408d-4107-ab37-9d15b25ff914",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam kogoś, kto regularnie wyprowadza mojego psa i pilnuje go, gdy nie mogę być w domu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Potrzebuję opiekuna, który wyprowadza mojego labradora trzy razy w tygodniu rano przed pracą, a w weekendy dłużej spaceruje z nim w parku. Raz na kilka miesięcy wyjeżdżam na kilka dni i chciałbym, żeby ktoś przychodził do mnie, karmił psa, dawał mu leki i zostawiał mi zdjęcia, żebym wiedział, że wszystko w porządku."
+  }
+ ]
+}

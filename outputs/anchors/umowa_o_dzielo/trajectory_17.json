@@ -1,0 +1,307 @@
+{
+ "run": 23,
+ "hint": "Ghostwriting artykułów eksperckich na LinkedIn",
+ "scenario": "Ghostwriting artykułów eksperckich na LinkedIn",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_dzielo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of an \"umowa o dzieło\" (contract for a specific work) for ghostwriting expert articles on LinkedIn. I need to:\n\n1. First read the base template for umowa_o_dzielo\n2. Search for provisions relevant to ghostwriting, LinkedIn articles, copyright transfer for written works, etc.\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-9a95215f-25fa-48fc-86a6-7ebf4abbae96",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"ghostwriting artykułów eksperckich LinkedIn\", \"doc_type\": \"umowa_o_dzielo\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_dzielo\", \"kind\": \"structural_template\", \"text\": \"# Umowa copywriterska\\nUmowa copywriterska w Polsce to umowa o dzieło w rozumieniu art. 627 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której copywriter lub agencja contentowa (przyjmujący zamówienie) zobowiązuje się tworzyć i dostarczać oryginalne teksty — artykuły, opisy produktów, posty, hasła reklamowe — a zamawiający zobowiązuje się zapłacić wynagrodzenie. Jest to umowa rezultatu, co oznacza, że copywriter odpowiada za dostarczenie gotowego, zgodnego z wytycznymi tekstu, a nie jedynie za staranne działanie.\\n\\nTworzenie treści obejmuje szerokie spektrum prac: artykuły blogowe i eksperckie, teksty SEO zoptymalizowane pod określone frazy kluczowe, opisy produktów i kategorii w sklepach internetowych, posty i scenariusze do mediów społecznościowych, newsletter, teksty reklamowe (copywriting sprzedażowy), treści na stronę internetową, whitepapers i raporty, hasła reklamowe oraz skrypty filmów i podcastów. Każdy z tych tekstów, jeżeli posiada indywidualny charakter twórczy, jest jednocześnie utworem w rozumieniu art. 1 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 1994 nr 24 poz. 83 ze zm.), chronionym z mocy prawa od chwili ustalenia.\\n\\nKluczowym zagadnieniem w umowie copywriterskiej jest uregulowanie praw autorskich. Autorskie prawa majątkowe do tekstu przysługują copywriterowi jako twórcy i nie przechodzą na zamawiającego automatycznie z chwilą zapłaty wynagrodzenia. Aby zamawiający mógł publikować, modyfikować i dystrybuować teksty, umowa musi zawierać klauzulę przeniesienia autorskich praw majątkowych z wymienionymi polami eksploatacji (art. 41 ust. 2 i art. 50 pr. aut.). Przeniesienie praw wymaga formy pisemnej pod rygorem nieważności (art. 53 pr. aut.). Autorskie prawa osobiste copywritera, w tym prawo do autorstwa i integralności tekstu, pozostają niezbywalne (art. 16 pr. aut.).\\n\\nWynagrodzenie copywritera może być ustalane na różne sposoby: za jeden tekst lub artykuł, za 1 000 znaków ze spacjami (najczęstsza praktyka), za słowo lub jako stawka ryczałtowa miesięczna. Przy wynagrodzeniu ryczałtowym (art. 632 KC) nie można żądać podwyższenia go po zawarciu umowy. Jeżeli copywriter jest czynnym podatnikiem VAT i prowadzi działalność gospodarczą, do wynagrodzenia netto dolicza się podatek od towarów i usług według stawki 23%, zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług. Zamawiający będący podmiotem gospodarczym ma obowiązek zgłoszenia umowy o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD.\\n\\nWalidacja oryginalności tekstów jest współcześnie istotnym elementem umowy copywriterskiej. Zamawiający mogą wymagać, aby teksty spełniały minimalny poziom oryginalności (na przykład 90% w narzędziu do sprawdzania duplikatów) oraz deklaracji copywritera o nieużywaniu systemów sztucznej inteligencji bez twórczego wkładu własnego. Ochrona przed plagiatem jest kwestią zarówno prawną (ustawa o prawie autorskim), jak i praktyczną — wyszukiwarki i Urząd Ochrony Konkurencji i Konsumentów (UOKiK) reagują na niezgodne z prawem kopiowanie treści.\\n\\nUmowa copywriterska pozwala stronom jasno uregulować warunki współpracy: zakres i harmonogram dostarczania tekstów, wytyczne redakcyjne i SEO, liczbę poprawek, zasady rozliczenia oraz prawa autorskie. Dobrze sporządzona umowa eliminuje spory o to, kto jest właścicielem textu i na jakich warunkach zamawiający może go modyfikować lub udostępnić innym podmiotom.\\n\\nUmowa copywriterska w Polsce jest potrzebna w każdej sytuacji, gdy zamawiasz tworzenie treści tekstowych i chcesz uregulować prawa do gotowych materiałów.\\n\\nTworzenie treści na stronę internetową i blog. Firmy zlecające pisanie artykułów, opisów usług i treści na blog zawierają umowę copywriterską regulującą zakres tekstów, wytyczne SEO, harmonogram dostarczania i prawa do publikacji w internecie.\\n\\nOpisy produktów i kategorii w sklepie internetowym. Sklepy internetowe zlecające masowe tworzenie opisów produktów zawierają umowę określającą liczbę opisów, ich objętość, styl oraz wynagrodzenie za 1 000 znaków, a także prawa do modyfikacji i tłumaczenia opisów.\\n\\nContent marketing i treści do mediów społecznościowych. Marki i agencje zlecające copywriting do mediów społecznościowych, newslettera i kampanii e-mail zawierają umowę regulującą ton głosu, harmonogram publikacji i prawa do treści na wszystkich platformach dystrybucji.\\n\\nCopywriting reklamowy i hasła marketingowe. Kampanie reklamowe wymagające haseł, sloganów i tekstów sprzedażowych wymagają umowy o dzieło z przeniesieniem praw majątkowych, w tym pola eksploatacji obejmującego nadawanie i reklamy zewnętrzne.\\n\\nTworzenie raportów, whitepapers i treści eksperckich. Firmy zlecające tworzenie długich form treści eksperckich (poradniki, raporty, e-booki) zawierają umowę copywriterską z klauzulą o autorerstwie (ghostwriting), w której copywriter zrzeka się prawa do oznaczania tekstu swoim nazwiskiem.\\n\\nLokalizacja i adaptacja treści. Projekty obejmujące adaptację treści dla różnych rynków lub tłumaczenie z zachowaniem ducha przekazu wymagają umowy określającej prawa do adaptacji i tłumaczeń jako odrębnych pól eksploatacji.\\n\\nStała współpraca contentowa. Firmy korzystające ze stałej obsługi copywriterskiej zawierają umowę ramową z miesięcznym wynagrodzeniem lub abonamentem, określającą minimalną liczbę tekstów, stawki za nadgodziny i tryb zakończenia współpracy.\\n\\nUmowa copywriterska w Polsce powinna zawierać następujące kluczowe elementy, które chronią obie strony i zapewniają zgodność z art. 627 Kodeksu cywilnego i ustawą o prawie autorskim.\\n\\nOznaczenie stron. Pełne dane zamawiającego i copywritera: firma lub imię i nazwisko, adres, NIP, KRS dla spółek lub PESEL dla osób fizycznych, wpis do CEIDG. Prawidłowa identyfikacja pozwala ustalić strony umowy oraz ich status podatkowy w Krajowej Administracji Skarbowej (KAS).\\n\\nRodzaj i zakres treści. Dokładny opis zamawianych tekstów — rodzaj, liczba, objętość (znaki ze spacjami, słowa lub strony), przeznaczenie (blog, opis produktu, reklama). Precyzja opisu jest kluczowa dla umowy o dzieło (art. 627 KC) i pozwala ocenić należyte wykonanie.\\n\\nWytyczne redakcyjne i SEO. Styl, ton głosu, wymagania dotyczące fraz kluczowych, poziom oryginalności, wymagania językowe i formaty plików dostarczanych tekstów. Wytyczne redakcyjne mogą być przekazywane w briefach cząstkowych dla każdego tekstu.\\n\\nWynagrodzenie — stawka i zasady rozliczenia. Stawka za 1 000 znaków ze spacjami, za słowo, za tekst lub ryczałt miesięczny (art. 632 KC), termin płatności i fakturowania. Do wynagrodzenia netto dolicza się VAT 23%, jeżeli copywriter jest czynnym podatnikiem. forms-legal.com zaleca wskazanie stawki za dodatkowe poprawki wykraczające poza ustalony limit.\\n\\nPola eksploatacji i przeniesienie praw autorskich. Klauzula przenosząca autorskie prawa majątkowe na zamawiającego z wymienionymi polami eksploatacji (art. 50 pr. aut.): publiczne udostępnianie w internecie, zwielokrotnianie, tłumaczenia, adaptacje. Przeniesienie obejmuje tylko wymienione pola (art. 41 ust. 2 pr. aut.) i wymaga formy pisemnej (art. 53 pr. aut.).\\n\\nOryginalność i zakaz duplikatów. Oświadczenie copywritera o oryginalności tekstów i nienaruszaniu praw osób trzecich, w tym zakaz publikowania tekstu w innych miejscach przed przekazaniem zamawiającemu oraz zakaz używania plagiatów lub generowania tekstu przez AI bez twórczego wkładu własnego.\\n\\nTerminy dostarczania i liczba poprawek. Harmonogram dostarczania tekstów i termin na zgłaszanie poprawek po dostarczeniu. Liczba bezpłatnych rund poprawek i stawka za każdą dodatkową rundę.\\n\\nPoufność i ochrona danych. Klauzula zachowania tajemnicy przedsiębiorstwa Zamawiającego (ustawa o zwalczaniu nieuczciwej konkurencji) oraz zobowiązanie do przestrzegania RODO przy przetwarzaniu danych osobowych nadzorowanym przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nUmowa copywriterska w Polsce wypełniana jest krok po kroku, aby uregulować współpracę zgodnie z art. 627 Kodeksu cywilnego i ustawą o prawie autorskim.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane zamawiającego i copywritera: firmę lub imię i nazwisko, adres, NIP, PESEL lub KRS, wpis do CEIDG. Ustal, czy copywriter prowadzi działalność gospodarczą, co wpływa na obowiązki podatkowe i ubezpieczeniowe.\\n\\nKrok 2 — opisz rodzaj i zakres treści. Szczegółowo wpisz, jakie teksty mają być tworzone — artykuły blogowe, opisy produktów, posty — wraz z ich liczbą, objętością w znakach ze spacjami lub słowach i przeznaczeniem. Precyzja opisu chroni zamawiającego przed dostarczeniem tekstów niespełniających oczekiwań.\\n\\nKrok 3 — wpisz wytyczne redakcyjne. Opisz styl, ton głosu, wymagania dotyczące fraz kluczowych SEO, wymagany poziom oryginalności (na przykład sprawdzony Copyscape) i format dostarczanych plików. Możesz też wskazać, że szczegółowe wytyczne będą przekazywane w briefach cząstkowych.\\n\\nKrok 4 — ustal wynagrodzenie. Wpisz stawkę (za 1 000 znaków, za tekst, za słowo lub ryczałt miesięczny), termin płatności, datę wystawiania faktur i sposób rozliczenia. Wskaż, że do wynagrodzenia netto doliczany jest VAT 23%, jeżeli copywriter jest czynnym podatnikiem.\\n\\nKrok 5 — ureguluj prawa autorskie. Wymień wszystkie pola eksploatacji, na których zamawiający będzie korzystał z tekstów: internet, media społecznościowe, reklama, druk. Pamiętaj, że przeniesienie autorskich praw majątkowych wymaga formy pisemnej pod rygorem nieważności (art. 53 pr. aut.) i obejmuje tylko wymienione pola (art. 41 ust. 2 pr. aut.).\\n\\nKrok 6 — określ terminy i poprawki. Wpisz harmonogram dostarczania tekstów (na przykład do 10. dnia każdego miesiąca), termin na zgłaszanie poprawek (na przykład 5 dni roboczych) i liczbę bezpłatnych rund poprawek w ramach wynagrodzenia.\\n\\nKrok 7 — podpisz umowę. Wpisz miejscowość i datę, sprawdź poprawność danych i podpisz dokument w dwóch egzemplarzach. Dla spółek podpis składa osoba uprawniona według KRS. Zamawiający ma obowiązek zgłoszenia umowy o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w ciągu 7 dni od zawarcia.\\n\\nUmowa copywriterska w Polsce podlega przepisom Kodeksu cywilnego o umowie o dzieło oraz ustawie o prawie autorskim i prawach pokrewnych.\\n\\nUmowa o dzieło — art. 627-646 KC. Copywriter odpowiada za dostarczenie gotowego, oryginalnego tekstu — jest to umowa rezultatu. Wynagrodzenie ryczałtowe (art. 632 KC) jest stałe i nie może być podwyższone po zawarciu umowy. Zamawiający może odstąpić od umowy w każdym czasie przed jej wykonaniem (art. 644 KC), płacąc wynagrodzenie pomniejszone o zaoszczędzone koszty. Przy wadach dzieła — na przykład plagiacie lub niespełnieniu wytycznych — zamawiającemu przysługują uprawnienia z rękojmi (art. 638 KC).\\n\\nPrawa autorskie — ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych. Teksty oryginalne są utworami chronionymi z mocy prawa. Prawa majątkowe przysługują copywriterowi, chyba że umowa przenosi je na zamawiającego z wymienionymi polami eksploatacji (art. 41 ust. 2 i art. 50). Przeniesienie wymaga formy pisemnej pod rygorem nieważności (art. 53). Autorskie prawa osobiste twórcy, w tym prawo do autorstwa, są niezbywalne (art. 16). Ghostwriting (pisanie pod cudzym nazwiskiem lub bez wskazania autora) jest dopuszczalne na gruncie prawa cywilnego, lecz copywriter powinien zobowiązać się do nieoznaczania tekstu swoim nazwiskiem.\\n\\nZUS i podatki. Umowa o dzieło jest co do zasady nieoskładkowana. Zamawiający będący podmiotem prowadzącym działalność ma obowiązek zgłoszenia umowy do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD w ciągu 7 dni od zawarcia. Copywriter prowadzący działalność gospodarczą wystawia fakturę i samodzielnie rozlicza podatek dochodowy w Krajowej Administracji Skarbowej (KAS) oraz VAT 23%, jeżeli jest czynnym podatnikiem.\\n\\nOchrona przed plagiatem i oryginalność. Kopiowanie cudzych tekstów bez zgody autora stanowi naruszenie autorskich praw majątkowych (art. 17 pr. aut.) i może podlegać roszczeniom cywilnym. Copywriter, który dostarcza plagiat, może zostać pociągnięty do odpowiedzialności odszkodowawczej na podstawie art. 471 KC oraz art. 79 pr. aut. Zamawiający, który opublikował plagiat bez wiedzy o naruszeniu, może być jednak chroniony, jeżeli copywriter złożył oświadczenie o oryginalności.\\n\\nOchrona danych osobowych. Współpraca copywriterska może obejmować przetwarzanie danych osobowych (na przykład danych klientów opisywanych w case studies). W takich przypadkach stosuje się rozporządzenie (UE) 2016/679 (RODO) oraz ustawę z dnia 10 maja 2018 r. o ochronie danych osobowych, nadzorowaną przez Prezesa Urzędu Ochrony Danych Osobowych (PUODO).\\n\\nUmowa copywriterska w Polsce bywa wadliwa z powodu typowych błędów, które można wyeliminować przy starannym jej sporządzeniu.\\n\\nBłąd 1 — brak przeniesienia praw autorskich. Zamawiający, który zapłacił za tekst, ale nie uregulował praw autorskich, nie może swobodnie go modyfikować ani sprzedawać praw do tłumaczeń. Zalecenie: zawsze wpisz klauzulę przeniesienia praw majątkowych z wszystkimi polami eksploatacji i zachowaj formę pisemną (art. 53 pr. aut.).\\n\\nBłąd 2 — zbyt ogólny opis zamówienia. Określenie \\\"tworzenie treści na stronę\\\" bez wskazania liczby tekstów, objętości i tematu prowadzi do sporów o zakres wykonanego dzieła. Zalecenie: opisz liczbę, rodzaj i objętość każdego tekstu oraz terminy dostarczania.\\n\\nBłąd 3 — brak limitu bezpłatnych poprawek. Nieograniczona liczba bezpłatnych poprawek oznacza, że zamawiający może żądać zmian w nieskończoność bez dodatkowego wynagrodzenia dla copywritera. Zalecenie: ustal liczbę bezpłatnych rund poprawek (zazwyczaj dwie) i stawkę za kolejne.\\n\\nBłąd 4 — brak wymogu oryginalności. Pominięcie deklaracji oryginalności naraża zamawiającego na opublikowanie plagiatu lub treści wygenerowanej przez AI bez sprawdzenia, co może skutkować penalizacją przez wyszukiwarki i roszczeniami z tytułu naruszenia praw autorskich. Zalecenie: zobowiąż copywritera do potwierdzenia oryginalności i twórczego wkładu własnego.\\n\\nBłąd 5 — kara umowna za opóźnienie w zapłacie. Zastrzeżenie kary umownej za opóźnienie w płatnościach jest bezskuteczne, bo kary umownej nie zastrzega się za zobowiązanie pieniężne (art. 483 KC). Zalecenie: na opóźnienie w zapłacie stosuj odsetki ustawowe za opóźnienie (art. 481 KC), a kary umowne zastrzegaj za niedotrzymanie terminów dostarczania lub naruszenie poufności.\\n\\nBłąd 6 — pominięcie ZUS. Zamawiający prowadzący działalność często pomija obowiązek zgłoszenia umowy o dzieło do Zakładu Ubezpieczeń Społecznych (ZUS) na formularzu RUD. Zalecenie: zgłoś umowę do ZUS w ciągu 7 dni od jej zawarcia, aby uniknąć sankcji.\\n\\nŹródło: https://forms-legal.com/pl/business/services/umowa-copywriterska (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-9a95215f-25fa-48fc-86a6-7ebf4abbae96",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have the base template for a copywriting contract (umowa copywriterska) which is a type of umowa o dzieło. Now I need to search for more specific provisions relevant to ghostwriting expert articles for LinkedIn. Let me search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-4c3c80dc-e0b6-408f-8c61-d0de306b3a53",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"ghostwriting artykuły LinkedIn media społecznościowe przeniesienie praw autorskich pola eksploatacji\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_64\", \"source_id\": \"sejm_eli_du_2025_24_art_64\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 64. Umowa zobowiązująca do przeniesienia autorskich praw majątkowych przenosi na nabywcę, z chwilą przyjęcia utworu, pra wo do wyłącznego korzystania z utworu na określonym w umowie polu eksploatacji, chyba że postanowiono w niej inaczej. 28) W brzmieniu ustalonym przez art. 1 pkt 18 ustawy, o której mowa w odnośniku 2. Dziennik Ustaw – 28 – Poz. 24\"}, {\"chunk_id\": \"uokik_items:uokik_64776fb69e9d53b7\", \"source_id\": \"uokik_rejestr_klauzul_758\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Student przenosi na Uczelnię autorskie prawa majątkowe do swojej pracy dyplomowej (licencjackiej, inżynierskiej lub magisterskiej) przygotowanej w ramach studiów realizowanych w (...). Przeniesienie praw autorskich następuje nieodpłatnie na wszystkich polach eksploatacji, określonych w art. 50 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_50\", \"source_id\": \"sejm_eli_du_2025_24_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 50. Odrębne pola eksploatacji stanowią w szczególności: 1) w zakresie utrwalania i zwielokrotniania utworu – wytwarzanie określoną techniką egzemplarzy utworu, w tym techniką drukarską, reprograficzną, zapisu magnetycznego oraz techniką cyfrową; 2) w zakresie obrotu oryginałem albo egzemplarzami, na których utwór utrwalono – wprowadzanie do obrotu, użyczenie lub najem oryginału albo egzemplarzy; 3) w zakresie rozpowszechniania utworu w sposób inny niż określony w pkt 2 – publiczne wykonanie, wystawienie, wyświetlenie,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_41\", \"source_id\": \"sejm_eli_du_2025_24_art_41\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 41. 1. Jeżeli ustawa nie stanowi inaczej: 1) autorskie prawa majątkowe mogą przejść na inne osoby w drodze dziedziczenia lub na podstawie umowy; 2) nabywca autorskich praw majątkowych może przenieść je na inne osoby, chyba że umowa stanowi inaczej. 2.22) Umowa o przeniesienie autorskich praw majątkowych lub licencja obejmują pola eksploat acji wyraźnie w nich wymienione. 3. Nieważna jest umowa w części dotyczącej wszystkich utworów lub wszystkich utworów określonego rodzaju tego samego twórcy mających powstać w przyszł ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_991\", \"source_id\": \"sejm_eli_du_2025_24_art_991\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 991. Wydawcy, który jako pierwszy w sposób zgodny z prawem opublikował lub w inny sposób rozpowszechnił utwór, którego czas ochrony już wygasł, a jego egzemplarze nie były jeszcze publicznie udostępniane, przysługuje wyłączne prawo do rozporządzania tym utworem i korzystania z niego na wszystkich polach eksploatacji przez okres dwudziestu pięciu lat od daty pierwszej publikacji lub rozpowszechnienia. Dziennik Ustaw – 36 – Poz. 24\"}]",
+   "tool_call_id": "call-4c3c80dc-e0b6-408f-8c61-d0de306b3a53",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have some relevant statutory provisions. Let me search for more specific provisions about ghostwriting, LinkedIn/social media specific fields of exploitation, and any other relevant clauses.",
+   "tool_calls": [
+    {
+     "id": "call-cc0f38a4-c3c3-400f-90eb-8657b76908a4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ghostwriting zrzeczenie się prawa do autorstwa LinkedIn profile personal branding\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_16\", \"source_id\": \"sejm_eli_du_2025_24_art_16\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 16. Jeżeli ustawa nie stanowi inaczej, autorskie prawa osobiste chronią nieograniczoną w czasie i niepodlegającą zrzeczeniu się lub zbyciu więź twórcy z utworem, a w szczególności prawo do: 1) autorstwa utworu; 2) oznaczenia utworu swoim nazwiskiem lub pseudonimem albo do udostępniania go anonimowo; 3) nienaruszalności treści i formy utworu oraz jego rzetelnego wykorzystania; 4) decydowania o pierwszym udostępnieniu utworu publiczności; 5) nadzoru nad sposobem korzystania z utworu. 9) Oznaczenie artykułu zmienione prze ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_79\", \"source_id\": \"sejm_eli_du_2025_24_art_79\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 79. 1. Uprawniony, którego autorskie prawa majątkowe zostały naruszone, może żądać od osoby, która naruszyła te prawa: 1) zaniechania naruszania; 2) usunięcia skutków naruszenia; 3) naprawienia wyrządzonej szkody: a) na zasadach ogólnych albo b)35) poprzez zapłatę sumy pieniężnej w wysokości odpowiadającej dwukrotności, a w przypadku gdy naruszenie jest zawinione – trzykrotności stosownego wynagrodzenia, które w chwili jego dochodzenia byłoby należne tytułem udzielenia przez uprawnionego zgody na korzystanie z utworu;  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_9915\", \"source_id\": \"sejm_eli_du_2025_24_art_9915\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 9915. 1. W przypadku niezawarcia ugody, każda ze stron mediacji może złożyć do Prezesa UKE, w terminie 30 dni od dnia doręczenia protokołu z przeprowadzonej mediacji, wniosek o wydanie orzeczenia o wysokości wynagrodzenia za korzystanie z prawa, o którym mowa w art. 997 ust. 2, lub o sposobie ustalenia wysokości tego wynagrodzenia. 2. Wniosek o wydanie orzeczenia zawiera informacje i dane, o których mowa w art. 9912 ust. 4, oraz określa zakres żądania. Wniosek zawiera również inne, będące w posiadaniu strony, dane i in ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_18\", \"source_id\": \"sejm_eli_du_2025_24_art_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 18. 1. Autorskie prawa majątkowe nie podlegają egzekucji, dopóki służą twórcy. Nie dotyczy to wymagalnych wierzytelności. 2. Po śmierci twórcy, spadkobiercy mogą sprzeciwić się egzekucji z prawa autorskiego do utworu nieopublikowanego, chyba że sprzeciw byłby niezgodny z ujawnioną wolą twórcy co do rozpowszechniania utworu. 3.10) Prawo do wynagrodzenia, o którym mowa w art. 19 ust. 1, art. 191, art. 20 ust. 2–4, art. 201, art. 214, art. 70 ust. 21 i art. 861, nie podlega zrzeczeniu się, zbyciu ani egzekucji. Nie dotycz ...\"}]",
+   "tool_call_id": "call-cc0f38a4-c3c3-400f-90eb-8657b76908a4",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "Good, I have the key statutory provisions. Now let me search for more specific provisions about social media/LinkedIn fields of exploitation, and also about the specific requirements for ghostwriting contracts (zrzeczenie się oznaczania nazwiskiem).",
+   "tool_calls": [
+    {
+     "id": "call-41625579-584c-422a-b192-93143ca70948",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"pola eksploatacji\", \"media społecznościowe\", \"LinkedIn\", \"internet\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_12a\", \"source_id\": \"sejm_eli_du_2024_1796_art_12a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12a. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość dostawca internetowej platformy handlowej ma obowiązek poinformować konsumenta, w sposób jasny i zrozumiały oraz odpowiadający rodzajowi użytego środka porozumiewania się na odległość, o: 1) ogólnych informacjach udostępnionych w specjalnej części interfejsu internetowego, która jest bezpośrednio i łatwo dostępna ze strony, na której prezentowane są o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_402\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 402 5 . § 1. Doradca akcjonariusza do spraw głosowania zamieszcza na swojej stronie internetowej informację o stosowanych przez niego zasadach etyki zawodowej oraz sprawozdania dotyczące stosowania tych zasad. § 2. W przypadku gdy doradca akcjonariusza do spraw głosowania nie stosuje w swojej działalności zasad etyki zawodowej, informuje o tym w jednoznaczny sposób na swojej stronie internetowej. Informacja taka wyjaśnia przyczyny niest ...\"}, {\"chunk_id\": \"uokik_items:uokik_0191a6663f7427d8\", \"source_id\": \"uokik_rejestr_klauzul_3722\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) nie odpowiada za przerwy w dostępie do lokalnej internetowej sieci komputerowej i międzynarodowej sieci Internet wynikłe z powodu działania osób trzecich, (…) jak też za przerwy powstałe po stronie dostawcy zapewniającego firmie (...) dostęp do sieci Internet\"}, {\"chunk_id\": \"uokik_items:uokik_c40cbf0dc8c99d3e\", \"source_id\": \"uokik_rejestr_klauzul_6258\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli żądanie Kupującego uznane zostanie za zasadne, sklep internetowy ponosi wszystkie koszty związane z dostawą naprawionego lub nowego towaru pozbawionego wad od Kupującego, a ponadto zwróci Kupującemu koszt dostarczenia reklamowanego towaru do sklepu internetowego. Jeżeli żądanie Kupującego było bezzasadne, koszty dostarczenia reklamowanego towaru do sklepu internetowego nie podlegają zwrotowi, a Kupujący ponosi ponadto koszt ponownego dostarczenia mu reklamowanego towaru\"}]",
+   "tool_call_id": "call-41625579-584c-422a-b192-93143ca70948",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The keyword search didn't return the specific copyright law provisions I need. Let me read the full text of Art. 50 from the copyright law which lists the fields of exploitation, and also search for more specific provisions about ghostwriting and social media.",
+   "tool_calls": [
+    {
+     "id": "call-f58f7160-e87d-47c0-a513-e1e1739eef54",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2025_24_art_50\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_50\", \"source_id\": \"sejm_eli_du_2025_24_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 50. Odrębne pola eksploatacji stanowią w szczególności: 1) w zakresie utrwalania i zwielokrotniania utworu – wytwarzanie określoną techniką egzemplarzy utworu, w tym techniką drukarską, reprograficzną, zapisu magnetycznego oraz techniką cyfrową; 2) w zakresie obrotu oryginałem albo egzemplarzami, na których utwór utrwalono – wprowadzanie do obrotu, użyczenie lub najem oryginału albo egzemplarzy; 3) w zakresie rozpowszechniania utworu w sposób inny niż określony w pkt 2 – publiczne wykonanie, wystawienie, wyświetlenie, odtworzenie oraz nadawanie i reemitowanie, a także publiczne udostępnianie utworu w taki sposób, aby każdy mógł mieć do niego dostęp w miejscu i w czasie przez siebie wybranym.\"}]",
+   "tool_call_id": "call-f58f7160-e87d-47c0-a513-e1e1739eef54",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę kogoś, kto będzie pisał za mnie artykuły eksperckie na LinkedIn, żebym budować wizerunek specjalisty w mojej branży."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Potrzebuję ghostwritera do regularnych artykułów na LinkedIn – celuję w 2-3 teksty miesięcznie na tematy związane z moją branżą (fintech/blockchain). Mam gotowe pomysły i notatki, ale nie mam czasu na pisanie. Zależy mi na zachowaniu mojego stylu komunikacji, procesie akceptacji przed publikacją i przejściu praw autorskich. Budżet do ustalenia za sztukę lub w pakiecie."
+  }
+ ]
+}

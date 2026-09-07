@@ -1,0 +1,319 @@
+{
+ "run": 19,
+ "hint": "Konsygnacja z prawem konsygnatariusza do ustalania ceny sprzedaży",
+ "scenario": "Konsygnacja z prawem konsygnatariusza do ustalania ceny sprzedaży",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_konsygnacji'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consignment agreement (umowa_konsygnacji) where the consignee (konsygnatariusz) has the right to set the sale price. I need to:\n\n1. First read the base template for umowa_konsygnacji\n2. Then search for relevant provisions about the consignee's right to set prices\n\nLet me start with getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-3e8f8abd-cb5d-4e95-bb4d-fec13b00ed66",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_konsygnacji\", \"query\": \"konsygnacja z prawem konsygnatariusza do ustalania ceny sprzedaży\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_konsygnacji\", \"kind\": \"structural_template\", \"text\": \"# Umowa konsygnacji\\nUmowa konsygnacji w Polsce to umowa nienazwana, w której konsygnant (właściciel towaru, dostawca) przekazuje towar konsygnatariuszowi (sprzedawcy, dystrybutorowi) w celu sprzedaży osobom trzecim, przy jednoczesnym zachowaniu przez konsygnanta prawa własności towaru niesprzedanego. Umowa konsygnacji jest umową nienazwaną tworzoną na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i łączy elementy umowy komisu (art. 765-773 KC) i umowy przechowania (art. 835-845 KC). Do umów konsygnacji stosuje się odpowiednio przepisy o komisie i przechowaniu.\\n\\nPodstawową cechą konsygnacji odróżniającą ją od zwykłej sprzedaży lub agencji jest to, że konsygnant nie sprzedaje towaru konsygnatariuszowi — przekazuje go wyłącznie do sprzedaży na własny rachunek. Towar niesprzedany jest własnością konsygnanta i może być przez niego w każdym czasie odwołany. Konsygnatariusz jest wynagradzany prowizją od sprzedanego towaru lub marżą (różnicą między ceną zakupu a ceną sprzedaży), nie zaś z góry zapłaconą ceną.\\n\\nKonsygnacja jest powszechna w handlu książkami, odzieżą, kosmetykami, dziełami sztuki i elektronarzędziami. Producent lub wydawca przekazuje towar do sieci dystrybucji (księgarnie, sklepy, galerie) bez konieczności uiszczania przez dystrybutora zapłaty z góry — płaci on dopiero po sprzedaniu towaru klientowi końcowemu. Niesprze dany towar wraca do konsygnanta. Ta struktura zmniejsza ryzyko dystrybucji dla konsygnatariusza i ułatwia dostęp do kanałów dystrybucji dla konsygnanta.\\n\\nObowiązki podatkowe w umowie konsygnacji są skomplikowane i wymagają staranności. Z perspektywy VAT, zgodnie z ustawą z dnia 11 marca 2004 r. o podatku od towarów i usług, obowiązek podatkowy VAT po stronie konsygnanta powstaje zazwyczaj w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej — nie w momencie przekazania towaru do konsygnacji, ponieważ wówczas własność nie przechodzi. Konsygnatariusz wystawia fakturę VAT klientowi końcowemu w swoim imieniu i rozlicza VAT od sprzedaży, a konsygnant wystawia fakturę za towary sprzedane w danym okresie rozliczeniowym. Krajowa Administracja Skarbowa (KAS) i Urząd Skarbowy mogą kontrolować prawidłowość dokumentacji konsygnacyjnej.\\n\\nPrawidłowo sporządzona umowa konsygnacji powinna regulować: szczegółowy opis towaru konsygnacyjnego, zasady przekazywania i zwrotu towaru, protokoły zdawczo-odbiorcze, warunki przechowywania, ceny detaliczne lub marżę konsygnatariusza, termin i formę rozliczenia, prawo konsygnanta do inwentaryzacji, odpowiedzialność za braki i uszkodzenia towaru, zasady zakończenia umowy i zwrotu niesprzedanego towaru.\\n\\nUmowa konsygnacji w Polsce jest potrzebna, gdy producent lub dostawca chce wprowadzić swój towar do dystrybucji bez konieczności ponoszenia kosztów sprzedaży przez dystrybutora z góry.\\n\\nWydawcy i autorzy. Wydawnictwa przekazują książki i podręczniki do sieci księgarń na zasadzie konsygnacji — księgarnia sprzedaje tytuły i rozlicza się z wydawnictwem z faktycznie sprzedanych egzemplarzy, odsyłając niesprzedane.\\n\\nProducenci odzieży i mody. Projektanci i marki modowe przekazują kolekcje do butików lub showroomów na konsygnację — butik nie musi kupować kolekcji z góry, co obniża jego ryzyko finansowe i zachęca do przyjęcia nowych marek.\\n\\nGalerie sztuki i antykwariaty. Artyści i handlarze dziełami sztuki przekazują obrazy, rzeźby lub przedmioty kolekcjonerskie do galerii na konsygnację — galeria pobiera prowizję od każdej sprzedanej pracy, a niesprzedane dzieła wracają do artysty lub kolekcjonera.\\n\\nProducenci elektroniki i narzędzi. Firmy z segmentu elektronarzędzi, sprzętu sportowego lub ogrodniczego przekazują towar na ekspozycję i sprzedaż do sieci detalicznych na konsygnację — detalista nie zamraża kapitału na towar, który może nie zostać sprzedany.\\n\\nFirmy wchodzące na nowe rynki. Producent wchodzący na nowy rynek geograficzny może zainteresować lokalnych dystrybutorów ofertą konsygnacyjną — dystrybutor nie musi kupować towaru z góry, co obniża barierę wejścia dla obu stron.\\n\\nDostawcy do małych firm i sklepów specjalistycznych. Małe sklepy specjalistyczne (sklepy zoologiczne, herbaciarnie, delikatesy) chętnie przyjmują towar na konsygnację od małych producentów i rękodzielników, którzy nie mogą sobie pozwolić na kosztowne kampanie sprzedażowe.\\n\\nImporterzy i dystrybutorzy. Importerzy przyjmujący towar od zagranicznych producentów mogą umówić się z lokalnym dystrybutorem na konsygnację jako formę zarządzania zapasami w magazynach dystrybutora (konsygnacja magazynowa).\\n\\nUmowa konsygnacji w Polsce powinna zawierać następujące elementy, aby skutecznie chronić interesy obu stron i spełniać wymogi podatkowe.\\n\\nOznaczenie stron. Pełne dane konsygnanta i konsygnatariusza: firma, adres siedziby, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG). NIP jest niezbędny dla prawidłowego fakturowania sprzedanego towaru.\\n\\nOpis towaru konsygnacyjnego. Szczegółowy opis asortymentu (rodzaj, kategorie, minimalna ilość), wymagania jakościowe, normy i certyfikaty jeśli dotyczy. Zasady aktualizacji asortymentu (np. prawo konsygnanta do wymiany towaru na nowy sezon). Wskazanie, że towar jest własnością konsygnanta do momentu sprzedaży osobie trzeciej.\\n\\nZastrzeżenie własności. Wyraźne postanowienie, że własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu jego sprzedaży osobie trzeciej przez konsygnatariusza. Zakaz zastawiania, obciążania i innego niż sprzedażowe korzystania z towaru przez konsygnatariusza. Skuteczne zastrzeżenie własności chroni konsygnanta w razie upadłości konsygnatariusza.\\n\\nCeny i wynagrodzenie konsygnatariusza. Cena detaliczna (ustalana przez konsygnanta lub z jego udziałem) oraz prowizja lub marża konsygnatariusza (procent od ceny sprzedaży netto lub różnica między ceną zakupu a ceną detaliczną). forms-legal.com zaleca precyzyjne określenie podstawy prowizji (cena netto bez VAT) i terminu jej naliczania (miesięcznego lub kwartalnego).\\n\\nRaportowanie i rozliczenie. Obowiązek konsygnatariusza prowadzenia ewidencji sprzedanego i pozostałego towaru, miesięcznych raportów sprzedaży i rozliczania się z konsygnantem. Termin rozliczenia (standardowo do 10. dnia miesiąca następnego). Faktura VAT na prowizję lub zestawienie sprzedaży umożliwiające wystawienie faktury przez konsygnanta.\\n\\nPrzechowywanie i odpowiedzialność za towar. Warunki przechowywania, obowiązek ubezpieczenia towaru, odpowiedzialność konsygnatariusza za braki i uszkodzenia z jego winy (art. 471 KC).\\n\\nInwentaryzacja i kontrola. Prawo konsygnanta do przeprowadzania inwentaryzacji towaru w miejscu przechowywania, tryb i częstotliwość inwentaryzacji.\\n\\nZwroty. Zasady i koszty zwrotu niesprzedanego towaru, tryb zwrotu na żądanie konsygnanta lub po zakończeniu umowy.\\n\\nCzas trwania i wypowiedzenie. Czas trwania, termin wypowiedzenia i skutki rozwiązania umowy dla towaru niesprzedanego.\\n\\nUmowa konsygnacji w Polsce jest wypełniana według kolejnych kroków zapewniających kompletność i prawidłowość podatkową dokumentu.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy), adresy siedzib, numery NIP, REGON i KRS lub wpisy do CEIDG. Numery NIP są niezbędne do prawidłowego fakturowania prowizji i sprzedanego towaru.\\n\\nKrok 2 — opisz towar konsygnacyjny. Szczegółowo opisz asortyment przekazywany w konsygnację — rodzaj towaru, kategorie, minimalna ilość, wymagania jakościowe. Im precyzyjniejszy opis, tym mniejsze ryzyko sporu o to, czy towar spełnia wymogi umowy.\\n\\nKrok 3 — ustal cenę detaliczną lub sposób jej określenia. Wskaż, czy cena detaliczna jest ustalana przez konsygnanta (cena sztywna na okładce lub etykiecie) czy konsygnatariusz ma swobodę jej kształtowania. Cena wpływa na wysokość prowizji i obliczenie VAT.\\n\\nKrok 4 — ustal prowizję i termin rozliczenia. Wpisz procent prowizji od ceny netto sprzedanego towaru oraz termin rozliczenia miesięcznego (standardowo do 10. dnia następnego miesiąca). Wskaż formę dokumentacyjną — raport sprzedaży plus faktura VAT na prowizję.\\n\\nKrok 5 — określ warunki przechowywania. Wpisz wymogi dotyczące przechowywania towaru konsygnacyjnego. Wskaż, czy konsygnatariusz jest zobowiązany do ubezpieczenia towaru i od jakiej wartości.\\n\\nKrok 6 — ustal czas trwania i wypowiedzenie. Wskaż czas trwania umowy i termin wypowiedzenia. W umowach konsygnacji standardowy termin wypowiedzenia wynosi 3 miesiące — pozwala to konsygnatariuszowi odsprzedać zapas lub zwrócić towar w sposób zorganizowany.\\n\\nKrok 7 — dopilnuj zastrzeżenia własności. Upewnij się, że umowa wyraźnie stwierdza, że własność towaru konsygnacyjnego pozostaje przy konsygnancie. Bez tej klauzuli w razie upadłości konsygnatariusza towar staje się częścią masy upadłości.\\n\\nKrok 8 — podpisz umowę. Złóż podpisy osób uprawnionych do reprezentacji zgodnie z KRS lub CEIDG. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym.\\n\\nUmowa konsygnacji w Polsce podlega przepisom Kodeksu cywilnego stosowanym odpowiednio (komis, przechowanie) oraz ustawie o podatku od towarów i usług.\\n\\nPodstawa prawna — art. 353[1] KC i art. 765-773 KC (komis odpowiednio). Umowa konsygnacji jest umową nienazwaną opartą na swobodzie umów (art. 353[1] KC). Do konsygnacji stosuje się odpowiednio przepisy o komisie (art. 765-773 KC) — komisant (odpowiednik konsygnatariusza) działa we własnym imieniu na rachunek komitenta (odpowiednik konsygnanta). Do przechowywania towaru stosuje się odpowiednio przepisy o umowie przechowania (art. 835-845 KC) — konsygnatariusz odpowiada za stan towaru jak depozytariusz.\\n\\nZastrzeżenie własności — art. 589 KC. Własność towaru konsygnacyjnego pozostaje przy konsygnancie do momentu sprzedaży towaru osobie trzeciej przez konsygnatariusza. Zastrzeżenie własności powinno być wyraźne i pisemne, aby było skuteczne wobec wierzycieli konsygnatariusza (art. 589 KC). W razie ogłoszenia upadłości konsygnatariusza — konsygnant może żądać wyłączenia towaru z masy upadłości na podstawie przepisów ustawy z dnia 28 lutego 2003 r. Prawo upadłościowe (art. 70 ust. 1), jeżeli towar jest wyraźnie oznaczony jako własność konsygnanta i ewidencja konsygnacyjna jest prawidłowo prowadzona.\\n\\nVAT — ustawa z dnia 11 marca 2004 r. Obowiązek podatkowy VAT po stronie konsygnanta co do zasady powstaje w momencie sprzedaży towaru przez konsygnatariusza osobie trzeciej (nie w momencie przekazania do konsygnacji, gdy własność nie przechodzi). Konsygnatariusz wystawia fakturę VAT klientowi końcowemu we własnym imieniu, konsygnant wystawia fakturę za towar sprzedany w danym okresie rozliczeniowym. Prowizja konsygnatariusza podlega VAT 23% jako usługa. Prawidłowość dokumentacji konsygnacyjnej może być kontrolowana przez Krajową Administrację Skarbową (KAS).\\n\\nOdpowiedzialność za towar — art. 471 KC. Konsygnatariusz odpowiada za stan towaru jak depozytariusz — za braki, uszkodzenia i zniszczenia powstałe z jego winy lub niedbalstwa. Odpowiedzialność odszkodowawczą obejmuje wartość rynkową brakującego lub zniszczonego towaru.\\n\\nUmowy konsygnacji w Polsce często zawierają błędy prowadzące do sporów o własność towaru, rozliczenia prowizji lub kwestie podatkowe.\\n\\nBłąd 1 — brak wyraźnego zastrzeżenia własności. Umowa konsygnacji bez wyraźnej klauzuli zastrzeżenia własności towaru naraża konsygnanta na utratę towaru w razie upadłości konsygnatariusza. Zalecenie: wskaż wyraźnie, że własność towaru pozostaje przy konsygnancie do momentu sprzedaży osobie trzeciej, i zadbaj o pisemną formę umowy.\\n\\nBłąd 2 — niejasna definicja \\\"sprzedaży\\\" powodującej przeniesienie własności. Brak precyzji co do momentu sprzedaży powodującej przeniesienie własności (faktura? zapłata przez klienta?) rodzi spory podatkowe i cywilne. Zalecenie: wskaż wprost, że własność przechodzi z chwilą zawarcia umowy sprzedaży z klientem końcowym lub, jeśli preferowane, z chwilą zapłaty przez klienta.\\n\\nBłąd 3 — brak obowiązku prowadzenia ewidencji konsygnacyjnej. Konsygnatariusz bez obowiązku prowadzenia ewidencji może nie być w stanie wykazać stanu towaru na żądanie konsygnanta lub Krajowej Administracji Skarbowej (KAS). Zalecenie: wskaż obowiązek prowadzenia ewidencji towarów konsygnacyjnych i dostarczania miesięcznych raportów sprzedaży.\\n\\nBłąd 4 — brak protokołów zdawczo-odbiorczych. Brak dokumentacji przy każdej dostawie towaru do konsygnacji uniemożliwia ustalenie stanu towaru w chwili przekazania i po zwrocie. Zalecenie: wymagaj sporządzania protokołu zdawczo-odbiorczego przy każdej dostawie i zwrocie towaru.\\n\\nBłąd 5 — niejasne zasady prowizji. Podstawa prowizji (cena brutto czy netto?) i moment jej naliczania (faktura wystawiona konsygnatariuszowi czy zapłata klienta?) mają istotny wpływ na wysokość wynagrodzenia. Zalecenie: wpisz jednoznacznie podstawę prowizji (procent od ceny netto sprzedanego towaru bez VAT) i termin jej naliczania.\\n\\nBłąd 6 — brak regulacji kosztów zwrotu. Brak określenia, kto ponosi koszty zwrotu niesprzedanego towaru, prowadzi do sporów przy zakończeniu umowy. Zalecenie: wskaż, że koszty zwrotu ponosi konsygnatariusz, chyba że rozwiązanie umowy nastąpiło z przyczyn leżących po stronie konsygnanta.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-konsygnacji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-3e8f8abd-cb5d-4e95-bb4d-fec13b00ed66",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_49059b2a92514b8799845247",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"prawo konsygnatariusza do ustalania ceny sprzedaży w umowie konsygnacji\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_2214cf30f25d4b6b94e32c49",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"cena sprzedaży\", \"konsygnatariusz\", \"ustalanie ceny\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_2711943a3fb34a92a59bdf59",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 765 KC\", \"komis\", \"cena\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_b1396b6a14fab73c\", \"source_id\": \"uokik_rejestr_klauzul_968\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca zastrzega sobie prawo przekazywania praw i obowiązków wynikających z zawartej umowy na rzecz osób trzecich\"}, {\"chunk_id\": \"uokik_items:uokik_783ad7f33f8c5cbc\", \"source_id\": \"uokik_rejestr_klauzul_2712\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony ustalają, że powierzchnia lokalu, określona w § 2, ust. 1 umowy, a także powierzchnie miejsc parkingowych i komórki lokatorskiej, określone w § 2, ust. 3 umowy, mogą w toku realizacji inwestycji ulec zmianie zgodnie z przepisami prawa budowlanego i postanawiają, że: a) w przypadku, jeżeli po dokonaniu ostatecznego obmiaru powykonawczego rzeczywiste powierzchnie: lokalu..........., miejsca parkingowego MP....., miejsca parkingowego MP...... lub komórki lokatorskiej K....., wynikające z tego obmiaru, będą mniejsze niż powierzchnie określone w § 2, ust. 1 i ust. 3 umowy, ceny sprzedaży zos ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_537\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 537. § 1. Jeżeli w miejscu i czasie zawarcia umowy sprzedaży obowiązuje zarządzenie, według którego za rzeczy danego rodzaju lub gatunku może być zapłacona jedynie cena ściśle określona (cena sztywna), cena ta wiąże strony bez względu na to, jaką cenę w umowie ustaliły. § 2. Sprzedawca, który otrzymał cenę wyższą od ceny sztywnej, obowiązany jest zwrócić kupującemu pobraną różnicę. § 3. Kupujący, który według umowy miał zapłacić cenę niższą od c ...\"}, {\"chunk_id\": \"uokik_items:uokik_979b8352a24326fa\", \"source_id\": \"uokik_rejestr_klauzul_373\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie prawo decydowania o sposobie kompletowania zestawów kwotowych, jak również prawo do przesunięcia aktu asygnacyjnego, o czym powiadomi wszystkich uczestników grupy\"}, {\"chunk_id\": \"uokik_items:uokik_8abe4ad1c478cbbf\", \"source_id\": \"uokik_rejestr_klauzul_706\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) zastrzega sobie prawo decydowania o sposobie kompletowania zestawów kwotowych oraz łączenia grup biorących udział w aktach asygnacyjnych\"}]",
+   "tool_call_id": "call_49059b2a92514b8799845247",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_7cac5a7bd7492603\", \"source_id\": \"uokik_rejestr_klauzul_5789\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena sprzedaży urządzeń, o których mowa w ust. 1 oraz cena sprzedaży majątkowych praw autorskich do dokumentacji techniczno-budowlanej zostanie ustalona na podstawie: 1) kosztorysu powykonawczego na roboty budowlano-montażowe związane z realizacją prac, o których mowa w § 5 ust. 4, dostarczonego przez podmiot przyłączany i zweryfikowanego przez przedsiębiorstwo energetyczne, w kwocie netto (bez podatku VAT), 2) faktur na roboty budowlane związane z realizacją prac, o których mowa w § 5 ust. 4 (pomiar geodezyjny powykonawczy, nadzory branżowe, zajęcie pasa drogi itp.), dostarczonych przez podmi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_904\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 904 1 . § 1. Na wniosek wierzyciela jego zaspokojenie nastąpi przez sprzedaż wierzytelności w drodze licytacji lub z wolnej ręki, o ile nie sprzeciwia się temu charakter zajętej wierzytelności. § 2. Sprzedaży zajętej wierzytelności dokonuje się w drodze licytacji prowadzonej według przepisów o egzekucji z ruchomości. Cena wywołania wynosi trzy czwarte sumy, na którą składa się należność główna oraz odsetki naliczone do dnia l ...\"}, {\"chunk_id\": \"uokik_items:uokik_543362af10930a78\", \"source_id\": \"uokik_rejestr_klauzul_5912\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena sprzedaży w EURO ulegnie zmianie w przypadku zmian opłat celno-podatkowych, a także podwyższenia standardu samochodu wynikającego z decyzji producenta samochodu\"}, {\"chunk_id\": \"uokik_items:uokik_380a9639a109432c\", \"source_id\": \"uokik_rejestr_klauzul_6450\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena sprzedaży ulegnie zmianie w przypadku (…) podwyższenia standardu samochodu wynikającego z decyzji producenta samochodu\"}, {\"chunk_id\": \"uokik_items:uokik_772eab8272b683a3\", \"source_id\": \"uokik_rejestr_klauzul_6610\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Cena sprzedaży ulegnie zmianie w przypadku (…) zmian cen katalogowych samochodu ustalanych przez importera (…)\"}]",
+   "tool_call_id": "call_2214cf30f25d4b6b94e32c49",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_773\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 773. § 1. Dla zabezpieczenia roszczeń o prowizję oraz roszczeń o zwrot wydatków i zaliczek udzielonych komitentowi, jak również dla zabezpieczenia wszelkich innych należności wynikłych ze zleceń komisowych przysługuje komisantowi ustawowe prawo zastawu na rzeczach stanowiących przedmiot komisu, dopóki rzeczy te znajdują się u niego lub u osoby która je dzierży w jego imieniu, albo dopóki może nimi rozporządzać za pomocą dokumentów. § 2. Wymienio ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 12 . § 1. Pracodawca zatrudniający więcej niż 250 pracowników powołuje komisję bezpieczeństwa i higieny pracy, zwaną dalej „komisją bhp”, jako swój organ doradczy i opiniodawczy. W skład komisji bhp wchodzą w równej liczbie przedstawiciele pracodawcy, w tym pracownicy służby bhp i lekarz sprawujący profilaktyczną opiekę zdrowotną nad pracownikami, oraz przedstawiciele pracowników, w tym społeczny inspektor pracy. § 2. Przewodniczącym komisji b ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 13 . § 1. Zadaniem komisji bhp jest dokonywanie przeglądu warunków pracy, okresowej oceny stanu bezpieczeństwa i higieny pracy, opiniowanie podejmowanych przez pracodawcę środków zapobiegających wypadkom przy pracy i chorobom zawodowym, formułowanie wniosków dotyczących poprawy warunków pracy oraz współdziałanie z pracodawcą w realizacji jego obowiązków w zakresie bezpieczeństwa i higieny pracy. § 2. Posiedzenia komisji bhp odbywają się w godz ...\"}, {\"chunk_id\": \"uokik_abusive_clause_195\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W przydziale towaru poprzez wkład własny biorą udział wyłącznie pisemne wnioski indywidualne, które wpłynęły do (...). na dwa dni przed Posiedzeniem Komisji Przydziałowej lub zostały złożone na ręce Komisji Przydziałowej przed rozpoczęciem Posiedzenia Komisji przydziałowej. Wnioski indywidualne pisemne winny być wypełnione na drukach dostarczonych przez (...). stosownie do zawartych w nich wskazówek. Klient ponosi ryzyko nieterminowego dostarczenia wniosku przysłanego za pośrednictwem poczty. Błędnie wypełniony wniosek indywidualny nie bierze udziału w Posiedzeniu Komisji Przydziałowej\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_23zf\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 23zf. 1. Podmioty powiązane: 1) obowiązane do sporządzania lokalnej dokumentacji cen transferowych - w zakresie transakcji objętych tym obowiązkiem lub 2) realizujące transakcje kontrolowane określone w art. 23z pkt 1-2 lub 9-11 - składają naczelnikowi urzędu skarbowego właściwemu dla podatnika, w terminie do końca jedenastego miesiąca po zakończeniu roku podatkowego, informację o cenach transferowych za rok podatkowy, sporz ...\"}]",
+   "tool_call_id": "call_2711943a3fb34a92a59bdf59",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_abb88104dfd443fdbca0c4ef",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 764 KC\", \"komisant\", \"cena\", \"swobodna cena\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_c9fc1d18097c4368b1302cef",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"komisant prawo do ustalenia ceny sprzedaży art. 764 KC umowa komisu\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_17d752ffbc444677829cf70f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 764 KC\", \"komis\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_772\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 772. § 1. Komisant nabywa roszczenie o zapłatę prowizji z chwilą, gdy komitent otrzymał rzecz albo cenę. Jeżeli umowa ma być wykonywana częściami, komisant nabywa roszczenie o prowizję w miarę wykonywania umowy. § 2. Komisant może żądać prowizji także wtedy, gdy umowa nie została wykonana z przyczyn dotyczących komitenta.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_766\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 766. Komisant powinien wydać komitentowi wszystko, co przy wykonaniu zlecenia dla niego uzyskał, w szczególności powinien przelać na niego wierzytelności, które nabył na jego rachunek. Powyższe uprawnienia komitenta są skuteczne także względem wierzycieli komisanta.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_768\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 768. § 1. Jeżeli komisant sprzedał oddaną mu do sprzedaży rzecz za cenę niższą od ceny oznaczonej przez komitenta, obowiązany jest zapłacić komitentowi różnicę. § 2. Jeżeli komisant nabył rzecz za cenę wyższą od ceny oznaczonej przez komitenta, komitent może niezwłocznie po otrzymaniu zawiadomienia o wykonaniu zlecenia oświadczyć, że nie uznaje czynności za dokonaną na jego rachunek; brak takiego oświadczenia jest jednoznaczny z wyrażeniem zgody ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_770\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 770. § 1. Komisant nie ponosi odpowiedzialności za ukryte wady fizyczne rzeczy, jak również za jej wady prawne, jeżeli przed zawarciem umowy podał to do wiadomości kupującego. Jednakże wyłączenie odpowiedzialności nie dotyczy wad rzeczy, o których komisant wiedział lub z łatwością mógł się dowiedzieć. § 2. Przepisu § 1 nie stosuje się, jeżeli kupującym jest konsument.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_773\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 773. § 1. Dla zabezpieczenia roszczeń o prowizję oraz roszczeń o zwrot wydatków i zaliczek udzielonych komitentowi, jak również dla zabezpieczenia wszelkich innych należności wynikłych ze zleceń komisowych przysługuje komisantowi ustawowe prawo zastawu na rzeczach stanowiących przedmiot komisu, dopóki rzeczy te znajdują się u niego lub u osoby która je dzierży w jego imieniu, albo dopóki może nimi rozporządzać za pomocą dokumentów. § 2. Wymienio ...\"}]",
+   "tool_call_id": "call_abb88104dfd443fdbca0c4ef",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_765\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 765. Przez umowę komisu przyjmujący zlecenie (komisant) zobowiązuje się za wynagrodzeniem (prowizja) w zakresie działalności swego przedsiębiorstwa do kupna lub sprzedaży rzeczy ruchomych na rachunek dającego zlecenie (komitenta), lecz w imieniu własnym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_768\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 768. § 1. Jeżeli komisant sprzedał oddaną mu do sprzedaży rzecz za cenę niższą od ceny oznaczonej przez komitenta, obowiązany jest zapłacić komitentowi różnicę. § 2. Jeżeli komisant nabył rzecz za cenę wyższą od ceny oznaczonej przez komitenta, komitent może niezwłocznie po otrzymaniu zawiadomienia o wykonaniu zlecenia oświadczyć, że nie uznaje czynności za dokonaną na jego rachunek; brak takiego oświadczenia jest jednoznaczny z wyrażeniem zgody ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_764\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 764 9 . Do umowy o treści określonej w art. 758 § 1, zawartej z agentem przez osobę niebędącą przedsiębiorcą, stosuje się przepisy niniejszego tytułu, z wyłączeniem art. 761-761 2 , art. 761 5 oraz art. 764 3 -764 8 . Tytuł XXIV Umowa komisu\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_773\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 773. § 1. Dla zabezpieczenia roszczeń o prowizję oraz roszczeń o zwrot wydatków i zaliczek udzielonych komitentowi, jak również dla zabezpieczenia wszelkich innych należności wynikłych ze zleceń komisowych przysługuje komisantowi ustawowe prawo zastawu na rzeczach stanowiących przedmiot komisu, dopóki rzeczy te znajdują się u niego lub u osoby która je dzierży w jego imieniu, albo dopóki może nimi rozporządzać za pomocą dokumentów. § 2. Wymienio ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_769\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 769. § 1. Jeżeli rzecz jest narażona na zepsucie, a nie można czekać na zarządzenie komitenta, komisant jest uprawniony, a gdy tego interes komitenta wymaga - zobowiązany sprzedać rzecz z zachowaniem należytej staranności. O dokonaniu sprzedaży obowiązany jest zawiadomić niezwłocznie komitenta. § 2. Jeżeli komitent dopuścił się zwłoki z odebraniem rzeczy, stosuje się odpowiednio przepisy o skutkach zwłoki kupującego z odebraniem rzeczy sprzedane ...\"}]",
+   "tool_call_id": "call_c9fc1d18097c4368b1302cef",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_773\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 773. § 1. Dla zabezpieczenia roszczeń o prowizję oraz roszczeń o zwrot wydatków i zaliczek udzielonych komitentowi, jak również dla zabezpieczenia wszelkich innych należności wynikłych ze zleceń komisowych przysługuje komisantowi ustawowe prawo zastawu na rzeczach stanowiących przedmiot komisu, dopóki rzeczy te znajdują się u niego lub u osoby która je dzierży w jego imieniu, albo dopóki może nimi rozporządzać za pomocą dokumentów. § 2. Wymienio ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 12 . § 1. Pracodawca zatrudniający więcej niż 250 pracowników powołuje komisję bezpieczeństwa i higieny pracy, zwaną dalej „komisją bhp”, jako swój organ doradczy i opiniodawczy. W skład komisji bhp wchodzą w równej liczbie przedstawiciele pracodawcy, w tym pracownicy służby bhp i lekarz sprawujący profilaktyczną opiekę zdrowotną nad pracownikami, oraz przedstawiciele pracowników, w tym społeczny inspektor pracy. § 2. Przewodniczącym komisji b ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_237\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 237 13 . § 1. Zadaniem komisji bhp jest dokonywanie przeglądu warunków pracy, okresowej oceny stanu bezpieczeństwa i higieny pracy, opiniowanie podejmowanych przez pracodawcę środków zapobiegających wypadkom przy pracy i chorobom zawodowym, formułowanie wniosków dotyczących poprawy warunków pracy oraz współdziałanie z pracodawcą w realizacji jego obowiązków w zakresie bezpieczeństwa i higieny pracy. § 2. Posiedzenia komisji bhp odbywają się w godz ...\"}, {\"chunk_id\": \"uokik_abusive_clause_195\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"W przydziale towaru poprzez wkład własny biorą udział wyłącznie pisemne wnioski indywidualne, które wpłynęły do (...). na dwa dni przed Posiedzeniem Komisji Przydziałowej lub zostały złożone na ręce Komisji Przydziałowej przed rozpoczęciem Posiedzenia Komisji przydziałowej. Wnioski indywidualne pisemne winny być wypełnione na drukach dostarczonych przez (...). stosownie do zawartych w nich wskazówek. Klient ponosi ryzyko nieterminowego dostarczenia wniosku przysłanego za pośrednictwem poczty. Błędnie wypełniony wniosek indywidualny nie bierze udziału w Posiedzeniu Komisji Przydziałowej\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_772\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 772. § 1. Komisant nabywa roszczenie o zapłatę prowizji z chwilą, gdy komitent otrzymał rzecz albo cenę. Jeżeli umowa ma być wykonywana częściami, komisant nabywa roszczenie o prowizję w miarę wykonywania umowy. § 2. Komisant może żądać prowizji także wtedy, gdy umowa nie została wykonana z przyczyn dotyczących komitenta.\"}]",
+   "tool_call_id": "call_17d752ffbc444677829cf70f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę oddać swoje towary do sklepu na konsygnację, ale chcę, żeby to sklep decydował, za ile je sprzeda. Czy macie taki umowę?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam kolekcję biżuterii, którą chcę oddać do galerii na sprzedaż konsygnacyjną. Zależy mi na tym, aby to galeria sama ustalała ceny sprzedaży bez mojej zgody na każdą zmianę, bo nie chcę się tym zajmować. Potrzebuję umowy, która to uprawnia i reguluje, jak często będę otrzymywał pieniądze za sprzedane rzeczy."
+  }
+ ]
+}

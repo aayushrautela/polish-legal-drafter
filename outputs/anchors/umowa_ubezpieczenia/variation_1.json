@@ -1,0 +1,17 @@
+{
+ "run": 6,
+ "hint": "Ubezpieczenie na życie (śmierć ubezpieczonego)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Szukam ubezpieczenia na życie, które wypłaci pieniądze moim bliskim w razie mojej śmierci. Chcę mieć spokój, że nie będą mieli problemów finansowych."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Jestem jedynym żywicielem rodziny i spłacam duży kredyt hipoteczny. Chcę wykupić ubezpieczenie na życie, żeby w razie mojej nagłej śmierci moja żona i dzieci dostali wystarczającą sumę na spłatę długów i utrzymanie się przez jakiś czas. Zależy mi, żeby polisa obejmowała zarówno wypadki, jak i choroby."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_ubezpieczenia\", \"query\": \"ubezpieczenie na życie śmierć ubezpieczonego\"})\\nRESULT: [{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Wypowiedzenie umowy ubezpieczenia na życie\\nWypowiedzenie umowy ubezpieczenia na życie w Polsce to jednostronne oświadczenie woli ubezpieczającego skierowane do towarzystwa ubezpieczeń życiowych, na mocy którego dochodzi do rozwiązania umowy ubezpieczenia i zakończenia ochrony ubezpieczeniowej. Instytucja ta uregulowana jest przede wszystkim w art. 812 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) oraz w ustawie z dnia 11 września 2015 r. o działalności ubezpieczeniowej i reasekuracyjnej (Dz.U. 2015 poz. 1844 ze zm.), zwanej dalej u.d.u.r., a także w ogólnych warunkach ubezpieczenia (OWU) danego produktu.\\n\\nRynek ubezpieczeń na życie w Polsce reguluje i nadzoruje Komisja Nadzoru Finansowego (KNF) z siedzibą w Warszawie, która wydaje zezwolenia na prowadzenie działalności ubezpieczeniowej i sprawuje kontrolę nad towarzystwami ubezpieczeń życiowych. Na polskim rynku działają zarówno krajowe towarzystwa ubezpieczeń życiowych (PZU Życie S.A., TUiR Warta S.A., Nationale-Nederlanden TUŻ S.A., Aviva Towarzystwo Ubezpieczeń na Życie S.A.), jak i oddziały zagranicznych zakładów ubezpieczeń.\\n\\nUbezpieczenia na życie dzielą się na kilka kategorii. Ubezpieczenia terminowe (Dział I, Grupa 1 klasyfikacji działów ubezpieczeń) zapewniają ochronę przez określony czas; nie mają komponentu oszczędnościowego i przy rezygnacji nie wypłaca się wartości wykupu. Ubezpieczenia całożyciowe (endowment) łączą ochronę z oszczędzaniem; przy rezygnacji ubezpieczający ma prawo do wartości wykupu polisy. Ubezpieczenia z ubezpieczeniowym funduszem kapitałowym (UFK) łąc"
+}

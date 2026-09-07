@@ -1,0 +1,327 @@
+{
+ "run": 23,
+ "hint": "Poręczenie za zobowiązanie z tytułu pożyczki na raty",
+ "scenario": "Poręczenie za zobowiązanie z tytułu pożyczki na raty",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='poreczenie'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a \"poreczenie\" (guaranty/surety) contract template. The scenario direction is \"Poręczenie za zobowiązanie z tytułu pożyczki na raty\" (Guarantee for an obligation arising from an installment loan).\n\nLet me start by reading the base template for \"poreczenie\" to understand the structure and standard clauses. Then I'll search for relevant provisions related to installment loans, consumer credit, etc.",
+   "tool_calls": [
+    {
+     "id": "call-d63fae60-a3ba-44d7-93d9-27c3e53eadde",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"poreczenie\", \"query\": \"poręczenie za pożyczkę na raty\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"poreczenie\", \"kind\": \"structural_template\", \"text\": \"# Umowa poręczenia\\nUmowa poręczenia w Polsce to umowa nazwana uregulowana w art. 876-887 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą poręczyciel zobowiązuje się względem wierzyciela wykonać zobowiązanie na wypadek, gdyby dłużnik zobowiązania nie wykonał. Poręczenie jest formą zabezpieczenia osobistego: wierzyciel uzyskuje dodatkowy podmiot — poręczyciela — który odpowiada za dług swoim całym majątkiem, co odróżnia poręczenie od zabezpieczeń rzeczowych (hipoteki, zastawu), ograniczonych do wartości przedmiotu zabezpieczenia.\\n\\nPodstawowym wymogiem formalnym poręczenia jest pisemna forma oświadczenia poręczyciela. Zgodnie z art. 876 § 2 Kodeksu cywilnego oświadczenie poręczyciela powinno być pod rygorem nieważności złożone na piśmie. Jest to forma konstytutywna — niedochowanie pisemności powoduje bezwzględną nieważność zobowiązania poręczyciela, niezależnie od treści uzgodnień stron. Warto podkreślić, że wymóg pisemności dotyczy wyłącznie oświadczenia poręczyciela, nie całej umowy poręczenia — oświadczenie wierzyciela o przyjęciu poręczenia może być złożone w dowolnej formie, w tym dorozumianej.\\n\\nPoręczenie jest zobowiązaniem akcesoryjnym — jego istnienie i zakres zależą od istnienia i zakresu długu głównego. Oznacza to, że zakres odpowiedzialności poręczyciela jest determinowany każdoczesnym zakresem zobowiązania dłużnika głównego (art. 879 Kodeksu cywilnego). Poręczyciel może zatem ponosić odpowiedzialność za dług powiększony o odsetki za opóźnienie, koszty sądowe i koszty egzekucji, o ile wynikają one z pierwotnego zobowiązania. Jednocześnie akcesoryjna natura poręczenia chroni poręczyciela: jeżeli dług główny wygasa (np. wskutek spłaty, potrącenia, umorzenia), poręczenie wygasa automatycznie.\\n\\nSzczeglną kategorią jest poręczenie za dług przyszły, dopuszczone przez art. 878 Kodeksu cywilnego — poręczenie takie jest skuteczne, jeżeli zostało udzielone do wysokości z góry oznaczonej. Strony muszą zatem ustalić maksymalną kwotę poręczenia w treści umowy. Do czasu powstania długu poręczyciel za dług przyszły może w każdym czasie odwołać poręczenie.\\n\\nKodeks cywilny w art. 881 stanowi, że w braku odmiennego zastrzeżenia poręczyciel odpowiada jak współdłużnik solidarny. Solidarność poręczyciela oznacza, że wierzyciel może według własnego wyboru żądać spełnienia świadczenia od dłużnika i poręczyciela łącznie, od każdego z nich z osobna lub od poręczyciela bez uprzedniego bezskutecznego dochodzenia długu od dłużnika. Strony mogą jednak postanowić o odpowiedzialności subsydiarnej — poręczyciel odpowiada wtedy tylko wówczas, gdy egzekucja z majątku dłużnika głównego okaże się bezskuteczna. Poręczyciel, który spłacił dług, nabywa roszczenie regresowe wobec dłużnika i wstępuje w prawa zaspokojonego wierzyciela przez subrogację ustawową (art. 518 Kodeksu cywilnego), co pozwala mu dochodzić od dłużnika kwoty, którą zapłacił wierzycielowi.\\n\\nUmowa poręczenia w Polsce jest potrzebna zawsze, gdy wierzyciel chce uzyskać dodatkowe zabezpieczenie spłaty wierzytelności przez osobę trzecią (poręczyciela), która odpowiadać będzie za dług swoim majątkiem osobistym w razie niewywiązania się dłużnika głównego.\\n\\nDokument ten jest standardowym wymogiem przy zaciąganiu kredytów bankowych i pożyczek przez osoby fizyczne lub małe przedsiębiorstwa wpisane w CEIDG, których zdolność kredytowa nie jest wystarczająca. Banki, SKOK-i i instytucje pożyczkowe nadzorowane przez Komisję Nadzoru Finansowego pobierają podpisane przez poręczyciela oświadczenia spełniające wymóg formy pisemnej z art. 876 § 2 Kodeksu cywilnego.\\n\\nUmowa poręczenia jest potrzebna przy pożyczkach prywatnych między osobami fizycznymi, gdy pożyczkodawca chce zwiększyć bezpieczeństwo transakcji przez zaangażowanie dodatkowego poręczyciela — często członka rodziny lub wspólnika dłużnika. Pisemna forma jest obowiązkowa niezależnie od kwoty pożyczki i relacji między stronami.\\n\\nDokument jest wymagany przy umowach najmu lokali użytkowych i mieszkań, gdy wynajmujący chce zabezpieczyć zapłatę czynszu i odszkodowania na wypadek zniszczeń przez poręczenie osoby trzeciej (np. rodzica studenta lub innego lokatora). Poręczyciel odpowiada wówczas jak współdłużnik solidarny na zasadzie art. 881 Kodeksu cywilnego, co znacznie ułatwia wynajmującemu dochodzenie roszczeń przed sądem rejonowym.\\n\\nPoręczenie jest stosowane przy kontraktach handlowych, gdy podmiot zamawiający towary lub usługi nie ma wystarczającej wiarygodności finansowej, a dostawca chce zabezpieczenia w postaci poręczenia udziałowca, członka zarządu spółki wpisanej w KRS lub podmiotu powiązanego. Poręczenie wekslowe (awal), regulowane w art. 30-32 Prawa wekslowego, jest szczególną formą zabezpieczenia stosowaną obok poręczenia cywilnego.\\n\\nUmowa jest też potrzebna przy poręczeniu za zobowiązania spółek osobowych i spółek z ograniczoną odpowiedzialnością przez wspólników lub udziałowców, gdy wierzyciel — np. bank lub leasingodawca — nie jest w stanie egzekwować wierzytelności wyłącznie od spółki.\\n\\nPrawidłowa umowa poręczenia w Polsce, oparta na art. 876-887 Kodeksu cywilnego, powinna zawierać szereg kluczowych elementów zapewniających jej ważność i skuteczność.\\n\\nPisemna forma oświadczenia poręczyciela: kluczowy wymóg formalny z art. 876 § 2 Kodeksu cywilnego. Brak pisemnego oświadczenia poręczyciela powoduje nieważność poręczenia. Forma pisemna jest spełniona, gdy poręczyciel złoży własnoręczny podpis pod treścią oświadczenia.\\n\\nOznaczenie stron: pełne dane wierzyciela (beneficjenta poręczenia), poręczyciela i dłużnika głównego — imiona i nazwiska lub firmy, numery PESEL i NIP, adresy zamieszkania lub siedzib. Przy podmiotach wpisanych w Krajowy Rejestr Sądowy (KRS) należy wskazać organ i sposób reprezentacji.\\n\\nOpis poręczanego zobowiązania: dokładny opis zabezpieczanej wierzytelności — rodzaj umowy (np. umowa pożyczki, najem, umowa handlowa), data zawarcia, kwota główna, termin wykonania. Im dokładniejszy opis, tym mniejsze ryzyko sporu co do zakresu poręczenia. Bez precyzyjnego opisu sąd rejonowy może mieć wątpliwości co do tego, jakie zobowiązanie jest objęte poręczeniem.\\n\\nMaksymalna kwota poręczenia: przy poręczeniu za dług przyszły art. 878 Kodeksu cywilnego bezwzględnie wymaga oznaczenia wysokości poręczenia. Przy poręczeniu za dług istniejący wskazanie maksymalnej kwoty jest dobrą praktyką chroniącą poręczyciela przed odpowiedzialnością za odsetki i koszty nieograniczone kwotowo. Kwota powinna być podana cyfrowo i słownie.\\n\\nRodzaj odpowiedzialności poręczyciela: odpowiedzialność solidarna (art. 881 Kodeksu cywilnego — reguła w braku odmiennego postanowienia) lub subsydiarna (poręczyciel odpowiada dopiero po bezskutecznej egzekucji z majątku dłużnika). Solidarność jest korzystna dla wierzyciela, ponieważ może żądać spełnienia świadczenia bezpośrednio od poręczyciela bez wcześniejszego pozwania dłużnika.\\n\\nZasady regresu: klauzula o regresie poręczyciela wobec dłużnika głównego i subrogacji (art. 518 Kodeksu cywilnego) — po zapłacie poręczyciel wstępuje w prawa zaspokojonego wierzyciela i może dochodzić zwrotu od dłużnika na takich samych zasadach. Warto też wskazać obowiązek informowania poręczyciela o opóźnieniach dłużnika.\\n\\nWygaśnięcie poręczenia: klauzula o wygaśnięciu po całkowitym wykonaniu zobowiązania dłużnika i obowiązku potwierdzenia wygaśnięcia przez wierzyciela. Bez tej klauzuli poręczyciel może mieć trudność z uzyskaniem oficjalnego dokumentu zwalniającego go z zobowiązania.\\n\\nPostanowienia końcowe: pisemna forma dla zmian, sąd właściwy dla sporów (sąd rejonowy lub okręgowy w zależności od wartości), liczba egzemplarzy (trzy — dla wierzyciela, poręczyciela i dłużnika), data i miejsce zawarcia. Wzór umowy poręczenia dostępny na forms-legal.com ułatwia prawidłowe sporządzenie dokumentu zgodnego z art. 876 Kodeksu cywilnego.\\n\\nWypełnianie umowy poręczenia w Polsce należy rozpocząć od starannego oznaczenia wszystkich trzech podmiotów: wierzyciela, poręczyciela i dłużnika głównego. Dla każdego podmiotu wpisz: imię i nazwisko lub firmę, numer PESEL albo NIP, adres zamieszkania lub siedziby. Przy spółkach z ograniczoną odpowiedzialnością wpisanych w Krajowy Rejestr Sądowy podaj numer KRS i sposób reprezentacji.\\n\\nW sekcji dotyczącej poręczanego zobowiązania opisz precyzyjnie dług, który ma być zabezpieczony. Wskaż rodzaj umowy (pożyczka, najem, umowa handlowa), datę jej zawarcia, kwotę główną wyrażoną cyfrowo i słownie, termin wykonania i wszelkie inne istotne parametry. Opis powinien być na tyle szczegółowy, aby nie było wątpliwości, które zobowiązanie jest poręczane.\\n\\nWpisz maksymalną kwotę poręczenia. Oblicz ją jako kwotę główną długu plus możliwe odsetki za opóźnienie (art. 481 Kodeksu cywilnego) i rozsądnie oszacowane koszty postępowania przed sądem rejonowym i egzekucji komorniczej. Kwotę podaj cyfrowo i słownie.\\n\\nW polu rodzaju odpowiedzialności zaznacz, czy poręczyciel odpowiada solidarnie (współdłużnik — art. 881 Kodeksu cywilnego) czy subsydiarnie (dopiero po bezskutecznej egzekucji od dłużnika). Odpowiedzialność solidarna jest bardziej korzystna dla wierzyciela. Solidarność jest regułą w braku odmiennego zastrzeżenia.\\n\\nWpisz miejscowość i datę zawarcia umowy. Pamiętaj, że oświadczenie poręczyciela musi być złożone na piśmie pod rygorem nieważności — nie wystarczy forma elektroniczna (kwalifikowany podpis elektroniczny może spełniać wymóg formy pisemnej w rozumieniu art. 78¹ Kodeksu cywilnego). Umowę podpisują wierzyciel i poręczyciel; dłużnik główny podpisuje dla informacji i potwierdzenia znajomości treści. Sporządź trzy egzemplarze — po jednym dla każdej strony.\\n\\nWymogi prawne umowy poręczenia w Polsce wynikają przede wszystkim z art. 876-887 Kodeksu cywilnego.\\n\\nNajważniejszy wymóg to pisemna forma oświadczenia poręczyciela z art. 876 § 2 Kodeksu cywilnego — forma pod rygorem nieważności. Brak własnoręcznego podpisu poręczyciela pod treścią oświadczenia skutkuje absolutną nieważnością poręczenia, bez możliwości konwalidacji przez późniejsze zachowanie stron. Sąd Najwyższy wielokrotnie potwierdzał, że ustna zgoda poręczyciela nie wywołuje skutków prawnych.\\n\\nZakres odpowiedzialności poręczyciela wyznaczany jest każdoczesnym zakresem zobowiązania dłużnika (art. 879 Kodeksu cywilnego). Oznacza to, że poręczyciel odpowiada m.in. za odsetki za opóźnienie z art. 481 Kodeksu cywilnego naliczane po zawarciu umowy poręczenia, nawet jeżeli nie były one znane w chwili składania oświadczenia. Dlatego tak ważne jest ustalenie maksymalnej kwoty poręczenia.\\n\\nPoręczenie za dług przyszły (art. 878 Kodeksu cywilnego) wymaga oznaczenia górnej granicy kwotowej poręczenia. Bez tego warunku poręczenie za dług nieistniejący w chwili składania oświadczenia jest nieważne. Poręczyciel za dług przyszły może odwołać poręczenie do czasu powstania długu.\\n\\nSolidarność poręczyciela z dłużnikiem (art. 881 Kodeksu cywilnego) jest reguła w braku odmiennego postanowienia. Oznacza to, że wierzyciel może żądać spełnienia świadczenia bezpośrednio od poręczyciela, bez wcześniejszego wezwania dłużnika lub bezskutecznej egzekucji z jego majątku.\\n\\nPoręczyciel, który spłacił dług, wstępuje z mocy prawa w prawa zaspokojonego wierzyciela (subrogacja ustawowa — art. 518 Kodeksu cywilnego), co oznacza, że przejmuje wszelkie zabezpieczenia wierzytelności (hipotekę, zastaw, weksel). Poręczyciel ma zatem możliwość dochodzenia zwrotu od dłużnika za pomocą tych samych instrumentów, które przysługiwały wierzycielowi. Roszczenie regresowe poręczyciela przedawnia się na zasadach ogólnych Kodeksu cywilnego — trzy lata dla roszczeń z działalności gospodarczej i sześć lat dla roszczeń ogólnych (art. 118 Kodeksu cywilnego).\\n\\nNajczęstsze błędy przy sporządzaniu umowy poręczenia w Polsce dotyczą formy oświadczenia, zakresu odpowiedzialności i braku precyzji w opisie poręczanego zobowiązania.\\n\\nBrak pisemnej formy oświadczenia poręczyciela. Oświadczenie poręczyciela musi być złożone na piśmie pod rygorem nieważności (art. 876 § 2 Kodeksu cywilnego). Błędem jest przyjmowanie przez wierzyciela ustnych zapewnień o poręczeniu, wiadomości SMS czy e-mail (chyba że opatrzonych kwalifikowanym podpisem elektronicznym). Sąd rejonowy odmówi uwzględnienia powództwa wierzyciela przeciwko rzekomemu poręczycielowi bez pisemnego dokumentu.\\n\\nBrak oznaczenia maksymalnej kwoty przy poręczeniu za dług przyszły. Poręczenie za zobowiązanie, które nie istnieje jeszcze w chwili składania oświadczenia (np. przyszła pożyczka, przyszłe raty najmu), musi wskazywać górną granicę kwotową — art. 878 Kodeksu cywilnego. Pominięcie tego elementu powoduje nieważność poręczenia za dług przyszły.\\n\\nNieprecyzyjny opis poręczanego zobowiązania. Sformułowania ogólne, jak \\\"wszelkie zobowiązania dłużnika wobec wierzyciela\\\", są niekiedy kwestionowane przez sądy jako naruszające zasadę akcesoryjności. Poręczenie powinno być powiązane z konkretnym zobowiązaniem — najlepiej ze wskazaniem daty umowy, kwoty i stron.\\n\\nPominięcie klauzuli regresowej. Choć regres poręczyciela wynika bezpośrednio z art. 518 Kodeksu cywilnego, brak wyraźnej klauzuli w umowie skutkuje często trudnościami praktycznymi — dłużnik kwestionuje zakres subrogacji albo poręczyciel nie jest świadomy swoich praw. Klauzula o regresie i obowiązku informowania poręczyciela o opóźnieniach dłużnika powinna być wyraźna.\\n\\nZałożenie, że poręczenie automatycznie wygasa po spłacie długu bez potwierdzenia. Poręczyciel, który spłacił dług, powinien żądać od wierzyciela pisemnego potwierdzenia wygaśnięcia poręczenia i zwrotu dokumentu poręczenia. Brak takiego potwierdzenia naraża poręczyciela na późniejsze próby dochodzenia roszczeń przez wierzyciela lub jego następców prawnych.\\n\\nŹródło: https://forms-legal.com/pl/financial/debt/umowa-poreczenia (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-d63fae60-a3ba-44d7-93d9-27c3e53eadde",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_45a7bab9c69f484cb1c9038e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pożyczka na raty umowa pożyczki spłata w ratach przepisy KC\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_e43b0ddaab3c4d1890227622",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 720 KC\", \"pożyczka na raty\", \"spłata pożyczki\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_709\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 709 13 . § 1. Korzystający obowiązany jest płacić raty w terminach umówionych. § 2. Jeżeli korzystający dopuszcza się zwłoki z zapłatą co najmniej jednej raty, finansujący powinien wyznaczyć na piśmie korzystającemu odpowiedni termin dodatkowy do zapłacenia zaległości z zagrożeniem, że w razie bezskutecznego upływu wyznaczonego terminu może wypowiedzieć umowę leasingu ze skutkiem natychmiastowym, chyba że strony uzgodniły termin wypowiedzenia. P ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 2 . § 1. Jeżeli przepisy szczególne nie stanowią inaczej, w umowie pożyczki pieniężnej zawieranej z osobą fizyczną i niezwiązanej bezpośrednio z działalnością gospodarczą lub zawodową tej osoby łączna wysokość pozaodsetkowych kosztów nie może przekraczać maksymalnej wysokości pozaodsetkowych kosztów określonej wzorem: MPK = K × n/R × 20% w którym poszczególne symbole oznaczają: MPK - maksymalną wysokość pozaodsetkowych kosztów, K - całkowitą ...\"}, {\"chunk_id\": \"uokik_items:uokik_23c6370bd4c76885\", \"source_id\": \"uokik_rejestr_klauzul_7755\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Pożyczkobiorca zleca firmie (...). poręczenie swojej pożyczki i zobowiązuje się zapłacić na rzecz Pożyczkodawcy kwotę 1000 zł (słownie: jeden tysiąc złotych) miesięcznie za każdy miesiąc trwania umowy pożyczki za w/w poręczenie, co stanowi część raty w wysokości 4%, natomiast druga część raty w wysokości 4% co stanowi kwotę 1000 zł (słownie: jeden tysiąc złotych) miesięcznie zostanie doliczone do kapitału spłaty na koniec okresu pożyczki)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_583\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 583. § 1. Sprzedażą na raty jest dokonana w zakresie działalności przedsiębiorstwa sprzedaż rzeczy ruchomej osobie fizycznej za cenę płatną w określonych ratach, jeżeli według umowy rzecz ma być kupującemu wydana przed całkowitym zapłaceniem ceny. § 2. Wystawienie przez kupującego weksli na pokrycie lub zabezpieczenie ceny kupna nie wyłącza stosowania przepisów rozdziału niniejszego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720. § 1. Przez umowę pożyczki dający pożyczkę zobowiązuje się przenieść na własność biorącego określoną ilość pieniędzy albo rzeczy oznaczonych tylko co do gatunku, a biorący zobowiązuje się zwrócić tę samą ilość pieniędzy albo tę samą ilość rzeczy tego samego gatunku i tej samej jakości. § 2. Umowa pożyczki, której wartość przekracza tysiąc złotych, wymaga zachowania formy dokumentowej.\"}]",
+   "tool_call_id": "call_45a7bab9c69f484cb1c9038e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_e43b0ddaab3c4d1890227622",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions related to installment loans, consumer credit, and the specific requirements for guarantees in that context.",
+   "tool_calls": [
+    {
+     "id": "call-411e9d25-59e1-4407-81c1-2e05e70ebdbf",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"poręczenie za pożyczkę konsumencką kredyt konsumencki ustawa o kredycie konsumenckim art 878 KC\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-79df354e-e4a3-4d87-8e36-17738e74a909",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 720 KC\", \"pożyczka\", \"rata\", \"spłata\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_878\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 878. § 1. Można poręczyć za dług przyszły do wysokości z góry oznaczonej. § 2. Bezterminowe poręczenie za dług przyszły może być przed powstaniem długu odwołane w każdym czasie.\"}, {\"chunk_id\": \"uokik_items:uokik_23c6370bd4c76885\", \"source_id\": \"uokik_rejestr_klauzul_7755\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Pożyczkobiorca zleca firmie (...). poręczenie swojej pożyczki i zobowiązuje się zapłacić na rzecz Pożyczkodawcy kwotę 1000 zł (słownie: jeden tysiąc złotych) miesięcznie za każdy miesiąc trwania umowy pożyczki za w/w poręczenie, co stanowi część raty w wysokości 4%, natomiast druga część raty w wysokości 4% co stanowi kwotę 1000 zł (słownie: jeden tysiąc złotych) miesięcznie zostanie doliczone do kapitału spłaty na koniec okresu pożyczki)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_876\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 876. § 1. Przez umowę poręczenia poręczyciel zobowiązuje się względem wierzyciela wykonać zobowiązanie na wypadek, gdyby dłużnik zobowiązania nie wykonał. § 2. Oświadczenie poręczyciela powinno być pod rygorem nieważności złożone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_878\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 878. Jeżeli dłużnik lub dozorca odmawia wydania rzeczy nabywcy, komornik na wniosek nabywcy postąpi jak przy egzekucji roszczeń niepieniężnych.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 385 5 . § 1. Przepisy dotyczące konsumenta, zawarte w art. 385 1 -385 3 , stosuje się do osoby fizycznej zawierającej umowę bezpośrednio związaną z jej działalnością gospodarczą, gdy z treści tej umowy wynika, że nie posiada ona dla niej charakteru zawodowego, wynikającego w szczególności z przedmiotu wykonywanej przez nią działalności gospodarczej, udostępnionego na podstawie przepisów o Centralnej Ewidencji i Informacji o Działalności Gospodar ...\"}]",
+   "tool_call_id": "call-411e9d25-59e1-4407-81c1-2e05e70ebdbf",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_867\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 867. § 1. Każdy wspólnik jest uprawniony do równego udziału w zyskach i w tym samym stosunku uczestniczy w stratach, bez względu na rodzaj i wartość wkładu. W umowie spółki można inaczej ustalić stosunek udziału wspólników w zyskach i stratach. Można nawet zwolnić niektórych wspólników od udziału w stratach. Natomiast nie można wyłączyć wspólnika od udziału w zyskach. § 2. Ustalony w umowie stosunek udziału wspólnika w zyskach odnosi się w razie ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_51\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 51. § 1. Każdy wspólnik ma prawo do równego udziału w zyskach i uczestniczy w stratach w tym samym stosunku bez względu na rodzaj i wartość wkładu. § 2. Określony w umowie spółki udział wspólnika w zysku odnosi się, w razie wątpliwości, także do jego udziału w stratach. § 3. Umowa spółki może zwolnić wspólnika od udziału w stratach.\"}, {\"chunk_id\": \"uokik_items:uokik_9967ca5e8078e66c\", \"source_id\": \"uokik_rejestr_klauzul_2604\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku rezygnacji z imprezy uczestnik ponosi następujące koszta: - utrata zaliczki + 250 zł w razie rezygnacji pomiędzy 35-30 dniem przed rozpoczęciem imprezy, - utrata zaliczki + 500 zł w razie rezygnacji pomiędzy 29-14 dniem przed rozpoczęciem imprezy, - utrata zaliczki +1100 zł w razie rezygnacji po 14 dniu przed rozpoczęciem imprezy (...)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_719\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 719. Roszczenie użyczającego przeciwko biorącemu do używania o naprawienie szkody za uszkodzenie lub pogorszenie rzeczy, jak również roszczenia biorącego do używania przeciwko użyczającemu o zwrot nakładów na rzecz oraz o naprawienie szkody poniesionej wskutek wad rzeczy przedawniają się z upływem roku od dnia zwrotu rzeczy. Tytuł XIX Pożyczka\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 3 . § 1. Jeżeli w związku z zawarciem umowy, o której mowa w art. 720 2 § 1, biorący pożyczkę zobowiązuje się udzielić zabezpieczenia zwrotu pożyczki, zobowiązanie to należy określić w umowie. W takim przypadku w umowie wskazuje się sposób zabezpieczenia oraz, stosownie do okoliczności, rzecz lub prawo majątkowe będące przedmiotem zabezpieczenia i jego wartość albo określoną w inny sposób sumę zabezpieczenia. § 2. Czynność prawna zobowiązują ...\"}]",
+   "tool_call_id": "call-79df354e-e4a3-4d87-8e36-17738e74a909",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "Let me get more specific provisions about installment loans, consumer credit, and the specific requirements for guarantees in that context.",
+   "tool_calls": [
+    {
+     "id": "call-e9e7f232-55da-499b-9687-fee2803d938e",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_720\", \"sejm_eli_du_2024_1061_art_720_2\", \"sejm_eli_du_2024_1061_art_720_3\"]}"
+     }
+    },
+    {
+     "id": "call-6b40f17f-5cb4-4a4c-8023-0e7741e7d517",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"ustawa o kredycie konsumenckim poręczenie konsumenta art 878 KC maksymalna kwota\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 720 6 . (uchylony) 11) Przez art. 1 pkt 2 ustawy, o której mowa w odnośniku 5.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720_2\", \"error\": \"not found\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_720_3\", \"error\": \"not found\"}]",
+   "tool_call_id": "call-e9e7f232-55da-499b-9687-fee2803d938e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_878\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 878. § 1. Można poręczyć za dług przyszły do wysokości z góry oznaczonej. § 2. Bezterminowe poręczenie za dług przyszły może być przed powstaniem długu odwołane w każdym czasie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_id\": \"sejm_eli_du_2024_1796_art_39\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 39. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca jest obowiązany poinformować konsumenta w sposób jasny i zrozumiały, wskazujący na zamiar zawarcia umowy i odpowiadający rodzajowi użytego środka porozumiewania się na odległość o: 1) imieniu i nazwisku (nazwie), adresie zamieszkania (siedziby) przedsiębiorcy, organie, który zarejestrował działalność gospodarczą przedsiębiorcy, a także numerze, po ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0039_statute_1d9c529a3b28b70a\", \"source_id\": \"sejm_eli_du_2024_1061_art_720\", \"source_type\": \"statute\", \"top_category\": \"consumer_rights\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 720 2 . § 1. Jeżeli przepisy szczególne nie stanowią inaczej, w umowie pożyczki pieniężnej zawieranej z osobą fizyczną i niezwiązanej bezpośrednio z działalnością gospodarczą lub zawodową tej osoby łączna wysokość pozaodsetkowych kosztów nie może przekraczać maksymalnej wysokości pozaodsetkowych kosztów określonej wzorem: MPK = K × n/R × 20% w którym poszczególne symbole oznaczają: MPK - maksymalną wysokość pozaodsetkowych kosztów, K - całkowitą kwotę pożyczki, rozumianą jako suma wszystkich środków pieniężnych nieobejmujących współfinansowanych kosztów pożyczki, które dający pożyczkę wyd ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_8\", \"source_id\": \"sejm_eli_du_2024_1796_art_8\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 8. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową przedsiębiorca ma obowiązek poinformować konsumenta, o ile informacje te nie wynikają już z okoliczności, w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia, z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarc ...\"}]",
+   "tool_call_id": "call-6b40f17f-5cb4-4a4c-8023-0e7741e7d517",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Umowa poręczenia za zobowiązanie z tytułu pożyczki na raty\n\nzawartej w dniu **[data]** r. w **[miejscowość]** między:\n\n**1. Wierzycielem (Pożyczkodawcą):**\n**[Pełna nazwa / Imię i nazwisko]**\nSiedziba / Adres zamieszkania: **[adres]**\nNIP: **[numer NIP]** / PESEL: **[numer PESEL]**\nKRS: **[numer KRS – jeżeli dotyczy]**\nPrzedstawiciel: **[dane osoby upoważnionej do reprezentacji – jeżeli dotyczy]**\n– zwanym dalej **„Wierzycielem”**,\n\na\n\n**2. Poręczycielem:**\n**[Imię i nazwisko / Pełna nazwa]**\nAdres zamieszkania / Siedziba: **[adres]**\nPESEL: **[numer PESEL]** / NIP: **[numer NIP]**\nKRS: **[numer KRS – jeżeli dotyczy]**\nPrzedstawiciel: **[dane osoby upoważnionej do reprezentacji – jeżeli dotyczy]**\n– zwanym dalej **„Poręczycielem”**,\n\nwobec\n\n**3. Dłużnika głównego (Pożyczkobiorcy):**\n**[Imię i nazwisko]**\nAdres zamieszkania: **[adres]**\nPESEL: **[numer PESEL]**\n– zwanym dalej **„Dłużnikiem”**.\n\nStrony wspólnie zwane **„Stronami”**.\n\n---\n\n## § 1. Przedmiot poręczenia\n\n1. Poręczyciel zobowiązuje się na podstawie art. 876 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.) względem Wierzyciela wykonać zobowiązanie Dłużnika wynikające z **Umowy pożyczki nr **[numer umowy]** zawartej w dniu **[data]** r. między Wierzycielem a Dłużnikiem** (dalej: **„Umowa pożyczki”**), na wypadek, gdyby Dłużnik nie wykonał swojego zobowiązania.\n\n2. Umowa pożyczki ma na przedmiocie przekazanie Dłużnikowi kwoty **[kwota cyfrowo i słownie]** PLN (**„Kapitał pożyczki”**) na zasadach spłaty w **[liczba]** ratach miesięcznych, z których pierwsza rata jest wymagalna w dniu **[data]**, a ostatnia w dniu **[data]**, zgodnie z harmonogramem spłaty stanowiącym załącznik do Umowy pożyczki.\n\n3. Zobowiązanie poręczane obejmuje:\n   a) Kapitał pożyczki;\n   b) odsetki ustawowe za opóźnienie (art. 481 KC) naliczane od dnia upływu terminu zapłaty każdej raty do dnia faktycznej wpłaty;\n   c) koszty postępowania sądowego i egzekucji komorniczej, jakie Wierzyciel poniesie w związku z dochodzeniem roszczeń od Dłużnika;\n   d) inne koszty wynikające z Umowy pożyczki, w granicach dopuszczalnych przepisami prawa.\n\n---\n\n## § 2. Maksymalna kwota poręczenia\n\n1. Zgodnie z art. 878 § 1 KC, poręczenie udzielone jest do wysokości z góry oznaczonej, a mianowicie do kwoty **[kwota maksymalna cyfrowo i słownie]** PLN (**„Limit poręczenia”**).\n\n2. Limit poręczenia został ustalony jako suma Kapitału pożyczki, szacunkowych odsetek za opóźnienie oraz szacunkowych kosztów sądowo-komorniczych, co ma na celu ochronę Poręczyciela przed odpowiedzialnością nieograniczoną kwotowo.\n\n3. W przypadku, gdy Umowa pożyczki jest umową pożyczki konsumencką w rozumieniu art. 720² KC (pożyczka zawierana z osobą fizyczną niezwiązaną z działalnością gospodarczą), łączna wysokość pozaodsetkowych kosztów, za które może odpowiadać Poręczyciel, nie może przekraczać maksymalnej wysokości pozaodsetkowych kosztów (MPK) wyliczonej według wzoru: **MPK = K × n/R × 20%**, gdzie:\n   - K – całkowita kwota pożyczki (bez współfinansowanych kosztów),\n   - n – liczba dni trwania umowy,\n   - R – liczba dni w roku kalendarzowym (365 lub 366).\n\n---\n\n## § 3. Rodzaj odpowiedzialności Poręczyciela\n\n1. Strony ustalają, że Poręczyciel odpowiada **solidarnie** z Dłużnikiem (art. 881 KC). Oznacza to, że Wierzyciel może według własnego wyboru żądać spełnienia świadczenia od Dłużnika i Poręczyciela łącznie, od każdego z nich z osobna, lub od Poręczyciela bez uprzedniego bezskutecznego dochodzenia długu od Dłużnika.\n\n2. Wierzyciel nie jest zobowiązany do uprzedniego wezwania Dłużnika do zapłaty ani do przeprowadzenia egzekucji z majątku Dłużnika przed skierowaniem roszczenia do Poręczyciela.\n\n---\n\n## § 4. Akcesoryjność poręczenia\n\n1. Poręczenie jest zobowiązaniem akcesoryjnym (art. 879 KC). Zakres odpowiedzialności Poręczyciela determinowany jest każdoczesnym zakresem zobowiązania Dłużnika. Wygaszenie zobowiązania Dłużnika (spłata, potrącenie, umorzenie, przedawnienie) powoduje automatyczne wygaśnięcie poręczenia.\n\n2. Zmiana warunków Umowy pożyczki (np. odroczenie terminów spłaty, zmiana wysokości rat, kapitalizacja odsetek) bez zgody Poręczyciela nie rozszerza jego odpowiedzialności poza Limit poręczenia, chyba że zmiana jest korzystna dla Poręczyciela.\n\n---\n\n## § 5. Prawo odwołania poręczenia za dług przyszły\n\n1. Ponieważ poręczenie dotyczy zobowiązania spłacanego w ratach (dług przyszły w części), Poręczyciel przysługuje prawo do odwołania poręczenia w każdym czasie przed powstaniem konkretnej raty, z zastrzeżeniem § 2 niniejszego punktu (art. 878 § 2 KC).\n\n2. Odwołanie poręczenia jest skuteczne jedynie w odniesieniu do rat, których termin płatności jeszcze nie nastał w dniu doręczenia oświadczenia o odwołaniu Wierzycielowi. Odwołanie nie zwalnia Poręczyciela z odpowiedzialności za raty, których terminy zapłaty minęły przed doręczeniem oświadczenia.\n\n3. Oświadczenie o odwołaniu poręczenia musi zostać złożone w formie pisemnej pod rygorem nieważności (art. 876 § 2 KC).\n\n---\n\n## § 6. Regres Poręczyciela i subrogacja\n\n1. Poręczyciel, który wykonał zobowiązanie Wierzyciela, nabywa z mocy prawa roszczenie regresowe wobec Dłużnika i wstępuje w prawa zaspokojonego Wierzyciela (subrogacja ustawowa – art. 518 KC). Przejmuje on wszelkie zabezpieczenia wierzytelności, jakimi dysponował Wierzyciel.\n\n2. Wierzyciel zobowiązuje się po otrzymaniu zapłaty od Poręczyciela wydać mu potwierdzenie zapłaty oraz przekazać dokumenty niezbędne do dochodzenia regresu (w tym ewentualne weksle, umowy zabezpieczające itp.).\n\n3. Dłużnik zobowiązuje się poinformować Poręczyciela o każdym opóźnieniu w spłacie raty nie później niż w ciągu 7 dni od upływu terminu zapłaty. Wierzyciel zobowiązuje się powiadomić Poręczyciela o wszelkich działaniach dochodzeniowych skierowanych do Dłużnika.\n\n---\n\n## § 7. Wygaśnięcie poręczenia i potwierdzenie zwolnienia\n\n1. Poręczenie wygasa w momencie całkowitego wykonania zobowiązania przez Dłużnika (spłaty wszystkich rat wraz z odsetkami i kosztami) lub w momencie spłaty przez Poręczyciela kwoty do wysokości Limitu poręczenia.\n\n2. Po wygaśnięciu poręczenia Wierzyciel zobowiązuje się na wniosek Poręczyciela bezpłatnie wydać pisemne potwierdzenie wygaśnięcia poręczenia oraz zwrócić dokumenty związane z poręczeniem.\n\n---\n\n## § 8. Forma oświadczeń i doręczenia\n\n1. Oświadczenie Poręczyciela o udzieleniu poręczenia złożone jest w formie pisemnej pod rygorem nieważności (art. 876 § 2 KC). Forma pisemna jest spełniona, gdy Poręczyciel złoży własnoręczny podpis pod treścią oświadczenia. Dopuszcza się złożenie oświadczenia w formie dokumentu elektronicznego podpiisanego kwalifikowanym podpisem elektronicznym (art. 78¹ KC).\n\n2. Wszelkie zmiany niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n3. Doręczenia między Stronami dokonuje się na adresy wskazane w preambule Umowy. Zmiana adresu podlega zgłoszeniu w formie pisemnej.\n\n---\n\n## § 9. Sąd właściwy i prawo właściwe\n\n1. Spory wynikające z niniejszej Umowy rozstrzyga sąd właściwy dla siedziby / zamieszkania Wierzyciela (sąd rejonowy lub okręgowy w zależności od wartości przedmiotu sporu).\n\n2. Na Umowę ma zastosowanie prawo polskie (Kodeks cywilny).\n\n---\n\n## § 10. Postanowienia końcowe\n\n1. Umowę sporządzono w **3 (trzech) egzemplarzach** o równym mocy prawnej: po jednym dla Wierzyciela, Poręczyciela i Dłużnika.\n\n2. Dłużnik podpisuje Umowę wyłącznie dla informacji i potwierdzenia znajomości jej treści, nie będąc stroną umowy poręczenia.\n\n3. W sprawach nieuregulowanych w Umowie mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 876–887 KC oraz art. 720–720³ KC.\n\n---\n\n**Wierzyciel (Pożyczkodawca)**\n\n........................................................................\n(podpis)\n\n**Poręczyciel**\n\n........................................................................\n(własnoręczny podpis pod rygorem nieważności – art. 876 § 2 KC)\n\n**Dłużnik (Pożyczkobiorca) – do wiadomości**\n\n........................................................................\n(podpis)\n\n---\n\n**Załączniki:**\n1. Umowa pożyczki nr **[numer]** z dnia **[data]** r. wraz z harmonogramem spłaty.\n2. Oświadczenie Poręczyciela o znanej treści Umowy pożyczki.\n3. Potwierdzenie tożsamości Poręczyciela (kopia dowodu osobistego).",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Umowa poręczenia za zobowiązanie z tytułu pożyczki na raty\n\nzawartej w dniu **[data]** r. w **[miejscowość]** między:\n\n**1. Wierzycielem (Pożyczkodawcą):**\n**[Pełna nazwa / Imię i nazwisko]**\nSiedziba / Adres zamieszkania: **[adres]**\nNIP: **[numer NIP]** / PESEL: **[numer PESEL]**\nKRS: **[numer KRS – jeżeli dotyczy]**\nPrzedstawiciel: **[dane osoby upoważnionej do reprezentacji – jeżeli dotyczy]**\n– zwanym dalej **„Wierzycielem”**,\n\na\n\n**2. Poręczycielem:**\n**[Imię i nazwisko / Pełna nazwa]**\nAdres zamieszkania / Siedziba: **[adres]**\nPESEL: **[numer PESEL]** / NIP: **[numer NIP]**\nKRS: **[numer KRS – jeżeli dotyczy]**\nPrzedstawiciel: **[dane osoby upoważnionej do reprezentacji – jeżeli dotyczy]**\n– zwanym dalej **„Poręczycielem”**,\n\nwobec\n\n**3. Dłużnika głównego (Pożyczkobiorcy):**\n**[Imię i nazwisko]**\nAdres zamieszkania: **[adres]**\nPESEL: **[numer PESEL]**\n– zwanym dalej **„Dłużnikiem”**.\n\nStrony wspólnie zwane **„Stronami”**.\n\n---\n\n## § 1. Przedmiot poręczenia\n\n1. Poręczyciel zobowiązuje się na podstawie art. 876 § 1 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.) względem Wierzyciela wykonać zobowiązanie Dłużnika wynikające z **Umowy pożyczki nr **[numer umowy]** zawartej w dniu **[data]** r. między Wierzycielem a Dłużnikiem** (dalej: **„Umowa pożyczki”**), na wypadek, gdyby Dłużnik nie wykonał swojego zobowiązania.\n\n2. Umowa pożyczki ma na przedmiocie przekazanie Dłużnikowi kwoty **[kwota cyfrowo i słownie]** PLN (**„Kapitał pożyczki”**) na zasadach spłaty w **[liczba]** ratach miesięcznych, z których pierwsza rata jest wymagalna w dniu **[data]**, a ostatnia w dniu **[data]**, zgodnie z harmonogramem spłaty stanowiącym załącznik do Umowy pożyczki.\n\n3. Zobowiązanie poręczane obejmuje:\n   a) Kapitał pożyczki;\n   b) odsetki ustawowe za opóźnienie (art. 481 KC) naliczane od dnia upływu terminu zapłaty każdej raty do dnia faktycznej wpłaty;\n   c) koszty postępowania sądowego i egzekucji komorniczej, jakie Wierzyciel poniesie w związku z dochodzeniem roszczeń od Dłużnika;\n   d) inne koszty wynikające z Umowy pożyczki, w granicach dopuszczalnych przepisami prawa.\n\n---\n\n## § 2. Maksymalna kwota poręczenia\n\n1. Zgodnie z art. 878 § 1 KC, poręczenie udzielone jest do wysokości z góry oznaczonej, a mianowicie do kwoty **[kwota maksymalna cyfrowo i słownie]** PLN (**„Limit poręczenia”**).\n\n2. Limit poręczenia został ustalony jako suma Kapitału pożyczki, szacunkowych odsetek za opóźnienie oraz szacunkowych kosztów sądowo-komorniczych, co ma na celu ochronę Poręczyciela przed odpowiedzialnością nieograniczoną kwotowo.\n\n3. W przypadku, gdy Umowa pożyczki jest umową pożyczki konsumencką w rozumieniu art. 720² KC (pożyczka zawierana z osobą fizyczną niezwiązaną z działalnością gospodarczą), łączna wysokość pozaodsetkowych kosztów, za które może odpowiadać Poręczyciel, nie może przekraczać maksymalnej wysokości pozaodsetkowych kosztów (MPK) wyliczonej według wzoru: **MPK = K × n/R × 20%**, gdzie:\n   - K – całkowita kwota pożyczki (bez współfinansowanych kosztów),\n   - n – liczba dni trwania umowy,\n   - R – liczba dni w roku kalendarzowym (365 lub 366).\n\n---\n\n## § 3. Rodzaj odpowiedzialności Poręczyciela\n\n1. Strony ustalają, że Poręczyciel odpowiada **solidarnie** z Dłużnikiem (art. 881 KC). Oznacza to, że Wierzyciel może według własnego wyboru żądać spełnienia świadczenia od Dłużnika i Poręczyciela łącznie, od każdego z nich z osobna, lub od Poręczyciela bez uprzedniego bezskutecznego dochodzenia długu od Dłużnika.\n\n2. Wierzyciel nie jest zobowiązany do uprzedniego wezwania Dłużnika do zapłaty ani do przeprowadzenia egzekucji z majątku Dłużnika przed skierowaniem roszczenia do Poręczyciela.\n\n---\n\n## § 4. Akcesoryjność poręczenia\n\n1. Poręczenie jest zobowiązaniem akcesoryjnym (art. 879 KC). Zakres odpowiedzialności Poręczyciela determinowany jest każdoczesnym zakresem zobowiązania Dłużnika. Wygaszenie zobowiązania Dłużnika (spłata, potrącenie, umorzenie, przedawnienie) powoduje automatyczne wygaśnięcie poręczenia.\n\n2. Zmiana warunków Umowy pożyczki (np. odroczenie terminów spłaty, zmiana wysokości rat, kapitalizacja odsetek) bez zgody Poręczyciela nie rozszerza jego odpowiedzialności poza Limit poręczenia, chyba że zmiana jest korzystna dla Poręczyciela.\n\n---\n\n## § 5. Prawo odwołania poręczenia za dług przyszły\n\n1. Ponieważ poręczenie dotyczy zobowiązania spłacanego w ratach (dług przyszły w części), Poręczyciel przysługuje prawo do odwołania poręczenia w każdym czasie przed powstaniem konkretnej raty, z zastrzeżeniem § 2 niniejszego punktu (art. 878 § 2 KC).\n\n2. Odwołanie poręczenia jest skuteczne jedynie w odniesieniu do rat, których termin płatności jeszcze nie nastał w dniu doręczenia oświadczenia o odwołaniu Wierzycielowi. Odwołanie nie zwalnia Poręczyciela z odpowiedzialności za raty, których terminy zapłaty minęły przed doręczeniem oświadczenia.\n\n3. Oświadczenie o odwołaniu poręczenia musi zostać złożone w formie pisemnej pod rygorem nieważności (art. 876 § 2 KC).\n\n---\n\n## § 6. Regres Poręczyciela i subrogacja\n\n1. Poręczyciel, który wykonał zobowiązanie Wierzyciela, nabywa z mocy prawa roszczenie regresowe wobec Dłużnika i wstępuje w prawa zaspokojonego Wierzyciela (subrogacja ustawowa – art. 518 KC). Przejmuje on wszelkie zabezpieczenia wierzytelności, jakimi dysponował Wierzyciel.\n\n2. Wierzyciel zobowiązuje się po otrzymaniu zapłaty od Poręczyciela wydać mu potwierdzenie zapłaty oraz przekazać dokumenty niezbędne do dochodzenia regresu (w tym ewentualne weksle, umowy zabezpieczające itp.).\n\n3. Dłużnik zobowiązuje się poinformować Poręczyciela o każdym opóźnieniu w spłacie raty nie później niż w ciągu 7 dni od upływu terminu zapłaty. Wierzyciel zobowiązuje się powiadomić Poręczyciela o wszelkich działaniach dochodzeniowych skierowanych do Dłużnika.\n\n---\n\n## § 7. Wygaśnięcie poręczenia i potwierdzenie zwolnienia\n\n1. Poręczenie wygasa w momencie całkowitego wykonania zobowiązania przez Dłużnika (spłaty wszystkich rat wraz z odsetkami i kosztami) lub w momencie spłaty przez Poręczyciela kwoty do wysokości Limitu poręczenia.\n\n2. Po wygaśnięciu poręczenia Wierzyciel zobowiązuje się na wniosek Poręczyciela bezpłatnie wydać pisemne potwierdzenie wygaśnięcia poręczenia oraz zwrócić dokumenty związane z poręczeniem.\n\n---\n\n## § 8. Forma oświadczeń i doręczenia\n\n1. Oświadczenie Poręczyciela o udzieleniu poręczenia złożone jest w formie pisemnej pod rygorem nieważności (art. 876 § 2 KC). Forma pisemna jest spełniona, gdy Poręczyciel złoży własnoręczny podpis pod treścią oświadczenia. Dopuszcza się złożenie oświadczenia w formie dokumentu elektronicznego podpiisanego kwalifikowanym podpisem elektronicznym (art. 78¹ KC).\n\n2. Wszelkie zmiany niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n3. Doręczenia między Stronami dokonuje się na adresy wskazane w preambule Umowy. Zmiana adresu podlega zgłoszeniu w formie pisemnej.\n\n---\n\n## § 9. Sąd właściwy i prawo właściwe\n\n1. Spory wynikające z niniejszej Umowy rozstrzyga sąd właściwy dla siedziby / zamieszkania Wierzyciela (sąd rejonowy lub okręgowy w zależności od wartości przedmiotu sporu).\n\n2. Na Umowę ma zastosowanie prawo polskie (Kodeks cywilny).\n\n---\n\n## § 10. Postanowienia końcowe\n\n1. Umowę sporządzono w **3 (trzech) egzemplarzach** o równym mocy prawnej: po jednym dla Wierzyciela, Poręczyciela i Dłużnika.\n\n2. Dłużnik podpisuje Umowę wyłącznie dla informacji i potwierdzenia znajomości jej treści, nie będąc stroną umowy poręczenia.\n\n3. W sprawach nieuregulowanych w Umowie mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 876–887 KC oraz art. 720–720³ KC.\n\n---\n\n**Wierzyciel (Pożyczkodawca)**\n\n........................................................................\n(podpis)\n\n**Poręczyciel**\n\n........................................................................\n(własnoręczny podpis pod rygorem nieważności – art. 876 § 2 KC)\n\n**Dłużnik (Pożyczkobiorca) – do wiadomości**\n\n........................................................................\n(podpis)\n\n---\n\n**Załączniki:**\n1. Umowa pożyczki nr **[numer]** z dnia **[data]** r. wraz z harmonogramem spłaty.\n2. Oświadczenie Poręczyciela o znanej treści Umowy pożyczki.\n3. Potwierdzenie tożsamości Poręczyciela (kopia dowodu osobistego).",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zabezpieczyć pożyczkę na raty dla mojego brata, więc potrzebuję umowy poręczenia. Bank wymaga, abym podpisał jako poręczyciel. Ile to mnie kosztuje i jakie mam ryzyko?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mój brat bierze pożyczkę 50 tysięcy złotych na 36 rat w banku i prosi mnie o poręczenie. Chcę wiedzieć, czy mogę ograniczyć moją odpowiedzialność tylko do kwoty pożyczki bez odsetek za opóźnienie i kosztów sądowych. Czy mogę w każdej chwili się wycofać, jeśli brat będzie spłacał regularnie? Ważne, żeby bank mnie powiadamiał o problemach z płatnością."
+  }
+ ]
+}

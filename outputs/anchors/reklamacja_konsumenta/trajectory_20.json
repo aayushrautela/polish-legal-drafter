@@ -1,0 +1,311 @@
+{
+ "run": 25,
+ "hint": "Reklamacja zestawu mebli z brakującym elementem",
+ "scenario": "Reklamacja zestawu mebli z brakującym elementem",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consumer complaint (reklamacja_konsumenta) template, specifically for a furniture set with a missing element. Let me start by reading the base template, then search for relevant provisions.",
+   "tool_calls": [
+    {
+     "id": "call-c528d677-6e9e-4ad0-8475-2ae4d3670ef5",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"reklamacja_konsumenta\", \"query\": \"reklamacja zestawu mebli z brakującym elementem\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Reklamacja mebli\\nReklamacja mebli w Polsce to pisemne zgłoszenie skierowane przez kupującego do sprzedawcy, w którym kupujący informuje o wadzie zakupionego mebla i korzysta z ustawowych uprawnień z tytułu rękojmi. Podstawę prawną stanowią art. 556-576 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) oraz ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.).\\n\\nZgodnie z art. 556 Kodeksu cywilnego sprzedawca odpowiada wobec kupującego, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną. Wadą fizyczną mebla, w rozumieniu art. 556¹ Kodeksu cywilnego, jest niezgodność z umową — mebel nie ma właściwości, które powinien mieć ze względu na cel, przeznaczenie i normalne użytkowanie; nie spełnia właściwości, o których sprzedawca lub producent zapewniał; nie nadaje się do celu wskazanego przez kupującego albo został wydany w stanie niezupełnym lub uszkodzonym. Typowe wady mebli to: pękanie lub łuszczenie się forniru, obluzowane lub wypadające zawiasy, zniszczona tapicerka siedzisk, wypadające drzwi przesuwne lub szufladowe, uszkodzenie mechanizmów (np. mechanizm rozkładania kanapy nie działa), niezgodność wymiarów lub koloru z zamówieniem, niekompletne dostarczenie elementów zestawu meblowego.\\n\\nRękojmia za wady mebli jest odpowiedzialnością ustawową, co oznacza, że przysługuje niezależnie od woli sprzedawcy i bez żadnej dodatkowej opłaty. Odróżnić ją należy od gwarancji — gwarancja regulowana art. 577-581 Kodeksu cywilnego jest dobrowolnym oświadczeniem gwaranta (najczęściej producenta) i kieruje się ją do gwaranta, a nie do sprzedawcy. Kupujący może wykonywać uprawnienia z rękojmi i z gwarancji niezależnie od siebie.\\n\\nReklamację mebli z tytułu rękojmi kieruje się zawsze do sprzedawcy, u którego dokonano zakupu — zarówno w sklepie stacjonarnym, jak i w salonie meblowym, przez internet czy z katalogu. Przy zakupach na odległość przez internet kupujący-konsument dysponuje także odrębnym prawem do bezprzyczynowego zwrotu towaru w terminie czternastu dni od otrzymania przesyłki na podstawie art. 27 ustawy o prawach konsumenta.\\n\\nTermin odpowiedzialności sprzedawcy z tytułu rękojmi za meble wynosi dwa lata od dnia ich wydania lub montażu (art. 568 § 1 Kodeksu cywilnego). W obrocie konsumenckim obowiązuje domniemanie z art. 556² KC: wada stwierdzona przed upływem roku od wydania domniemywa się, że istniała w chwili wydania. Ochronę praw konsumentów nadzoruje Urząd Ochrony Konkurencji i Konsumentów (UOKiK), a bezpłatną pomoc prawną świadczą miejscy i powiatowi rzecznicy konsumentów.\\n\\nReklamacja mebli w Polsce jest potrzebna, gdy zakupione meble wykazują wady lub nie spełniają parametrów uzgodnionych ze sprzedawcą, a wada ujawniła się przed upływem dwóch lat od daty wydania lub montażu.\\n\\nNajczęstsze przypadki uzasadniające złożenie reklamacji mebli to: obluzowane lub wypadające zawiasy drzwi szafy, pękanie lub łuszczenie się forniru albo okleiny na powierzchniach widocznych, zniszczenie tapicerki — odbarwienia, rozchodzenie się szwów, zapadanie siedzisk po krótkim użytkowaniu, niedziałający mechanizm rozkładania sofy lub łóżka, drzwi przesuwne wypadające z prowadnicy, niekompletne dostarczenie elementów zestawu meblowego, niezgodność koloru z wzornikiem lub niezgodność wymiarów z zamówieniem, uszkodzenia transportowe stwierdzone przy rozpakowaniu.\\n\\nDokument jest potrzebny niezależnie od tego, czy mebel kupiono w saloniku meblowym, hipermarkecie, sklepie internetowym czy z katalogu wysyłkowego. Przy zakupie przez internet kupujący korzysta równolegle z prawa do bezprzyczynowego zwrotu towaru w terminie czternastu dni na podstawie art. 27 ustawy o prawach konsumenta — jest to inna instytucja od reklamacji wadliwego mebla.\\n\\nReklamację warto złożyć niezwłocznie po wykryciu wady, szczególnie przed upływem roku od wydania mebla, gdy obowiązuje korzystne domniemanie z art. 556² Kodeksu cywilnego, przerzucające ciężar dowodu na sprzedawcę. Przy meblach składanych i montowanych przez sprzedawcę data montażu jest datą wydania rzeczy dla celów biegu terminu rękojmi.\\n\\nPisemna reklamacja z precyzyjnym opisem wady i wskazanym żądaniem jest niezbędna, gdy sprzedawca kwestionuje zasadność roszczeń lub odmawia ich rozpatrzenia, a kupujący rozważa dochodzenie praw przed Sądem Rejonowym lub z pomocą Urzędu Ochrony Konkurencji i Konsumentów (UOKiK).\\n\\nPrawidłowa reklamacja mebli w Polsce, oparta na art. 556-576 Kodeksu cywilnego i ustawie o prawach konsumenta z 30.05.2014, powinna zawierać następujące elementy.\\n\\nDane kupującego: imię, nazwisko, adres korespondencyjny, adres e-mail i numer telefonu. Przy żądaniu obniżenia ceny lub odstąpienia od umowy należy podać numer rachunku bankowego do przelewu zwrotu. Telefon do kontaktu jest szczególnie ważny, bo sprzedawca zazwyczaj musi umówić się na oględziny wady.\\n\\nDane sprzedawcy: pełna nazwa i adres sklepu lub salonu meblowego, do którego kierowana jest reklamacja. Reklamację z tytułu rękojmi kieruje się do sprzedawcy, u którego dokonano zakupu, a nie do producenta mebli. Dane sprzedawcy znajdziesz na paragonie, fakturze lub potwierdzeniu zamówienia.\\n\\nOpis reklamowanego mebla: nazwa kolekcji, model, wymiary, kolor — elementy pozwalające jednoznacznie zidentyfikować zakupiony mebel, a także numer i data dokumentu zakupu oraz data wydania lub montażu. Data wydania jest kluczowa dla biegu dwuletniego terminu rękojmi z art. 568 § 1 KC.\\n\\nOpis wady: precyzyjny opis niezgodności z umową w rozumieniu art. 556¹ KC — np. \\\"zawiasy lewych drzwi szafy obluzowały się po 6 tygodniach użytkowania, drzwi nie domykają się prawidłowo\\\" — wraz z datą wykrycia wady i dokumentacją fotograficzną.\\n\\nŻądanie z tytułu rękojmi: jednoznaczne wskazanie uprawnienia z art. 560-561 KC — naprawy, wymiany mebla na wolny od wad, obniżenia ceny albo — przy wadzie istotnej — odstąpienia od umowy. Od umowy nie można odstąpić przy wadzie nieistotnej.\\n\\nWezwanie do rozpatrzenia i postanowienia końcowe: wniosek o rozpatrzenie reklamacji w czternastu dniach, z zaznaczeniem konsekwencji milczenia. Należy wnieść o pisemne potwierdzenie przyjęcia reklamacji z datą odbioru. Serwis forms-legal.com udostępnia bezpłatny wzór reklamacji mebli zgodny z polskim prawem. Zaleca się wysłanie reklamacji listem poleconym lub e-mailem z żądaniem potwierdzenia odbioru i zachowanie dowodu nadania.\\n\\nWypełnianie reklamacji mebli w Polsce zacznij od wpisania danych jako kupującego — imienia i nazwiska, adresu, e-maila i numeru telefonu. Telefon jest szczególnie przydatny, bo sprzedawca zazwyczaj kontaktuje się w celu umówienia oględzin wady. Jeżeli żądasz obniżenia ceny lub odstąpienia od umowy, podaj numer rachunku bankowego do przelewu zwrotu.\\n\\nW sekcji sprzedawcy wpisz pełną nazwę i adres sklepu lub salonu meblowego. Dane te znajdziesz na paragonie, fakturze VAT lub potwierdzeniu zamówienia. Pamiętaj: reklamację z tytułu rękojmi kierujesz do sprzedawcy, a nie do producenta mebla.\\n\\nW polu opisu mebla podaj jego pełną nazwę, kolekcję, model i kolor, np. \\\"szafa przesuwna 3-drzwiowa, kolekcja Forte ALTO 250, kolor orzech, 250×220×65 cm\\\". Wpisz numer dowodu zakupu oraz datę wydania mebla lub jego montażu. Data montażu jest istotna, ponieważ od niej zazwyczaj biegnie dwuletni termin rękojmi z art. 568 § 1 Kodeksu cywilnego.\\n\\nW polu opisu wady opisz precyzyjnie wadę — co konkretnie nie działa lub jest uszkodzone, gdzie i od kiedy. Na przykład: \\\"drzwi przesuwne wypadają z górnej prowadnicy przy każdym otwieraniu, mocowanie górnej prowadnicy obluzowało się po 8 tygodniach użytkowania\\\". Zrób i załącz zdjęcia wady przed podjęciem jakichkolwiek prób naprawy.\\n\\nW sekcji żądania wybierz jedno z uprawnień z art. 560-561 KC: naprawę, wymianę, obniżenie ceny lub odstąpienie od umowy przy wadzie istotnej. Przy obniżeniu ceny wpisz proponowaną kwotę. Na koniec uzupełnij miejscowość, datę złożenia reklamacji i złóż podpis. Wyślij pismo listem poleconym lub e-mailem z żądaniem potwierdzenia odbioru i zachowaj dowód nadania.\\n\\nReklamacja mebli w Polsce opiera się na art. 556-576 Kodeksu cywilnego i ustawie z dnia 30 maja 2014 r. o prawach konsumenta. Zgodnie z art. 556 KC sprzedawca odpowiada względem kupującego, jeżeli rzecz sprzedana ma wadę fizyczną lub prawną. Wadą fizyczną mebla jest niezgodność z umową określona w art. 556¹ KC — mebel nie ma właściwości odpowiadających jego celowi i przeznaczeniu.\\n\\nUprawnienia kupującego z art. 560 i art. 561 KC obejmują: żądanie usunięcia wady (naprawy), wymiany mebla na wolny od wad, złożenie oświadczenia o obniżeniu ceny albo — przy wadzie istotnej — odstąpienie od umowy. Sprzedawca może niezwłocznie naprawić lub wymienić mebel, co może zablokować odstąpienie, lecz ograniczenie to nie obowiązuje, gdy mebel był już naprawiany lub wymieniany. Od umowy nie można odstąpić przy wadzie nieistotnej.\\n\\nTermin rękojmi za meble wynosi dwa lata od wydania lub montażu mebla (art. 568 § 1 KC). W obrocie konsumenckim działa domniemanie z art. 556² KC: wada stwierdzona przed upływem roku od wydania domniemywa się za istniejącą w chwili wydania, przerzucając ciężar dowodu na sprzedawcę. Brak ustosunkowania się przez sprzedawcę do żądania konsumenta (naprawy, wymiany lub obniżenia ceny) w terminie czternastu dni uznawany jest za przyjęcie żądania.\\n\\nW przypadku odmowy przez sprzedawcę kupujący może skorzystać z pomocy miejskiego lub powiatowego rzecznika konsumentów, złożyć wniosek o mediację do Inspekcji Handlowej, wnieść pozew do Sądu Rejonowego albo zgłosić naruszenie zbiorowych interesów konsumentów do Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) na podstawie ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów.\\n\\nNajczęstsze błędy przy reklamacji mebli w Polsce to przede wszystkim kierowanie reklamacji do producenta lub importera zamiast do sprzedawcy. Reklamacja z tytułu rękojmi musi trafić do sprzedawcy, u którego dokonano zakupu — on, a nie producent, odpowiada za zgodność mebla z umową na mocy art. 556 Kodeksu cywilnego.\\n\\nKolejnym błędem jest brak dokumentacji fotograficznej wady przed podjęciem prób naprawy. Samodzielne sklejanie, dokręcanie lub inne ingerencje w mebel zanim zostanie zgłoszony do reklamacji mogą dać sprzedawcy argument, że uszkodzenie nastąpiło z winy kupującego lub nieumiejętnego montażu. Wadę należy udokumentować i zgłosić w stanie nienaruszonym.\\n\\nCzęstym uchybieniem jest brak dowodu zakupu. Paragon fiskalny, faktura VAT lub potwierdzenie zamówienia online potwierdzają, że zakup nastąpił u danego sprzedawcy i kiedy — co jest kluczowe dla biegu terminu rękojmi i wykazania podstaw reklamacji. Brak paragonu nie pozbawia kupującego prawa do reklamacji, bo zakup można udowodnić w inny sposób (potwierdzenie płatności kartą, wyciąg z konta), ale komplikuje sprawę.\\n\\nBłędem jest też wybór wymiany mebla bez sprawdzenia, czy sprzedawca dysponuje nowym egzemplarzem lub czy model nadal jest dostępny w ofercie. Przy meblach na zamówienie wymiana może trwać wiele tygodni, dlatego warto rozważyć inne żądanie.\\n\\nWreszcie kupujący nierzadko zapominają zachować dowód złożenia reklamacji i jej daty — potwierdzenia nadania listu poleconego lub potwierdzenia dostarczenia e-maila. Brak takiego dowodu utrudnia wykazanie, że termin czternastu dni na milczące uznanie reklamacji przez sprzedawcę minął bez odpowiedzi, co ogranicza możliwość korzystania z tej instytucji.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/reklamacja-mebli (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-c528d677-6e9e-4ad0-8475-2ae4d3670ef5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_60a92efe93b44188891cdde9",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"brakujący element zestawu mebli niekompletna dostawa wada fizyczna rzecz sprzedana wadą jest niezgodność z umową stan niezupełny\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_3b74bca7780b468d893f95dc",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 556¹ KC\", \"niezgodność z umową\", \"stan niezupełny\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 1 . § 1. Wada polega na niezgodności rzeczy sprzedanej z umową. W szczególności rzecz sprzedana jest niezgodna z umową, jeżeli: 1) nie ma właściwości, które rzecz tego rodzaju powinna mieć ze względu na cel w umowie oznaczony albo wynikający z okoliczności lub przeznaczenia; 2) nie ma właściwości, o których istnieniu sprzedawca zapewnił kupującego, w tym przedstawiając próbkę lub wzór; 3) nie nadaje się do celu, o którym kupujący poinformowa ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43b. 1. Towar jest zgodny z umową, jeżeli zgodne z umową pozostają w szczególności jego: 1) opis, rodzaj, ilość, jakość, kompletność i funkcjonalność, a w odniesieniu do towarów z elementami cyfrowymi - również kompatybilność, interoperacyjność i dostępność aktualizacji; 2) przydatność do szczególnego celu, do którego jest potrzebny konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przeds ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_579\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 579. § 1. Kupujący może wykonywać uprawnienia z tytułu niezgodności rzeczy sprzedanej z umową niezależnie od uprawnień wynikających z gwarancji. § 2. Wykonanie uprawnień z gwarancji nie wpływa na odpowiedzialność sprzedawcy z tytułu niezgodności rzeczy sprzedanej z umową. § 3. Jednakże w razie wykonywania przez kupującego uprawnień z gwarancji bieg terminu do wykonania uprawnień z tytułu niezgodności rzeczy sprzedanej z umową ulega zawieszeniu z ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561. § 1. Jeżeli rzecz sprzedana ma wadę, kupujący może żądać wymiany rzeczy na wolną od wad albo usunięcia wady. § 2. Sprzedawca jest obowiązany wymienić rzecz wadliwą na wolną od wad lub usunąć wadę w rozsądnym czasie bez nadmiernych niedogodności dla kupującego. § 3. Sprzedawca może odmówić zadośćuczynienia żądaniu kupującego, jeżeli doprowadzenie do zgodności z umową rzeczy wadliwej w sposób wybrany przez kupującego jest niemożliwe albo w po ...\"}, {\"chunk_id\": \"uokik_items:uokik_7f144af65726b25e\", \"source_id\": \"uokik_rejestr_klauzul_6607\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie niezgodności towar z umową zakupione produkty należy niezwłocznie poinformować o tym obsługę sklepu (drogą elektroniczną lub telefoniczną) i odesłać na adres sprzedawcy w terminie 7 dni od daty otrzymania przesyłki\"}]",
+   "tool_call_id": "call_60a92efe93b44188891cdde9",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_1918ff1817f7ad61\", \"source_id\": \"uokik_rejestr_klauzul_3530\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Spółka ponosi wobec Nabywcy odpowiedzialność z tytułu rękojmi za wady fizyczne oraz za niezgodność towaru z umową na zasadach ogólnych określonych w obowiązujących przepisach prawa, i tak: 1) okres trwania rękojmi za wady fizyczne konstrukcji Mieszkania wynosi 3 lata od daty wydania, 2) okres odpowiedzialności za niezgodność z umową osprzętu, urządzeń, instalacji, tynków, wypraw malarskich, podłoży i posadzek, okien i drzwi, oraz innych przynależności wynosi 2 lata od dnia wydania\"}]",
+   "tool_call_id": "call_3b74bca7780b468d893f95dc",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_17402b2b09084ad8a85098f0",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_556\", \"sejm_eli_du_2024_1796_art_43b\", \"sejm_eli_du_2024_1061_art_561\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 5 . Przepisów art. 563 oraz art. 567 § 2 dotyczących kupującego nie stosuje się do osoby fizycznej zawierającej umowę bezpośrednio związaną z jej działalnością gospodarczą, gdy z treści tej umowy wynika, że nie posiada ona dla tej osoby charakteru zawodowego, wynikającego w szczególności z przedmiotu wykonywanej przez nią działalności gospodarczej, udostępnionego na podstawie przepisów o Centralnej Ewidencji i Informacji o Działalności Gospodarczej.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_id\": \"sejm_eli_du_2024_1796_art_43b\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 43b. 1. Towar jest zgodny z umową, jeżeli zgodne z umową pozostają w szczególności jego: 1) opis, rodzaj, ilość, jakość, kompletność i funkcjonalność, a w odniesieniu do towarów z elementami cyfrowymi - również kompatybilność, interoperacyjność i dostępność aktualizacji; 2) przydatność do szczególnego celu, do którego jest potrzebny konsumentowi, o którym konsument powiadomił przedsiębiorcę najpóźniej w chwili zawarcia umowy i który przedsiębiorca zaakceptował. 2. Ponadto towar, aby został uznany za zgodny z umową, musi: 1) nadawać się do celów, do których zazwyczaj używa się towaru tego rodzaju, z uwzględnieniem obowiązujących przepisów prawa, norm technicznych lub dobrych praktyk; 2) występować w takiej ilości i mieć takie cechy, w tym trwałość i bezpieczeństwo, a w odniesieniu do towarów z elementami cyfrowymi - również funkcjonalność i kompatybilność, jakie są typowe dla towaru tego rodzaju i których konsument może rozsądnie oczekiwać, biorąc pod uwagę charakter towaru oraz publiczne zapewnienie złożone przez przedsiębiorcę, jego poprzedników prawnych lub osoby działające w ich imieniu, w szczególności w reklamie lub na etykiecie, chyba że przedsiębiorca wykaże, że: a) nie wiedział o danym publicznym zapewnieniu i oceniając rozsądnie, nie mógł o nim wiedzieć, b) przed zawarciem umowy publiczne zapewnienie zostało sprostowane z zachowaniem warunków i formy, w jakich publiczne zapewnienie zostało złożone, lub w porównywalny sposób, c) publiczne zapewnienie nie miało wpływu na decyzję konsumenta o zawarciu umowy; 3) być dostarczany z opakowaniem, akcesoriami i instrukcjami, których dostarczenia konsument może rozsądnie oczekiwać; 4) być takiej samej jakości jak próbka lub wzór, które przedsiębiorca udostępnił konsumentowi przed zawarciem umowy, i odpowiadać opisowi takiej próbki lub takiego wzoru. 3. Do towarów z elementami cyfrowymi przepisy art. 43k ust. 3 i 4 oraz art. 43l ust. 4 stosuje się odpowiednio. 4. Przedsiębiorca nie ponosi odpowiedzialności za brak zgodności towaru z umową w zakresie, o którym mowa w ust. 2 lub 3, jeżeli konsument, najpóźniej w chwili zawarcia umowy, został wyraźnie poinformowany, że konkretna cecha towaru odbiega od wymogów zgodności z umową określonych w ust. 2 lub 3, oraz wyraźnie i odrębnie zaakceptował brak konkretnej cechy towaru. 5. Przedsiębiorca ponosi odpowiedzialność za brak zgodności towaru z umową wynikający z niewłaściwego zamontowania towaru, jeżeli: 1) zostało ono przeprowadzone przez przedsiębiorcę lub na jego odpowiedzialność; 2) niewłaściwe zamontowanie przeprowadzone przez konsumenta wynikało z błędów w instrukcji dostarczonej przez przedsiębiorcę lub osobę trzecią, o której mowa w art. 6 ust. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_561\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 561 5 . Jeżeli kupujący będący konsumentem zażądał wymiany rzeczy lub usunięcia wady albo złożył oświadczenie o obniżeniu ceny, określając kwotę, o którą cena ma być obniżona, a sprzedawca nie ustosunkował się do tego żądania w terminie czternastu dni, uważa się, że żądanie to uznał za uzasadnione.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call_17402b2b09084ad8a85098f0",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_d1e157068f7f4ea389558d5c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 556¹ KC\", \"wada fizyczna\", \"stan niezupełny\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_7f35651ad25d4a8a9ec477c6",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"niekompletna dostawa brakujący element zestawu rzecz wydana w stanie niezupełnym wada fizyczna meble\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}]",
+   "tool_call_id": "call_d1e157068f7f4ea389558d5c",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556 1 . § 1. Wada polega na niezgodności rzeczy sprzedanej z umową. W szczególności rzecz sprzedana jest niezgodna z umową, jeżeli: 1) nie ma właściwości, które rzecz tego rodzaju powinna mieć ze względu na cel w umowie oznaczony albo wynikający z okoliczności lub przeznaczenia; 2) nie ma właściwości, o których istnieniu sprzedawca zapewnił kupującego, w tym przedstawiając próbkę lub wzór; 3) nie nadaje się do celu, o którym kupujący poinformowa ...\"}, {\"chunk_id\": \"uokik_items:uokik_bd7bbaef0caf63e9\", \"source_id\": \"uokik_rejestr_klauzul_3349\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku towarów wadliwych, uszkodzonych fabrycznie, niekompletnych gwarantujemy ich wymianę na towar wolny od wad, pod warunkiem zgłoszenia uszkodzenia w terminie 10 dni od daty otrzymania przesyłki\"}, {\"chunk_id\": \"uokik_items:uokik_de4a266f77d45026\", \"source_id\": \"uokik_rejestr_klauzul_5258\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Usługę pocztową uznaje się za nienależycie wykonaną w przypadku opóźnienia, uszkodzenia lub ubytku zawartości przesyłki powstałej z winy Zleceniobiorcy\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}]",
+   "tool_call_id": "call_7f35651ad25d4a8a9ec477c6",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Reklamacja zestawu mebli z brakującym elementem (stan niezupełny)\n\n**Miejscowość, data:** …………………………………………\n\n**1. Dane kupującego (konsumenta)**\nImię i nazwisko: ……………………………………………………………………………………………………\nAdres korespondencyjny: …………………………………………………………………………………………\nAdres e-mail: ………………………………………………………………………………………………………\nNumer telefonu: ……………………………………………………………………………………………………\nNumer rachunku bankowego (do ewentualnego zwrotu/obniżenia ceny): ……………………………………\n\n**2. Dane sprzedawcy**\nPełna nazwa sklepu/salonu meblowego: …………………………………………………………………………\nAdres siedziby/miejsca działalności: ……………………………………………………………………………\nNIP (jeśli znany): …………………………………………………………………………………………………\n\n**3. Przedmiot reklamacji – opis zakupionego zestawu mebli**\nNazwa kolekcji/model: ……………………………………………………………………………………………\nKolor/wzór: …………………………………………………………………………………………………………\nWymiary zestawu (szer. × wys. × gł.): ……………………………………………………………………………\nNumer zamówienia / numer faktury / numer paragonu: …………………………………………………………\nData zakupu: …………………………………………………………………………………………………………\nData wydania lub montażu zestawu mebli: ………………………………………………………………………\n\n**4. Opis wady – brakujący element (stan niezupełny)**\nZgodnie z art. 556¹ § 1 pkt 4 Kodeksu cywilnego, wadą fizyczną jest wydanie rzeczy w stanie niezupełnym. Zestaw mebli został dostarczony/montowany bez następującego elementu/składnika:\n\nNazwa brakującego elementu: ………………………………………………………………………………………\nFunkcja elementu w zestawie: ………………………………………………………………………………………\nData wykrycia braku: …………………………………………………………………………………………………\n\nSzczegółowy opis sytuacji:\n……………………………………………………………………………………………………………………………\n……………………………………………………………………………………………………………………………\n……………………………………………………………………………………………………………………………\n\n**Załączniki dowodowe:**\n☐ Zdjęcia kompletnego zestawu z widocznym brakiem elementu\n☐ Zdjęcia miejsca przeznaczonego na brakujący element\n☐ Kopia dowodu zakupu (faktura/paragon/potwierdzenie zamówienia)\n☐ Potwierdzenie wydania/montażu (protokół odbioru, podpisany przez montażystę)\n☐ Korespondencja z sprzedawcą w sprawie brakującego elementu (jeśli prowadzona)\n\n**5. Podstawa prawna**\n1. Sprzedawca odpowiada wobec kupującego za wady fizyczne rzeczy sprzedanej na podstawie art. 556 Kodeksu cywilnego (KC).\n2. Zgodnie z art. 556¹ § 1 pkt 4 KC, wadą fizyczną jest wydanie rzeczy w stanie niezupełnym – brakujący element zestawu mebli stanowi taką wadę.\n3. W obrocie konsumenckim zastosowanie znajduje się art. 43b ust. 1 pkt 1 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796), zgodnie z którym towar jest zgodny z umową, jeżeli zachowuje **kompletność** zgodną z umową.\n4. Termin odpowiedzialności sprzedawcy z tytułu rękojmi wynosi 2 lata od dnia wydania lub montażu mebli (art. 568 § 1 KC).\n5. Zgodnie z art. 556² KC, wada stwierdzona przed upływem roku od wydania domniemywa się, że istniała w chwili wydania – ciężar dowodu spoczywa na sprzedawcy.\n6. Uprawnienia kupującego z tytułu rękojmi kształtują się na podstawie art. 560 i 561 KC.\n7. Zgodnie z art. 561⁵ KC, jeżeli kupujący-konsument zażąda wymiany rzeczy lub usunięcia wady (dostarczenia brakującego elementu) lub złoży oświadczenie o obniżeniu ceny z wskazaniem kwoty, a sprzedawca nie ustosunkuje się do żądania w terminie **14 dni**, uważa się, że żądanie to uznał za uzasadnione.\n\n**6. Żądanie z tytułu rękojmi**\nW oparciu o powyższe przepisy, **jednoznacznie żądam** (wybrać jedną opcję, zaznaczyć ☒):\n\n☐ **Usunięcia wady – dostarczenia brakującego elementu** (art. 560 § 1 KC w zw. z art. 561 § 1 KC)\n   Proszę o dostarczenie i – w razie konieczności – zamontowanie brakującego elementu: …………………………………………………………………………………………………………\n   w terminie rozsądnym, bez nadmiernych niedogodności dla mojej osoby (art. 561 § 2 KC).\n\n☐ **Wymiany całego zestawu mebli na wolny od wad** (art. 561 § 1 KC)\n   Żądam wymiany zestawu na nowy, kompletny, wolny od wad. Jestem świadomy/a, że sprzedawca może odmówić, jeżeli doprowadzenie do zgodności z umową w ten sposób jest niemożliwe lub wiązałoby się z nadmiernymi kosztami (art. 561 § 3 KC).\n\n☐ **Obniżenia ceny** (art. 560 § 2 KC)\n   Składam oświadczenie o obniżeniu ceny o kwotę: …………………………… PLN (słownie: …………………………………………………………………………………………………………).\n   Kwota ta odpowiada różnicy w wartości między zestawem kompletnym a zestawem z brakującym elementem.\n\n☐ **Odstąpienia od umowy** (art. 560 § 1 KC – przy wadzie istotnej)\n   Uważam, że brak elementu: ………………………………………………………………………………………\n   stanowi wadę istotną, uniemożliwiającą normalne użytkowanie zestawu zgodnie z przeznaczeniem.\n   Składam oświadczenie o odstąpieniu od umowy zawartej dnia ……………………………………………\n   Żądam zwrotu zapłaconej ceny w wysokości …………………………… PLN na podany wyżej rachunek bankowy.\n   *Uwaga: Od umowy nie można odstąpić przy wadzie nieistotnej (art. 560 § 1 KC).*\n\n**7. Wezwanie do rozpatrzenia i postanowienia końcowe**\n1. Wezwam do rozpatrzenia niniejszej reklamacji i złożenia pisemnej odpowiedzi w terminie **14 dni** od daty jej otrzymania, zgodnie z art. 561⁵ KC. Milczenie po upływie tego terminu będzie traktowane jako uznanie mojego żądania za uzasadnione.\n2. Żądam pisemnego potwierdzenia odbioru niniejszej reklamacji z datą przyjęcia.\n3. W przypadku odmowy lub braku odpowiedzi w terminie 14 dni zastrzegam sobie prawo do:\n   – skorzystania z pomocy miejskiego/powiatowego rzecznika konsumentów,\n   – złożenia wniosku o mediację do Inspekcji Handlowej,\n   – wniesienia pozewu do Sądu Rejonowego właściwego dla mojego miejsca zamieszkania,\n   – zgłoszenia naruszenia zbiorowych interesów konsumentów do Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) na podstawie art. 24 ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów.\n4. Zastrzegam prawo do zmiany wybranego sposobu zadośćuczynienia na inny uprawniony z art. 560–561 KC, zgodnie z art. 561 § 4 KC.\n5. Niniejsza reklamacja zostaje złożona w dwóch egzemplarzach / przesyłana drogą elektroniczną z żądaniem potwierdzenia odbioru / wysyłana listem poleconym z potwierdzeniem odbioru.\n\n**Podpis kupującego:** …………………………………………………………………………………………………\n\n---\n\n**Wskazówki do złożenia reklamacji:**\n1. Reklamację z tytułu rękojmi kierujemy **wyłącznie do sprzedawcy**, u którego dokonano zakupu – nie do producenta mebli.\n2. Zachowaj kopię reklamacji oraz **dowód nadania** (potwierdzenie nadania listu poleconego, potwierdzenie dostarczenia e-maila, potwierdzenie przeczytania).\n3. Nie podejmuj samodzielnych prób naprawy/montażu brakującego elementu przed zgłoszeniem reklamacji – może to dać sprzedawcy argument o uszkodzeniu z winy kupującego.\n4. Termin 2 lat na rękojmi biegnie od daty **wydania lub montażu** zestawu (art. 568 § 1 KC). Przy montażu przez sprzedawcę data montażu jest datą wydania.\n5. Jeśli wada wykryta została w ciągu roku od wydania, sprzedawca musi udowodnić, że wada nie istniała w chwili wydania (art. 556² KC).\n6. Prawo do reklamacji z tytułu rękojmi przysługuje niezależnie od ewentualnej gwarancji producenta – możesz korzystać z obu uprawnień niezależnie (art. 579 KC).\n7. Przy zakupie przez internet masz dodatkowo prawo do bezprzyczynowego zwrotu towaru w ciągu 14 dni od otrzymania (art. 27 ustawy o prawach konsumenta) – jest to instytucja odrębna od reklamacji wadliwego towaru.\n\n**Źródła prawne:**\n- Art. 556, 556¹, 556², 560, 561, 561⁵, 568, 579 Kodeksu cywilnego (Dz.U. 2024 poz. 1061)\n- Art. 43b ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796)\n- Art. 27 ustawy o prawach konsumenta (prawo do zwrotu na odległość)\n- Rejestr klauzul niedozwolonych UOKiK (klauzule skracające termin zgłoszenia wady do 7/10 dni są niedozwolone)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Reklamacja zestawu mebli z brakującym elementem (stan niezupełny)\n\n**Miejscowość, data:** …………………………………………\n\n**1. Dane kupującego (konsumenta)**\nImię i nazwisko: ……………………………………………………………………………………………………\nAdres korespondencyjny: …………………………………………………………………………………………\nAdres e-mail: ………………………………………………………………………………………………………\nNumer telefonu: ……………………………………………………………………………………………………\nNumer rachunku bankowego (do ewentualnego zwrotu/obniżenia ceny): ……………………………………\n\n**2. Dane sprzedawcy**\nPełna nazwa sklepu/salonu meblowego: …………………………………………………………………………\nAdres siedziby/miejsca działalności: ……………………………………………………………………………\nNIP (jeśli znany): …………………………………………………………………………………………………\n\n**3. Przedmiot reklamacji – opis zakupionego zestawu mebli**\nNazwa kolekcji/model: ……………………………………………………………………………………………\nKolor/wzór: …………………………………………………………………………………………………………\nWymiary zestawu (szer. × wys. × gł.): ……………………………………………………………………………\nNumer zamówienia / numer faktury / numer paragonu: …………………………………………………………\nData zakupu: …………………………………………………………………………………………………………\nData wydania lub montażu zestawu mebli: ………………………………………………………………………\n\n**4. Opis wady – brakujący element (stan niezupełny)**\nZgodnie z art. 556¹ § 1 pkt 4 Kodeksu cywilnego, wadą fizyczną jest wydanie rzeczy w stanie niezupełnym. Zestaw mebli został dostarczony/montowany bez następującego elementu/składnika:\n\nNazwa brakującego elementu: ………………………………………………………………………………………\nFunkcja elementu w zestawie: ………………………………………………………………………………………\nData wykrycia braku: …………………………………………………………………………………………………\n\nSzczegółowy opis sytuacji:\n……………………………………………………………………………………………………………………………\n……………………………………………………………………………………………………………………………\n……………………………………………………………………………………………………………………………\n\n**Załączniki dowodowe:**\n☐ Zdjęcia kompletnego zestawu z widocznym brakiem elementu\n☐ Zdjęcia miejsca przeznaczonego na brakujący element\n☐ Kopia dowodu zakupu (faktura/paragon/potwierdzenie zamówienia)\n☐ Potwierdzenie wydania/montażu (protokół odbioru, podpisany przez montażystę)\n☐ Korespondencja z sprzedawcą w sprawie brakującego elementu (jeśli prowadzona)\n\n**5. Podstawa prawna**\n1. Sprzedawca odpowiada wobec kupującego za wady fizyczne rzeczy sprzedanej na podstawie art. 556 Kodeksu cywilnego (KC).\n2. Zgodnie z art. 556¹ § 1 pkt 4 KC, wadą fizyczną jest wydanie rzeczy w stanie niezupełnym – brakujący element zestawu mebli stanowi taką wadę.\n3. W obrocie konsumenckim zastosowanie znajduje się art. 43b ust. 1 pkt 1 ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796), zgodnie z którym towar jest zgodny z umową, jeżeli zachowuje **kompletność** zgodną z umową.\n4. Termin odpowiedzialności sprzedawcy z tytułu rękojmi wynosi 2 lata od dnia wydania lub montażu mebli (art. 568 § 1 KC).\n5. Zgodnie z art. 556² KC, wada stwierdzona przed upływem roku od wydania domniemywa się, że istniała w chwili wydania – ciężar dowodu spoczywa na sprzedawcy.\n6. Uprawnienia kupującego z tytułu rękojmi kształtują się na podstawie art. 560 i 561 KC.\n7. Zgodnie z art. 561⁵ KC, jeżeli kupujący-konsument zażąda wymiany rzeczy lub usunięcia wady (dostarczenia brakującego elementu) lub złoży oświadczenie o obniżeniu ceny z wskazaniem kwoty, a sprzedawca nie ustosunkuje się do żądania w terminie **14 dni**, uważa się, że żądanie to uznał za uzasadnione.\n\n**6. Żądanie z tytułu rękojmi**\nW oparciu o powyższe przepisy, **jednoznacznie żądam** (wybrać jedną opcję, zaznaczyć ☒):\n\n☐ **Usunięcia wady – dostarczenia brakującego elementu** (art. 560 § 1 KC w zw. z art. 561 § 1 KC)\n   Proszę o dostarczenie i – w razie konieczności – zamontowanie brakującego elementu: …………………………………………………………………………………………………………\n   w terminie rozsądnym, bez nadmiernych niedogodności dla mojej osoby (art. 561 § 2 KC).\n\n☐ **Wymiany całego zestawu mebli na wolny od wad** (art. 561 § 1 KC)\n   Żądam wymiany zestawu na nowy, kompletny, wolny od wad. Jestem świadomy/a, że sprzedawca może odmówić, jeżeli doprowadzenie do zgodności z umową w ten sposób jest niemożliwe lub wiązałoby się z nadmiernymi kosztami (art. 561 § 3 KC).\n\n☐ **Obniżenia ceny** (art. 560 § 2 KC)\n   Składam oświadczenie o obniżeniu ceny o kwotę: …………………………… PLN (słownie: …………………………………………………………………………………………………………).\n   Kwota ta odpowiada różnicy w wartości między zestawem kompletnym a zestawem z brakującym elementem.\n\n☐ **Odstąpienia od umowy** (art. 560 § 1 KC – przy wadzie istotnej)\n   Uważam, że brak elementu: ………………………………………………………………………………………\n   stanowi wadę istotną, uniemożliwiającą normalne użytkowanie zestawu zgodnie z przeznaczeniem.\n   Składam oświadczenie o odstąpieniu od umowy zawartej dnia ……………………………………………\n   Żądam zwrotu zapłaconej ceny w wysokości …………………………… PLN na podany wyżej rachunek bankowy.\n   *Uwaga: Od umowy nie można odstąpić przy wadzie nieistotnej (art. 560 § 1 KC).*\n\n**7. Wezwanie do rozpatrzenia i postanowienia końcowe**\n1. Wezwam do rozpatrzenia niniejszej reklamacji i złożenia pisemnej odpowiedzi w terminie **14 dni** od daty jej otrzymania, zgodnie z art. 561⁵ KC. Milczenie po upływie tego terminu będzie traktowane jako uznanie mojego żądania za uzasadnione.\n2. Żądam pisemnego potwierdzenia odbioru niniejszej reklamacji z datą przyjęcia.\n3. W przypadku odmowy lub braku odpowiedzi w terminie 14 dni zastrzegam sobie prawo do:\n   – skorzystania z pomocy miejskiego/powiatowego rzecznika konsumentów,\n   – złożenia wniosku o mediację do Inspekcji Handlowej,\n   – wniesienia pozewu do Sądu Rejonowego właściwego dla mojego miejsca zamieszkania,\n   – zgłoszenia naruszenia zbiorowych interesów konsumentów do Prezesa Urzędu Ochrony Konkurencji i Konsumentów (UOKiK) na podstawie art. 24 ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów.\n4. Zastrzegam prawo do zmiany wybranego sposobu zadośćuczynienia na inny uprawniony z art. 560–561 KC, zgodnie z art. 561 § 4 KC.\n5. Niniejsza reklamacja zostaje złożona w dwóch egzemplarzach / przesyłana drogą elektroniczną z żądaniem potwierdzenia odbioru / wysyłana listem poleconym z potwierdzeniem odbioru.\n\n**Podpis kupującego:** …………………………………………………………………………………………………\n\n---\n\n**Wskazówki do złożenia reklamacji:**\n1. Reklamację z tytułu rękojmi kierujemy **wyłącznie do sprzedawcy**, u którego dokonano zakupu – nie do producenta mebli.\n2. Zachowaj kopię reklamacji oraz **dowód nadania** (potwierdzenie nadania listu poleconego, potwierdzenie dostarczenia e-maila, potwierdzenie przeczytania).\n3. Nie podejmuj samodzielnych prób naprawy/montażu brakującego elementu przed zgłoszeniem reklamacji – może to dać sprzedawcy argument o uszkodzeniu z winy kupującego.\n4. Termin 2 lat na rękojmi biegnie od daty **wydania lub montażu** zestawu (art. 568 § 1 KC). Przy montażu przez sprzedawcę data montażu jest datą wydania.\n5. Jeśli wada wykryta została w ciągu roku od wydania, sprzedawca musi udowodnić, że wada nie istniała w chwili wydania (art. 556² KC).\n6. Prawo do reklamacji z tytułu rękojmi przysługuje niezależnie od ewentualnej gwarancji producenta – możesz korzystać z obu uprawnień niezależnie (art. 579 KC).\n7. Przy zakupie przez internet masz dodatkowo prawo do bezprzyczynowego zwrotu towaru w ciągu 14 dni od otrzymania (art. 27 ustawy o prawach konsumenta) – jest to instytucja odrębna od reklamacji wadliwego towaru.\n\n**Źródła prawne:**\n- Art. 556, 556¹, 556², 560, 561, 561⁵, 568, 579 Kodeksu cywilnego (Dz.U. 2024 poz. 1061)\n- Art. 43b ustawy z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2024 poz. 1796)\n- Art. 27 ustawy o prawach konsumenta (prawo do zwrotu na odległość)\n- Rejestr klauzul niedozwolonych UOKiK (klauzule skracające termin zgłoszenia wady do 7/10 dni są niedozwolone)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Kupiłem zestaw mebli, ale dostałem go bez jednego elementu. Chcę złożyć reklamację, żeby sprzedawca dostarczył brakującą część."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Zamówiłem w salonie meblowym zestaw wypoczynowy z narożnikiem i sofą, a po dostawie i montażu zauważyłem, że brakuje jednej półki wewnątrz szafy. Kupiłem to w zeszłym miesiącu, mam fakturę i numer zamówienia. Chcę złożyć reklamację z żądaniem dostarczenia brakującego elementu, a jeśli to niemożliwe, to obniżenia ceny zestawu."
+  }
+ ]
+}

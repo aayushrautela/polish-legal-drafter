@@ -1,0 +1,327 @@
+{
+ "run": 15,
+ "hint": "Reklamacja usługi fryzjerskiej (niezgodna z ustaleniem)",
+ "scenario": "Reklamacja usługi fryzjerskiej (niezgodna z ustaleniem)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='reklamacja_konsumenta'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a consumer complaint (reklamacja_konsumenta) template, specifically for a hairdressing service that was not performed as agreed (niezgodna z ustaleniem). I need to:\n\n1. First read the base template for reklamacja_konsumenta\n2. Search for relevant provisions about consumer complaints for services (not goods), specifically hairdressing services\n3. Look for relevant legal provisions - likely from the Civil Code (Kodeks cywilny) regarding services, consumer rights, and possibly the Consumer Rights Act (Ustawa o prawach konsumenta)\n\nLet me start by getting the base template.",
+   "tool_calls": [
+    {
+     "id": "call-7e919427-bc05-4915-9b86-93fa2a8e40a7",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"reklamacja usługi fryzjerskiej niezgodna z umową\", \"doc_type\": \"reklamacja_konsumenta\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"reklamacja_konsumenta\", \"kind\": \"structural_template\", \"text\": \"# Reklamacja usługi fryzjerskiej\\nReklamacja usługi fryzjerskiej w Polsce to pisemne zgłoszenie kierowane przez klienta do salonu fryzjerskiego lub fryzjera, w którym klient informuje o niezgodności wykonanej usługi z umówionym efektem i dochodzi swoich uprawnień z tytułu nienależytego wykonania umowy. Podstawę prawną stanowią przepisy Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) — przede wszystkim art. 471 KC regulujący odpowiedzialność za nienależyte wykonanie zobowiązania, w zw. z przepisami o umowie zlecenia (art. 734-751 KC) lub umowie o dzieło (art. 627-646 KC), zależnie od charakteru świadczonej usługi. Uzupełnieniem jest ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.).\\n\\nUsługa fryzjerska, w zależności od swojego charakteru, może być kwalifikowana jako umowa o dzieło (gdy celem jest osiągnięcie konkretnego, wyodrębnionego rezultatu, jak np. konkretna fryzura, określony kolor) lub jako umowa zlecenia (gdy fryzjer zobowiązuje się do starannego działania zgodnie ze sztuką zawodową). W praktyce większość usług fryzjerskich, w tym koloryzacja, strzyżenie, trwała ondulacja i prostowanie chemiczne, jest kwalifikowana przez sądy jako umowy o dzieło — fryzjer zobowiązuje się do uzyskania konkretnego wyglądu. Oznacza to, że klient może dochodzić roszczeń zarówno na podstawie przepisów o rękojmi za wady dzieła (art. 638 KC), jak i na ogólnej podstawie odpowiedzialności kontraktowej z art. 471 KC.\\n\\nTypowe podstawy reklamacji usługi fryzjerskiej to: nierówny lub niezgodny z umówionym wzornikiem kolor włosów po koloryzacji, uszkodzenie włosów przez chemikalia (przegrzanie, nadmierne rozjaśnianie), brak efektu trwałości po trwałej ondulacji lub prostowaniu, strzyżenie niezgodne z uzgodnionym wzorem lub nieproporcjonalne skrócenie długości, szkody na skórze głowy wynikłe z reakcji alergicznej na zastosowane preparaty bez wcześniejszego przeprowadzenia testu alergicznego.\\n\\nReklamację usługi fryzjerskiej należy odróżnić od sytuacji, gdy klient zwyczajnie nie jest zadowolony z efektu estetycznego zgodnego z umową — sama subiektywna niezadowolaność z efektu nie jest podstawą reklamacji. Podstawą jest obiektywna niezgodność efektu z umówionym — np. uzgodniony kolor numer 7 brąz, a uzyskano zielonkawy odcień.\\n\\nOchronę praw konsumentów w Polsce sprawuje Urząd Ochrony Konkurencji i Konsumentów (UOKiK), a bezpłatną pomoc prawną świadczą miejscy i powiatowi rzecznicy konsumentów. W sporach z salonem fryzjerskim można też skorzystać z mediacji przy Inspekcji Handlowej lub dochodzić roszczeń przed Sądem Rejonowym.\\n\\nReklamacja usługi fryzjerskiej w Polsce jest potrzebna, gdy wykonana usługa odbiega od uzgodnionego efektu lub wyrządza szkodę klientowi — niezależnie od tego, czy mamy do czynienia z dużym salonem, sieciowym studiem fryzjerskim czy prowadzącym działalność indywidualnym fryzjerem.\\n\\nNajczęstsze sytuacje uzasadniające złożenie reklamacji usługi fryzjerskiej to: kolor włosów po koloryzacji różni się od uzgodnionego wzornika lub zdjęcia (inny odcień, nierówne pokrycie, zielonkawy lub żółtawy ton przy rozjaśnianiu), efekt trwałej ondulacji zanika po kilku dniach od zabiegu, a fryzjer gwarantował trwałość, prostowanie chemiczne nie dało oczekiwanego efektu lub odrosty pojawiły się znacznie wcześniej niż deklarowano, włosy zostały skrócone o więcej centymetrów niż uzgodniono, strzyżenie jest asymetryczne lub niezgodne z uzgodnionym wzorem, zabieg na skórze głowy spowodował podrażnienie, oparzenie lub reakcję alergiczną, bo fryzjer nie przeprowadził testu alergicznego przed zastosowaniem farby lub chemikaliów.\\n\\nDokument jest potrzebny, gdy fryzjer lub salon odmawia bezpłatnego poprawienia usługi lub zwrotu pieniędzy, powołując się na subiektywność ocen estetycznych lub wskazując na własne włosy klienta jako czynnik uniemożliwiający uzyskanie uzgodnionego efektu. Reklamacja formalizuje żądanie i umożliwia ewentualne dochodzenie roszczeń przed Sądem Rejonowym.\\n\\nPismo reklamacyjne jest szczególnie potrzebne, gdy klient poniósł dodatkową szkodę — np. koszty koloryzacji korekcyjnej w innym salonie, koszty leczenia podrażnień skóry głowy lub zakupu specjalistycznych preparatów naprawczych dla włosów. W takim przypadku klient może domagać się odszkodowania na podstawie art. 471 i art. 361-363 Kodeksu cywilnego.\\n\\nPrawidłowa reklamacja usługi fryzjerskiej w Polsce, oparta na przepisach o odpowiedzialności kontraktowej z art. 471 Kodeksu cywilnego w zw. z przepisami o umowie o dzieło lub zlecenia, powinna zawierać następujące elementy.\\n\\nDane klienta: imię, nazwisko, adres korespondencyjny, adres e-mail i numer telefonu. Przy żądaniu zwrotu ceny lub odszkodowania należy podać numer rachunku bankowego do przelewu. Telefon jest ważny — fryzjer może chcieć umówić się na oględziny lub wizytę korekcyjną.\\n\\nDane salonu fryzjerskiego: pełna nazwa i adres salonu lub imię i nazwisko fryzjera prowadzącego działalność, do którego kierowana jest reklamacja. Przy sieci salonów należy wskazać konkretną lokalizację, w której wykonano usługę.\\n\\nOpis usługi i data wizyty: dokładny opis zamówionej usługi (np. \\\"koloryzacja w technice ombre, odcień brąz-karmel, numer 6/0 przy nasadzie i 8/0 na końcach\\\"), data wizyty i zapłacona cena. Im dokładniejszy opis uzgodnień, tym silniejsza podstawa do wykazania niezgodności efektu.\\n\\nOpis wady / niezgodności: precyzyjny opis, w jaki sposób efekt usługi odbiega od uzgodnień — np. \\\"kolor przy nasadzie jest wyraźnie zielonkawy zamiast uzgodnionego brązu, pokrycie nierówne\\\" — wraz z datą wykrycia wady. Należy dołączyć dokumentację fotograficzną efektu, najlepiej wykonaną tego samego dnia lub w ciągu kilku dni po zabiegu.\\n\\nŻądanie: jednoznaczne wskazanie roszczenia — bezpłatne poprawienie usługi, zwrot zapłaconej ceny (w całości lub w części) albo odszkodowanie za poniesioną szkodę (np. koszt koloryzacji korekcyjnej w innym salonie). Przy żądaniu finansowym należy podać kwotę.\\n\\nTermin i postanowienia końcowe: wniosek o pisemne ustosunkowanie się do reklamacji w czternastu dniach, z zastrzeżeniem, że milczenie uznane zostanie za przyjęcie reklamacji. Serwis forms-legal.com udostępnia bezpłatny wzór reklamacji usługi fryzjerskiej zgodny z polskim prawem.\\n\\nWypełnianie reklamacji usługi fryzjerskiej w Polsce zacznij od wpisania danych klienta — imienia i nazwiska, adresu, e-maila i numeru telefonu. Telefon jest przydatny, bo fryzjer lub salon może chcieć umówić się na oględziny lub wizytę korekcyjną. Przy żądaniu zwrotu pieniędzy podaj numer rachunku bankowego.\\n\\nW sekcji salonu wpisz pełną nazwę i adres salonu lub imię i nazwisko fryzjera. Jeżeli fryzjer prowadzi jednoosobową działalność, wpisz jego imię, nazwisko i NIP (jeśli znasz) lub adres gabinetu.\\n\\nW polu opisu usługi opisz dokładnie, co zostało zamówione i uzgodnione — np. \\\"koloryzacja, technika balayage, odcień orzech z jasnymi refleksami, długość do łopatek\\\". Podaj datę wizyty i kwotę, jaką zapłaciłeś/zapłaciłaś za usługę.\\n\\nW polu opisu wady opisz precyzyjnie, na czym polega niezgodność efektu z umówionym — np. \\\"kolor jest jednolity ciemnoczarny zamiast uzgodnionego brązu z refleksami, nie zastosowano techniki balayage widocznej na uzgodnionym zdjęciu\\\". Podaj datę wykrycia wady. Zrób i załącz zdjęcia efektu usługi — szczególnie ważne, gdy kwestionujesz kolor lub technikę wykonania. Zdjęcia wykonane zaraz po wyjściu z salonu są najsilniejszym dowodem.\\n\\nW sekcji żądania wybierz: bezpłatną poprawkę, zwrot ceny lub odszkodowanie (np. koszty poprawki w innym salonie udokumentowane fakturą lub paragonem). Na koniec uzupełnij miejscowość, datę i złóż podpis. Wyślij pismo e-mailem z żądaniem potwierdzenia odbioru lub listem poleconym do salonu i zachowaj dowód nadania.\\n\\nPodstawy prawne reklamacji usługi fryzjerskiej w Polsce zależą od kwalifikacji prawnej usługi. Jeżeli strzyżenie, koloryzacja lub trwała ondulacja są kwalifikowane jako umowa o dzieło (art. 627-646 KC) — bo celem jest konkretny, wyodrębniony rezultat — klient może korzystać z przepisów o rękojmi za wady dzieła (art. 638 KC), żądając bezpłatnego poprawienia lub odstąpienia od umowy. Jeżeli usługa jest kwalifikowana jako umowa zlecenia (art. 734-751 KC) — bo celem jest staranne działanie, a nie wyodrębniony rezultat — klient może dochodzić roszczeń za nienależyte wykonanie zobowiązania na podstawie art. 471 KC.\\n\\nArt. 471 Kodeksu cywilnego stanowi, że dłużnik jest zobowiązany do naprawienia szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania, chyba że jest ono następstwem okoliczności, za które dłużnik nie odpowiada. Fryzjer, który nie wykonał usługi zgodnie z umówionym efektem lub zasadami sztuki fryzjerskiej, ponosi odpowiedzialność za szkodę klienta — zarówno bezpośrednią (konieczność poprawki w innym salonie), jak i pośrednią (koszty leczenia podrażnień skóry głowy).\\n\\nOdszkodowanie należne klientowi obejmuje rzeczywistą stratę i utracone korzyści w granicach normalnego następstwa działania lub zaniechania (art. 361 KC). Klient może żądać zwrotu ceny usługi oraz zwrotu kosztów usunięcia szkody (np. poprawki w innym salonie). Przy uszkodzeniu zdrowia (oparzenie skóry głowy, reakcja alergiczna z powodu braku testu alergicznego) klient może dochodzić odszkodowania i zadośćuczynienia na zasadach ogólnych (art. 445-448 KC).\\n\\nW sporach z salonami fryzjerskimi klient może skorzystać z bezpłatnej pomocy miejskiego lub powiatowego rzecznika konsumentów, złożyć wniosek o mediację do Inspekcji Handlowej lub wnieść pozew do Sądu Rejonowego. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) reaguje na skargi dotyczące systemowych nieprawidłowości usługodawców.\\n\\nNajczęstsze błędy przy reklamacji usługi fryzjerskiej w Polsce zaczynają się od braku dokumentacji fotograficznej efektu usługi. Zdjęcia wykonane zaraz po wyjściu z salonu są kluczowym dowodem — kolor włosów i efekt fryzury mogą zmieniać się po umyciu i wysuszeniu, a wiele dni po usłudze trudno wykazać, że niezgodność wynikła z zabiegu fryzjerskiego, a nie z późniejszych zabiegów pielęgnacyjnych. Należy sfotografować efekt możliwie szybko po usłudze, przed myciem i stylizacją.\\n\\nKolejnym błędem jest nieudokumentowanie uzgodnień przed zabiegiem. Jeżeli klient nie ma możliwości wykazania, co dokładnie zostało uzgodnione (konkretny kolor z wzornika, długość strzyżenia, technika), fryzjer może twierdzić, że usługa wykonana była zgodnie z umową. Dlatego warto zachować zdjęcia wzornika, screenshoty z portali inspiracji (Instagram, Pinterest) lub inne materiały uzgodnione przed zabiegiem.\\n\\nCzęstym uchybieniem jest nieuzasadnione żądanie pełnego zwrotu ceny przy wadzie dającej się usunąć poprawką. Jeżeli wada jest nieistotna i może być naprawiona przez fryzjera bezpłatnie, sąd może uznać, że żądanie pełnego zwrotu jest nieuzasadnione. Warto w pierwszej kolejności żądać poprawki, a dopiero po odmowie lub jej nieudanym wykonaniu — zwrotu ceny lub odszkodowania.\\n\\nBłędem jest również zaniechanie zgłoszenia reklamacji niezwłocznie po wykryciu wady. Przy usługach fryzjerskich wady koloryzacyjne są widoczne najszybciej po umyciu i wysuszeniu włosów — im dłużej klient czeka z reklamacją, tym trudniej wykazać, że wada wynika z usługi, a nie z późniejszych działań klienta.\\n\\nWreszcie klienci często zapominają o możliwości dochodzenia odszkodowania za dodatkowe koszty. Jeżeli wadliwa koloryzacja spowodowała konieczność kosztownej korekty w innym salonie, klient może żądać zwrotu tych kosztów na podstawie art. 471 w zw. z art. 361-363 Kodeksu cywilnego, dołączając paragon lub fakturę za usługę korekcyjną.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/reklamacja-uslugi-fryzjerskiej (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-7e919427-bc05-4915-9b86-93fa2a8e40a7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_b3630591d6974e4aa1e9204f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"odpowiedzialność fryzjera za nienależyte wykonanie usługi fryzjerskiej art. 471 KC umowa o dzieło\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_bde79eee78964226b856b5b3",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 471 KC\", \"art. 638 KC\", \"umowa o dzieło\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_2394dcb8f696610e\", \"source_id\": \"uokik_rejestr_klauzul_4656\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...)ponosi odpowiedzialność za niewykonanie lub nienależyte wykonanie umowy, wynikające z wyłącznej winy (...), w szczególności (...) nie ponosi odpowiedzialności za niewykonanie lub nienależyte wykonanie umowy w przypadku braku możliwości świadczenia usługi, który nie wynikał z wyłącznej winy (...)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_471\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 471. Dłużnik obowiązany jest do naprawienia szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania, chyba że niewykonanie lub nienależyte wykonanie jest następstwem okoliczności, za które dłużnik odpowiedzialności nie ponosi.\"}, {\"chunk_id\": \"uokik_items:uokik_69c60d5dd726b379\", \"source_id\": \"uokik_rejestr_klauzul_2690\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Operator ponosi odpowiedzialność za niewykonanie lub nienależyte wykonanie usługi w zakresie określonym w Umowie oraz w niniejszym Regulaminie chyba, że niewykonanie lub nienależyte wykonanie nastąpiło wskutek siły wyższej, przyczyn niezależnych od Operatora, winy Klieta, lub niezachowania przez niego postanowień niniejszego regulaminu\"}, {\"chunk_id\": \"uokik_items:uokik_181dfba967eae31a\", \"source_id\": \"uokik_rejestr_klauzul_1620\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Ustala się, że odpowiedzialność (...) za niewykonanie lub nienależyte wykonanie umowy w czasie imprezy nie przekracza dwukrotności ceny imprezy względem każdego klienta.\"}, {\"chunk_id\": \"uokik_items:uokik_b1a8dc8b2462c085\", \"source_id\": \"uokik_rejestr_klauzul_3277\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Operator ponosi odpowiedzialność za nie wykonanie lub nienależyte wykonanie przedmiotu Umowy, chyba że nie wykonanie lub nienależyte wykonanie przedmiotu Umowy nastąpiło z powodu: […] działania osób trzecich\"}]",
+   "tool_call_id": "call_b3630591d6974e4aa1e9204f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_626\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 626. § 1. Jeżeli po zawarciu umowy kontraktacji producent wniósł posiadane gospodarstwo jako wkład do rolniczej spółdzielni produkcyjnej, spółdzielnia ta wstępuje w prawa i obowiązki producenta, chyba że stan wniesionego gospodarstwa stoi temu na przeszkodzie. § 2. Jeżeli stan gospodarstwa producenta w chwili jego przystąpienia do spółdzielni nie pozwala na wykonanie umowy kontraktacji przez spółdzielnię, umowa wygasa, a producent obowiązany jes ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_645\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 645. § 1. Umowa o dzieło, którego wykonanie zależy od osobistych przymiotów przyjmującego zamówienie, rozwiązuje się wskutek jego śmierci lub niezdolności do pracy. § 2. Jeżeli materiał był własnością przyjmującego zamówienie, a dzieło częściowo wykonane przedstawia ze względu na zamierzony cel umowy wartość dla zamawiającego, przyjmujący zamówienie lub jego spadkobierca może żądać, ażeby zamawiający odebrał materiał w stanie, w jakim się znajdu ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_9\", \"source_id\": \"sejm_eli_du_2025_350_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 9. 1. Osoby, o których mowa w art. 6 ust. 1 pkt 1, 3, 7b, 10, 20 i 21, spełniające jednocześnie warunki do objęcia ich obowiązkowo ubezpieczeniami emerytalnym i rentowymi z innych tytułów, są obejmowane ubezpieczeniami tylko z tytułu stosunku pracy, umowy agencyjnej, umowy zlecenia lub innej umowy o świadczenie usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, albo umowy o dzieło, jeżeli umowę taką zawarły z pracodawcą, z którym pozostają w stosunku pracy, lub jeżeli w ramach takie ...\"}]",
+   "tool_call_id": "call_bde79eee78964226b856b5b3",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about art. 638 KC (rękojmia za wady dzieła) and also look for provisions about services and consumer rights.",
+   "tool_calls": [
+    {
+     "id": "call-99649044-0b9f-4658-85fa-35ac068d18c6",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 638 KC\", \"rękojmia za wady dzieła\", \"art. 634 KC\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-3cbae42d-821a-4f9a-85b3-064b1ca97e33",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"rękojmia za wady dzieła usługa fryzjerska art. 638 Kodeks cywilny\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-99649044-0b9f-4658-85fa-35ac068d18c6",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_638\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 638. § 1. Do odpowiedzialności za wady dzieła stosuje się odpowiednio przepisy o rękojmi przy sprzedaży. Odpowiedzialność przyjmującego zamówienie jest wyłączona, jeżeli wada dzieła powstała z przyczyny tkwiącej w materiale dostarczonym przez zamawiającego. § 2. Jeżeli zamawiającemu udzielono gwarancji na wykonane dzieło, przepisy o gwarancji przy sprzedaży stosuje się odpowiednio.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_609\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 609. Dostawca ponosi odpowiedzialność z tytułu rękojmi za wady fizyczne dostarczonych rzeczy także w tym wypadku, gdy wytworzenie rzeczy nastąpiło w sposób określony przez odbiorcę lub według dostarczonej przez niego dokumentacji technologicznej, chyba że dostawca, mimo zachowania należytej staranności, nie mógł wykryć wadliwości sposobu produkcji lub dokumentacji technologicznej albo że odbiorca, mimo zwrócenia przez dostawcę uwagi na powyższe  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_621\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 621. Do rękojmi za wady fizyczne i prawne przedmiotu kontraktacji oraz środków produkcji dostarczonych producentowi przez kontraktującego stosuje się odpowiednio przepisy o rękojmi przy sprzedaży z tą zmianą, że prawo odstąpienia od umowy z powodu wad fizycznych przedmiotu kontraktacji przysługuje kontraktującemu tylko wtedy, gdy wady są istotne.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_656\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 656. § 1. Do skutków opóźnienia się przez wykonawcę z rozpoczęciem robót lub wykończeniem obiektu albo wykonywania przez wykonawcę robót w sposób wadliwy lub sprzeczny z umową, do rękojmi za wady wykonanego obiektu, jak również do uprawnienia inwestora do odstąpienia od umowy przed ukończeniem obiektu stosuje się odpowiednio przepisy o umowie o dzieło. § 2. (uchylony)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}]",
+   "tool_call_id": "call-3cbae42d-821a-4f9a-85b3-064b1ca97e33",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Now let me get the full text of art. 638 KC and also search for the relevant provisions about consumer rights for services, especially the Consumer Rights Act (Ustawa o prawach konsumenta) provisions about services.",
+   "tool_calls": [
+    {
+     "id": "call-f65b57f1-5633-411a-bf81-a709f7209ebc",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_638\", \"sejm_eli_du_2024_1061_art_471\"]}"
+     }
+    },
+    {
+     "id": "call-6625d4d5-fab7-4501-896c-28cac8682c28",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"ustawa o prawach konsumenta usługa reklamacja konsument art. 27 28 29\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_638\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 638. § 1. Do odpowiedzialności za wady dzieła stosuje się odpowiednio przepisy o rękojmi przy sprzedaży. Odpowiedzialność przyjmującego zamówienie jest wyłączona, jeżeli wada dzieła powstała z przyczyny tkwiącej w materiale dostarczonym przez zamawiającego. § 2. Jeżeli zamawiającemu udzielono gwarancji na wykonane dzieło, przepisy o gwarancji przy sprzedaży stosuje się odpowiednio.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_471\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 471. Dłużnik obowiązany jest do naprawienia szkody wynikłej z niewykonania lub nienależytego wykonania zobowiązania, chyba że niewykonanie lub nienależyte wykonanie jest następstwem okoliczności, za które dłużnik odpowiedzialności nie ponosi.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}]",
+   "tool_call_id": "call-f65b57f1-5633-411a-bf81-a709f7209ebc",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_id\": \"sejm_eli_du_2024_1796_art_29\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 29. 1. Jeżeli konsument nie został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy, prawo to wygasa po upływie 12 miesięcy od dnia upływu terminu, o którym mowa w art. 27 ust. 1 albo 2. 2. Jeżeli konsument został poinformowany przez przedsiębiorcę o prawie odstąpienia od umowy przed wygaśnięciem tego prawa zgodnie z ust. 1, termin do odstąpienia od umowy upływa po 14 dniach, a w przypadku, o którym mowa w art. 27 ust. 2 -  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_id\": \"sejm_eli_du_2024_1796_art_27\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 27. 1. Konsument, który zawarł umowę na odległość lub poza lokalem przedsiębiorstwa, może w terminie 14 dni odstąpić od niej bez podawania przyczyny i bez ponoszenia kosztów, z wyjątkiem kosztów określonych w art. 33, art. 34 ust. 2 i art. 35. 2. Jeżeli konsument zawarł umowę poza lokalem przedsiębiorstwa podczas nieumówionej wizyty przedsiębiorcy w miejscu zamieszkania lub zwykłego pobytu konsumenta albo wycieczki, termin do odstąpienia o ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_7a\", \"source_id\": \"sejm_eli_du_2024_1796_art_7a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 7a. 1. Jeżeli przepisy odrębne nie stanowią inaczej, przedsiębiorca jest obowiązany udzielić odpowiedzi na reklamację konsumenta w terminie 14 dni od dnia jej otrzymania. 2. Jeżeli przedsiębiorca nie udzielił odpowiedzi na reklamację w terminie, o którym mowa w ust. 1, uważa się, że uznał reklamację. 3. Odpowiedź na reklamację przedsiębiorca przekazuje konsumentowi na papierze lub innym trwałym nośniku.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_id\": \"sejm_eli_du_2024_1796_art_12\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 12. 1. Najpóźniej w chwili wyrażenia przez konsumenta woli związania się umową na odległość lub poza lokalem przedsiębiorstwa przedsiębiorca ma obowiązek poinformować konsumenta w sposób jasny i zrozumiały o: 1) głównych cechach świadczenia z uwzględnieniem przedmiotu świadczenia oraz sposobu porozumiewania się z konsumentem; 2) swoich danych identyfikujących, w szczególności o firmie, organie, który zarejestrował działalność gospodarczą,  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_id\": \"sejm_eli_du_2024_1796_art_2\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\", \"display_address\": \"Dz.U. 2024 poz. 1796\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 27 listopada 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o prawach konsumenta\\nArt. 2. Określenia użyte w ustawie oznaczają: 1) umowa zawarta na odległość - umowę zawartą z konsumentem w ramach zorganizowanego systemu zawierania umów na odległość, bez jednoczesnej fizycznej obecności stron, z wyłącznym wykorzystaniem jednego lub większej liczby środków porozumiewania się na odległość do chwili zawarcia umowy włącznie; 2) umowa zawarta poza lokalem przedsiębiorstwa - umowę z konsumentem zawartą: a) przy jednoczesnej fizycz ...\"}]",
+   "tool_call_id": "call-6625d4d5-fab7-4501-896c-28cac8682c28",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Reklamacja usługi fryzjerskiej niezgodnej z uzgodnieniami\n\n**Dane klienta (konsumenta):**\nImię i nazwisko: ..............................................................................\nAdres korespondencyjny: ..............................................................................\nAdres e-mail: ..............................................................................\nNumer telefonu: ..............................................................................\nNumer rachunku bankowego (w przypadku żądania zwrotu ceny lub odszkodowania): ..............................................................................\n\n**Dane salonu fryzjerskiego / fryzjera:**\nPełna nazwa salonu lub imię i nazwisko fryzjera prowadzącego działalność: ..............................................................................\nAdres salonu / gabinetu (ulica, nr domu/lokalu, kod pocztowy, miejscowość): ..............................................................................\nNIP (jeśli znany): ..............................................................................\n\n**Opis usługi i data wizyty:**\nData wizyty: ..............................................................................\nDokładny opis zamówionej usługi (technika, kolor z wzornika, długość, zdjęcie wzorowe itp.):\n..............................................................................\n..............................................................................\n..............................................................................\nZapłacona cena: .............................................................................. PLN\n\n**Opis wady / niezgodności z uzgodnieniami:**\nData wykrycia wady: ..............................................................................\nPrecyzyjny opis, w jaki sposób efekt usługi odbiega od uzgodnień (np. „kolor przy nasadzie zielonkawy zamiast uzgodnionego brązu nr 6/0”, „nie zastosowano techniki balayage widocznej na uzgodnionym zdjęciu”, „włosy skrócone o 5 cm więcej niż uzgodniono”):\n..............................................................................\n..............................................................................\n..............................................................................\n\n**Załączniki dowodowe:**\n☐ Zdjęcia efektu usługi wykonane w dniu wizyty lub w ciągu kilku dni po zabiegu (przed myciem i stylizacją)\n☐ Zdjęcia / zrzuty ekranu wzornika / zdjęcia inspiracyjne uzgodnione przed zabiegiem\n☐ Paragon / faktura / potwierdzenie płatności\n☐ Inne: ..............................................................................\n\n**Żądanie (wybierz jedno lub więcej, uzupełnij kwotę przy żądaniu finansowym):**\n☐ Bezpłatne poprawienie usługi (korekta) w terminie ............... dni od otrzymania niniejszej reklamacji.\n☐ Zwrot zapłaconej ceny w całości: ......................... PLN\n☐ Zwrot zapłaconej ceny w części: ......................... PLN\n☐ Odszkodowanie za poniesioną szkodę (np. koszt koloryzacji korekcyjnej w innym salonie, koszty leczenia podrażnień skóry głowy, zakup preparatów naprawczych) – kwota: ......................... PLN (dowody: paragon/faktura za usługę korekcyjną, rachunki lekarskie itp. dołączone).\n\n**Podstawy prawne:**\n1. Usługa fryzjerska (koloryzacja, strzyżenie, trwała ondulacja, prostowanie chemiczne) jest w świetle orzecznictwa sądów kwalifikowana jako **umowa o dzieło** (art. 627–646 Kodeksu cywilnego), ponieważ celem jest uzyskanie konkretnego, wyodrębnionego rezultatu (określony kolor, fryzura, efekt).\n2. Z tytułu rękojmi za wady dzieła (art. 638 § 1 KC w zw. z przepisami o rękojmi przy sprzedaży – art. 556–576 KC) klient może żądać bezpłatnego usunięcia wady (poprawki) lub, jeśli wada jest istotna i nie może zostać usunięta bez nadmiernych trudności lub kosztów – odstąpienia od umowy (zwrot ceny).\n3. Niezależnie od rękojmi, na podstawie **odpowiedzialności kontraktowej** (art. 471 KC) fryzjer/salon odpowiada za szkodę powstałą z nienależytego wykonania zobowiązania, chyba że wykaza, że nienależyte wykonanie jest następstwem okoliczności, za które nie ponosi odpowiedzialności. Szkoda obejmuje rzeczywistą stratę i utracone korzyści (art. 361 KC) – m.in. koszty usunięcia wady u innego usługodawcy.\n4. Jeżeli usługa spowodowała uszkodzenie zdrowia (oparzenie, reakcja alergiczna z powodu braku testu alergicznego), przysługują roszczenia na zasadach ogólnych (art. 445–448 KC).\n5. Zgodnie z **art. 7a ustawy z dnia 30 maja 2014 r. o prawach konsumenta** (Dz.U. 2024 poz. 1796), przedsiębiorca jest obowiązany udzielić odpowiedzi na reklamację w terminie **14 dni** od dnia jej otrzymania. W przypadku braku odpowiedzi w tym terminie uważa się, że przedsiębiorca **uznał reklamację**. Odpowiedź powinna zostać przekazana na papierze lub innym trwałym nośniku.\n\n**Termin i postanowienia końcowe:**\nZwracam się z wnioskiem o pisemne ustosunkowanie się do niniejszej reklamacji w terminie **14 dni** od dnia jej otrzymania, na adres korespondencyjny lub e-mail podany powyżej. Milczenie po upływie tego terminu zostanie uznane za przyjęcie reklamacji.\n\nZastrzegam prawo do dochodzenia roszczeń w drodze sądowej przed Sądem Rejonowym właściwym dla siedziby salonu / fryzjera, a także skorzystania z bezpłatnej pomocy miejskiego/powiatowego rzecznika konsumentów lub mediacji przy Inspekcji Handlowej.\n\n..............................................................................\n(Miejscowość, data)\n\n..............................................................................\n(Podpis klienta)\n\n---\n**Wskazówki do doręczenia:**\n- Najlepiej wysłać pismo **listem poleconym z potwierdzeniem odbioru** lub **e-mailem z żądaniem potwierdzenia przeczytania (read receipt)** na oficjalny adres salonu.\n- Zachowaj dowód nadania (potwierdzenie nadania listu poleconego, zrzut ekranu z potwierdzeniem dostarczenia e-maila).\n- Jeśli salon ma stronę internetową z formularzem kontaktowym – wyślij również kopię przez ten formularz i zrób zrzut ekranu.\n\n**Źródło:** Wzór oparty na przepisach Kodeksu cywilnego (art. 471, 638 KC) oraz ustawie o prawach konsumenta (art. 7a), zgodny z orzecznictwem sądów kwalifikującym usługi fryzjerskie jako umowy o dzieło. Serwis forms-legal.com (licencja CC-BY-4.0).",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Reklamacja usługi fryzjerskiej niezgodnej z uzgodnieniami\n\n**Dane klienta (konsumenta):**\nImię i nazwisko: ..............................................................................\nAdres korespondencyjny: ..............................................................................\nAdres e-mail: ..............................................................................\nNumer telefonu: ..............................................................................\nNumer rachunku bankowego (w przypadku żądania zwrotu ceny lub odszkodowania): ..............................................................................\n\n**Dane salonu fryzjerskiego / fryzjera:**\nPełna nazwa salonu lub imię i nazwisko fryzjera prowadzącego działalność: ..............................................................................\nAdres salonu / gabinetu (ulica, nr domu/lokalu, kod pocztowy, miejscowość): ..............................................................................\nNIP (jeśli znany): ..............................................................................\n\n**Opis usługi i data wizyty:**\nData wizyty: ..............................................................................\nDokładny opis zamówionej usługi (technika, kolor z wzornika, długość, zdjęcie wzorowe itp.):\n..............................................................................\n..............................................................................\n..............................................................................\nZapłacona cena: .............................................................................. PLN\n\n**Opis wady / niezgodności z uzgodnieniami:**\nData wykrycia wady: ..............................................................................\nPrecyzyjny opis, w jaki sposób efekt usługi odbiega od uzgodnień (np. „kolor przy nasadzie zielonkawy zamiast uzgodnionego brązu nr 6/0”, „nie zastosowano techniki balayage widocznej na uzgodnionym zdjęciu”, „włosy skrócone o 5 cm więcej niż uzgodniono”):\n..............................................................................\n..............................................................................\n..............................................................................\n\n**Załączniki dowodowe:**\n☐ Zdjęcia efektu usługi wykonane w dniu wizyty lub w ciągu kilku dni po zabiegu (przed myciem i stylizacją)\n☐ Zdjęcia / zrzuty ekranu wzornika / zdjęcia inspiracyjne uzgodnione przed zabiegiem\n☐ Paragon / faktura / potwierdzenie płatności\n☐ Inne: ..............................................................................\n\n**Żądanie (wybierz jedno lub więcej, uzupełnij kwotę przy żądaniu finansowym):**\n☐ Bezpłatne poprawienie usługi (korekta) w terminie ............... dni od otrzymania niniejszej reklamacji.\n☐ Zwrot zapłaconej ceny w całości: ......................... PLN\n☐ Zwrot zapłaconej ceny w części: ......................... PLN\n☐ Odszkodowanie za poniesioną szkodę (np. koszt koloryzacji korekcyjnej w innym salonie, koszty leczenia podrażnień skóry głowy, zakup preparatów naprawczych) – kwota: ......................... PLN (dowody: paragon/faktura za usługę korekcyjną, rachunki lekarskie itp. dołączone).\n\n**Podstawy prawne:**\n1. Usługa fryzjerska (koloryzacja, strzyżenie, trwała ondulacja, prostowanie chemiczne) jest w świetle orzecznictwa sądów kwalifikowana jako **umowa o dzieło** (art. 627–646 Kodeksu cywilnego), ponieważ celem jest uzyskanie konkretnego, wyodrębnionego rezultatu (określony kolor, fryzura, efekt).\n2. Z tytułu rękojmi za wady dzieła (art. 638 § 1 KC w zw. z przepisami o rękojmi przy sprzedaży – art. 556–576 KC) klient może żądać bezpłatnego usunięcia wady (poprawki) lub, jeśli wada jest istotna i nie może zostać usunięta bez nadmiernych trudności lub kosztów – odstąpienia od umowy (zwrot ceny).\n3. Niezależnie od rękojmi, na podstawie **odpowiedzialności kontraktowej** (art. 471 KC) fryzjer/salon odpowiada za szkodę powstałą z nienależytego wykonania zobowiązania, chyba że wykaza, że nienależyte wykonanie jest następstwem okoliczności, za które nie ponosi odpowiedzialności. Szkoda obejmuje rzeczywistą stratę i utracone korzyści (art. 361 KC) – m.in. koszty usunięcia wady u innego usługodawcy.\n4. Jeżeli usługa spowodowała uszkodzenie zdrowia (oparzenie, reakcja alergiczna z powodu braku testu alergicznego), przysługują roszczenia na zasadach ogólnych (art. 445–448 KC).\n5. Zgodnie z **art. 7a ustawy z dnia 30 maja 2014 r. o prawach konsumenta** (Dz.U. 2024 poz. 1796), przedsiębiorca jest obowiązany udzielić odpowiedzi na reklamację w terminie **14 dni** od dnia jej otrzymania. W przypadku braku odpowiedzi w tym terminie uważa się, że przedsiębiorca **uznał reklamację**. Odpowiedź powinna zostać przekazana na papierze lub innym trwałym nośniku.\n\n**Termin i postanowienia końcowe:**\nZwracam się z wnioskiem o pisemne ustosunkowanie się do niniejszej reklamacji w terminie **14 dni** od dnia jej otrzymania, na adres korespondencyjny lub e-mail podany powyżej. Milczenie po upływie tego terminu zostanie uznane za przyjęcie reklamacji.\n\nZastrzegam prawo do dochodzenia roszczeń w drodze sądowej przed Sądem Rejonowym właściwym dla siedziby salonu / fryzjera, a także skorzystania z bezpłatnej pomocy miejskiego/powiatowego rzecznika konsumentów lub mediacji przy Inspekcji Handlowej.\n\n..............................................................................\n(Miejscowość, data)\n\n..............................................................................\n(Podpis klienta)\n\n---\n**Wskazówki do doręczenia:**\n- Najlepiej wysłać pismo **listem poleconym z potwierdzeniem odbioru** lub **e-mailem z żądaniem potwierdzenia przeczytania (read receipt)** na oficjalny adres salonu.\n- Zachowaj dowód nadania (potwierdzenie nadania listu poleconego, zrzut ekranu z potwierdzeniem dostarczenia e-maila).\n- Jeśli salon ma stronę internetową z formularzem kontaktowym – wyślij również kopię przez ten formularz i zrób zrzut ekranu.\n\n**Źródło:** Wzór oparty na przepisach Kodeksu cywilnego (art. 471, 638 KC) oraz ustawie o prawach konsumenta (art. 7a), zgodny z orzecznictwem sądów kwalifikującym usługi fryzjerskie jako umowy o dzieło. Serwis forms-legal.com (licencja CC-BY-4.0).",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Poszłam do fryzjera, uzgodniłyśmy konkretny kolor i technikę, a efekt wyszł zupełnie inny. Chcę złożyć reklamację, żeby to naprawili lub oddali pieniądze."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Wizyta była dwa dni temu, zamawiałam balayage w odcieniu brąz 6/0 według zdjęcia z wzornika, a mam zielonkawy odcień przy nasadzie i brak przejść. Zapłaciłam 350 zł, mam paragon i zdjęcia efektu oraz uzgodnionego wzoru. Chcę żądać darmowej korekty lub zwrotu części kwoty, bo muszę iść do innego salonu na naprawę."
+  }
+ ]
+}

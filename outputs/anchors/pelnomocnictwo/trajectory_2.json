@@ -1,0 +1,291 @@
+{
+ "run": 4,
+ "hint": "Pełnomocnictwo do zawarcia umowy najmu lokalu",
+ "scenario": "Pełnomocnictwo do zawarcia umowy najmu lokalu",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-8f245c86f1823741",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do sprzedaży nieruchomości\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce to jednostronne oświadczenie woli właściciela nieruchomości (mocodawcy), przez które udziela on oznaczonej osobie (pełnomocnikowi) upoważnienia do dokonania w jego imieniu czynności prawnych związanych ze sprzedażą nieruchomości. Instytucję pełnomocnictwa regulują art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo do sprzedaży nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonej nieruchomości.\\n\\nArtykuł 99 par. 1 KC statuuje zasadę, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), pełnomocnictwo do sprzedaży nieruchomości musi być udzielone w formie aktu notarialnego przez notariusza. Pełnomocnictwo do sprzedaży nieruchomości sporządzone w zwykłej formie pisemnej lub ustnie jest nieważne i nie pozwoli pełnomocnikowi skutecznie zawrzeć umowy sprzedaży.\\n\\nZakres pełnomocnictwa musi być precyzyjnie określony. Pełnomocnictwo szczególne do sprzedaży nieruchomości powinno wskazywać: dane mocodawcy i pełnomocnika (z numerami PESEL i seriami dowodów osobistych), dokładny opis nieruchomości (adres, numer KW, numer działki ewidencyjnej i obręb), zakres umocowania (podpisanie umowy przedwstępnej, umowy przyrzeczonej w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku wieczystoksięgowego), ewentualną minimalną cenę sprzedaży oraz informację, czy pełnomocnik może udzielać dalszych pełnomocnictw (substytucja).\\n\\nPełnomocnictwo do sprzedaży nieruchomości jest typowo udzielane w następujących sytuacjach: właściciel przebywa za granicą lub jest chory i nie może osobiście stawić się u notariusza, właściciel jest osobą prawną reprezentowaną przez osobę trzecią, sprzedaż dotyczy udziałów kilku współwłaścicieli i jeden z nich udziela pełnomocnictwa innemu, transakcja wymaga zaangażowania profesjonalnego agenta lub adwokata.\\n\\nArtykuł 101 KC reguluje odwołanie pełnomocnictwa. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi. Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej lub udzielono go z klauzulą nieodwołalności na podstawie art. 101 par. 1 KC.\\n\\nW praktyce notarialnej kluczowe jest okazanie przez pełnomocnika aktualnego i ważnego pełnomocnictwa (notariusz kupującego weryfikuje jego autentyczność). Pełnomocnik działający na podstawie pełnomocnictwa notarialnego udzielonego za granicą musi zadbać o apostille lub legalizację dokumentu, jeżeli pochodzi z jurysdykcji spoza UE. Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa przedwstępna sprzedaży nieruchomości.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest potrzebne zawsze, gdy właściciel nieruchomości chce upoważnić inną osobę do zawarcia umowy sprzedaży w jego imieniu, bez konieczności osobistego stawiennictwa u notariusza. Poniżej opisano typowe sytuacje.\\n\\nWłaściciel przebywa za granicą. Polacy zamieszkali za granicą, którzy chcą sprzedać nieruchomość w Polsce, mogą udzielić pełnomocnictwa krewnemu lub prawnikowi przebywającemu w Polsce. Pełnomocnictwo może być udzielone u polskiego notariusza podczas wizyty w kraju lub u polskiego konsula albo miejscowego notariusza za granicą (z apostille). Jest to najczęstszy przypadek udzielenia pełnomocnictwa do sprzedaży nieruchomości.\\n\\nWłaściciel jest chory lub ma ograniczoną mobilność. Osoba starsza lub ciężko chora, która nie może osobiście stawić się w kancelarii notarialnej, udziela pełnomocnictwa zaufanej osobie — dziecku, małżonkowi lub prawnemu doradcy. Notariusz może sporządzić akt pełnomocnictwa poza kancelarią (w szpitalu lub w domu mocodawcy) za dodatkową opłatą.\\n\\nSprzedaż nieruchomości przez spółkę lub inną osobę prawną. Spółki z ograniczoną odpowiedzialnością, spółki akcyjne i inne osoby prawne sprzedają nieruchomości przez reprezentantów (zarząd) lub przez udzielone pełnomocnictwo. Zarząd upoważnia pełnomocnika, który podpisuje akt notarialny sprzedaży w imieniu spółki.\\n\\nKilku współwłaścicieli udziela pełnomocnictwa jednemu z nich. Gdy nieruchomość należy do kilku osób (np. rodzeństwo po rodzicach), a wszyscy nie mogą stawić się u notariusza, niektórzy z nich udzielają pełnomocnictwa jednemu ze współwłaścicieli lub wybranemu pełnomocnikowi do zawarcia umowy sprzedaży w ich imieniu.\\n\\nTransakcja wymaga profesjonalnego doradcy lub agenta. Inwestor realizujący wiele transakcji jednocześnie lub strona wymagająca reprezentacji prawnej udziela pełnomocnictwa adwokatowi, radcy prawnemu lub agentowi nieruchomości do przeprowadzenia transakcji sprzedaży.\\n\\nSprzedaż z pominięciem osobistego stawiennictwa przy podpisaniu aktu. Pełnomocnictwo umożliwia sprzedającemu uniknięcie konieczności stawiennictwa u notariusza kupującego, gdy sprzedaż odbywa się w innym mieście lub gdy terminy notarialne są niedogodne.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce musi zawierać elementy wymagane przez art. 95-109 KC i praktykę notarialną. Poniżej opisano kluczowe składniki.\\n\\nDane mocodawcy z numerem PESEL i dowodem osobistym. Notariusz sporządzający akt pełnomocnictwa jest zobowiązany do ustalenia tożsamości mocodawcy przez sprawdzenie dowodu osobistego lub paszportu. W treści pełnomocnictwa obowiązkowo wpisuje się imię, nazwisko, numer PESEL i serię numeru dowodu osobistego mocodawcy.\\n\\nDane pełnomocnika z numerem PESEL. Pełnomocnik musi być dokładnie oznaczony przez podanie imienia, nazwiska, numeru PESEL i adresu zamieszkania, a w praktyce notarialnej — serii i numeru dowodu osobistego. Jednoznaczna identyfikacja pełnomocnika zapobiega nadużyciom.\\n\\nDokładny opis nieruchomości. Pełnomocnictwo szczególne musi precyzyjnie opisywać nieruchomość, której dotyczy, przez podanie jej rodzaju, adresu lub położenia, numeru działki ewidencyjnej i obrębu oraz numeru księgi wieczystej, np. WA1M/00234567/8, prowadzonej przez Sąd Rejonowy (Sąd Wieczystoksięgowy). Opis nieruchomości ogranicza zakres pełnomocnictwa do tej konkretnej nieruchomości.\\n\\nZakres umocowania. Pełnomocnictwo musi precyzyjnie opisywać, jakie czynności pełnomocnik jest uprawniony wykonać: podpisanie umowy przedwstępnej sprzedaży, podpisanie umowy przyrzeczonej sprzedaży w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku o wpis prawa własności nabywcy w księdze wieczystej, składanie oświadczeń o stanie prawnym nieruchomości. Zbyt szerokie lub zbyt wąskie umocowanie może prowadzić do problemów przy zawieraniu umowy sprzedaży.\\n\\nEwentualna minimalna cena sprzedaży. Jeżeli mocodawca chce ograniczyć swobodę pełnomocnika, może wskazać minimalną cenę, za jaką pełnomocnik może sprzedać nieruchomość. Bez wskazania ceny minimalnej pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nPrawo do substytucji. Pełnomocnictwo może zawierać lub wykluczać prawo pełnomocnika do udzielenia dalszego pełnomocnictwa (substytucji). Substytucja pozwala pełnomocnikowi powierzyć część uprawnień innej osobie, co jest przydatne w transakcjach wymagających udziału adwokata lub notariusza.\\n\\nOkres ważności i odwołanie. Choć Kodeks cywilny nie wymaga wskazania terminu ważności, w praktyce pełnomocnictwa do sprzedaży nieruchomości udziela się na czas oznaczony lub ze wskazaniem, że wygasa po dokonaniu oznaczonej czynności. Mocodawca może odwołać pełnomocnictwo w każdym czasie (art. 101 KC). Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa zamiany nieruchomości.\\n\\nSporządzenie pełnomocnictwa do sprzedaży nieruchomości wymaga wizyty u notariusza i zebrania dokumentów obu stron. Poniżej opisano etapy.\\n\\nKrok 1 — zbierz dokumenty. Mocodawca przygotowuje swój dowód osobisty lub paszport, akt nabycia nieruchomości (akt notarialny zakupu lub darowizny), aktualny odpis z KW i dane pełnomocnika (imię, nazwisko, PESEL, adres, seria i numer dowodu osobistego).\\n\\nKrok 2 — zdecyduj o zakresie umocowania. Przed wizytą u notariusza precyzyjnie ustal, jakie czynności ma wykonać pełnomocnik: czy tylko podpisać akt notarialny sprzedaży, czy też zawrzeć umowę przedwstępną, odebrać cenę, wydać nieruchomość i złożyć wniosek wieczystoksięgowy. Im precyzyjniejszy zakres, tym mniejsze ryzyko nadużyć.\\n\\nKrok 3 — ustal minimalną cenę (jeśli dotyczy). Jeżeli chcesz ograniczyć swobodę pełnomocnika, wpisz minimalną cenę sprzedaży nieruchomości. Bez tej klauzuli pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nKrok 4 — zdecyduj o substytucji. Ustal, czy pełnomocnik ma prawo udzielić dalszego pełnomocnictwa innej osobie (substytucja). Substytucja jest przydatna, gdy pełnomocnikiem jest adwokat lub radca prawny, który może chcieć przekazać czynności notarialne współpracownikowi.\\n\\nKrok 5 — uzupełnij formularz i przygotuj wzór dla notariusza. Wpisz dane mocodawcy, pełnomocnika, opis nieruchomości i zakres umocowania. Wydrukowany wzór ułatwia rozmowę z notariuszem i zapobiega pominięciu ważnych elementów.\\n\\nKrok 6 — podpisz akt pełnomocnictwa u notariusza. Mocodawca osobiście stawia się u notariusza (lub przed konsulem za granicą). Notariusz weryfikuje tożsamość mocodawcy, sporządza akt pełnomocnictwa i przekazuje mocodawcy wypis aktu.\\n\\nKrok 7 — przekaż wypis pełnomocnikowi. Mocodawca przekazuje pełnomocnikowi wypis aktu notarialnego pełnomocnictwa. Przy transakcji notariusz kupującego weryfikuje autentyczność pełnomocnictwa.\\n\\nKrok 8 — odwołaj pełnomocnictwo niezwłocznie po transakcji lub gdy stosunek zaufania ustaje. Jeżeli pełnomocnik zawarł umowę sprzedaży, pełnomocnictwo wygasa z mocy prawa po dokonaniu czynności. Jeżeli transakcja nie doszła do skutku, mocodawca może odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce podlega ścisłym wymogom Kodeksu cywilnego.\\n\\nWymóg formy aktu notarialnego. Artykuł 99 par. 1 KC stanowi, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), dlatego pełnomocnictwo do sprzedaży nieruchomości musi być sporządzone przez notariusza. Pełnomocnictwo w formie pisemnej lub ustnej jest nieważne.\\n\\nRodzaj pełnomocnictwa. Pełnomocnictwo do sprzedaży konkretnej nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy poszczególnej czynności. Pełnomocnictwo rodzajowe obejmowałoby szereg czynności tego samego rodzaju; pełnomocnictwo ogólne obejmuje wyłącznie czynności zwykłego zarządu.\\n\\nSkutki działania pełnomocnika. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mocodawcy (art. 95 par. 2 KC). Umowa sprzedaży nieruchomości podpisana przez pełnomocnika działającego w granicach pełnomocnictwa notarialnego jest w pełni skuteczna i przenosi własność nieruchomości na nabywcę.\\n\\nOdwołanie i wygaśnięcie. Mocodawca może w każdym czasie odwołać pełnomocnictwo przez oświadczenie złożone pełnomocnikowi (art. 101 KC). Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, z chwilą odwołania lub po dokonaniu czynności, do której zostało udzielone. Klauzula nieodwołalności jest dopuszczalna jedynie wtedy, gdy umocowanie jest udzielone na czas oznaczony i z uzasadnionych przyczyn (art. 101 par. 1 KC).\\n\\nZakaz działania w imieniu własnym przy konflikcie interesów. Pełnomocnik nie może być drugą stroną czynności prawnej, której dokonuje w imieniu mocodawcy (zakaz samoumowy — art. 108 KC), chyba że mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść mocodawcy.\\n\\nPełnomocnictwo udzielone za granicą. Pełnomocnictwo sporządzone przez notariusza zagranicznego wymaga apostille zgodnie z Konwencją haską z 1961 r. lub legalizacji przez konsula, jeżeli pochodzi z kraju niebędącego stroną tej konwencji. Pełnomocnictwo udzielone przez polskiego konsula za granicą nie wymaga apostille.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest dokumentem wymagającym precyzji. Poniżej opisano najczęstsze błędy.\\n\\nBłąd 1 — pełnomocnictwo w formie pisemnej zamiast notarialnej. Mocodawcy niekiedy udzielają pełnomocnictwa do sprzedaży nieruchomości w zwykłej formie pisemnej, sądząc, że wystarczy podpis na kartce papieru. Takie pełnomocnictwo jest nieważne — art. 99 par. 1 KC w związku z art. 158 KC wymaga bezwzględnie formy aktu notarialnego. Notariusz kupującego odmówi przeprowadzenia transakcji na podstawie nieważnego pełnomocnictwa.\\n\\nBłąd 2 — zbyt ogólny lub zbyt wąski zakres umocowania. Pełnomocnictwo opisujące wyłącznie \\\"prawo do sprzedaży nieruchomości\\\" bez wskazania uprawnień do odbioru ceny, wydania nieruchomości i złożenia wniosku wieczystoksięgowego może nie obejmować wszystkich czynności niezbędnych do przeprowadzenia transakcji. Z drugiej strony pełnomocnictwo ogólne bez wskazania konkretnej nieruchomości jest zbyt szerokie i może być kwestionowane przez notariusza kupującego.\\n\\nBłąd 3 — brak danych pełnomocnika lub nieprawidłowy PESEL. Pełnomocnictwo bez numeru PESEL pełnomocnika lub z błędnymi danymi może uniemożliwić przeprowadzenie transakcji, gdyż notariusz kupującego nie będzie mógł zidentyfikować pełnomocnika.\\n\\nBłąd 4 — nieodwołanie pełnomocnictwa po rezygnacji z transakcji. Jeżeli właściciel zdecyduje się nie sprzedawać nieruchomości lub zaufanie do pełnomocnika ustaje, powinien niezwłocznie odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie. Brak odwołania naraża mocodawcę na ryzyko zawarcia transakcji przez nieuprawnionego pełnomocnika.\\n\\nBłąd 5 — pełnomocnictwo udzielone za granicą bez apostille. Pełnomocnictwo sporządzone przez zagranicznego notariusza wymaga apostille lub legalizacji, aby mogło być uznane przez polskiego notariusza. Brak apostille skutkuje odmową przyjęcia pełnomocnictwa i koniecznością ponownego sporządzenia dokumentu.\\n\\nŹródło: https://forms-legal.com/pl/real-estate/purchase-sale/pelnomocnictwo-do-sprzedazy-nieruchomosci (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "chatcmpl-tool-8f245c86f1823741",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_59934be3675e45c68f5de6d6",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo do zawarcia umowy najmu lokalu form wymagany art 662 KC\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_80d127180b8d40dc8461d9e7",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"umowa najmu\", \"art. 662 KC\", \"pełnomocnictwo najem\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_662\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 662. § 1. Wynajmujący powinien wydać najemcy rzecz w stanie przydatnym do umówionego użytku i utrzymywać ją w takim stanie przez czas trwania najmu. § 2. Drobne nakłady połączone ze zwykłym używaniem rzeczy obciążają najemcę. § 3. Jeżeli rzecz najęta uległa zniszczeniu z powodu okoliczności, za które wynajmujący odpowiedzialności nie ponosi, wynajmujący nie ma obowiązku przywrócenia stanu poprzedniego.\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_14\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 14. 1. W wyroku nakazującym opróżnienie lokalu sąd orzeka o uprawnieniu do zawarcia umowy najmu socjalnego lokalu albo braku takiego uprawnienia wobec osób, których nakaz dotyczy. Obowiązek zapewnienia najmu socjalnego lokalu ciąży na gminie właściwej ze względu na miejsce położenia lokalu podlegającego opróżnieniu. 2. Jeżeli w wyroku orzeczono o uprawnieniu, o którym mowa w ust.  ...\"}, {\"chunk_id\": \"extractor_v9:broad_0046_statute_b522ee4d1ba32a38\", \"source_id\": \"sejm_eli_du_2023_725_art_19m\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"1, zawiera w szczególności: 1) określenie stron, miejsca i daty podpisania umowy; 2) oznaczenie przedmiotu umowy; 3) czynsz najmu, opłaty niezależne od właściciela oraz inne opłaty związane z korzystaniem z lokalu mieszkalnego; 4) cenę sprzedaży lokalu mieszkalnego; 5) harmonogram określający wysokość i terminy płatności poszczególnych rat ceny sprzedaży; 6) zobowiązanie właściciela do przeniesienia prawa własności lokalu mieszkalnego wraz z prawami niezbędnymi do korzystania z tego lokalu po zapłaceniu całej ceny; 7) zobowiązanie najemcy do zapłaty całej ceny za lokal mieszkalny w sposób okre ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19f. 1. Umową najmu instytucjonalnego lokalu jest umowa najmu lokalu mieszkalnego zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną niebędącą osobą prawną, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali. 2. Umowa najmu instytucjonalnego lokalu zawierana jest na czas oznaczony. Przepisu art. 661 § 1 ustawy z dnia 23 kwietnia 1964 r. - Kodek ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_660\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 660. Umowa najmu nieruchomości lub pomieszczenia na czas dłuższy niż rok powinna być zawarta na piśmie. W razie niezachowania tej formy poczytuje się umowę za zawartą na czas nieoznaczony.\"}]",
+   "tool_call_id": "call_59934be3675e45c68f5de6d6",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_725_art_19k\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19k. 1. Umową najmu instytucjonalnego z dojściem do własności jest umowa najmu lokalu mieszkalnego, dla którego została założona księga wieczysta, zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną nieposiadającą osobowości prawnej, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali, będącą właścicielem lokalu mieszkalnego, zawierająca zobowiąz ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19f. 1. Umową najmu instytucjonalnego lokalu jest umowa najmu lokalu mieszkalnego zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną niebędącą osobą prawną, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali. 2. Umowa najmu instytucjonalnego lokalu zawierana jest na czas oznaczony. Przepisu art. 661 § 1 ustawy z dnia 23 kwietnia 1964 r. - Kodek ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0375_statute_e975e76a5a8a99fb\", \"source_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 19f. 1. Umową najmu instytucjonalnego lokalu jest umowa najmu lokalu mieszkalnego zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną niebędącą osobą prawną, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali. 2. Umowa najmu instytucjonalnego lokalu zawierana jest na czas oznaczony. Przepisu art. 661 § 1 ustawy z dnia 23 kwietnia 1964 r. - Kodeks cywilny nie stosuje się. 3 11) Ze zmianą wprowadzoną przez art. 2 ustawy z dnia 29 września 2022 r. o zmianie niektórych ustaw wspierających poprawę warunków mieszkaniowych (Dz. U. poz. 2456), która weszła w ży ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_660\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 660. Umowa najmu nieruchomości lub pomieszczenia na czas dłuższy niż rok powinna być zawarta na piśmie. W razie niezachowania tej formy poczytuje się umowę za zawartą na czas nieoznaczony.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_678\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 678. § 1. W razie zbycia rzeczy najętej w czasie trwania najmu nabywca wstępuje w stosunek najmu na miejsce zbywcy; może jednak wypowiedzieć najem z zachowaniem ustawowych terminów wypowiedzenia. § 2. Powyższe uprawnienie do wypowiedzenia najmu nie przysługuje nabywcy, jeżeli umowa najmu była zawarta na czas oznaczony z zachowaniem formy pisemnej i z datą pewną, a rzecz została najemcy wydana.\"}]",
+   "tool_call_id": "call_80d127180b8d40dc8461d9e7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "Now I have the base template for a power of attorney for sale of real estate, and I found some relevant statutory provisions about lease agreements (umowa najmu). Let me search for more specific information about power of attorney for lease agreements, particularly regarding the form requirements. The key question is: does a power of attorney for entering into a lease agreement need to be in notarial form?\n\nAccording to Art. 99 § 1 KC, if a legal act requires a special form for validity, the power of attorney must be granted in the same form. For lease agreements:\n- Art. 660 KC: lease of real estate or premises for longer than 1 year should be in writing (pisemna forma), but failure to observe this form doesn't make it invalid - it just makes it an indefinite-term lease\n- So the written form is not a \"form under pain of nullity\" (forma pod rygorem nieważności) but rather a \"form for legal effects\" (forma ad probationem / forma ad validitatem with consequences)\n\nThis means a power of attorney for entering into a lease agreement does NOT need to be in notarial form - it can be in ordinary written form (or even oral, though written is recommended for evidence).\n\nLet me search for more specific guidance on power of attorney for lease agreements.",
+   "tool_calls": [
+    {
+     "id": "call-927de3e1-9d62-4641-83f8-6df62960a7a7",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 5, \"query\": \"pełnomocnictwo do zawarcia umowy najmu lokalu forma pisemna art 99 KC\"}"
+     }
+    },
+    {
+     "id": "call-0ff1402c-b139-4864-b451-76c12aff9c14",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"pełnomocnictwo szczególne\", \"art. 98 KC\", \"art. 99 KC\", \"substytucja\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_660\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 660. Umowa najmu nieruchomości lub pomieszczenia na czas dłuższy niż rok powinna być zawarta na piśmie. W razie niezachowania tej formy poczytuje się umowę za zawartą na czas nieoznaczony.\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19g\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19g. 1. Umowa najmu instytucjonalnego lokalu oraz zmiany tej umowy wymagają formy pisemnej pod rygorem nieważności. 2. Wynagrodzenie notariusza za sporządzenie oświadczenia, o którym mowa w art. 19f ust. 3, wynosi nie więcej niż 1/10 minimalnego wynagrodzenia za pracę, o którym mowa w ustawie z dnia 10 października 2002 r. o minimalnym wynagrodzeniu za pracę .\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 19f. 1. Umową najmu instytucjonalnego lokalu jest umowa najmu lokalu mieszkalnego zawierana przez osobę fizyczną, osobę prawną lub jednostkę organizacyjną niebędącą osobą prawną, prowadzącą działalność gospodarczą w zakresie wynajmowania lokali. 2. Umowa najmu instytucjonalnego lokalu zawierana jest na czas oznaczony. Przepisu art. 661 § 1 ustawy z dnia 23 kwietnia 1964 r. - Kodek ...\"}, {\"chunk_id\": \"extractor_v9:broad_0012_statute_afa0e2c4bf3abe3e\", \"source_id\": \"sejm_eli_du_2023_725_art_19f\", \"source_type\": \"statute\", \"top_category\": \"consumer_rights\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Do umowy najmu instytucjonalnego lokalu załącza się oświadczenie najemcy w formie aktu notarialnego, w którym najemca poddał się egzekucji i zobowiązał się do opróżnienia i wydania lokalu używanego na podstawie umowy najmu instytucjonalnego lokalu w terminie wskazanym w żądaniu, o którym mowa w art. 19i ust. 2, oraz przyjął do wiadomości, że w razie konieczności wykonania powyższego zobowiązania prawo do najmu socjalnego lokalu ani pomieszczenia tymczasowego nie przysługuje. 4. Zawarcie umowy najmu instytucjonalnego lokalu może być uzależnione od wpłacenia przez najemcę kaucji zabezpieczającej ...\"}]",
+   "tool_call_id": "call-927de3e1-9d62-4641-83f8-6df62960a7a7",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_465\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 465. § 1. Pełnomocnikiem pracownika lub ubezpieczonego może być również przedstawiciel związku zawodowego lub inspektor pracy albo pracownik zakładu pracy, w którym mocodawca jest lub był zatrudniony, a ubezpieczonego - także przedstawiciel organizacji zrzeszającej emerytów i rencistów. § 1 1 . Pełnomocnikiem pracodawcy niebędącego osobą prawną lub przedsiębiorcą albo organu rentowego może być również jego pracownik. Pełnomoc ...\"}]",
+   "tool_call_id": "call-0ff1402c-b139-4864-b451-76c12aff9c14",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Pełnomocnictwo do zawarcia umowy najmu lokalu\n\nJa niżej podpisany/a:\n\n**Mocodawca**\nImię i nazwisko: ..............................................................................................................................\nNumer PESEL: ..............................................................................................................................\nSeria i numer dowodu osobistego: ..............................................................................................................................\nAdres zamieszkania: ..............................................................................................................................\n\nudzielam pełnomocnictwa:\n\n**Pełnomocnikowi**\nImię i nazwisko: ..............................................................................................................................\nNumer PESEL: ..............................................................................................................................\nSeria i numer dowodu osobistego: ..............................................................................................................................\nAdres zamieszkania: ..............................................................................................................................\n\ndo dokonania w moim imieniu i na moją korzyść następujących czynności prawnych:\n\n## 1. Przedmiot pełnomocnictwa\nPełnomocnictwo dotyczy zawarcia umowy najmu lokalu mieszkalnego / lokalu użytkowego * (niepotrzebne skreślić) położonego w:\n\nMiasto: ..............................................................................................................................\nUlica i numer domu/lokalu: ..............................................................................................................................\nNumer działki ewidencyjnej: ..............................................................................................................................\nObręb ewidencyjny: ..............................................................................................................................\nNumer księgi wieczystej (jeśli prowadzona): ..............................................................................................................................\nSąd Rejonowy prowadzący księgę wieczystą: ..............................................................................................................................\n\n## 2. Zakres upoważnienia\nPełnomocnik jest uprawniony do:\n1) zawarcia w moim imieniu umowy najmu powyższego lokalu na czas oznaczony / nieoznaczony * (niepotrzebne skreślić) na warunkach, które uważa za odpowiednie, w tym ustalenia czynszu, kaucji, terminów płatności oraz pozostałych postanowień umowy;\n2) składania wszelkich oświadczeń woli niezbędnych do zawarcia, zmiany lub rozstrzygnięcia umowy najmu;\n3) odbioru lokalu od wynajmującego oraz podpisania protokołu odbiorowo-zwrotnego;\n4) wpłacenia kaucji oraz pierwszych opłat wynajmu (czynszu, opłat eksploatacyjnych, zaliczek na media) zgodnie z umową;\n5) złożenia wniosku o wpis do rejestru gruntów lub księgi wieczystej uprawnienia z najmu (jeśli umowa na tak uprawnia);\n6) reprezentowania mnie przed organami administracji publicznej, wspólnotami mieszkaniowymi oraz podmiotami usługowymi (media, telekomunikacja) w sprawach związanych z najmem lokalu;\n7) podpisania aneksów do umowy najmu, w tym aneksów zmieniających czynsz, przedłużających okres najmu lub zmieniających inne warunki.\n\n## 3. Forma pełnomocnictwa\nPełnomocnictwo to udzielone jest w formie pisemnej, zgodnie z art. 99 § 1 Kodeksu cywilnego w związku z art. 660 Kodeksu cywilnego, który stanowi, że umowa najmu nieruchomości lub pomieszczenia na czas dłuższy niż rok powinna być zawarta na piśmie. Ponieważ umowa najmu wymaga formy pisemnej, pełnomocnictwo do jej zawarcia również powinno zostać udzielone w formie pisemnej.\n\n## 4. Rodzaj pełnomocnictwa\nNiniejsze pełnomocnictwo jest pełnomocnictwem szczególnym w rozumieniu art. 98 § 1 Kodeksu cywilnego, gdyż dotyczy konkretnej czynności prawnej — zawarcia umowy najmu określonego lokalu.\n\n## 5. Substytucja (dalsze pełnomocnictwo)\nPełnomocnik *ma / nie ma* (niepotrzebne skreślić) prawo udzielania dalszych pełnomocnictw (substytucji) innym osobom w zakresie niniejszego upoważnienia. W przypadku udzielenia substytucji, pełnomocnik powinien powiadomić mnie o tym fakcie w formie pisemnej.\n\n## 6. Okres ważności i wygaśnięcie\nNiniejsze pełnomocnictwo wchodzi w życie z dniem jego podpisania i pozostaje w mocy do momentu:\n1) zawarcia umowy najmu lokalu i dokonania przez pełnomocnika wszystkich czynności określonych w § 2, lub\n2) odwołania pełnomocnictwa przez mocodawcę, lub\n3) śmierci mocodawcy lub pełnomocnika, lub\n4) upływu ................ miesięcy od dnia podpisania (jeśli strony ustalą termin).\n\n## 7. Odwołanie pełnomocnictwa\nZgodnie z art. 101 Kodeksu cywilnego, mogę odwołać niniejsze pełnomocnictwo w każdym czasie poprzez złożenie pełnomocnikowi pisemnego oświadczenia o odwołaniu. Odwołanie staje się skuteczne z chwilą doręczenia oświadczenia pełnomocnikowi.\n\n## 8. Zakaz samoumowy\nPełnomocnik nie może być drugą stroną czynności prawnej, którą dokonuje w moim imieniu (zakaz samoumowy — art. 108 Kodeksu cywilnego), chyba że wyraźnie na to zezwolę lub czynność jest wyłącznie na moją korzyść.\n\n## 9. Odpowiedzialność pełnomocnika\nPełnomocnik zobowiązany jest działać z starannością dobryego gospodarza i w moim najlepszym interesie. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mnie (art. 95 § 2 Kodeksu cywilnego).\n\n## 10. Koszty\nWszelkie koszty związane z realizacją niniejszego pełnomocnictwa, w tym opłaty urzędowe, koszty podróży, kaucję i czynsz pokrywa mocodawca, chyba że strony ustalą inaczej.\n\n## 11. Przepisy końcowe\n1. Niniejsze pełnomocnictwo sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n2. W sprawach nieuregulowanych niniejszym pełnomocnictwem mają zastosowanie przepisy Kodeksu cywilnego dotyczące pełnomocnictwa (art. 95–109 KC).\n3. Zmiany niniejszego pełnomocnictwa wymagają formy pisemnej pod rygorem nieważności.\n\n.............................................................................., dnia ..............................................................................\n\n................................................................................\n(Podpis Mocodawcy)\n\n................................................................................\n(Podpis Pełnomocnika — potwierdzenie przyjęcia pełnomocnictwa)\n\n---\n\n**UWAGI DO WYPEŁNIANIA:**\n1. Pełnomocnictwo do zawarcia umowy najmu na czas dłuższy niż 1 rok musi być udzielone w formie pisemnej (art. 99 § 1 KC w zw. z art. 660 KC). Dla najmu do 1 roku forma pisemna nie jest wymogiem ważności, jednak zalecana dla dowodowości.\n2. Jeśli umowa najmu ma dotyczyć najmu instytucjonalnego (art. 19f ustawy o ochronie praw lokatorów), umowa najmu wymaga formy pisemnej pod rygorem nieważności (art. 19g ust. 1), co również uzasadnia formę pisemną pełnomocnictwa.\n3. Pełnomocnictwo nie wymaga formy aktu notarialnego, ponieważ umowa najmu (w przeciwieństwie do sprzedaży nieruchomości) nie wymaga formy aktu notarialnego.\n4. Przedmiot pełnomocnictwa (lokal) musi być opisany precyzyjnie — adres, numer KW, działka ewidencyjna — aby ograniczyć zakres upoważnienia do konkretnej nieruchomości.\n5. Zaleca się określenie, czy pełnomocnik ma prawo do substytucji (art. 100 KC).\n6. Mocodawca powinien zachować jeden egzemplarz, a drugi przekazać pełnomocnikowi.\n7. Po zawarciu umowy najmu i zrealizowaniu upoważnienia, mocodawca powinien odwołać pełnomocnictwo pisemnie, aby zapobiec dalszemu działaniu pełnomocnika.\n\n*Fundament prawny: art. 95–109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 2024 poz. 1061 ze zm.), art. 660, 662 Kodeksu cywilnego, ustawa z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego (Dz.U. 2023 poz. 725 ze zm.).*",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Pełnomocnictwo do zawarcia umowy najmu lokalu\n\nJa niżej podpisany/a:\n\n**Mocodawca**\nImię i nazwisko: ..............................................................................................................................\nNumer PESEL: ..............................................................................................................................\nSeria i numer dowodu osobistego: ..............................................................................................................................\nAdres zamieszkania: ..............................................................................................................................\n\nudzielam pełnomocnictwa:\n\n**Pełnomocnikowi**\nImię i nazwisko: ..............................................................................................................................\nNumer PESEL: ..............................................................................................................................\nSeria i numer dowodu osobistego: ..............................................................................................................................\nAdres zamieszkania: ..............................................................................................................................\n\ndo dokonania w moim imieniu i na moją korzyść następujących czynności prawnych:\n\n## 1. Przedmiot pełnomocnictwa\nPełnomocnictwo dotyczy zawarcia umowy najmu lokalu mieszkalnego / lokalu użytkowego * (niepotrzebne skreślić) położonego w:\n\nMiasto: ..............................................................................................................................\nUlica i numer domu/lokalu: ..............................................................................................................................\nNumer działki ewidencyjnej: ..............................................................................................................................\nObręb ewidencyjny: ..............................................................................................................................\nNumer księgi wieczystej (jeśli prowadzona): ..............................................................................................................................\nSąd Rejonowy prowadzący księgę wieczystą: ..............................................................................................................................\n\n## 2. Zakres upoważnienia\nPełnomocnik jest uprawniony do:\n1) zawarcia w moim imieniu umowy najmu powyższego lokalu na czas oznaczony / nieoznaczony * (niepotrzebne skreślić) na warunkach, które uważa za odpowiednie, w tym ustalenia czynszu, kaucji, terminów płatności oraz pozostałych postanowień umowy;\n2) składania wszelkich oświadczeń woli niezbędnych do zawarcia, zmiany lub rozstrzygnięcia umowy najmu;\n3) odbioru lokalu od wynajmującego oraz podpisania protokołu odbiorowo-zwrotnego;\n4) wpłacenia kaucji oraz pierwszych opłat wynajmu (czynszu, opłat eksploatacyjnych, zaliczek na media) zgodnie z umową;\n5) złożenia wniosku o wpis do rejestru gruntów lub księgi wieczystej uprawnienia z najmu (jeśli umowa na tak uprawnia);\n6) reprezentowania mnie przed organami administracji publicznej, wspólnotami mieszkaniowymi oraz podmiotami usługowymi (media, telekomunikacja) w sprawach związanych z najmem lokalu;\n7) podpisania aneksów do umowy najmu, w tym aneksów zmieniających czynsz, przedłużających okres najmu lub zmieniających inne warunki.\n\n## 3. Forma pełnomocnictwa\nPełnomocnictwo to udzielone jest w formie pisemnej, zgodnie z art. 99 § 1 Kodeksu cywilnego w związku z art. 660 Kodeksu cywilnego, który stanowi, że umowa najmu nieruchomości lub pomieszczenia na czas dłuższy niż rok powinna być zawarta na piśmie. Ponieważ umowa najmu wymaga formy pisemnej, pełnomocnictwo do jej zawarcia również powinno zostać udzielone w formie pisemnej.\n\n## 4. Rodzaj pełnomocnictwa\nNiniejsze pełnomocnictwo jest pełnomocnictwem szczególnym w rozumieniu art. 98 § 1 Kodeksu cywilnego, gdyż dotyczy konkretnej czynności prawnej — zawarcia umowy najmu określonego lokalu.\n\n## 5. Substytucja (dalsze pełnomocnictwo)\nPełnomocnik *ma / nie ma* (niepotrzebne skreślić) prawo udzielania dalszych pełnomocnictw (substytucji) innym osobom w zakresie niniejszego upoważnienia. W przypadku udzielenia substytucji, pełnomocnik powinien powiadomić mnie o tym fakcie w formie pisemnej.\n\n## 6. Okres ważności i wygaśnięcie\nNiniejsze pełnomocnictwo wchodzi w życie z dniem jego podpisania i pozostaje w mocy do momentu:\n1) zawarcia umowy najmu lokalu i dokonania przez pełnomocnika wszystkich czynności określonych w § 2, lub\n2) odwołania pełnomocnictwa przez mocodawcę, lub\n3) śmierci mocodawcy lub pełnomocnika, lub\n4) upływu ................ miesięcy od dnia podpisania (jeśli strony ustalą termin).\n\n## 7. Odwołanie pełnomocnictwa\nZgodnie z art. 101 Kodeksu cywilnego, mogę odwołać niniejsze pełnomocnictwo w każdym czasie poprzez złożenie pełnomocnikowi pisemnego oświadczenia o odwołaniu. Odwołanie staje się skuteczne z chwilą doręczenia oświadczenia pełnomocnikowi.\n\n## 8. Zakaz samoumowy\nPełnomocnik nie może być drugą stroną czynności prawnej, którą dokonuje w moim imieniu (zakaz samoumowy — art. 108 Kodeksu cywilnego), chyba że wyraźnie na to zezwolę lub czynność jest wyłącznie na moją korzyść.\n\n## 9. Odpowiedzialność pełnomocnika\nPełnomocnik zobowiązany jest działać z starannością dobryego gospodarza i w moim najlepszym interesie. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mnie (art. 95 § 2 Kodeksu cywilnego).\n\n## 10. Koszty\nWszelkie koszty związane z realizacją niniejszego pełnomocnictwa, w tym opłaty urzędowe, koszty podróży, kaucję i czynsz pokrywa mocodawca, chyba że strony ustalą inaczej.\n\n## 11. Przepisy końcowe\n1. Niniejsze pełnomocnictwo sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n2. W sprawach nieuregulowanych niniejszym pełnomocnictwem mają zastosowanie przepisy Kodeksu cywilnego dotyczące pełnomocnictwa (art. 95–109 KC).\n3. Zmiany niniejszego pełnomocnictwa wymagają formy pisemnej pod rygorem nieważności.\n\n.............................................................................., dnia ..............................................................................\n\n................................................................................\n(Podpis Mocodawcy)\n\n................................................................................\n(Podpis Pełnomocnika — potwierdzenie przyjęcia pełnomocnictwa)\n\n---\n\n**UWAGI DO WYPEŁNIANIA:**\n1. Pełnomocnictwo do zawarcia umowy najmu na czas dłuższy niż 1 rok musi być udzielone w formie pisemnej (art. 99 § 1 KC w zw. z art. 660 KC). Dla najmu do 1 roku forma pisemna nie jest wymogiem ważności, jednak zalecana dla dowodowości.\n2. Jeśli umowa najmu ma dotyczyć najmu instytucjonalnego (art. 19f ustawy o ochronie praw lokatorów), umowa najmu wymaga formy pisemnej pod rygorem nieważności (art. 19g ust. 1), co również uzasadnia formę pisemną pełnomocnictwa.\n3. Pełnomocnictwo nie wymaga formy aktu notarialnego, ponieważ umowa najmu (w przeciwieństwie do sprzedaży nieruchomości) nie wymaga formy aktu notarialnego.\n4. Przedmiot pełnomocnictwa (lokal) musi być opisany precyzyjnie — adres, numer KW, działka ewidencyjna — aby ograniczyć zakres upoważnienia do konkretnej nieruchomości.\n5. Zaleca się określenie, czy pełnomocnik ma prawo do substytucji (art. 100 KC).\n6. Mocodawca powinien zachować jeden egzemplarz, a drugi przekazać pełnomocnikowi.\n7. Po zawarciu umowy najmu i zrealizowaniu upoważnienia, mocodawca powinien odwołać pełnomocnictwo pisemnie, aby zapobiec dalszemu działaniu pełnomocnika.\n\n*Fundament prawny: art. 95–109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 2024 poz. 1061 ze zm.), art. 660, 662 Kodeksu cywilnego, ustawa z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego (Dz.U. 2023 poz. 725 ze zm.).*",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dać komuś pełnomocnictwo, żeby podpisał za mnie umowę najmu mieszkania, bo sam nie mogę tam osobiście pojechać. Musi to być na piśmie i dotyczyć konkretnego lokalu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam do wynajęcia mieszkanie w innym mieście i nie mogę osobiście jechać podpisać umowy, więc chcę upoważnić mojego brata, żeby zrobił to za mnie. Chodzi o konkretny lokal na ul. Kwiatkowej 15, umowę na czas oznaczony, a pełnomocnik ma też odebrać klucze, wpłacić kaucję i pierwszy czynsz, a nawet podpisywać ewentualne aneksy. Ważne, żeby dokument był na piśmie i mógł go odwołać w każdej chwili."
+  }
+ ]
+}

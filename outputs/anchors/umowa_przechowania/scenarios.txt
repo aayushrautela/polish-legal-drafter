@@ -1,0 +1,62 @@
+Przechowanie mebli podczas remontu u sąsiada (nieodpłatne)
+Przechowanie roweru przez zimę u znajomego
+Przechowanie rzeczy w profesjonalnym składzie (odpłatne)
+Przechowanie samochodu w garażu strzeżonym
+Przechowanie dzieła sztuki w depozycie muzeum
+Przechowanie towaru w magazynie logistycznym
+Przechowanie bagażu na dworcu (skład przedsiębiorcy)
+Przechowanie dokumentów w sejfie bankowym
+Przechowanie zwierzęcia (koń) w stajni
+Przechowanie sprzętu budowlanego na placu
+Przechowanie z wynagrodzeniem za każdy dzień
+Przechowanie nieodpłatne z klauzulą odpowiedzialności
+Przechowanie z obowiązkiem ubezpieczenia rzeczy
+Przechowanie z zakazem używania rzeczy przez przechowawcę
+Przechowanie z pokwitowaniem (dowód złożenia)
+Przechowanie z odpowiedzialnością za utratę (art. 714 KC)
+Przechowanie z odpowiedzialnością ograniczoną do winy umyślnej
+Przechowanie z prawem żądania zwrotu w każdym czasie
+Przechowanie z terminem oznaczonym (do końca remontu)
+Przechowanie z obowiązkiem zwrotu w stanie niepogorszonym
+Przechowanie z kosztami dodatkowymi (konserwacja)
+Przechowanie rzeczy niebezpiecznej (materiały łatwopalne)
+Przechowanie z zabezpieczeniem (zastaw przechowawczy)
+Przechowanie z prawem zaspokojenia z rzeczy (zatrzymanie)
+Przechowanie z odpowiedzialnością za wady rzeczy własnej
+Przechowanie z obowiązkiem powiadomienia o zagrożeniu
+Przechowanie z możliwością wydania osobie upoważnionej
+Przechowanie z przekazaniem kluczy i protokołem
+Przechowanie z odpowiedzialnością za szkodę od siły wyższej wyłączoną
+Przechowanie z ustaleniem wartości rzeczy
+Przechowanie z karą za nieterminowy zwrot
+Przechowanie z obowiązkiem ochrony (ochrona fizyczna)
+Przechowanie z możliwością przedłużenia terminu
+Przechowanie z odpowiedzialnością solidarną współprzechowawców
+Przechowanie z wymogiem ubezpieczenia od kradzieży
+Przechowanie z zakazem wydania bez pokwitowania
+Przechowanie z obowiązkiem prowadzenia ewidencji
+Przechowanie z prawem używania za zgodą składającego
+Przechowanie z odstępnym wynagrodzeniem miesięcznym
+Przechowanie z protokołem stanu technicznego przy przyjęciu
+Przechowanie z odpowiedzialnością za utratę opakowania
+Przechowanie z możliwością wglądu składającego
+Przechowanie z kosztami transportu na koszt składającego
+Przechowanie z terminem wypowiedzenia 7 dni
+Przechowanie z obowiązkiem segregacji rzeczy
+Przechowanie z odpowiedzialnością za uszkodzenie przez pracownika
+Przechowanie z zabezpieczeniem przeciwpożarowym
+Przechowanie z prawem żądania odszkodowania
+Przechowanie z klauzulą wyłączenia odpowiedzialności za drobne zużycie
+Przechowanie z obowiązkiem wydania w tym samym opakowaniu
+Przechowanie z wynagrodzeniem prowizyjnym od wartości
+Przechowanie z odpowiedzialnością za utratę kluczy
+Przechowanie z możliwością wydania częściowego rzeczy
+Przechowanie z obowiązkiem powiadomienia o roszczeniach osób trzecich
+Przechowanie z terminem zwrotu po zapłaceniu wynagrodzenia
+Przechowanie z odpowiedzialnością za wady ukryte rzeczy
+Przechowanie z prawem zatrzymania do czasu uregulowania opłat
+Przechowanie z obowiązkiem ubezpieczenia OC przechowawcy
+Przechowanie z możliwością przeniesienia do innego składu
+Przechowanie z odpowiedzialnością za utratę rzeczy cudzej w ramach składu
+Przechowanie z prawem kontroli stanu rzeczy przez składającego
+Przechowanie z karą za uszkodzenie rzeczy z winy przechowawcy

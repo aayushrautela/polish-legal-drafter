@@ -1,0 +1,63 @@
+Spółka cywilna dwóch przedsiębiorców z wkładami pieniężnymi po równo
+Spółka cywilna z wkładem niepieniężnym (aparat fotograficzny)
+Spółka cywilna z podziałem zysków w stosunku do wkładów
+Spółka cywilna z podziałem zysków po równo mimo różnych wkładów
+Spółka cywilna z wkładem pracy jednego wspólnika
+Spółka cywilna z reprezentacją łączną (dwaj wspólnicy)
+Spółka cywilna z reprezentacją samodzielną każdego wspólnika
+Spółka cywilna z odpowiedzialnością solidarną wspólników
+Spółka cywilna z ograniczeniem odpowiedzialności nowego wspólnika
+Spółka cywilna między małżonkami (wspólność majątkowa)
+Spółka cywilna z udziałem wspólnika zagranicznego
+Spółka cywilna z wkładem w postaci przedsiębiorstwa
+Spółka cywilna z wkładem w postaci nieruchomości
+Spółka cywilna z wkładem w postaci know-how i znaku towarowego
+Spółka cywilna z czasem trwania określonym na 5 lat
+Spółka cywilna rozwiązana przez wypowiedzenie jednego wspólnika
+Spółka cywilna z wypowiedzeniem 6-miesięcznym
+Spółka cywilna z zasadą rozliczenia wkładów przy wystąpieniu
+Spółka cywilna z podziałem strat proporcjonalnie do wkładów
+Spółka cywilna z zakazem konkurencji wspólników
+Spółka cywilna z obowiązkiem ubezpieczenia działalności
+Spółka cywilna z wkładem w postaci samochodu firmowego
+Spółka cywilna z zarządem powierzonym jednemu wspólnikowi
+Spółka cywilna z prawem kontroli dla wspólnika niezarządzającego
+Spółka cywilna z zyskiem przeznaczonym na kapitał rezerwowy
+Spółka cywilna trzech wspólników z różnymi udziałami
+Spółka cywilna z możliwością przystąpienia nowego wspólnika
+Spółka cywilna z wyłączeniem wspólnika naruszającego umowę
+Spółka cywilna z likwidacją i podziałem majątku
+Spółka cywilna z wpisem do CEIDG każdego wspólnika
+Spółka cywilna z prowadzeniem wspólnego rachunku bankowego
+Spółka cywilna z podziałem zysków co kwartał
+Spółka cywilna z odpowiedzialnością subsydiarną za długi
+Spółka cywilna z wkładem w postaci bazy klientów
+Spółka cywilna z zakazem zbycia udziału bez zgody
+Spółka cywilna z rozwiązaniem na skutek śmierci wspólnika
+Spółka cywilna z kontynuacją przez spadkobierców
+Spółka cywilna z minimalnym wkładem pieniężnym 1000 zł
+Spółka cywilna z ryczałtem podatkowym u wspólników
+Spółka cywilna z podziałem kosztów po równo
+Spółka cywilna z obowiązkiem uzyskania zgody na zaciąganie długów
+Spółka cywilna z oświadczeniem o braku zobowiązań
+Spółka cywilna z wkładem w postaci licencji software
+Spółka cywilna z zasadą jednomyślności przy kluczowych decyzjach
+Spółka cywilna z rozliczeniem nakładów poniesionych przez wspólnika
+Spółka cywilna z odpowiedzialnością za zobowiązania z czynności przekraczających zwykły zarząd
+Spółka cywilna z prawem pierwszeństwa nabycia udziału
+Spółka cywilna z zabezpieczeniem wykonania umowy
+Spółka cywilna z obowiązkiem corocznego sprawozdania
+Spółka cywilna z podziałem zysków po potrąceniu wkładów
+Spółka cywilna z wkładem w postaci maszyn budowlanych
+Spółka cywilna z klauzulą mediacji przy sporach
+Spółka cywilna z ograniczeniem reprezentacji do 10 tys. zł samodzielnie
+Spółka cywilna z możliwością wypłaty zaliczki na zysk
+Spółka cywilna z wkładem w postaci znaku towarowego zagranicznego
+Spółka cywilna z zasadą rozwiązania przy upadłości wspólnika
+Spółka cywilna z obowiązkiem ubezpieczenia mienia wspólnego
+Spółka cywilna z podziałem zysków z uwzględnieniem wkładu pracy
+Spółka cywilna z zasadą rozliczeń miesięcznych
+Spółka cywilna z prawem wystąpienia wspólnika za wypowiedzeniem
+Spółka cywilna z obowiązkiem uzyskania zgody na zbycie udziałów
+Spółka cywilna z wkładem w postaci patentu
+Spółka cywilna z zasadą rozwiązania przy braku zysków przez 2 lata

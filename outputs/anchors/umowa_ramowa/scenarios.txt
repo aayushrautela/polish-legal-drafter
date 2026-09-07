@@ -1,0 +1,61 @@
+Umowa ramowa współpracy z ustaleniem ram dostaw przez rok
+Umowa ramowa z zamówieniami cząstkowymi (call-off orders)
+Umowa ramowa z jednolitym reżimem odpowiedzialności za wady
+Umowa ramowa z karą umowną za opóźnienie w realizacji zamówienia (art. 483 KC)
+Umowa ramowa z odszkodowaniem za nienależyte wykonanie (art. 481 KC)
+Umowa ramowa z klauzulą poufności i ochroną know-how
+Umowa ramowa z wyłącznością terytorialną na terenie Polski
+Umowa ramowa z wyłącznością dostawcy na rzecz odbiorcy
+Umowa ramowa z czasem trwania 24 miesiące i automatycznym przedłużeniem
+Umowa ramowa z wypowiedzeniem bez wypowiedzenia przy rażącym naruszeniu
+Umowa ramowa z siłą wyższą (force majeure) wyłączającą odpowiedzialność
+Umowa ramowa z cenami stałymi przez 6 miesięcy (waloryzacja indeksem)
+Umowa ramowa z mechanizmem indeksacji cen (wskaźnik WSK)
+Umowa ramowa z rękojmią za wady (art. 554 KC) 12 miesięcy
+Umowa ramowa z gwarancją jakości i obsługą posprzedażową
+Umowa ramowa z terminem płatności 30 dni za każde zamówienie
+Umowa ramowa z przedawnieniem roszczeń (art. 118 KC) 3 lata
+Umowa ramowa z minimalnym wolumenem zamówień (take-or-pay)
+Umowa ramowa z maksymalnym limitem zamówień w miesiącu
+Umowa ramowa z prawem pierwszeństwa negocjacji nowych zamówień
+Umowa ramowa z podwykonawstwem za zgodą zamawiającego
+Umowa ramowa z zakazem cesji praw bez zgody
+Umowa ramowa z rozliczeniami netting (potrącenia wzajemne)
+Umowa ramowa z walutą rozliczeniową EUR i kursem fixingu
+Umowa ramowa z trybem składania zamówień (e-mail/EDI)
+Umowa ramowa z akceptacją zamówienia w ciągu 2 dni roboczych
+Umowa ramowa z karą za odstąpienie od zamówienia cząstkowego
+Umowa ramowa z odstąpieniem od umowy przy niewykonaniu 3 zamówień
+Umowa ramowa z zastrzeżeniem własności rzeczy do zapłaty
+Umowa ramowa z ubezpieczeniem przedmiotu dostawy
+Umowa ramowa z dostawą just-in-time (JIT) do magazynu odbiorcy
+Umowa ramowa z konsygnacją jako elementem (magazyn u odbiorcy)
+Umowa ramowa z prawem kontroli jakości przez zamawiającego
+Umowa ramowa z audytem rocznym wykonania (SLA)
+Umowa ramowa z poziomem serwisu (SLA) i karami za niedotrzymanie
+Umowa ramowa z rozwiązaniem polubownym sporów (mediacja)
+Umowa ramowa z sądem właściwym i językiem rozliczeń
+Umowa ramowa z klauzulą najwyższego uprzywilejowania (MFC)
+Umowa ramowa z tajemnicą przedsiębiorstwa i karą umowną
+Umowa ramowa z okresem przejściowym (wind-down) po wypowiedzeniu
+Umowa ramowa z obowiązkiem informowania o zmianie sytuacji finansowej
+Umowa ramowa z zabezpieczeniem w postaci gwarancji bankowej
+Umowa ramowa z zaliczką na poczet zamówień
+Umowa ramowa z podziałem odpowiedzialności za wady wspólne
+Umowa ramowa z prawem do zmiany specyfikacji zamówienia
+Umowa ramowa z ekologicznymi wymogami (zrównoważony rozwój)
+Umowa ramowa z obowiązkiem szkoleń dla personelu odbiorcy
+Umowa ramowa z własnością intelektualną (IP) wytworzoną przy współpracy
+Umowa ramowa z sublicencją praw do oprogramowania
+Umowa ramowa z zakazem konkurencji dla stron
+Umowa ramowa z terminem dostawy liczonym od daty zlecenia
+Umowa ramowa z minimalnym okresem wypowiedzenia 90 dni
+Umowa ramowa z modyfikacją wynagrodzenia za inflację
+Umowa ramowa z rozliczaniem comiesięcznym (miesięczny statement)
+Umowa ramowa z odpowiedzialnością solidarną za podwykonawców
+Umowa ramowa z prawem do inspekcji zakładu dostawcy
+Umowa ramowa z klauzulą zmiany kontroli (change of control)
+Umowa ramowa z minimalnym zamówieniem jednostkowym (MOQ)
+Umowa ramowa z elektronicznym obiegiem dokumentów (e-faktura)
+Umowa ramowa z wygaśnięciem po wykonaniu ostatniego zamówienia
+Umowa ramowa z karą za nieterminowe przekazanie dokumentacji technicznej

@@ -1,0 +1,17 @@
+{
+ "run": 17,
+ "hint": "Dzierżawa z udziałem współwłaścicieli (zgoda wszystkich)",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć mieszkanie, które jest współwłasnością moją i mojej siostry. Potrzebuję umowy dzierżawy, która będzie zawierać zgodę obu współwłaścicieli."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Posiadam lokal użytkowy wspólnie z dwoma brakami. Chcemy go wynająć na dłuższy czas, ale potrzebujemy umowy, która będzie zawierać zgodę wszystkich trzech współwłaścicieli. Zależy nam na tym, aby każdy z nas miał określone prawa i obowiązki względem najemcy, a także żeby w przypadku ewentualnych problemów wszyscy odpowiadali razem. Czy jest możliwość przygotowania takiego dokumentu?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_dzierzawy\", \"query\": \"dzierżawa z udziałem współwłaścicieli zgoda wszystkich\"})\\nRESULT: [{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa o współwłasność autorskich praw majątkowych\\nUmowa o współwłasność autorskich praw majątkowych w Polsce to umowa regulująca stosunki między dwoma lub więcej podmiotami, którym przysługują autorskie prawa majątkowe do wspólnie stworzonego utworu — stanowiące tzw. twórczość łączną lub twórczość współtwórców. Podstawą prawną jest art. 9 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 1994 nr 24 poz. 83 ze zm., dalej pr. aut.) oraz art. 353¹ Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.).\\n\\nZgodnie z art. 9 ust. 1 pr. aut. współtwórcom przysługuje prawo autorskie wspólnie, a domniemywa się, że wielkości udziałów są równe. Każdy ze współtwórców może wykonywać prawo autorskie do swojej części, jeżeli da się ją wyodrębnić, bez uszczerbku dla praw pozostałych. Art. 9 ust. 3 pr. aut. stanowi natomiast, że do wykonywania prawa autorskiego do całości w zakresie przekraczającym zwykły zarząd potrzebna jest zgoda wszystkich współtwórców. Brak zgody może być zastąpiony wyrokiem sądu.\\n\\nWspółwłasność autorskich praw majątkowych powstaje przede wszystkim w trzech sytuacjach. Po pierwsze, gdy utwór jest wynikiem wspólnej pracy twórczej kilku osób — najczęściej w projektach IT, gdzie programiści wspólnie piszą kod, lub w projektach graficznych, gdzie kilku artystów tworzy identyfikację wizualną. Po drugie, gdy prawa do jednego utworu zostały zbyte na kilku nabywców w częściach ułamkowych. Po trzecie, w wyniku dziedziczenia, gdy prawa autorskie po śmierci twórcy przechodzą na kilku spadkobierców.\\n\\nPraktycznym problem współwłasności jest zarządzanie"
+}

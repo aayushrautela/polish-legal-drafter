@@ -1,0 +1,320 @@
+{
+ "run": 27,
+ "hint": "Pełnomocnictwo do odbioru dokumentów i zaświadczeń",
+ "scenario": "Pełnomocnictwo do odbioru dokumentów i zaświadczeń",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a power of attorney (pełnomocnictwo) for receiving documents and certificates (odbioru dokumentów i zaświadczeń). I need to:\n\n1. First read the base template for \"pelnomocnictwo\"\n2. Then search for relevant provisions related to receiving documents and certificates\n\nLet me start with the base template.",
+   "tool_calls": [
+    {
+     "id": "call-f01b059d-64f2-4b74-846a-f2be8512ceab",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\", \"query\": \"do odbioru dokumentów i zaświadczeń\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Upoważnienie do odbioru dokumentów\\nUpoważnienie do odbioru dokumentów w Polsce to szczególny rodzaj pełnomocnictwa jednostronnego, na mocy którego mocodawca (upoważniający) upoważnia inną osobę (upoważnionego) do odbioru określonych dokumentów w jego imieniu z wskazanej instytucji lub urzędu. Podstawą prawną jest art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) regulujący instytucję pełnomocnictwa.\\n\\nZgodnie z art. 95 § 1 Kodeksu cywilnego, z zastrzeżeniem wyjątków w ustawie przewidzianych albo wynikających z właściwości czynności prawnej, można dokonać czynności prawnej przez przedstawiciela. Odbiór dokumentów jest czynnością faktyczno-prawną, do której stosuje się przepisy o pełnomocnictwie. Pełnomocnictwo rodzajowe (art. 98 Kodeksu cywilnego) obejmuje umocowanie do dokonywania czynności prawnych określonego rodzaju — np. do odbioru dokumentów z konkretnej kategorii spraw.\\n\\nUpoważnienie do odbioru dokumentów jest jednym z najczęściej używanych dokumentów w polskim życiu codziennym i administracyjnym. Polacy korzystają z niego przy odbiorze dokumentów z urzędów administracji publicznej (starostw, urzędów gmin, urzędów miast, Urzędów Stanu Cywilnego), placówek medycznych (szpitali, przychodni, poradni), instytucji edukacyjnych (szkół podstawowych, liceów, techników, uczelni wyższych, w tym Politechniki Warszawskiej, Szkoły Głównej Handlowej, Uniwersytetu Jagiellońskiego), sądów (Sąd Rejonowy, Sąd Okręgowy), organów rejestrowych (Krajowy Rejestr Sądowy — KRS, Urząd Patentowy RP — UPRP), urzędów skarbowych Krajowej Administracji Skarbowej (KAS) i Zakładu Ubezpieczeń Społecznych (ZUS).\\n\\nForma prawna upoważnienia do odbioru dokumentów jest elastyczna. Większość urzędów i instytucji przyjmuje zwykłe upoważnienie pisemne z własnoręcznym podpisem mocodawcy. Niektóre instytucje — np. sądy, notariusze, organy rejestrowe — mogą wymagać notarialnego poświadczenia podpisu mocodawcy lub pełnomocnictwa notarialnego. Przy odbiorze dokumentów z ksiąg wieczystych Sąd Rejonowy może żądać formy szczególnej.\\n\\nW postępowaniu administracyjnym regulowanym przez Kodeks postępowania administracyjnego (KPA, ustawa z dnia 14 czerwca 1960 r.) art. 32-33 KPA przewidują możliwość działania strony przez pełnomocnika. Pełnomocnictwo w postępowaniu administracyjnym powinno być złożone na piśmie lub ustnie do protokołu — organ administracyjny (np. starosta, wójt, burmistrz, prezydent miasta) dołącza pełnomocnictwo do akt sprawy. Opłata skarbowa za pełnomocnictwo (17 zł) jest uiszczana na rachunek właściwej gminy.\\n\\nUpoważnienie jednorazowe (na konkretny odbiór) jest najprostszą i najbezpieczniejszą formą — wyklucza ryzyko, że upoważniony odbierze dokumenty, do których nie był upoważniony. Upoważnienie terminowe lub bezterminowe (wielorazowe) jest wygodniejsze przy stałych pełnomocnikach, lecz wymaga staranniejszego monitorowania przez mocodawcę.\\n\\nUpoważnienie do odbioru dokumentów w Polsce jest potrzebne zawsze, gdy mocodawca nie może osobiście odebrać dokumentów z instytucji lub urzędu i chce wyznaczyć do tego inną osobę.\\n\\nDokument jest konieczny przy odbiorze dokumentów z urzędów administracji publicznej. Wydziały komunikacji starostw wymagają upoważnienia przy odbiorze dowodu rejestracyjnego, karty pojazdu lub tablicy rejestracyjnej przez osobę inną niż właściciel pojazdu. Urząd Stanu Cywilnego wydaje odpisy aktów stanu cywilnego (urodzenia, małżeństwa, zgonu) na podstawie pisemnego upoważnienia przez pełnomocnika.\\n\\nDokument jest niezbędny przy odbiorze dokumentacji medycznej. Szpital lub przychodnia udostępnia dokumentację medyczną pacjenta wyłącznie pacjentowi lub osobie przez niego upoważnionej (ustawa z dnia 6 listopada 2008 r. o prawach pacjenta i Rzeczniku Praw Pacjenta). Pisemne upoważnienie jest obligatoryjne — placówki medyczne nie wydają dokumentacji bez upoważnienia, zgodnie z wymogami ustawy o ochronie danych osobowych i RODO.\\n\\nDokument jest wymagany przy odbiorze dyplomów i zaświadczeń z uczelni wyższych. Uczelnia publiczna lub prywatna (np. Politechnika Warszawska, Szkoła Główna Handlowej) wydaje dyplomy, suplementy i zaświadczenia absolwentom lub ich upoważnionym przedstawicielom.\\n\\nDokument jest potrzebny przy odbiorze korespondencji sądowej i dokumentów z Sądu Rejonowego lub Sądu Okręgowego w imieniu strony. Zasady doręczeń w postępowaniu cywilnym (KPC) wymagają prawidłowego umocowania pełnomocnika do odbioru pism sądowych.\\n\\nDokument jest wymagany przy odbiorze decyzji podatkowych i pism z organów Krajowej Administracji Skarbowej (KAS) lub Zakładu Ubezpieczeń Społecznych (ZUS). Organy te mogą odmówić wydania dokumentów osobie nieposiadającej ważnego pełnomocnictwa lub upoważnienia.\\n\\nPrawidłowe upoważnienie do odbioru dokumentów w Polsce powinno zawierać precyzyjne elementy wymagane przez urzędy i instytucje.\\n\\nDane mocodawcy (upoważniającego): pełne imię i nazwisko, PESEL, adres zamieszkania, seria i numer dowodu osobistego. Komplet danych jest wymagany przez większość instytucji do weryfikacji tożsamości mocodawcy. Numer dowodu osobistego potwierdza, że upoważniający jest faktycznie tą osobą, za którą się podaje.\\n\\nDane upoważnionego (pełnomocnika): pełne imię i nazwisko, PESEL, seria i numer dowodu osobistego. Upoważniony legitymuje się dowodem osobistym przy odbiorze dokumentów — dane w upoważnieniu muszą zgadzać się z dokumentem tożsamości.\\n\\nPrecyzyjny opis dokumentów do odbioru: rodzaj dokumentów (decyzja, zaświadczenie, dyplom, odpis aktu, świadectwo rejestracji), ich liczba, sygnatura lub numer sprawy (jeśli znane), data wydania (jeśli dotyczy). Im dokładniejszy opis, tym mniejsze ryzyko odmowy przez instytucję.\\n\\nOznaczenie instytucji: pełna nazwa urzędu lub instytucji, oddział/wydział, adres. Upoważnienie wystawione dla konkretnej instytucji jest bezpieczniejsze niż ogólne — ogranicza zakres umocowania.\\n\\nTermin ważności: jednorazowe (na konkretny odbiór) lub terminowe (do określonej daty). Jednorazowe upoważnienie jest preferowane ze względów bezpieczeństwa. Warto wskazać termin ważności, gdyż instytucje mogą odmówić honorowania upoważnienia bez daty ważności.\\n\\nData i miejsce wystawienia: data wystawienia to punkt wyjścia dla biegu terminu ważności. Obok daty i miejscowości — własnoręczny czytelny podpis mocodawcy. Serwis forms-legal.com udostępnia gotowy wzór upoważnienia w formacie PDF i Word, który wystarczy wydrukować i podpisać.\\n\\nWypełnianie upoważnienia do odbioru dokumentów w Polsce zacznij od danych mocodawcy — czyli swoich. Wpisz imię i nazwisko, PESEL oraz adres zamieszkania. Następnie wpisz serię i numer swojego dowodu osobistego — np. \\\"APD 123456\\\". Dane te są standardowo wymagane przez urzędy dla weryfikacji tożsamości upoważniającego.\\n\\nNastępnie wpisz dane osoby upoważnionej: imię i nazwisko, PESEL i serię i numer dowodu osobistego. Upewnij się, że dane zgadzają się z aktualnym dowodem osobistym upoważnionego — rozbieżność może spowodować odmowę wydania dokumentów przez instytucję.\\n\\nW sekcji opisu dokumentów do odbioru wpisz jak najdokładniej, jakie dokumenty mają być odebrane. Nie pisz ogólnie \\\"dokumenty\\\" — podaj rodzaj (decyzja, zaświadczenie, odpis aktu urodzenia, dyplom), liczbę egzemplarzy, numer sprawy lub sygnatury (jeśli znane). Przy dokumentach z urzędów komunikacji wskaż numer rejestracyjny pojazdu lub numer wniosku.\\n\\nWpisz pełną nazwę instytucji, z której mają być odebrane dokumenty, jej wydział i adres. Przy urzędach gminy wpisz właściwy Urząd Stanu Cywilnego lub Wydział Spraw Obywatelskich. Przy placówkach medycznych wpisz pełną nazwę szpitala lub przychodni.\\n\\nOkreśl termin ważności upoważnienia — jednorazowe (jedyne bezpieczne) lub do konkretnej daty. Wpisz datę wystawienia i miejscowość. Wydrukuj dokument i złóż własnoręczny podpis. Upoważniony powinien wziąć upoważnienie oraz własny dowód osobisty przy wizycie w instytucji.\\n\\nWymogi prawne upoważnienia do odbioru dokumentów w Polsce wynikają z Kodeksu cywilnego, Kodeksu postępowania administracyjnego i przepisów szczególnych.\\n\\nPodstawa cywilnoprawna: art. 95-109 Kodeksu cywilnego reguluje instytucję pełnomocnictwa. Pełnomocnictwo do odbioru dokumentów to pełnomocnictwo rodzajowe (art. 98 KC) lub szczególne (art. 98 zdanie drugie KC — gdy dotyczy konkretnej czynności). Pełnomocnictwo może być udzielone w formie pisemnej, a przy czynnościach wymagających formy szczególnej — w tej samej formie (art. 99 § 1 KC).\\n\\nPostępowanie administracyjne (KPA): zgodnie z art. 32-33 KPA strona postępowania może działać przez pełnomocnika, chyba że charakter czynności wymaga jej osobistego działania. Pełnomocnictwo w postępowaniu administracyjnym powinno być złożone na piśmie lub ustnie do protokołu. Opłata skarbowa od pełnomocnictwa w postępowaniu administracyjnym wynosi 17 zł — poza wyjątkami określonymi w ustawie o opłacie skarbowej (np. pełnomocnictwa udzielonego małżonkowi, wstępnemu, zstępnemu lub rodzeństwu).\\n\\nOchrona danych osobowych (RODO): przy odbiorze dokumentacji medycznej od szpitala lub przychodni ustawa o prawach pacjenta wymaga upoważnienia pisemnego. Szpital jest administratorem danych osobowych pacjenta i może udostępnić dokumentację wyłącznie pacjentowi lub osobie wyraźnie przez niego upoważnionej — zgodnie z RODO (rozporządzenie (UE) 2016/679) i ustawą o ochronie danych osobowych z dnia 10 maja 2018 r. Prezes Urzędu Ochrony Danych Osobowych (PUODO) nadzoruje prawidłowość udostępniania danych.\\n\\nPoświadczenie notarialne: przy niektórych dokumentach (pełnomocnictwo do czynności rejestracyjnych w KRS, odbioru akt z Sądu Rejonowego w określonych sprawach) instytucja może wymagać notarialnie poświadczonego podpisu mocodawcy. Notariusz poświadcza autentyczność podpisu na podstawie ustawy Prawo o notariacie (ustawa z dnia 14 lutego 1991 r.).\\n\\nNajczęstsze błędy przy upoważnieniu do odbioru dokumentów w Polsce zaczynają się od braku danych upoważnionego lub podania niekompletnych danych. Urzędy wymagają zgodności danych w upoważnieniu z dokumentem tożsamości okazywanym przy odbiorze. Brak PESEL lub niezgodność numeru dowodu osobistego może skutkować odmową wydania dokumentów.\\n\\nKolejny błąd to zbyt ogólny opis dokumentów do odbioru. Sformułowanie \\\"wszelkie dokumenty\\\" lub \\\"dokumenty dotyczące mojej sprawy\\\" jest zazwyczaj nieakceptowane przez urzędy. Konieczne jest precyzyjne wskazanie rodzaju dokumentów, ich liczby i — jeśli to możliwe — sygnatury sprawy lub numeru wniosku.\\n\\nBrak terminu ważności to ryzyko dla mocodawcy. Upoważnienie bez daty ważności może być wykorzystywane przez upoważnionego bezterminowo, co naraża mocodawcę na odbiór dokumentów bez jego wiedzy. Jednorazowe upoważnienie eliminuje to ryzyko.\\n\\nBrak własnoręcznego podpisu mocodawcy powoduje nieważność upoważnienia. Część osób drukuje dokumenty i zapomina je podpisać przed przekazaniem upoważnionemu. Podpis musi być własnoręczny i czytelny — nie wystarczy parafka.\\n\\nNieodprowadzenie opłaty skarbowej przy upoważnieniu w postępowaniu administracyjnym to błąd, który może opóźnić wydanie dokumentów. Przy postępowaniach administracyjnych prowadzonych przez organy publiczne (Urząd Stanu Cywilnego, Wydział Komunikacji, urząd gminy) należy uiścić 17 zł opłaty skarbowej — poza zwolnieniami ustawowymi, np. dla osób bliskich mocodawcy.\\n\\nŹródło: https://forms-legal.com/pl/personal/legal-declarations/upowaznienie-do-odbioru-dokumentow (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-f01b059d-64f2-4b74-846a-f2be8512ceab",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_0e74d1d83fb34866b33126e3",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 98 KC\", \"pełnomocnictwo rodzajowe\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_f8e48289fd3d4c4fb0043315",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 32 KPA\", \"pełnomocnictwo administracyjne\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_71caa39b40b14f7a8672da97",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"opłata skarbowa\", \"17 zł\", \"pełnomocnictwo\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_0e74d1d83fb34866b33126e3",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_f8e48289fd3d4c4fb0043315",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_89\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 89. § 1. Pełnomocnik jest obowiązany przy pierwszej czynności procesowej dołączyć do akt sprawy pełnomocnictwo z podpisem mocodawcy lub wierzytelny odpis pełnomocnictwa wraz z odpisem dla strony przeciwnej. Adwokat, radca prawny, rzecznik patentowy, a także radca Prokuratorii Generalnej Rzeczypospolitej Polskiej mogą sami uwierzytelnić odpis udzielonego im pełnomocnictwa oraz odpisy innych dokumentów wykazujących ich umocowan ...\"}, {\"chunk_id\": \"sejm_eli_du_2019_1000_art_9\", \"source_id\": \"sejm_eli_du_2019_1000_art_9\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\", \"display_address\": \"Dz.U. 2019 poz. 1000\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (tekst jednolity: Dz.U. 2019 poz. 1000)\\nArt. 9. 1. Opłata skarbowa podlega zwrotowi: 1) od dokonania czynności urzędowej - jeżeli mimo zapłacenia opłaty nie dokonano czynności urzędowej; 2) od wydania zaświadczenia lub zezwolenia (pozwolenia, koncesji) - jeżeli mimo zapłacenia opłaty nie wydano zaświadczenia lub zezwolenia (pozwolenia, koncesji). 2. Zwrot opłaty skarbowej następuje na wniosek. 3. Opłata skarbowa nie podlega zwrotowi po upływie pięciu lat licząc od końca roku, w którym dokonano zapłaty opłaty.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_88\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 88. § 1. Pełnomocnictwo może być albo procesowe - bądź to ogólne, bądź do prowadzenia poszczególnych spraw - albo do niektórych tylko czynności procesowych. § 2. Pełnomocnictwo do niektórych tylko czynności procesowych może obejmować wyłącznie upoważnienie do odbioru pism sądowych. Pełnomocnictwa takiego można udzielić każdej osobie fizycznej (pełnomocnik do doręczeń).\"}]",
+   "tool_call_id": "call_71caa39b40b14f7a8672da97",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n\n",
+   "reasoning": "Good, I found some relevant statutory provisions. Let me also search for more specific provisions related to administrative proceedings (KPA) and the stamp duty (opłata skarbowa) for powers of attorney.",
+   "tool_calls": [
+    {
+     "id": "call-34decbd8-2cbb-49b8-8b58-5a133b77014f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"top_k\": 5, \"keywords\": [\"art. 33 KPA\", \"pełnomocnictwo\"]}"
+     }
+    },
+    {
+     "id": "call-d7d730e8-43d9-439c-9a9e-2e044ccd5e4f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"ustawa o opłatach skarbowych\", \"pełnomocnictwo\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call-d8e34e17-73dc-41f9-8ecb-dfc383f26579",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 101 KC\", \"wygaśnięcie\", \"pełnomocnictwo\"], \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_89\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 89. § 1. Pełnomocnik jest obowiązany przy pierwszej czynności procesowej dołączyć do akt sprawy pełnomocnictwo z podpisem mocodawcy lub wierzytelny odpis pełnomocnictwa wraz z odpisem dla strony przeciwnej. Adwokat, radca prawny, rzecznik patentowy, a także radca Prokuratorii Generalnej Rzeczypospolitej Polskiej mogą sami uwierzytelnić odpis udzielonego im pełnomocnictwa oraz odpisy innych dokumentów wykazujących ich umocowan ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_88\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 88. § 1. Pełnomocnictwo może być albo procesowe - bądź to ogólne, bądź do prowadzenia poszczególnych spraw - albo do niektórych tylko czynności procesowych. § 2. Pełnomocnictwo do niektórych tylko czynności procesowych może obejmować wyłącznie upoważnienie do odbioru pism sądowych. Pełnomocnictwa takiego można udzielić każdej osobie fizycznej (pełnomocnik do doręczeń).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_867\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 867 2 . § 1. Licytacja odbywa się publicznie. § 2. W przetargu nie mogą uczestniczyć: dłużnik, komornik, ich małżonkowie, dzieci, rodzice i rodzeństwo, osoby obecne na licytacji w charakterze urzędowym oraz licytant, który nie wykonał warunków poprzedniej licytacji. § 3. Stawienie się jednego licytanta wystarcza do odbycia przetargu. § 4. Pełnomocnictwo do udziału w przetargu powinno być stwierdzone dokumentem z podpisem urzę ...\"}]",
+   "tool_call_id": "call-34decbd8-2cbb-49b8-8b58-5a133b77014f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_89\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 89. § 1. Pełnomocnik jest obowiązany przy pierwszej czynności procesowej dołączyć do akt sprawy pełnomocnictwo z podpisem mocodawcy lub wierzytelny odpis pełnomocnictwa wraz z odpisem dla strony przeciwnej. Adwokat, radca prawny, rzecznik patentowy, a także radca Prokuratorii Generalnej Rzeczypospolitej Polskiej mogą sami uwierzytelnić odpis udzielonego im pełnomocnictwa oraz odpisy innych dokumentów wykazujących ich umocowan ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_88\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 88. § 1. Pełnomocnictwo może być albo procesowe - bądź to ogólne, bądź do prowadzenia poszczególnych spraw - albo do niektórych tylko czynności procesowych. § 2. Pełnomocnictwo do niektórych tylko czynności procesowych może obejmować wyłącznie upoważnienie do odbioru pism sądowych. Pełnomocnictwa takiego można udzielić każdej osobie fizycznej (pełnomocnik do doręczeń).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_867\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 867 2 . § 1. Licytacja odbywa się publicznie. § 2. W przetargu nie mogą uczestniczyć: dłużnik, komornik, ich małżonkowie, dzieci, rodzice i rodzeństwo, osoby obecne na licytacji w charakterze urzędowym oraz licytant, który nie wykonał warunków poprzedniej licytacji. § 3. Stawienie się jednego licytanta wystarcza do odbycia przetargu. § 4. Pełnomocnictwo do udziału w przetargu powinno być stwierdzone dokumentem z podpisem urzę ...\"}]",
+   "tool_call_id": "call-d7d730e8-43d9-439c-9a9e-2e044ccd5e4f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_89\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 89. § 1. Pełnomocnik jest obowiązany przy pierwszej czynności procesowej dołączyć do akt sprawy pełnomocnictwo z podpisem mocodawcy lub wierzytelny odpis pełnomocnictwa wraz z odpisem dla strony przeciwnej. Adwokat, radca prawny, rzecznik patentowy, a także radca Prokuratorii Generalnej Rzeczypospolitej Polskiej mogą sami uwierzytelnić odpis udzielonego im pełnomocnictwa oraz odpisy innych dokumentów wykazujących ich umocowan ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_98\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 98. Pełnomocnictwo ogólne obejmuje umocowanie do czynności zwykłego zarządu. Do czynności przekraczających zakres zwykłego zarządu potrzebne jest pełnomocnictwo określające ich rodzaj, chyba że ustawa wymaga pełnomocnictwa do poszczególnej czynności.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_99\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 99. § 1. Jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. § 2. Pełnomocnictwo ogólne powinno być pod rygorem nieważności udzielone na piśmie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_88\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 88. § 1. Pełnomocnictwo może być albo procesowe - bądź to ogólne, bądź do prowadzenia poszczególnych spraw - albo do niektórych tylko czynności procesowych. § 2. Pełnomocnictwo do niektórych tylko czynności procesowych może obejmować wyłącznie upoważnienie do odbioru pism sądowych. Pełnomocnictwa takiego można udzielić każdej osobie fizycznej (pełnomocnik do doręczeń).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_867\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 867 2 . § 1. Licytacja odbywa się publicznie. § 2. W przetargu nie mogą uczestniczyć: dłużnik, komornik, ich małżonkowie, dzieci, rodzice i rodzeństwo, osoby obecne na licytacji w charakterze urzędowym oraz licytant, który nie wykonał warunków poprzedniej licytacji. § 3. Stawienie się jednego licytanta wystarcza do odbycia przetargu. § 4. Pełnomocnictwo do udziału w przetargu powinno być stwierdzone dokumentem z podpisem urzę ...\"}]",
+   "tool_call_id": "call-d8e34e17-73dc-41f9-8ecb-dfc383f26579",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "PEŁNOMOCNICTWO DO ODBIORU DOKUMENTÓW I ZAŚWIADCZEŃ\n\nI. DANE MOCODAWCY (UPAWAŻNIAJĄCEGO)\nImię i nazwisko: ................................................................................................................................\nPESEL: ..............................................................................................................................................\nAdres zamieszkania: ..........................................................................................................................\nSeria i numer dowodu osobistego: ....................................................................................................\n\nII. DANE UPAWAŻNIONEGO (PEŁNOMOCNIKA)\nImię i nazwisko: ................................................................................................................................\nPESEL: ..............................................................................................................................................\nSeria i numer dowodu osobistego: ....................................................................................................\n\nIII. ZAKRES UPAWAŻNIENIA\nNiniejszym upoważniam powyższego Pełnomocnika do odbioru w moim imieniu i na moją korzyść następujących dokumentów:\n\n1. Rodzaj dokumentów: ......................................................................................................................\n   (np. decyzja administracyjna, zaświadczenie, odpis aktu stanu cywilnego, dyplom, suplement do dyplomu, dokumentacja medyczna, pismo sądowe, decyzja podatkowa, inne – wskazać konkretnie)\n\n2. Liczba egzemplarzy: ......................................................................................................................\n\n3. Numer sprawy / sygnatura / numer wniosku (jeśli znany): ..............................................................\n\n4. Data wydania dokumentu (jeśli dotyczy): ......................................................................................\n\nIV. INSTYTUCJA / URZĄD, Z KTÓREGO MA NASTĄPIĆ ODBIÓR\nPełna nazwa: ....................................................................................................................................\nWydział / Oddział: ..........................................................................................................................\nAdres siedziby: ................................................................................................................................\n\nV. RODZAJ I TERMIN WAŻNOŚCI UPAWAŻNIENIA\n☐ Upoważnienie jednorazowe – wyłącznie na dzień odbioru dokumentów wskazanych w punkcie III.\n☐ Upoważnienie terminowe – ważne do dnia: ...................................................................................\n\nVI. PODSTAWA PRAWNA I OŚWIADCZENIA\n1. Pełnomocnictwo udzielone jest na podstawie art. 95–109 Kodeksu cywilnego (Dz.U. 1964 nr 16 poz. 93 ze zm.), w szczególności art. 98 KC (pełnomocnictwo rodzajowe) oraz art. 99 § 1 KC (forma pisemna).\n2. W postępowaniu administracyjnym pełnomocnictwo złożone jest na piśmie na podstawie art. 32–33 Kodeksu postępowania administracyjnego (ustawa z dnia 14 czerwca 1960 r., Dz.U. 2023 poz. 775 ze zm.).\n3. W postępowaniu cywilnym, w tym do odbioru pism sądowych, stosuje się art. 88–89 Kodeksu postępowania cywilnego (Dz.U. 2024 poz. 1568).\n4. Przy odbiorze dokumentacji medycznej upoważnienie spełnia wymogi ustawy z dnia 6 listopada 2008 r. o prawach pacjenta i Rzeczniku Praw Pacjenta (Dz.U. 2023 poz. 1535 ze zm.) oraz RODO (rozporządzenie (UE) 2016/679) i ustawy z dnia 10 maja 2018 r. o ochronie danych osobowych (Dz.U. 2019 poz. 1000 ze zm.).\n5. Mocodawca oświadcza, że został poinformowany o obowiązku uiszczenia opłaty skarbowej w wysokości 17 zł za złożenie pełnomocnictwa w postępowaniu administracyjnym (art. 33 KPA w zw. z ustawą o opłatach skarbowych), z zastrzeżeniem zwolnień ustawowych (m.in. pełnomocnictwo udzielone małżonkowi, wstępnemu, zstępnemu lub rodzeństwu).\n6. Mocodawca zastrzega prawo do odwołania niniejszego pełnomocnictwa w każdej chwili (art. 101 KC). Odwołanie powinno zostać złożone na piśmie w instytucji, w której pełnomocnictwo ma być honorowane.\n\nVII. MIEJSCE I DATA WYSTAWIENIA\nMiejscowość: ..................................................., data: ..............................................................\n\n............................................................................\n(własnoręczny, czytelny podpis Mocodawcy)\n\n--------------------------------------------------------\nINSTRUKCJA DLA UPAWAŻNIONEGO:\n1. Przy odbiorze dokumentów należy okazać niniejsze upoważnienie oraz własny dowód osobisty (dane muszą zgadzać się z punktem II).\n2. W przypadku postępowania administracyjnego upewnij się, czy opłata skarbowa 17 zł została uiszczona (lub czy przysługuje zwolnienie).\n3. Niektóre instytucje (sądy, KRS, notariusze) mogą wymagać notarialnego poświadczenia podpisu Mocodawcy – sprawdź wymogi konkretnego urzędu przed wizytą.\n4. Upoważnienie jednorazowe wygasa po odbiorze wskazanych dokumentach; terminowe – w dniu podanym w punkcie V.\n\n--------------------------------------------------------\nDLA URZĘDU / INSTYTUCJI (potwierdzenie odbioru):\nData odbioru: ...................................................\nPodpis urzędnika przyjmującego: ..........................................................\nPieczątka urzędu: ..............................................................................",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "PEŁNOMOCNICTWO DO ODBIORU DOKUMENTÓW I ZAŚWIADCZEŃ\n\nI. DANE MOCODAWCY (UPAWAŻNIAJĄCEGO)\nImię i nazwisko: ................................................................................................................................\nPESEL: ..............................................................................................................................................\nAdres zamieszkania: ..........................................................................................................................\nSeria i numer dowodu osobistego: ....................................................................................................\n\nII. DANE UPAWAŻNIONEGO (PEŁNOMOCNIKA)\nImię i nazwisko: ................................................................................................................................\nPESEL: ..............................................................................................................................................\nSeria i numer dowodu osobistego: ....................................................................................................\n\nIII. ZAKRES UPAWAŻNIENIA\nNiniejszym upoważniam powyższego Pełnomocnika do odbioru w moim imieniu i na moją korzyść następujących dokumentów:\n\n1. Rodzaj dokumentów: ......................................................................................................................\n   (np. decyzja administracyjna, zaświadczenie, odpis aktu stanu cywilnego, dyplom, suplement do dyplomu, dokumentacja medyczna, pismo sądowe, decyzja podatkowa, inne – wskazać konkretnie)\n\n2. Liczba egzemplarzy: ......................................................................................................................\n\n3. Numer sprawy / sygnatura / numer wniosku (jeśli znany): ..............................................................\n\n4. Data wydania dokumentu (jeśli dotyczy): ......................................................................................\n\nIV. INSTYTUCJA / URZĄD, Z KTÓREGO MA NASTĄPIĆ ODBIÓR\nPełna nazwa: ....................................................................................................................................\nWydział / Oddział: ..........................................................................................................................\nAdres siedziby: ................................................................................................................................\n\nV. RODZAJ I TERMIN WAŻNOŚCI UPAWAŻNIENIA\n☐ Upoważnienie jednorazowe – wyłącznie na dzień odbioru dokumentów wskazanych w punkcie III.\n☐ Upoważnienie terminowe – ważne do dnia: ...................................................................................\n\nVI. PODSTAWA PRAWNA I OŚWIADCZENIA\n1. Pełnomocnictwo udzielone jest na podstawie art. 95–109 Kodeksu cywilnego (Dz.U. 1964 nr 16 poz. 93 ze zm.), w szczególności art. 98 KC (pełnomocnictwo rodzajowe) oraz art. 99 § 1 KC (forma pisemna).\n2. W postępowaniu administracyjnym pełnomocnictwo złożone jest na piśmie na podstawie art. 32–33 Kodeksu postępowania administracyjnego (ustawa z dnia 14 czerwca 1960 r., Dz.U. 2023 poz. 775 ze zm.).\n3. W postępowaniu cywilnym, w tym do odbioru pism sądowych, stosuje się art. 88–89 Kodeksu postępowania cywilnego (Dz.U. 2024 poz. 1568).\n4. Przy odbiorze dokumentacji medycznej upoważnienie spełnia wymogi ustawy z dnia 6 listopada 2008 r. o prawach pacjenta i Rzeczniku Praw Pacjenta (Dz.U. 2023 poz. 1535 ze zm.) oraz RODO (rozporządzenie (UE) 2016/679) i ustawy z dnia 10 maja 2018 r. o ochronie danych osobowych (Dz.U. 2019 poz. 1000 ze zm.).\n5. Mocodawca oświadcza, że został poinformowany o obowiązku uiszczenia opłaty skarbowej w wysokości 17 zł za złożenie pełnomocnictwa w postępowaniu administracyjnym (art. 33 KPA w zw. z ustawą o opłatach skarbowych), z zastrzeżeniem zwolnień ustawowych (m.in. pełnomocnictwo udzielone małżonkowi, wstępnemu, zstępnemu lub rodzeństwu).\n6. Mocodawca zastrzega prawo do odwołania niniejszego pełnomocnictwa w każdej chwili (art. 101 KC). Odwołanie powinno zostać złożone na piśmie w instytucji, w której pełnomocnictwo ma być honorowane.\n\nVII. MIEJSCE I DATA WYSTAWIENIA\nMiejscowość: ..................................................., data: ..............................................................\n\n............................................................................\n(własnoręczny, czytelny podpis Mocodawcy)\n\n--------------------------------------------------------\nINSTRUKCJA DLA UPAWAŻNIONEGO:\n1. Przy odbiorze dokumentów należy okazać niniejsze upoważnienie oraz własny dowód osobisty (dane muszą zgadzać się z punktem II).\n2. W przypadku postępowania administracyjnego upewnij się, czy opłata skarbowa 17 zł została uiszczona (lub czy przysługuje zwolnienie).\n3. Niektóre instytucje (sądy, KRS, notariusze) mogą wymagać notarialnego poświadczenia podpisu Mocodawcy – sprawdź wymogi konkretnego urzędu przed wizytą.\n4. Upoważnienie jednorazowe wygasa po odbiorze wskazanych dokumentach; terminowe – w dniu podanym w punkcie V.\n\n--------------------------------------------------------\nDLA URZĘDU / INSTYTUCJI (potwierdzenie odbioru):\nData odbioru: ...................................................\nPodpis urzędnika przyjmującego: ..........................................................\nPieczątka urzędu: ..............................................................................",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę, żeby moja żona mogła odebrać za mnie decyzję urzędową, bo sam nie mogę osobiście pójść do urzędu."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam sprawę w starostwie powiatowym i muszę odebrać decyzję administracyjną, ale jestem na urlopie macierzyńskim i nie mogę osobiście się zjawić. Chciałabym upoważnić męża, żeby poszedł za mnie i zabrał ten dokument – ma swój dowód osobisty, a ja podam mu moje dane i numer sprawy. Czy takie proste upoważnienie wystarczy, czy trzeba iść do notariusza?"
+  }
+ ]
+}

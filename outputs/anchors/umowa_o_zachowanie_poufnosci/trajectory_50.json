@@ -1,0 +1,326 @@
+{
+ "run": 55,
+ "hint": "Umowa NDA z obowiązkiem monitorowania przepływu informacji",
+ "scenario": "Umowa NDA z obowiązkiem monitorowania przepływu informacji",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_zachowanie_poufnosci'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of an NDA (umowa_o_zachowanie_poufnosci) with a specific scenario direction: \"Umowa NDA z obowiązkiem monitorowania przepływu informacji\" (NDA with an obligation to monitor information flow).\n\nLet me start by reading the base template, then search for relevant provisions about monitoring information flow, audit rights, compliance checks, etc.",
+   "tool_calls": [
+    {
+     "id": "call-5e81b8f1-1756-49fa-9f33-6591ad92c0e2",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"NDA with information flow monitoring obligation\", \"doc_type\": \"umowa_o_zachowanie_poufnosci\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"kind\": \"structural_template\", \"text\": \"# Umowa o zachowaniu poufności jednostronna (NDA)\\nJednostronna umowa o zachowaniu poufności (NDA — Non-Disclosure Agreement) w Polsce to umowa nienazwana zawierana na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (Dz.U. 1993 nr 47 poz. 211 ze zm.), w której wyłącznie jedna strona — odbiorca — zobowiązuje się do zachowania poufności przekazanych jej informacji przez drugą stronę — ujawniającego. Ujawniający nie przyjmuje żadnych zobowiązań co do poufności — przekazuje informacje jednostronnie, a odbiorca zobowiązuje się do ich ochrony. To klasyczna forma NDA stosowana przy asymetrycznej relacji: inwestor due diligence, rozmowa z potencjalnym kontrahentem, doradcą, dostawcą lub pracownikiem przed podpisaniem umowy o pracę.\\n\\nJednostronny charakter NDA odróżnia ją od wzajemnej umowy o zachowaniu poufności (mutual NDA), w której obowiązek poufności ciąży na obu stronach. Wzajemne NDA stosuje się, gdy obie strony wymieniają wzajemnie wrażliwe informacje — np. podczas negocjacji joint venture lub fuzji. Jednostronne NDA jest wystarczające, gdy tylko jedna strona ujawnia informacje poufne, a druga je jedynie przyjmuje.\\n\\nPodstawą prawną ochrony tajemnicy przedsiębiorstwa w Polsce jest art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Stanowi on, że czynem nieuczciwej konkurencji jest: ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa — informacji technicznych, technologicznych, organizacyjnych lub handlowych posiadających wartość ekonomiczną, które nie są powszechnie znane i w stosunku do których uprawniony podjął działania w celu zachowania ich poufności. NDA jest właśnie dokumentem potwierdzającym, że podjęto działania w celu zachowania poufności, co jest jednym z warunków skuteczności ochrony na podstawie art. 11 u.z.n.k. Naruszenie tajemnicy przedsiębiorstwa uprawnia poszkodowanego do żądania zaniechania, usunięcia skutków, odszkodowania i wydania bezpodstawnie uzyskanych korzyści.\\n\\nNDA jest obowiązkowym dokumentem w procesach due diligence (przedinwestycyjnych badań spółek), w negocjacjach umów technologicznych, przy udostępnianiu know-how lub bazy danych klientów potencjalnym partnerom, a także przed przekazaniem innowacyjnego projektu lub rozwiązania technologicznego do oceny. Bez NDA ujawnienie informacji osobie trzeciej może utrudnić późniejszą ochronę patentową wynalazku (wymóg nowości) lub dochodzenie roszczeń za bezprawne wykorzystanie know-how.\\n\\nDobrze skonstruowana jednostronna NDA powinna precyzyjnie definiować zakres informacji poufnych, cele ujawnienia, wyłączenia spod obowiązku poufności, czas trwania obowiązku, kary umowne za naruszenie, obowiązki RODO w przypadku danych osobowych oraz sąd właściwy. Właściwy Sąd Okręgowy (sąd gospodarczy) jest właściwy dla sporów o naruszenie tajemnicy przedsiębiorstwa, a strona może wnioskować o tymczasowe zabezpieczenie przez zakaz dalszego ujawniania.\\n\\nJednostronna umowa NDA w Polsce jest potrzebna w każdej sytuacji, gdy jedna strona ujawnia drugiej poufne informacje handlowe, technologiczne lub finansowe, a chce zachować pełną kontrolę nad ich dalszym wykorzystaniem.\\n\\nDue diligence i negocjacje inwestycyjne. Startupy i spółki poszukujące finansowania podpisują jednostronną NDA z potencjalnymi inwestorami (fundusze VC, aniołowie biznesu) przed udostępnieniem dokumentów finansowych, prognoz, bazy klientów lub danych technologicznych. NDA chroni założycieli przed nieuprawnionym wykorzystaniem informacji w przypadku niepowodzenia negocjacji inwestycyjnych.\\n\\nNegocjacje partnerskie i B2B. Firma chcąca omówić potencjalną współpracę z kontrahentem lub dostawcą, któremu musi przedstawić szczegóły technologii lub modelu biznesowego, podpisuje jednostronną NDA przed przekazaniem wrażliwych informacji. Drugiej stronie — potencjalnemu kontrahentowi — nie grozi ujawnienie informacji, więc nie ma powodu do wzajemności.\\n\\nPrezentacja wynalazku lub projektu technologicznego. Twórca lub wynalazca chcący poddać swój projekt ocenie przez eksperta, inwestora lub producenta musi chronić poufność pomysłu przed złożeniem wniosku patentowego w Urzędzie Patentowym Rzeczypospolitej Polskiej (UPRP) lub Europejskim Urzędzie Patentowym (EPO). Publiczne ujawnienie wynalazku przed złożeniem zgłoszenia patentowego niszczy wymóg nowości (art. 24 ustawy z dnia 30 czerwca 2000 r. Prawo własności przemysłowej).\\n\\nRozmowy z potencjalnymi pracownikami lub doradcami. Przed zatrudnieniem specjalisty z dostępem do wrażliwych informacji (np. head of sales — baza klientów; CTO — kod źródłowy) pracodawca podpisuje jednostronną NDA jako uzupełnienie umowy o pracę lub przed jej zawarciem.\\n\\nAgencje reklamowe i kreatywne. Klient zlecający agencji kampanię reklamową przed przekazaniem briefu z poufnymi informacjami o produkcie, strategii i budżecie podpisuje jednostronną NDA, aby agencja nie mogła udostępnić tych informacji konkurentom.\\n\\nProcesy M&A i sprzedaż spółki. Spółka rozważająca sprzedaż lub fuzję udostępnia szczegóły finansowe i operacyjne potencjalnym nabywcom na podstawie jednostronnej NDA, zanim obie strony podpiszą wzajemną NDA lub umowę przedwstępną.\\n\\nJednostronna umowa NDA w Polsce powinna zawierać następujące elementy, aby skutecznie chronić tajemnicę przedsiębiorstwa i zapewniać możliwość dochodzenia roszczeń w razie naruszenia.\\n\\nOznaczenie stron. Pełne dane ujawniającego i odbiorcy: firma lub imię i nazwisko, adres siedziby lub zamieszkania, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), dane osoby podpisującej. Wyraźne wskazanie, która strona jest ujawniającym, a która odbiorcą.\\n\\nCel ujawnienia informacji. Konkretny cel, w jakim odbiorca otrzymuje informacje poufne — bez ograniczenia celu odbiorca mógłby twierdzić, że nie wiedział, do czego wolno mu używać informacji. Poza wskazanym celem odbiorca nie może korzystać z informacji.\\n\\nDefinicja informacji poufnych. Jak najszersza, lecz jednoznaczna definicja informacji chronionych NDA — musi obejmować: technologię, know-how, kod źródłowy, dane finansowe i prognozowe, bazę klientów i dostawców, strategię, plany produktowe i marketingowe, dane osobowe pracowników, partnerów i klientów. forms-legal.com zaleca klauzulę, że informacje poufne obejmują wszelkie informacje przekazane w trakcie rozmów, prezentacji i dokumentacji, niezależnie od ich formy (pisemna, elektroniczna, ustna, wizualna).\\n\\nWyłączenia spod obowiązku poufności. Standardowe wyłączenia chroniące odbiorcę: informacje powszechnie dostępne w momencie ujawnienia lub które stały się powszechnie dostępne bez winy odbiorcy; informacje znane odbiorcy przed podpisaniem NDA; informacje ujawnione przez osobę trzecią uprawnioną do ich ujawnienia; informacje ujawnione na żądanie sądu, prokuratury lub organu regulacyjnego. Wyłączenia muszą być wąskie, aby nie umożliwiały obejścia NDA.\\n\\nZobowiązania odbiorcy. Konkretne obowiązki: zachowanie poufności; udostępnianie wyłącznie osobom z konieczności wiedzenia (need-to-know), objętym pisemnym obowiązkiem poufności; zakaz kopiowania ponad potrzebę; zakaz wykorzystywania poza wskazanym celem; natychmiastowe powiadomienie o naruszeniu; zwrot lub niszczenie materiałów na żądanie.\\n\\nKara umowna. Kara umowna za każde naruszenie (art. 483 KC) — musi być na tyle wysoka, aby skutecznie odstraszać (standardowo 20 000 – 100 000 zł za naruszenie). Niezbędne postanowienie: zapłata kary nie wyłącza prawa do odszkodowania przekraczającego kwotę kary (art. 484 § 1 KC).\\n\\nCzas trwania. Precyzyjny czas obowiązywania obowiązku poufności (standardowo 2–5 lat od podpisania NDA). Klauzula o możliwości przedłużenia na pisemny wniosek.\\n\\nObowiązki RODO. Jeżeli informacje poufne obejmują dane osobowe, wskazanie podstawy prawnej ich przetwarzania (art. 6 RODO), upoważnienia i obowiązku stosowania środków bezpieczeństwa (art. 32 RODO).\\n\\nRozwiązywanie sporów. Sąd właściwy dla siedziby ujawniającego (Sąd Rejonowy lub Sąd Okręgowy — sąd gospodarczy), klauzula mediacyjna (art. 183[1] KPC), możliwość wnioskowania o zabezpieczenie w postępowaniu sądowym.\\n\\nJednostronna umowa NDA w Polsce jest wypełniana według kolejnych kroków zapewniających maksymalną ochronę informacji poufnych.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy) lub imiona i nazwiska, adresy, NIP, REGON i KRS lub wpisy do CEIDG. Wyraźnie oznacz, która strona jest ujawniającym (Discloser), a która odbiorcą (Recipient). Wskaż osoby uprawnione do podpisania umowy.\\n\\nKrok 2 — określ cel ujawnienia. Wpisz konkretny, ograniczony cel, w jakim odbiorca otrzymuje informacje poufne — np. ocena potencjalnej inwestycji, due diligence spółki, negocjacje umowy partnerskiej. Im węższy cel, tym skuteczniej NDA ogranicza odbiorcę.\\n\\nKrok 3 — zdefiniuj informacje poufne. Wpisz jak najszerszą definicję obejmującą wszystkie kategorie informacji, które zamierzasz ujawnić. Jeżeli planujesz ujawnić kod źródłowy — wskaż to wprost. Jeżeli baza klientów — wskaż. Ogólna definicja jest lepsza niż enumeratywna lista, ponieważ chroni przed argumentem, że dana informacja nie była wymieniona w NDA.\\n\\nKrok 4 — doprecyzuj wyłączenia. Wpisz standardowe wyłączenia: informacje publiczne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu. Zadbaj, by wyłączenia były wąskie — zbyt szerokie umożliwiają obejście NDA.\\n\\nKrok 5 — ustal karę umowną. Wpisz wysokość kary umownej za każde naruszenie — standardowo 50 000 zł za naruszenie w relacjach B2B. Pamiętaj, że kara umowna dotyczy zobowiązania niepieniężnego (obowiązek poufności — art. 483 KC) i że nie wyłącza prawa do odszkodowania wyższego (art. 484 § 1 KC).\\n\\nKrok 6 — ustal czas trwania. Wpisz czas obowiązywania obowiązku poufności — standardowo 2–5 lat. Przy projektach wysokiego ryzyka (technologia, patenty) rozważ 5 lat lub bezterminowy obowiązek poufności w odniesieniu do kluczowych informacji.\\n\\nKrok 7 — uwzględnij RODO. Jeżeli ujawniasz dane osobowe (np. dane klientów, pracowników), wskaż podstawę prawną ich przetwarzania przez odbiorcę (art. 6 RODO) i obowiązek stosowania środków bezpieczeństwa.\\n\\nKrok 8 — podpisz NDA przed ujawnieniem. Kluczowa zasada: podpisz NDA zawsze przed ujawnieniem jakichkolwiek informacji poufnych. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym — umożliwia szybkie podpisanie na odległość.\\n\\nJednostronna umowa NDA w Polsce podlega przepisom Kodeksu cywilnego, ustawy o zwalczaniu nieuczciwej konkurencji i RODO — w zależności od rodzaju chronionych informacji.\\n\\nTajemnica przedsiębiorstwa — art. 11 u.z.n.k. Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (implementująca dyrektywę UE 2016/943 o tajemnicach handlowych) definiuje tajemnicę przedsiębiorstwa jako informacje techniczne, technologiczne, organizacyjne lub handlowe, posiadające wartość ekonomiczną, niepowszechnie znane, wobec których uprawniony podjął działania zachowania poufności. NDA jest właśnie takim działaniem — jego zawarcie stanowi warunek kwalifikacji informacji jako tajemnicy przedsiębiorstwa. Naruszenie tajemnicy przez ujawnienie, pozyskanie lub wykorzystanie przez odbiorcę stanowi czyn nieuczciwej konkurencji, uzasadniający żądanie: zaniechania niedozwolonych działań; usunięcia skutków naruszenia; zapłaty odszkodowania; wydania bezpodstawnie uzyskanych korzyści; złożenia oświadczenia odpowiedniej treści i formy. Sąd Okręgowy (sąd gospodarczy) jest właściwy rzeczowo dla tych spraw.\\n\\nKara umowna — art. 483-484 KC. Kara umowna zastrzeżona za naruszenie obowiązku poufności (zobowiązanie niepieniężne) jest skuteczna i należy się bez wykazywania szkody. Sąd może miarkować rażąco wygórowaną karę (art. 484 § 2 KC). Strony mogą wyłączyć miarkowanie przez wyraźne postanowienie \\\"kara nie podlega zmniejszeniu\\\". Strony mogą zastrzec, że w razie szkody przekraczającej karę poszkodowany może dochodzić odszkodowania wyższego (art. 484 § 1 zdanie 2 KC).\\n\\nRODO i u.o.d.o. Jeżeli informacje poufne obejmują dane osobowe (np. baza klientów, dane pracowników), przetwarzanie tych danych przez odbiorcę wymaga podstawy prawnej (art. 6 RODO) — zazwyczaj prawnie uzasadniony interes administratora (ujawniającego) lub umowa. Odbiorca musi stosować środki bezpieczeństwa (art. 32 RODO). W razie naruszenia danych — powiadomić Prezesa Urzędu Ochrony Danych Osobowych (PUODO) w ciągu 72 godzin (art. 33 RODO).\\n\\nForma umowy NDA. Ustawa o zwalczaniu nieuczciwej konkurencji nie wymaga formy pisemnej dla NDA. Jednak forma pisemna lub elektroniczna z kwalifikowanym podpisem jest zalecana dla celów dowodowych — w sporze sądowym ujawniający musi wykazać istnienie i zakres zobowiązania do zachowania poufności. Kara umowna w każdym przypadku wymaga formy pisemnej (art. 483 § 1 KC w zw. z art. 78 KC).\\n\\nJednostronne umowy NDA w Polsce często zawierają błędy osłabiające ochronę tajemnicy przedsiębiorstwa. Poniżej najważniejsze z nich.\\n\\nBłąd 1 — podpisanie NDA po ujawnieniu informacji. Najczęstszy błąd: inwestor lub kontrahent już otrzymał wrażliwe informacje, a dopiero potem prosi o NDA. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Zalecenie: podpisuj NDA zawsze przed przekazaniem jakichkolwiek dokumentów lub prezentacji.\\n\\nBłąd 2 — zbyt wąska definicja informacji poufnych. Enumeratywna lista kategorii (np. \\\"plany finansowe i technologia\\\") może pomijać inne wrażliwe informacje (np. bazę klientów, know-how organizacyjny). Zalecenie: stosuj szeroką definicję obejmującą wszelkie informacje przekazane w trakcie negocjacji, prezentacji i dokumentacji, w dowolnej formie.\\n\\nBłąd 3 — zbyt szerokie wyłączenia. Wyłączenia sformułowane zbyt ogólnie (np. \\\"informacje dostępne z innych źródeł\\\") mogą obejmować informacje, które odbiorca zdobył niezgodnie z prawem i próbuje uzasadnić ich pominięciem przez wyłączenie. Zalecenie: ograniczaj wyłączenia do standardowych, precyzyjnych kategorii — informacje publicznie dostępne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu.\\n\\nBłąd 4 — brak kary umownej lub zbyt niska kara. Brak kary umownej lub kara 1 000 zł nie odstraszy poważnego kontrahenta. Zalecenie: ustal karę umowną na poziomie realnej szkody — standardowo 20 000 – 100 000 zł za naruszenie w relacjach B2B.\\n\\nBłąd 5 — brak obowiązku zwrotu lub zniszczenia materiałów. Odbiorca może zachować kopie dokumentów po zakończeniu negocjacji. Zalecenie: wskaż wyraźnie obowiązek zwrotu lub trwałego zniszczenia wszystkich materiałów (w tym kopii elektronicznych) na żądanie ujawniającego lub po zakończeniu negocjacji.\\n\\nBłąd 6 — pominięcie RODO. Jeżeli ujawniasz dane osobowe bez regulacji RODO w NDA, narażasz się na sankcję PUODO. Zalecenie: wskaż wprost, że dane osobowe zawarte w materiałach poufnych są przetwarzane przez odbiorcę wyłącznie dla wskazanego celu, na podstawie art. 6 ust. 1 lit. f RODO i z zachowaniem środków bezpieczeństwa art. 32 RODO.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-zachowaniu-poufnosci-jednostronna (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-5e81b8f1-1756-49fa-9f33-6591ad92c0e2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_082798278a04493c8499054f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"obowiązek monitorowania przepływu informacji poufnych w organizacji odbiorcy\"}"
+     }
+    },
+    {
+     "id": "call_01e3b777e914444583d436a6",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"monitoring przepływu informacji\", \"kontrola dostępu\", \"logowanie dostępu\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_34a\", \"source_id\": \"sejm_eli_du_2025_350_art_34a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 34a. 1. Zakład może wykonać obowiązek, o którym mowa w art. 13 ust. 1 i 2 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizy cznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE (ogólne roz porządzenie o ochronie danych) ( Dz. Urz. UE L 119 z 04.05.2016, str. 1, z późn. zm. 13)), zwanego dalej „rozporządzeniem 2016/679”, przez udostępnienie informacji, o których mowa w art. 1 ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22 2 . § 1. Jeżeli jest to niezbędne do zapewnienia bezpieczeństwa pracowników lub ochrony mienia lub kontroli produkcji lub zachowania w tajemnicy informacji, których ujawnienie mogłoby narazić pracodawcę na szkodę, pracodawca może wprowadzić szczególny nadzór nad terenem zakładu pracy lub terenem wokół zakładu pracy w postaci środków technicznych umożliwiających rejestrację obrazu (monitoring). § 1 1 . Monitoring nie obejmuje pomieszczeń udostęp ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_180\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 180. § 1. Osoby obowiązane do zachowania w tajemnicy informacji niejawnych o klauzuli tajności „zastrzeżone” lub „poufne” lub tajemnicy związanej z wykonywaniem zawodu lub funkcji mogą odmówić zeznań co do okoliczności, na które rozciąga się ten obowiązek, chyba że sąd lub prokurator dla dobra wymiaru sprawiedliwości zwolni te osoby od obowiązku zachowania tajemnicy, jeżeli ustawy szczególne nie stanowią inaczej. Na postanowienie w t ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22 3 . § 1. Jeżeli jest to niezbędne do zapewnienia organizacji pracy umożliwiającej pełne wykorzystanie czasu pracy oraz właściwego użytkowania udostępnionych pracownikowi narzędzi pracy, pracodawca może wprowadzić kontrolę służbowej poczty elektronicznej pracownika (monitoring poczty elektronicznej). § 2. Monitoring poczty elektronicznej nie może naruszać tajemnicy korespondencji oraz innych dóbr osobistych pracownika. § 3. Przepisy art. 22 2 §  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_155\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 155. 1. Organy administracji rządowej oraz jednostki budżetowe obsługujące te organy są obowiązane stosować przepisy ustawy w zakresie doręczania korespondencji z wykorzystaniem publicznej usługi rejestrowanego doręczenia elektronicznego lub publicznej usługi hybrydowej od dnia określonego w komunikacie wydanym na podstawie ust. 10. 2. Organy władzy publicznej inne niż wymienione w ust. 1, w tym organy kontroli państwowej i o ...\"}]",
+   "tool_call_id": "call_082798278a04493c8499054f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_01e3b777e914444583d436a6",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_5b97422a1b934cbc95c031f4",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"obowiązek monitorowania przepływu informacji poufnych w organizacji odbiorcy\"}"
+     }
+    },
+    {
+     "id": "call_cb267805de4840d6b225f541",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"informacja poufna\", \"monitoring\", \"przepływ\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_34a\", \"source_id\": \"sejm_eli_du_2025_350_art_34a\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 34a. 1. Zakład może wykonać obowiązek, o którym mowa w art. 13 ust. 1 i 2 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizy cznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE (ogólne roz porządzenie o ochronie danych) ( Dz. Urz. UE L 119 z 04.05.2016, str. 1, z późn. zm. 13)), zwanego dalej „rozporządzeniem 2016/679”, przez udostępnienie informacji, o których mowa w art. 1 ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22 2 . § 1. Jeżeli jest to niezbędne do zapewnienia bezpieczeństwa pracowników lub ochrony mienia lub kontroli produkcji lub zachowania w tajemnicy informacji, których ujawnienie mogłoby narazić pracodawcę na szkodę, pracodawca może wprowadzić szczególny nadzór nad terenem zakładu pracy lub terenem wokół zakładu pracy w postaci środków technicznych umożliwiających rejestrację obrazu (monitoring). § 1 1 . Monitoring nie obejmuje pomieszczeń udostęp ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_180\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 180. § 1. Osoby obowiązane do zachowania w tajemnicy informacji niejawnych o klauzuli tajności „zastrzeżone” lub „poufne” lub tajemnicy związanej z wykonywaniem zawodu lub funkcji mogą odmówić zeznań co do okoliczności, na które rozciąga się ten obowiązek, chyba że sąd lub prokurator dla dobra wymiaru sprawiedliwości zwolni te osoby od obowiązku zachowania tajemnicy, jeżeli ustawy szczególne nie stanowią inaczej. Na postanowienie w t ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22 3 . § 1. Jeżeli jest to niezbędne do zapewnienia organizacji pracy umożliwiającej pełne wykorzystanie czasu pracy oraz właściwego użytkowania udostępnionych pracownikowi narzędzi pracy, pracodawca może wprowadzić kontrolę służbowej poczty elektronicznej pracownika (monitoring poczty elektronicznej). § 2. Monitoring poczty elektronicznej nie może naruszać tajemnicy korespondencji oraz innych dóbr osobistych pracownika. § 3. Przepisy art. 22 2 §  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_155\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 155. 1. Organy administracji rządowej oraz jednostki budżetowe obsługujące te organy są obowiązane stosować przepisy ustawy w zakresie doręczania korespondencji z wykorzystaniem publicznej usługi rejestrowanego doręczenia elektronicznego lub publicznej usługi hybrydowej od dnia określonego w komunikacie wydanym na podstawie ust. 10. 2. Organy władzy publicznej inne niż wymienione w ust. 1, w tym organy kontroli państwowej i o ...\"}]",
+   "tool_call_id": "call_5b97422a1b934cbc95c031f4",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22 2 . § 1. Jeżeli jest to niezbędne do zapewnienia bezpieczeństwa pracowników lub ochrony mienia lub kontroli produkcji lub zachowania w tajemnicy informacji, których ujawnienie mogłoby narazić pracodawcę na szkodę, pracodawca może wprowadzić szczególny nadzór nad terenem zakładu pracy lub terenem wokół zakładu pracy w postaci środków technicznych umożliwiających rejestrację obrazu (monitoring). § 1 1 . Monitoring nie obejmuje pomieszczeń udostęp ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_22\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 22 3 . § 1. Jeżeli jest to niezbędne do zapewnienia organizacji pracy umożliwiającej pełne wykorzystanie czasu pracy oraz właściwego użytkowania udostępnionych pracownikowi narzędzi pracy, pracodawca może wprowadzić kontrolę służbowej poczty elektronicznej pracownika (monitoring poczty elektronicznej). § 2. Monitoring poczty elektronicznej nie może naruszać tajemnicy korespondencji oraz innych dóbr osobistych pracownika. § 3. Przepisy art. 22 2 §  ...\"}, {\"chunk_id\": \"uokik_items:uokik_0e8807873fcf0aa2\", \"source_id\": \"uokik_rejestr_klauzul_6480\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Opłaty za czynności windykacyjne*** Opłata za monit pisemny o powstaniu niedozwolonego salda debetowego***25,00 PLN Opłata za monit telefoniczny*** 4,99 PLN Opłata za monit SMS o powstaniu niedozwolonego salda debetowego***1,99 PLN Opłata za wysłanie wezwania do zapłaty, ostatecznego wezwania do zapłaty (pobierane od każdej wysyłki)***30,00 PLN ***Bank może prowadzić działania związane z monitoringiem telefonicznym (w postaci rozmów telefonicznych, SMSów), wysyłaniem pism (w postaci monitów papierowych i wezwań do zapłaty) i wizytami terenowymi. Częstotliwość tych działań uzależniona jest od p ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_725_art_6b\", \"source_id\": \"sejm_eli_du_2023_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\", \"display_address\": \"Dz.U. 2023 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 marca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego\\nArt. 6b. 1. Najemca jest obowiązany utrzymywać lokal oraz pomieszczenia, do używania których jest uprawniony, we właściwym stanie technicznym i higieniczno-sanitarnym określonym odrębnymi przepisami oraz przestrzegać porządku domowego. Najemca jest także obowiązany dbać i chronić przed uszkodzeniem lub dewastacją części budynku przeznaczone do wspólnego użytku, jak dźwigi osobowe, klat ...\"}]",
+   "tool_call_id": "call_cb267805de4840d6b225f541",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results are not directly relevant to NDA monitoring obligations. Let me search for more specific NDA-related provisions about monitoring, audit rights, compliance checks, and information flow control.",
+   "tool_calls": [
+    {
+     "id": "call-cdd7e2d6-4b45-4518-a1c3-a01698a4f575",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"klauzula audytu przestrzegania poufności compliance check NDA\"}"
+     }
+    },
+    {
+     "id": "call-1ba564e5-7129-45f1-9c49-83654dd250d7",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"audyt poufności\", \"compliance check\", \"kontrola przestrzegania\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_8150eaa87c5398d8\", \"source_id\": \"uokik_rejestr_klauzul_6050\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku naruszenia zobowiązania do zachowania poufności, o którym mowa w ust.1 powyżej Klient zobowiązuje się zapłacić na rzecz (…) karę umowną w wysokości 100% środków wypłaconych na rzecz Klienta (słownie:…)\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_266\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 266. § 1. Kto, wbrew przepisom ustawy lub przyjętemu na siebie zobowiązaniu, ujawnia lub wykorzystuje informację, z którą zapoznał się w związku z pełnioną funkcją, wykonywaną pracą, działalnością publiczną, społeczną, gospodarczą lub naukową, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. § 2. Funkcjonariusz publiczny, który ujawnia osobie nieuprawnionej informację niejawną o klauzuli „zastrzeżone” lub „poufne” l ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_180\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 180. § 1. Osoby obowiązane do zachowania w tajemnicy informacji niejawnych o klauzuli tajności „zastrzeżone” lub „poufne” lub tajemnicy związanej z wykonywaniem zawodu lub funkcji mogą odmówić zeznań co do okoliczności, na które rozciąga się ten obowiązek, chyba że sąd lub prokurator dla dobra wymiaru sprawiedliwości zwolni te osoby od obowiązku zachowania tajemnicy, jeżeli ustawy szczególne nie stanowią inaczej. Na postanowienie w t ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_179\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 179. § 1. Osoby obowiązane do zachowania w tajemnicy informacji niejawnych o klauzuli tajności „tajne” lub „ściśle tajne” mogą być przesłuchane co do okoliczności, na które rozciąga się ten obowiązek, tylko po zwolnieniu tych osób od obowiązku zachowania tajemnicy przez uprawniony organ przełożony. § 2. Zwolnienia wolno odmówić tylko wtedy, gdyby złożenie zeznania wyrządzić mogło poważną szkodę państwu. § 3. Sąd lub prokurator może z ...\"}, {\"chunk_id\": \"uokik_items:uokik_069e4414884cdff7\", \"source_id\": \"uokik_rejestr_klauzul_5946\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Wnioskodawcy potwierdzają, że zrozumieli, akceptują i będą przestrzegać postanowień oświadczenia o prywatności, […] i niniejszych Warunków, które to dokumenty można znaleźć na stronie internetowej (...)Za wiążącą uznaje się ostatnią wersję takich dokumentów opublikowaną dnia 1 czerwca 2012 roku\"}]",
+   "tool_call_id": "call-cdd7e2d6-4b45-4518-a1c3-a01698a4f575",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2023_1465_art_18\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 18 3 e 2) W brzmieniu ustalonym przez art. 1 pkt 2 ustawy z dnia 9 marca 2023 r. o zmianie ustawy - Kodeks pracy oraz niektórych innych ustaw (Dz. U. poz. 641), która weszła w życie z dniem 26 kwietnia 2023 r. . § 1. Skorzystanie przez pracownika z uprawnień przysługujących z tytułu naruszenia przepisów prawa pracy, w tym zasady równego traktowania w zatrudnieniu, nie może być podstawą jakiegokolwiek niekorzystnego traktowania pracownika, a także  ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_67\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 67 33 . § 1. Praca zdalna może być wykonywana okazjonalnie, na wniosek pracownika złożony w postaci papierowej lub elektronicznej, w wymiarze nieprzekraczającym 24 dni w roku kalendarzowym. § 2. Do pracy zdalnej, o której mowa w § 1, nie stosuje się przepisów art. 67 19 -67 24 oraz art. 67 31 § 3. § 3. Kontrola wykonywania pracy zdalnej, o której mowa w § 1, kontrola w zakresie bezpieczeństwa i higieny pracy lub kontrola przestrzegania wymogów w z ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_84\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 84. 1. Do zadań organów nadzoru budowlanego należy: 1) kontrola przestrzegania i stosowania przepisów prawa budowlanego ; 2) kontrola działania organów administracji architektoniczno-budowlanej; 3) badanie przyczyn powstawania katastrof budowlanych; 4) współdziałanie z organami kontroli państwowej. 2. Organy nadzoru budowlanego są obowiązane do: 1) bezzwłocznego przesyłania organom administracji architektoniczno-budowlanej kopii decyzji i postano ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_725_art_84a\", \"source_id\": \"sejm_eli_du_2024_725\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\", \"display_address\": \"Dz.U. 2024 poz. 725\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 marca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Prawo budowlane\\nArt. 84a. 1. Kontrola przestrzegania i stosowania przepisów prawa budowlanego obejmuje: 1) kontrolę zgodności wykonywania robót budowlanych z przepisami prawa budowlanego , projektem budowlanym lub warunkami określonymi w decyzji o pozwoleniu na budowę; 2) sprawdzanie posiadania przez osoby pełniące samodzielne funkcje techniczne w budownictwie właściwych uprawnień do pełnienia tych funkcji; 3) sprawdzanie wyrobów stosowanych przy wykonywaniu robót bu ...\"}]",
+   "tool_call_id": "call-1ba564e5-7129-45f1-9c49-83654dd250d7",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę podpisać NDA z partnerem, ale muszę mieć pewność, że będzie on monitorował, kto ma dostęp do moich poufnych informacji i jak one krążą w jego firmie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Przekazuję firmie partnerki wrażliwe dane techniczne i dokumentację produktową. Potrzebuję umowy NDA, która zobowiązuje ich do ciągłego śledzenia przepływu tych informacji – kto je otwiera, kopiuje, przesyła dalej lub przechowuje. Chcę otrzymywać cotygodniowe raporty z monitoringu i mieć prawo do audytu ich systemów IT. Czy taka umowa przewiduje też konsekwencje finansowe, jeśli partner nie wykryje wycieku w czasie?"
+  }
+ ]
+}

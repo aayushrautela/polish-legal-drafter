@@ -1,0 +1,292 @@
+{
+ "run": 2,
+ "hint": "Zadatek przy rezerwacji zakupu domu z działką",
+ "scenario": "Zadatek przy rezerwacji zakupu domu z działką",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='kaucja_zaliczka'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_1eea407752bb454abf073074",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"kaucja_zaliczka\"}"
+     }
+    },
+    {
+     "id": "call_02a93e5c486e4dcf84adf268",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"zadatek rezerwacja zakupu domu działka nieruchomość\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"kaucja_zaliczka\", \"kind\": \"structural_template\", \"text\": \"# Wezwanie do zwrotu kaucji\\nWezwanie do zwrotu kaucji w Polsce to pisemne żądanie najemcy skierowane do wynajmującego, w którym najemca domaga się zwrotu kaucji mieszkaniowej po zakończeniu stosunku najmu i wydaniu lokalu. Podstawą prawną jest art. 6 ust. 4 ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego (Dz.U. 2001 nr 71 poz. 733 ze zm.), zgodnie z którym kaucja podlega zwrotowi w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę, po potrąceniu należności wynajmującego z tytułu najmu. Dopełnieniem jest art. 455 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r.) dotyczący wymagalności świadczeń bezterminowych oraz art. 481 KC o odsetkach za opóźnienie.\\n\\nKaucja przy najmie lokalu mieszkalnego pełni funkcję zabezpieczenia roszczeń wynajmującego na wypadek, gdyby najemca nie uregulował czynszu lub innych należności albo wyrządził szkodę w lokalu ponad normalne zużycie. Zgodnie z art. 6 ust. 1 ustawy o ochronie praw lokatorów kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu za dany lokal, obliczonego według stawki czynszu obowiązującej w dniu zawarcia umowy najmu. W przypadku najmu okazjonalnego dopuszczalna kaucja wynosi sześciokrotność miesięcznego czynszu. Kaucja jest depozytem zwrotnym — po zakończeniu najmu i rozliczeniu ewentualnych roszczeń wynajmujący ma obowiązek zwrócić ją najemcy w ustawowym terminie.\\n\\nJeżeli wynajmujący nie zwróci kaucji w ciągu miesiąca od opróżnienia lokalu, najemca powinien wezwać go pisemnie, wskazując termin i rachunek bankowy do zwrotu. Takie wezwanie stawia zobowiązanie do zwrotu kaucji w stan wymagalności na gruncie art. 455 KC i otwiera bieg naliczania odsetek za opóźnienie zgodnie z art. 481 KC. Odsetki ustawowe za opóźnienie (stopa referencyjna NBP plus 5,5 punktu procentowego) są należne od dnia następnego po upływie terminu zwrotu, tj. od dnia po upływie miesiąca od opróżnienia lokalu, bez konieczności wzywania.\\n\\nWezwanie do zwrotu kaucji różni się od żądania rozliczenia kaucji (gdzie najemca kwestionuje tylko częściowe potrącenia). W niniejszym piśmie najemca żąda zwrotu pełnej kwoty, ewentualnie powołując się na to, że lokal był zdany w stanie prawidłowym, bez szkód uzasadniających potrącenia. Spory o kaucję trafiają często przed Sąd Rejonowy (wydział cywilny) właściwy dla miejsca zamieszkania pozwanego lub miejsca położenia lokalu. Ze względu na niską wartość sporu (kaucja zazwyczaj nieprzekraczająca kilkunastu tysięcy złotych) sprawy te rozpatrywane są w trybie uproszczonym, co skraca czas postępowania.\\n\\nNajemca powinien pamiętać, że wynajmujący ma prawo potrącić z kaucji udokumentowane należności z tytułu niezapłaconego czynszu lub opłat eksploatacyjnych, a także koszty napraw szkód przekraczających normalne zużycie lokalu. Normalne zużycie rzeczy w ramach prawidłowego używania nie jest podstawą potrącenia z kaucji. Art. 6a ustawy o ochronie praw lokatorów nakłada na wynajmującego obowiązki dotyczące stanu technicznego lokalu. Spory o zakres normalnego zużycia są częste i rozstrzygane przez Sąd Rejonowy na podstawie protokołów zdawczo-odbiorczych, fotografii i opinii biegłych.\\n\\nWezwanie do zwrotu kaucji w Polsce jest potrzebne zawsze, gdy wynajmujący nie zwrócił kaucji w ciągu miesiąca od opróżnienia lokalu, choć art. 6 ust. 4 ustawy o ochronie praw lokatorów nakłada na niego taki obowiązek.\\n\\nDokument jest niezbędny, gdy minął ustawowy termin zwrotu kaucji, a wynajmujący nie podjął kontaktu, milczy lub odmawia zwrotu bez podania przyczyny. Formalne wezwanie dokumentuje żądanie najemcy, wyznacza dodatkowy termin i zapowiada postępowanie sądowe, co często mobilizuje wynajmującego do działania bez konieczności wnoszenia pozwu.\\n\\nWezwanie jest potrzebne, gdy wynajmujący zwrócił tylko część kaucji, a zdaniem najemcy potrącenia były nieuzasadnione. W takim przypadku wezwanie może obejmować żądanie zwrotu tej różnicy, z powołaniem się na to, że lokal był zdany w stanie odpowiadającym normalnemu zużyciu, a protokół zdawczo-odbiorczy nie dokumentował szkód uzasadniających potrącenia.\\n\\nPismo jest konieczne, gdy najemca nie posiada potwierdzenia rozliczenia kaucji. W praktyce wynajmujący, szczególnie prywatni, niekiedy zwlekają z rozliczeniem, licząc na bierność najemcy. Pisemne wezwanie formalizuje sytuację i tworzy ślad dokumentacyjny, który będzie niezbędny w ewentualnym postępowaniu sądowym przed Sądem Rejonowym.\\n\\nWezwanie do zwrotu kaucji jest ważne z punktu widzenia terminów przedawnienia. Roszczenie najemcy o zwrot kaucji przedawnia się na zasadach ogólnych — z upływem sześciu lat lub trzech lat przy roszczeniach związanych z działalnością gospodarczą (art. 118 KC). Wysłanie wezwania dokumentuje, od kiedy najemca aktywnie dochodził zwrotu, i pozwala ustalić termin, od którego biegną odsetki za opóźnienie. Przy wysyłaniu wezwania warto korzystać z pomocy miejskiego lub powiatowego rzecznika konsumentów, który bezpłatnie wspiera najemców w sporach z wynajmującymi będącymi przedsiębiorcami.\\n\\nPrawidłowe wezwanie do zwrotu kaucji w Polsce, oparte na art. 6 ust. 4 ustawy o ochronie praw lokatorów i art. 455 Kodeksu cywilnego, powinno zawierać następujące elementy.\\n\\nOznaczenie stron: imię i nazwisko najemcy (wzywającego) oraz wynajmującego (wzywanego), adresy obu stron, a w przypadku wynajmującego będącego przedsiębiorcą — NIP i numer KRS lub CEIDG.\\n\\nOdniesienie do umowy najmu: data zawarcia umowy najmu, adres wynajmowanego lokalu, data zakończenia najmu lub data opróżnienia lokalu. Data opróżnienia lokalu jest kluczowa, bo od niej liczy się ustawowy miesięczny termin zwrotu kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów.\\n\\nKwota kaucji i data wpłaty: wezwanie musi precyzyjnie wskazywać kwotę wpłaconej kaucji (cyfrowo i słownie), datę jej wpłaty i ewentualny sposób wpłaty (przelew bankowy z podaniem numeru transakcji lub gotówka z podaniem pokwitowania). To kluczowe dla wykazania, że kaucja rzeczywiście została wpłacona.\\n\\nStan lokalu przy zdaniu: krótkie wskazanie, że lokal był zdany w stanie prawidłowym lub z usterkami wynikającymi jedynie z normalnego zużycia, z powołaniem się na protokół zdawczo-odbiorczy. Jeżeli protokół nie dokumentuje szkód uzasadniających potrącenia, argument ten wzmacnia żądanie zwrotu pełnej kwoty.\\n\\nTermin i rachunek do zwrotu: konkretny termin zwrotu kaucji (rekomendowane 14 dni od doręczenia wezwania) oraz numer rachunku bankowego, na który ma nastąpić przelew. Dodatkowe wymaganie odsetkowe: odsetki ustawowe za opóźnienie naliczone zgodnie z art. 481 KC od dnia upływu ustawowego terminu zwrotu do dnia faktycznej zapłaty.\\n\\nSkutki braku zwrotu: zapowiedź skierowania sprawy do Sądu Rejonowego z powództwem o zapłatę. Serwis forms-legal.com udostępnia gotowy wzór wezwania do zwrotu kaucji. Pismo należy wysłać listem poleconym za potwierdzeniem odbioru lub doręczyć osobiście za pokwitowaniem, zachowując dowód doręczenia.\\n\\nWypełnianie wezwania do zwrotu kaucji w Polsce zacznij od precyzyjnego oznaczenia stron. W sekcji najemcy wpisz swoje imię i nazwisko, aktualny adres korespondencyjny (nie adres wynajmowanego lokalu, bo możesz się już wyprowadzić) oraz numer rachunku bankowego, na który wynajmujący ma przelać zwrot. W sekcji wynajmującego podaj jego imię i nazwisko lub firmę, adres zamieszkania lub siedziby.\\n\\nW sekcji szczegółów najmu i kaucji podaj adres wynajmowanego lokalu, datę zawarcia umowy najmu i datę zakończenia najmu lub opróżnienia lokalu. Data opróżnienia lokalu jest kluczowa — od niej liczy się ustawowy miesiąc na zwrot kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów. Wpisz kwotę kaucji cyfrowo i słownie oraz datę jej wpłaty.\\n\\nW polu dotyczącym stanu lokalu przy zdaniu wybierz odpowiednią opcję. Jeżeli lokal był zdany bez usterek lub z normalnymi śladami użytkowania potwierdzonymi protokołem zdawczo-odbiorczym, zaznacz to wyraźnie — to wzmacnia żądanie pełnego zwrotu kaucji. Jeżeli protokół był sporny lub są nieporozumienia co do zakresu usterek, wskaż to, sygnalizując gotowość do rozmów.\\n\\nWyznacz termin zwrotu — rekomendowane 14 dni od otrzymania wezwania. Wskaż wyraźnie numer rachunku bankowego i tytuł przelewu. Poinformuj o należnych odsetkach za opóźnienie zgodnie z art. 481 KC, licząc je od upływu ustawowego terminu miesięcznego.\\n\\nNa koniec wpisz miejscowość i datę oraz złóż podpis. Wyślij wezwanie listem poleconym za potwierdzeniem odbioru. Zachowaj kopię pisma, dowód nadania i potwierdzenie odbioru. W przypadku dalszego braku zwrotu będziesz mógł(-a) złożyć pozew do Sądu Rejonowego lub skorzystać z pomocy miejskiego rzecznika konsumentów, jeżeli wynajmujący jest przedsiębiorcą.\\n\\nWymogi prawne wezwania do zwrotu kaucji w Polsce wynikają przede wszystkim z ustawy z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego, a uzupełniająco z Kodeksu cywilnego. Kluczowy przepis to art. 6 ust. 4 ustawy o ochronie praw lokatorów, który nakłada na wynajmującego bezwzględny obowiązek zwrotu kaucji w ciągu miesiąca od dnia opróżnienia lokalu lub nabycia jego własności przez najemcę. Termin miesięczny jest terminem ustawowym i nie może być skrócony ani wyłączony przez umowę w stosunku do najemcy będącego konsumentem.\\n\\nZwrot kaucji następuje po potrąceniu należności wynajmującego z tytułu najmu. Wynajmujący może potrącić: niezapłacony czynsz i inne opłaty należne za czas najmu, a także koszty napraw szkód wyrządzonych przez najemcę lub przekraczających normalne zużycie lokalu. Normalne zużycie wynikające z prawidłowego używania lokalu nie uprawnia do potrącenia z kaucji. Ciężar udowodnienia zasadności potrącenia spoczywa na wynajmującym — powinien on przedstawić najemcy rozliczenie kaucji z dokumentacją (protokół zdawczo-odbiorczy, faktury za naprawy, kosztorysy).\\n\\nJeżeli wynajmujący nie zwróci kaucji lub jej części w terminie miesięcznym, od dnia następnego po tym terminie naliczane są odsetki ustawowe za opóźnienie zgodnie z art. 481 § 1 Kodeksu cywilnego, niezależnie od wysłania wezwania. Wezwanie otwiera dodatkowy termin i dokumentuje żądanie najemcy, ale nie jest warunkiem sine qua non naliczenia odsetek — te biegną z mocy prawa.\\n\\nOgraniczenia kaucji: art. 6 ust. 1 ustawy o ochronie praw lokatorów stanowi, że kaucja nie może przekraczać dwunastokrotności miesięcznego czynszu. Postanowienia umowy najmu ustalające wyższą kaucję są nieważne w zakresie nadwyżki. Przy najmie okazjonalnym (art. 19a ustawy) kaucja nie może przekraczać sześciokrotności czynszu. Spory o zwrot kaucji rozpatruje Sąd Rejonowy właściwy dla miejsca zamieszkania pozwanego (wynajmującego) lub miejsca położenia lokalu. Przy wartości sporu do 20 000 zł można skorzystać z postępowania uproszczonego lub elektronicznego postępowania upominawczego przed e-sądem (Sąd Rejonowy Lublin-Zachód w Lublinie, VI Wydział Cywilny). Nieodpłatną pomoc prawną dla konsumentów w sporach z przedsiębiorcami oferuje miejski lub powiatowy rzecznik konsumentów.\\n\\nNajczęstsze błędy przy wezwaniu do zwrotu kaucji w Polsce zaczynają się od nieustalenia dokładnej daty opróżnienia lokalu. Termin miesięczny na zwrot kaucji z art. 6 ust. 4 ustawy o ochronie praw lokatorów liczy się od dnia opróżnienia lokalu, a nie od daty wypowiedzenia umowy najmu. Najemca powinien dysponować dowodem oddania kluczy — protokołem zdawczo-odbiorczym podpisanym przez obie strony z datą. Bez tego dowodu trudno precyzyjnie ustalić, od kiedy biegnie termin zwrotu.\\n\\nKolejnym błędem jest brak dowodu wpłaty kaucji. Najemca, który domaga się zwrotu kaucji, musi być w stanie udowodnić, że ją wpłacił. Potwierdzenie przelewu bankowego lub pokwitowanie gotówkowe z podpisem wynajmującego są niezbędnymi dowodami. Bez nich wynajmujący może kwestionować fakt wpłaty lub jej wysokość.\\n\\nBłędem jest też wysłanie wezwania bez numeru rachunku bankowego do zwrotu. Wynajmujący może twierdzić, że nie wiedział, na jaki rachunek przelać kaucję, co opóźnia zwrot i komplikuje sprawę. Numer rachunku powinien być wyraźnie wskazany w wezwaniu.\\n\\nCzęstym uchybieniem jest nieoprotestowanie nieuzasadnionych potrąceń z kaucji. Jeżeli wynajmujący zwrócił tylko część kaucji, podając jako przyczynę normalne zużycie lokalu, najemca powinien w wezwaniu zakwestionować te potrącenia i żądać zwrotu różnicy. Normalne zużycie (farba ścian, drobne rysy na podłodze) nie jest podstawą potrącenia — wynajmujący musi udowodnić, że szkody przekraczały normalną eksploatację. Dokumentacja fotograficzna lokalu wykonana przy objęciu i przy zdaniu lokalu jest kluczowym dowodem.\\n\\nBłędem jest też czekanie zbyt długo z wezwaniem. Choć roszczenie o zwrot kaucji przedawnia się po sześciu latach, odsetki za opóźnienie biegną dopiero od dnia upływu miesięcznego terminu, a nie od daty wysłania wezwania. Im wcześniej najemca wyśle wezwanie i — w razie potrzeby — wniesie pozew, tym szybciej uzyska zwrot pieniędzy. Spory o kaucję przed Sądem Rejonowym trwają zazwyczaj od kilku tygodni (w trybie upominawczym) do kilku miesięcy (przy sprzeciwie dłużnika), a koszty opłaty sądowej (5% wartości przedmiotu sporu) są niskie przy typowych kwotach kaucji.\\n\\nŹródło: https://forms-legal.com/pl/personal/letters/wezwanie-do-zwrotu-kaucji (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_1eea407752bb454abf073074",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie j ...\"}, {\"chunk_id\": \"uokik_items:uokik_86554981be32f9e8\", \"source_id\": \"uokik_rejestr_klauzul_5884\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku braku możliwości wywiązania się przez Sprzedającego z zamówienia zadatek zostanie zwrócony Kupującemu w nominalnej wysokości w terminie 7 dni od podanego w Zamówieniu terminu realizacji wraz z unieważnieniem niniejszego Zamówienia\"}, {\"chunk_id\": \"uokik_items:uokik_2e752a888db7bf69\", \"source_id\": \"uokik_rejestr_klauzul_6010\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie niezapłacenia przez kupującego ceny lub jej części sprzedawca z zachowaniem art. 2.2.4 będzie mógł odstąpić od niniejszej umowy i zatrzymać zadatek\"}, {\"chunk_id\": \"uokik_items:uokik_8805fe6671b1dbf6\", \"source_id\": \"uokik_rejestr_klauzul_907\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient po dokonaniu przez developera sprzedaży otrzyma zwrot kwoty za jaką nabył udział we współwłasności działki oraz zwrot kwoty jaką wpłacił na budowę domu. Różnica pomiędzy kwotą, o której mowa w zdaniu poprzednim a kwotą uzyskaną w wyniku sprzedaży udziału we współwłasności nieruchomości, służy Developerowi. Developer po znalezieniu nabywcy zwróci klientowi opłacone przez klienta kwoty na zakup ziemi oraz budowy domu pomniejszone o 5% zaliczki\"}, {\"chunk_id\": \"uokik_items:uokik_90421171b3176928\", \"source_id\": \"uokik_rejestr_klauzul_1893\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedający może odstąpić od niniejszej umowy i zachować otrzymaną opłatę rezerwacyjną w sytuacji, gdy Kupujący nie przystąpi do podpisania Umowy Developerskiej w terminie, o którym mowa w § 3 ust. 1 i ust. 2\"}]",
+   "tool_call_id": "call_02a93e5c486e4dcf84adf268",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me read the full text of the relevant chunks from the semantic search results, particularly the Civil Code article 394 about zadatek (earnest money/deposit) and the UOKIK abusive clauses related to real estate reservations.",
+   "tool_calls": [
+    {
+     "id": "call-8105ac09-fe8b-45be-8069-a8fba9badf09",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_394\", \"uokik_items:uokik_86554981be32f9e8\", \"uokik_items:uokik_2e752a888db7bf69\", \"uokik_items:uokik_8805fe6671b1dbf6\", \"uokik_items:uokik_90421171b3176928\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie jest możliwe, zadatek ulega zwrotowi. § 3. W razie rozwiązania umowy zadatek powinien być zwrócony, a obowiązek zapłaty sumy dwukrotnie wyższej odpada. To samo dotyczy wypadku, gdy niewykonanie umowy nastąpiło wskutek okoliczności, za które żadna ze stron nie ponosi odpowiedzialności albo za które ponoszą odpowiedzialność obie strony.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"uokik_items:uokik_86554981be32f9e8\", \"source_id\": \"uokik_rejestr_klauzul_5884\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku braku możliwości wywiązania się przez Sprzedającego z zamówienia zadatek zostanie zwrócony Kupującemu w nominalnej wysokości w terminie 7 dni od podanego w Zamówieniu terminu realizacji wraz z unieważnieniem niniejszego Zamówienia\"}, {\"chunk_id\": \"uokik_items:uokik_2e752a888db7bf69\", \"source_id\": \"uokik_rejestr_klauzul_6010\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W razie niezapłacenia przez kupującego ceny lub jej części sprzedawca z zachowaniem art. 2.2.4 będzie mógł odstąpić od niniejszej umowy i zatrzymać zadatek\"}, {\"chunk_id\": \"uokik_items:uokik_8805fe6671b1dbf6\", \"source_id\": \"uokik_rejestr_klauzul_907\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient po dokonaniu przez developera sprzedaży otrzyma zwrot kwoty za jaką nabył udział we współwłasności działki oraz zwrot kwoty jaką wpłacił na budowę domu. Różnica pomiędzy kwotą, o której mowa w zdaniu poprzednim a kwotą uzyskaną w wyniku sprzedaży udziału we współwłasności nieruchomości, służy Developerowi. Developer po znalezieniu nabywcy zwróci klientowi opłacone przez klienta kwoty na zakup ziemi oraz budowy domu pomniejszone o 5% zaliczki\"}, {\"chunk_id\": \"uokik_items:uokik_90421171b3176928\", \"source_id\": \"uokik_rejestr_klauzul_1893\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedający może odstąpić od niniejszej umowy i zachować otrzymaną opłatę rezerwacyjną w sytuacji, gdy Kupujący nie przystąpi do podpisania Umowy Developerskiej w terminie, o którym mowa w § 3 ust. 1 i ust. 2\"}]",
+   "tool_call_id": "call-8105ac09-fe8b-45be-8069-a8fba9badf09",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Now I have the key legal provisions. Let me also search for more specific provisions related to:\n1. Real estate purchase agreements (umowa deweloperska, umowa sprzedaży nieruchomości)\n2. Reservation agreements (umowa rezerwacyjna)\n3. The distinction between zadatek (earnest money) and zaliczka (advance payment)\n4. Consumer protection in real estate transactions\n\nLet me search for more specific provisions.",
+   "tool_calls": [
+    {
+     "id": "call-52c26bcc-8e4d-447c-906d-49df44fe8e0b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa rezerwacyjna nieruchomość zadatek zaliczka różnica deweloper\"}"
+     }
+    },
+    {
+     "id": "call-bd68623e-6d75-49c8-9a2b-88366f4ccf0c",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"umowa deweloperska\", \"zadatek\", \"zaliczka\", \"nieruchomość\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_8805fe6671b1dbf6\", \"source_id\": \"uokik_rejestr_klauzul_907\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Klient po dokonaniu przez developera sprzedaży otrzyma zwrot kwoty za jaką nabył udział we współwłasności działki oraz zwrot kwoty jaką wpłacił na budowę domu. Różnica pomiędzy kwotą, o której mowa w zdaniu poprzednim a kwotą uzyskaną w wyniku sprzedaży udziału we współwłasności nieruchomości, służy Developerowi. Developer po znalezieniu nabywcy zwróci klientowi opłacone przez klienta kwoty na zakup ziemi oraz budowy domu pomniejszone o 5% zaliczki\"}, {\"chunk_id\": \"uokik_items:uokik_ac12c04f44f1e590\", \"source_id\": \"uokik_rejestr_klauzul_7287\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Deweloper ma prawo, w przypadku nie dokonania przez Nabywcę zapłaty wynagrodzenia, o którym mowa w ust. 1 niniejszego paragrafu, do wstrzymania się z dokonaniem przejęcia/przekazania lokalu mieszkalnego zgodnie z Umową\"}, {\"chunk_id\": \"uokik_items:uokik_90421171b3176928\", \"source_id\": \"uokik_rejestr_klauzul_1893\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedający może odstąpić od niniejszej umowy i zachować otrzymaną opłatę rezerwacyjną w sytuacji, gdy Kupujący nie przystąpi do podpisania Umowy Developerskiej w terminie, o którym mowa w § 3 ust. 1 i ust. 2\"}, {\"chunk_id\": \"uokik_items:uokik_638c28da42c9b676\", \"source_id\": \"uokik_rejestr_klauzul_4109\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Niepodjęcie przesyłki przez Klienta w terminie wcześniej przez Sklep uzgodnionym jest równoznaczne z odstąpieniem przez Klienta od umowy, z przyczyn za jakie odpowiedzialność ponosi Klient. W takim przypadku, wpłacona tytułem zaliczki kwota ulega przepadkowi. W przypadku, gdy wpłata zostanie dokonana w kwocie wyższej niż 40% produktu (zaliczka), to różnica zostanie zwrócona Klientowi w terminie 14 dni od daty niepodjęcia przez Klienta przesyłki\"}, {\"chunk_id\": \"uokik_items:uokik_4c7ac267d18fd28e\", \"source_id\": \"uokik_rejestr_klauzul_7289\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W przypadku niedotrzymania przez Dewelopera terminu odbioru, określonego w § 9 niniejszej umowy lub terminu zawarcia umowy ustanowienia odrębnej własności tego lokalu i przeniesienia jego własności na rzecz Nabywcy, określonego w § 6 niniejszej umowy, Deweloper zobowiązany będzie zapłacić Nabywcy karę umowną za okres opóźnienia w wysokości 0,02% (zero 2/100 procent) ceny brutto lokalu, za każdy dzień opóźnienia, nie więcej jednak niż 5% (pięć procent) ceny brutto lokalu\"}]",
+   "tool_call_id": "call-52c26bcc-8e4d-447c-906d-49df44fe8e0b",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_350_art_26\", \"source_id\": \"sejm_eli_du_2025_350_art_26\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 26. 1. Zakład ma prawo do występowania z wnioskiem o założenie księgi wieczystej dla nieruchomości dłużnika zalegającego z opłatą należności z tytułu składek także wtedy, gdy dłużnikiem jest państwowa jednostka organizacyjna niebędąca jednostką budżetową. 2. Wystawione przez Zakład dokumenty stwierdzające istnienie należności z tytułu składek oraz jej wysokość są podstawą wpisu hipoteki do księgi wieczystej nieruchomości stanowiącej własność zobowiązanego. Jeżeli nieruchomość nie posiada księgi wieczystej, zabezpiecz ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_394\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 394. § 1. W braku odmiennego zastrzeżenia umownego albo zwyczaju zadatek dany przy zawarciu umowy ma to znaczenie, że w razie niewykonania umowy przez jedną ze stron druga strona może bez wyznaczenia terminu dodatkowego od umowy odstąpić i otrzymany zadatek zachować, a jeżeli sama go dała, może żądać sumy dwukrotnie wyższej. § 2. W razie wykonania umowy zadatek ulega zaliczeniu na poczet świadczenia strony, która go dała; jeżeli zaliczenie nie j ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_1037\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 1037. § 1. Dział spadku może nastąpić bądź na mocy umowy między wszystkimi spadkobiercami, bądź na mocy orzeczenia sądu na żądanie któregokolwiek ze spadkobierców. § 2. Jeżeli do spadku należy nieruchomość, umowa o dział powinna być zawarta w formie aktu notarialnego. § 3. Jeżeli do spadku należy przedsiębiorstwo, umowa o dział spadku powinna być zawarta w formie pisemnej z podpisami notarialnie poświadczonymi. Jeżeli jednak w skład przedsiębior ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_680\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 680. § 1. We wniosku o dział spadku należy powołać postanowienie o stwierdzeniu nabycia spadku albo zarejestrowany akt poświadczenia dziedziczenia oraz spis inwentarza, jak również podać, jakie spadkodawca sporządził testamenty, gdzie zostały złożone i gdzie się znajdują. Jeżeli spis inwentarza nie został sporządzony, należy we wniosku wskazać majątek, który ma być przedmiotem działu. § 2. W wypadku gdy w skład spadku wchodzi ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_906\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 906. § 1. Jeżeli została zajęta wierzytelność, z mocy której dłużnikowi, przeciwko któremu toczy się postępowanie egzekucyjne, jako właścicielowi ma być wydana nieruchomość, komornik odda wydaną nieruchomość w zarząd dłużnikowi. Na wniosek wierzyciela komornik ustanowi zarządcą inną osobę. § 2. Egzekucja z tej nieruchomości i zarząd prowadzone będą według przepisów o egzekucji z nieruchomości.\"}]",
+   "tool_call_id": "call-bd68623e-6d75-49c8-9a2b-88366f4ccf0c",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "UMOWA REZERWACYJNA ZAKUPU DOMU Z DZIAŁKĄ\n\nzawarte w dniu …………………… r. w ………………………\n\nMIĘDZY:\n\n1. **SPRZEDAJĄCY**:\n   - Imię i nazwisko / Nazwa firmy: …………………………………………………………………………………………………………\n   - Adres zamieszkania / siedziby: …………………………………………………………………………………………………………\n   - PESEL / NIP: …………………………………………………………………………………………………………\n   - Numer KRS / CEIDG (jeśli dotyczy): …………………………………………………………………………………………………………\n   - działający na podstawie: …………………………………………………………………………………………………………\n   (dalej nazwany: **„Sprzedający”**)\n\na\n\n2. **KUPUJĄCY**:\n   - Imię i nazwisko: …………………………………………………………………………………………………………\n   - Adres zamieszkania: …………………………………………………………………………………………………………\n   - PESEL: …………………………………………………………………………………………………………\n   - Numer dowodu osobistego: …………………………………………………………………………………………………………\n   (dalej nazwany: **„Kupujący”**)\n\nrazem nazwane **„Strony”**.\n\n§ 1\nPRZEDMIOT REZERWACJI\n\n1. Sprzedający zastrzega dla Kupującego prawo nabycia nieruchomości stanowiącej dom jednorodzinny z działką budowlaną (dalej: **„Nieruchomość”**), położonej w:\n   - Miejscowość: …………………………………………………………………………………………………………\n   - Ulica i numer: …………………………………………………………………………………………………………\n   - Numer działki ewidencyjnej: …………………………………………………………………………………………………………\n   - Obręb ewidencyjny: …………………………………………………………………………………………………………\n   - Numer księgi wieczystej: …………………………………………………………………………………………………………\n   - Powierzchnia domu: …………………… m²\n   - Powierzchnia działki: …………………… m²\n\n2. Nieruchomość jest wolna od obciążeń prawnych, w szczególności hipotek, służebności, roszczeń stron trzecich, chyba że Strony ustalą inaczej w załączniku do niniejszej Umowy.\n\n§ 2\nZADATEK\n\n1. Kupujący zobowiązuje się wpłacić Sprzedającemu zadatek (dalej: **„Zadatek”**) w kwocie: …………………… zł (słownie: …………………………………………………………………………………………………………) – stanowiącą ………… % ceny sprzedaży Nieruchomości.\n\n2. Zadatek zostanie wpłcony przelewem na rachunek bankowy Sprzedającego:\n   - Numer rachunku (IBAN): …………………………………………………………………………………………………………\n   - Nazwa banku: …………………………………………………………………………………………………………\n   - Tytuł przelewu: „Zadatek za rezerwację nieruchomości – ul. ……………………, dz. ew. ……………………”\n   w terminie do dnia …………………… r.\n\n3. Strony ustalają, że Zadatek ma charakter zadatku w rozumieniu art. 394 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.). Oznacza to, że:\n   a) w razie niewykonania umowy sprzedaży przez Kupującego – Sprzedający może odstąpić od niniejszej Umowy i zachować otrzymany Zadatek;\n   b) w razie niewykonania umowy sprzedaży przez Sprzedającego – Kupujący może odstąpić od niniejszej Umowy i żądać zwrotu sumy dwukrotnie wyższej od Zadatku;\n   c) w razie zawarcia umowy sprzedaży Nieruchomości – Zadatek ulega zaliczeniu na poczet ceny sprzedaży;\n   d) w razie rozwiązania niniejszej Umowy z przyczyn leżących po obu stronach lub z przyczyn, za które żadna ze Stron nie ponosi odpowiedzialności – Zadatek podlega zwrotowi Kupującemu, a roszczenie o dwukrotność Zadatku umiera.\n\n4. Wpłata Zadatku potwierdzona przelewem bankowym lub pokwitowaniem Sprzedającego jest jedynym dowodem jego złożenia.\n\n§ 3\nTERMIN I WARUNKI ZAWARCIA UMOWY SPRZEDAŻY\n\n1. Strony zobowiązują się zawrzeć umowę sprzedaży Nieruchomości w formie aktu notarialnego (dalej: **„Umowa Sprzedaży”**) nie później niż do dnia …………………… r. (dalej: **„Termin Końcowy”**).\n\n2. Zawarcie Umowy Sprzedaży nastąpi przed notariuszem wskazanym przez Sprzedającego / Kupującego: …………………………………………………………………………………………………………\n\n3. Cena sprzedaży Nieruchomości ustala się na kwotę: …………………… zł (słownie: …………………………………………………………………………………………………………).\n\n4. Warunkiem zawarcia Umowy Sprzedaży jest:\n   a) uzyskanie przez Kupującego kredytu hipotecznego na zakup Nieruchomości (jeśli dotyczy) – w terminie do dnia …………………… r.;\n   b) potwierdzenie statusu prawnego Nieruchomości (wyciąg z księgi wieczystej nie starszy niż 30 dni od dnia podpisania Umowy Sprzedaży);\n   c) spełnienie pozostałych warunków określonych w załączniku nr …… do niniejszej Umowy.\n\n5. W przypadku niespełnienia warunku z ust. 4 lit. a) przez Kupującego z przyczyn nieleżących po jego stronie (np. odmowa banku), Kupujący ma prawo odstąpić od niniejszej Umowy z zwrotem Zadatku w terminie 7 dni od doręczenia Sprzedającemu pisemnego oświadczenia o odstąpieniu z załączeniem decyzji banku.\n\n§ 4\nODSTĄPIENIE OD UMOWY REZERWACYJNEJ\n\n1. Każda ze Stron może odstąpić od niniejszej Umowy:\n   a) Sprzedający – w przypadku niewpłaty Zadatku w terminie ustalonym w § 2 ust. 2;\n   b) Kupujący – w przypadku niespełnienia warunków z § 3 ust. 4;\n   c) obie Strony – z porozumienia stron wyrażonego w formie pisemnej.\n\n2. Odstąpienie od Umowy wymaga formy pisemnej pod rygorem nieważności.\n\n3. W przypadku odstąpienia Sprzedającego z przyczyn leżących po stronie Kupującego (niewpłata Zadatku, niepodpisanie Umowy Sprzedaży w Terminie Końcowym bez uzasadnienia) – Sprzedający zachowuje Zadatek na podstawie art. 394 § 1 KC.\n\n4. W przypadku odstąpienia Kupującego z przyczyn leżących po stronie Sprzedającego (brak tytułu prawnego, obciążenia nieuzgodnione, niespełnienie warunków § 3 ust. 4 lit. b–c) – Kupujący żąda zwrotu dwukrotności Zadatku na podstawie art. 394 § 1 KC.\n\n5. W przypadku odstąpienia z przyczyn niezależnych od Stron (siła wyższa, decyzje administracyjne uniemożliwiające sprzedaż) – Zadatek podlega zwrotowi Kupującemu w terminie 7 dni, a roszczenie o dwukrotność umiera (art. 394 § 3 KC).\n\n§ 5\nODPOWIEDZIALNOŚĆ STRON I KARY UMOWNE\n\n1. W przypadku zwłoki w zwrocie Zadatku lub jego dwukrotności, Strona zwlekająca pobiera odsetki ustawowe za opóźnienie od dnia wymagalności do dnia zapłaty (art. 481 KC).\n\n2. Strony wykluczają stosowanie kar umownych za zwłokę w zawarciu Umowy Sprzedaży, z wyjątkiem mechanizmu zadatku określonego w § 2 ust. 3.\n\n3. Sprzedający gwarantuje, że do dnia zawarcia Umowy Sprzedaży Nieruchomość nie będzie obciążona nowymi obciążeniami prawnymi ani fizycznymi, o których Kupujący nie został poinformowany przed podpisaniem niniejszej Umowy.\n\n§ 6\nOCHRONA KONSUMENTA (JEŚLI KUPUJĄCY JEST KONSUMENTEM)\n\n1. Jeżeli Kupujący jest konsumentem w rozumieniu art. 22¹ KC, do niniejszej Umowy stosują się przepisy ustawy z dnia 23 kwietnia 1964 r. – Kodeks cywilny oraz ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów (Dz.U. 2024 poz. 1575 ze zm.) w zakresie niedozwolonych klauzul umownych.\n\n2. Wszelkie postanowienia niniejszej Umowy, które mogłyby zostać uznane za klauzule niedozwolone (w szczególności: uprawnienie Sprzedającego do jednostronnego zachowania opłaty rezerwacyjnej bez uwzględnienia winy Kupującego, skracanie terminów zwrotu Zadatku poniżej 7 dni, wyłączanie roszczenia o dwukrotność Zadatku w przypadku winy Sprzedającego) – są nieważne, a Strony zastępują je przepisami ustawowymi.\n\n3. Sprzedający oświadcza, że nie stosuje wzorców umów zawierających klauzule wpisane do rejestru klauzul niedozwolonych prowadzonego przez Prezesa UOKiK.\n\n§ 7\nPOSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. Spory wynikające z niniejszej Umowy Strony będą starały się rozwiązać drodą negocjacji, a w braku porozumienia – przed sądem powszechnym właściwym dla siedziby / zamieszkania Sprzedającego, z zastrzeżeniem przepisów o sądzie właściwym dla konsumenta.\n\n3. Niniejsza Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n4. W sprawach nieuregulowanych niniejszą Umową mają zastosowanie przepisy Kodeksu cywilnego oraz odpowiednie przepisy ustawy o ochronie praw nabywcy lokalu mieszkalnego lub domu jednorodzinnego (jeśli dotyczy) oraz ustawy o ochronie konkurencji i konsumentów.\n\n5. Załączniki do niniejszej Umowy:\n   - Załącznik nr 1: Wyciąg z księgi wieczystej (stan na dzień ……………………)\n   - Załącznik nr 2: Plan zagospodarowania przestrzennego / decyzja o warunkach zabudowy\n   - Załącznik nr 3: Inne ustalone przez Strony dokumenty\n\n…………………………………, dnia …………………… r.\n\n……………………………………………………………\n(Sprzedający)\n\n……………………………………………………………\n(Kupujący)\n\n---\n\n**ZAŁĄCZNIK: POTWIERDZENIE WPŁATY ZADATKU**\n\nPotwierdzam otrzymanie od Kupującego ……………………………………………………………… kwoty …………………… zł (słownie: …………………………………………………………………………………………………………) tytułem Zadatku za rezerwację nieruchomości położonej w ……………………………………………………………… (dz. ew. nr ……………………, KW nr ……………………).\n\nData wpłaty: ……………………\nForma wpłaty: przelew bankowy / gotówka*\n\n…………………………………, dnia …………………… r.\n\n……………………………………………………………\n(Podpis Sprzedającego)\n\n* niepotrzebne skreślić",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "UMOWA REZERWACYJNA ZAKUPU DOMU Z DZIAŁKĄ\n\nzawarte w dniu …………………… r. w ………………………\n\nMIĘDZY:\n\n1. **SPRZEDAJĄCY**:\n   - Imię i nazwisko / Nazwa firmy: …………………………………………………………………………………………………………\n   - Adres zamieszkania / siedziby: …………………………………………………………………………………………………………\n   - PESEL / NIP: …………………………………………………………………………………………………………\n   - Numer KRS / CEIDG (jeśli dotyczy): …………………………………………………………………………………………………………\n   - działający na podstawie: …………………………………………………………………………………………………………\n   (dalej nazwany: **„Sprzedający”**)\n\na\n\n2. **KUPUJĄCY**:\n   - Imię i nazwisko: …………………………………………………………………………………………………………\n   - Adres zamieszkania: …………………………………………………………………………………………………………\n   - PESEL: …………………………………………………………………………………………………………\n   - Numer dowodu osobistego: …………………………………………………………………………………………………………\n   (dalej nazwany: **„Kupujący”**)\n\nrazem nazwane **„Strony”**.\n\n§ 1\nPRZEDMIOT REZERWACJI\n\n1. Sprzedający zastrzega dla Kupującego prawo nabycia nieruchomości stanowiącej dom jednorodzinny z działką budowlaną (dalej: **„Nieruchomość”**), położonej w:\n   - Miejscowość: …………………………………………………………………………………………………………\n   - Ulica i numer: …………………………………………………………………………………………………………\n   - Numer działki ewidencyjnej: …………………………………………………………………………………………………………\n   - Obręb ewidencyjny: …………………………………………………………………………………………………………\n   - Numer księgi wieczystej: …………………………………………………………………………………………………………\n   - Powierzchnia domu: …………………… m²\n   - Powierzchnia działki: …………………… m²\n\n2. Nieruchomość jest wolna od obciążeń prawnych, w szczególności hipotek, służebności, roszczeń stron trzecich, chyba że Strony ustalą inaczej w załączniku do niniejszej Umowy.\n\n§ 2\nZADATEK\n\n1. Kupujący zobowiązuje się wpłacić Sprzedającemu zadatek (dalej: **„Zadatek”**) w kwocie: …………………… zł (słownie: …………………………………………………………………………………………………………) – stanowiącą ………… % ceny sprzedaży Nieruchomości.\n\n2. Zadatek zostanie wpłcony przelewem na rachunek bankowy Sprzedającego:\n   - Numer rachunku (IBAN): …………………………………………………………………………………………………………\n   - Nazwa banku: …………………………………………………………………………………………………………\n   - Tytuł przelewu: „Zadatek za rezerwację nieruchomości – ul. ……………………, dz. ew. ……………………”\n   w terminie do dnia …………………… r.\n\n3. Strony ustalają, że Zadatek ma charakter zadatku w rozumieniu art. 394 Kodeksu cywilnego (Dz.U. 2024 poz. 1061 ze zm.). Oznacza to, że:\n   a) w razie niewykonania umowy sprzedaży przez Kupującego – Sprzedający może odstąpić od niniejszej Umowy i zachować otrzymany Zadatek;\n   b) w razie niewykonania umowy sprzedaży przez Sprzedającego – Kupujący może odstąpić od niniejszej Umowy i żądać zwrotu sumy dwukrotnie wyższej od Zadatku;\n   c) w razie zawarcia umowy sprzedaży Nieruchomości – Zadatek ulega zaliczeniu na poczet ceny sprzedaży;\n   d) w razie rozwiązania niniejszej Umowy z przyczyn leżących po obu stronach lub z przyczyn, za które żadna ze Stron nie ponosi odpowiedzialności – Zadatek podlega zwrotowi Kupującemu, a roszczenie o dwukrotność Zadatku umiera.\n\n4. Wpłata Zadatku potwierdzona przelewem bankowym lub pokwitowaniem Sprzedającego jest jedynym dowodem jego złożenia.\n\n§ 3\nTERMIN I WARUNKI ZAWARCIA UMOWY SPRZEDAŻY\n\n1. Strony zobowiązują się zawrzeć umowę sprzedaży Nieruchomości w formie aktu notarialnego (dalej: **„Umowa Sprzedaży”**) nie później niż do dnia …………………… r. (dalej: **„Termin Końcowy”**).\n\n2. Zawarcie Umowy Sprzedaży nastąpi przed notariuszem wskazanym przez Sprzedającego / Kupującego: …………………………………………………………………………………………………………\n\n3. Cena sprzedaży Nieruchomości ustala się na kwotę: …………………… zł (słownie: …………………………………………………………………………………………………………).\n\n4. Warunkiem zawarcia Umowy Sprzedaży jest:\n   a) uzyskanie przez Kupującego kredytu hipotecznego na zakup Nieruchomości (jeśli dotyczy) – w terminie do dnia …………………… r.;\n   b) potwierdzenie statusu prawnego Nieruchomości (wyciąg z księgi wieczystej nie starszy niż 30 dni od dnia podpisania Umowy Sprzedaży);\n   c) spełnienie pozostałych warunków określonych w załączniku nr …… do niniejszej Umowy.\n\n5. W przypadku niespełnienia warunku z ust. 4 lit. a) przez Kupującego z przyczyn nieleżących po jego stronie (np. odmowa banku), Kupujący ma prawo odstąpić od niniejszej Umowy z zwrotem Zadatku w terminie 7 dni od doręczenia Sprzedającemu pisemnego oświadczenia o odstąpieniu z załączeniem decyzji banku.\n\n§ 4\nODSTĄPIENIE OD UMOWY REZERWACYJNEJ\n\n1. Każda ze Stron może odstąpić od niniejszej Umowy:\n   a) Sprzedający – w przypadku niewpłaty Zadatku w terminie ustalonym w § 2 ust. 2;\n   b) Kupujący – w przypadku niespełnienia warunków z § 3 ust. 4;\n   c) obie Strony – z porozumienia stron wyrażonego w formie pisemnej.\n\n2. Odstąpienie od Umowy wymaga formy pisemnej pod rygorem nieważności.\n\n3. W przypadku odstąpienia Sprzedającego z przyczyn leżących po stronie Kupującego (niewpłata Zadatku, niepodpisanie Umowy Sprzedaży w Terminie Końcowym bez uzasadnienia) – Sprzedający zachowuje Zadatek na podstawie art. 394 § 1 KC.\n\n4. W przypadku odstąpienia Kupującego z przyczyn leżących po stronie Sprzedającego (brak tytułu prawnego, obciążenia nieuzgodnione, niespełnienie warunków § 3 ust. 4 lit. b–c) – Kupujący żąda zwrotu dwukrotności Zadatku na podstawie art. 394 § 1 KC.\n\n5. W przypadku odstąpienia z przyczyn niezależnych od Stron (siła wyższa, decyzje administracyjne uniemożliwiające sprzedaż) – Zadatek podlega zwrotowi Kupującemu w terminie 7 dni, a roszczenie o dwukrotność umiera (art. 394 § 3 KC).\n\n§ 5\nODPOWIEDZIALNOŚĆ STRON I KARY UMOWNE\n\n1. W przypadku zwłoki w zwrocie Zadatku lub jego dwukrotności, Strona zwlekająca pobiera odsetki ustawowe za opóźnienie od dnia wymagalności do dnia zapłaty (art. 481 KC).\n\n2. Strony wykluczają stosowanie kar umownych za zwłokę w zawarciu Umowy Sprzedaży, z wyjątkiem mechanizmu zadatku określonego w § 2 ust. 3.\n\n3. Sprzedający gwarantuje, że do dnia zawarcia Umowy Sprzedaży Nieruchomość nie będzie obciążona nowymi obciążeniami prawnymi ani fizycznymi, o których Kupujący nie został poinformowany przed podpisaniem niniejszej Umowy.\n\n§ 6\nOCHRONA KONSUMENTA (JEŚLI KUPUJĄCY JEST KONSUMENTEM)\n\n1. Jeżeli Kupujący jest konsumentem w rozumieniu art. 22¹ KC, do niniejszej Umowy stosują się przepisy ustawy z dnia 23 kwietnia 1964 r. – Kodeks cywilny oraz ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów (Dz.U. 2024 poz. 1575 ze zm.) w zakresie niedozwolonych klauzul umownych.\n\n2. Wszelkie postanowienia niniejszej Umowy, które mogłyby zostać uznane za klauzule niedozwolone (w szczególności: uprawnienie Sprzedającego do jednostronnego zachowania opłaty rezerwacyjnej bez uwzględnienia winy Kupującego, skracanie terminów zwrotu Zadatku poniżej 7 dni, wyłączanie roszczenia o dwukrotność Zadatku w przypadku winy Sprzedającego) – są nieważne, a Strony zastępują je przepisami ustawowymi.\n\n3. Sprzedający oświadcza, że nie stosuje wzorców umów zawierających klauzule wpisane do rejestru klauzul niedozwolonych prowadzonego przez Prezesa UOKiK.\n\n§ 7\nPOSTANOWIENIA KOŃCOWE\n\n1. Wszelkie zmiany i uzupełnienia niniejszej Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. Spory wynikające z niniejszej Umowy Strony będą starały się rozwiązać drodą negocjacji, a w braku porozumienia – przed sądem powszechnym właściwym dla siedziby / zamieszkania Sprzedającego, z zastrzeżeniem przepisów o sądzie właściwym dla konsumenta.\n\n3. Niniejsza Umowa została sporządzona w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n4. W sprawach nieuregulowanych niniejszą Umową mają zastosowanie przepisy Kodeksu cywilnego oraz odpowiednie przepisy ustawy o ochronie praw nabywcy lokalu mieszkalnego lub domu jednorodzinnego (jeśli dotyczy) oraz ustawy o ochronie konkurencji i konsumentów.\n\n5. Załączniki do niniejszej Umowy:\n   - Załącznik nr 1: Wyciąg z księgi wieczystej (stan na dzień ……………………)\n   - Załącznik nr 2: Plan zagospodarowania przestrzennego / decyzja o warunkach zabudowy\n   - Załącznik nr 3: Inne ustalone przez Strony dokumenty\n\n…………………………………, dnia …………………… r.\n\n……………………………………………………………\n(Sprzedający)\n\n……………………………………………………………\n(Kupujący)\n\n---\n\n**ZAŁĄCZNIK: POTWIERDZENIE WPŁATY ZADATKU**\n\nPotwierdzam otrzymanie od Kupującego ……………………………………………………………… kwoty …………………… zł (słownie: …………………………………………………………………………………………………………) tytułem Zadatku za rezerwację nieruchomości położonej w ……………………………………………………………… (dz. ew. nr ……………………, KW nr ……………………).\n\nData wpłaty: ……………………\nForma wpłaty: przelew bankowy / gotówka*\n\n…………………………………, dnia …………………… r.\n\n……………………………………………………………\n(Podpis Sprzedającego)\n\n* niepotrzebne skreślić",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Znalazłem dom z działką, który chcę kupić, ale potrzebuję czasu na załatwienie kredytu. Czy mogę wpłacić zadatek, żeby sprzedający zarezerwował tę nieruchomość tylko dla mnie?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Chcę kupić dom jednorodzinny z działką, ale jeszcze nie mogę podpisać umowy notarialnej, bo czekam na decyzję banku w sprawie kredytu hipotecznego. Obawiam się, że w międzyczasie sprzedający sprzeda nieruchomość komuś innemu. Chcę wpłacić zadatek, żeby zarezerwować ten dom, ale chcę też wiedzieć, co się stanie z tymi pieniędzmi, jeśli bank odmówi mi kredytu albo jeśli sprzedający nagle będzie chciał odstąpić od sprzedaży. Jak powinna wyglądać taka umowa rezerwacyjna i ile powinien wynosić zadatek?"
+  }
+ ]
+}

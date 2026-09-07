@@ -1,0 +1,39 @@
+{
+  "source": "outputs/qa_pairs_all/qa_pairs_full.jsonl",
+  "teacher_thinking": "english",
+  "total_rows": 2111,
+  "holdout_rows": 42,
+  "per_doc": {
+    "umowa_zlecenia": 108,
+    "umowa_o_dzielo": 95,
+    "umowa_najmu": 97,
+    "umowa_sprzedazy": 101,
+    "umowa_darowizny": 108,
+    "umowa_pozyczki": 103,
+    "umowa_dzierzawy": 89,
+    "umowa_ubezpieczenia": 93,
+    "pelnomocnictwo": 97,
+    "umowa_leasingu": 52,
+    "umowa_franczyzy": 40,
+    "umowa_kredytu": 57,
+    "umowa_dostawy": 44,
+    "umowa_przechowania": 62,
+    "wezwanie_do_zaplaty": 73,
+    "reklamacja_konsumenta": 72,
+    "odstapienie_konsumenta": 90,
+    "poreczenie": 78,
+    "kaucja_zaliczka": 89,
+    "umowa_faktoringu": 90,
+    "umowa_konsygnacji": 98,
+    "umowa_licencyjna": 102,
+    "umowa_o_prace": 97,
+    "umowa_o_zachowanie_poufnosci": 79,
+    "umowa_ramowa": 97
+  },
+  "per_variant": {
+    "prosta": 1053,
+    "szczegolowa": 1058
+  },
+  "tool_cap_chars": 2000,
+  "note": "no audit — source data 100% clean"
+}

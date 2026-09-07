@@ -1,0 +1,326 @@
+{
+ "run": 50,
+ "hint": "Dzierżawa z rozwiązaniem za rażące naruszenie (dewastacja gleby)",
+ "scenario": "Dzierżawa z rozwiązaniem za rażące naruszenie (dewastacja gleby)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_dzierzawy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "reasoning": "The user wants me to research material for a variation of a lease contract (umowa_dzierzawy) with a specific scenario: \"Dzierżawa z rozwiązaniem za rażące naruszenie (dewastacja gleby)\" - Lease with termination for gross breach (soil devastation).\n\nLet me start by reading the base template for umowa_dzierzawy, then search for relevant provisions about gross breach, termination, soil devastation, etc.",
+   "tool_calls": [
+    {
+     "id": "call-fc912888-b66b-4382-ad0f-1545f14b4da2",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"dzierżawa gruntu rolnego z rozwiązaniem za rażące naruszenie dewastacja gleby\", \"doc_type\": \"umowa_dzierzawy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa dzierżawy maszyn rolniczych\\nUmowa dzierżawy maszyn rolniczych w Polsce to umowa uregulowana art. 693–709 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której wydzierżawiający — właściciel maszyn i urządzeń rolniczych — oddaje dzierżawcy te maszyny do używania i pobierania pożytków na czas oznaczony lub nieoznaczony, a dzierżawca zobowiązuje się płacić umówiony czynsz. Cechą charakterystyczną dzierżawy, odróżniającą ją od najmu, jest prawo do pobierania pożytków — w kontekście maszyn oznacza to prawo dzierżawcy do korzystania z nich w sposób przynoszący korzyści majątkowe (np. świadczenie usług agrotechnicznych osobom trzecim przy użyciu wydzierżawionej maszyny), chyba że umowa stanowi inaczej.\\n\\nDzierżawa maszyn rolniczych jest popularnym rozwiązaniem w polskim rolnictwie, szczególnie w sektorze małych i średnich gospodarstw, które nie mogą sobie pozwolić na zakup drogiego sprzętu — kombajnu zbożowego, ciągnika wysokiej mocy, rozsiewacza mineralnego, opryskiwacza polowego czy siewnika precyzyjnego. Koszt nowego kombajnu klasy średniej wynosi w Polsce od 600 000 do ponad 2 000 000 zł, co czyni dzierżawę od spółdzielni maszynowej, kółka rolniczego lub od większego sąsiada ekonomicznie uzasadnionym rozwiązaniem.\\n\\nW praktyce polskiego rolnictwa dzierżawa maszyn odbywa się w ramach kilku schematów. Po pierwsze, rolnik indywidualny dzierżawi maszyny od sąsiada lub znajomego rolnika — transakcja często nieformalna, ale powinna być udokumentowana umową pisemną dla celów podatkowych i ubezpieczeniowych. Po drugie, grupy producentów rolnych lub spółdzielnie maszynowe działające na podstawie prawa spółdzielczego udostępniają maszyny swoim członkom na zasadach dzierżawy lub wspólnego użytkowania. Po trzecie, agrofirmy i dealerzy maszyn rolniczych oferują dzierżawę operacyjną jako alternatywę dla leasingu — z możliwością wykupu maszyny po zakończeniu okresu dzierżawy.\\n\\nZ punktu widzenia prawa podatkowego czynsz dzierżawny płacony przez rolnika za maszyny rolnicze jest kosztem uzyskania przychodu w działalności rolniczej (dla rolników opodatkowanych podatkiem dochodowym). Wydzierżawiający uzyskujący czynsz traktuje go jako przychód z działalności gospodarczej lub z dzierżawy, podlegający opodatkowaniu PIT lub CIT. Stawka VAT dla usług dzierżawy maszyn rolniczych wynosi 23% zgodnie z podstawową stawką ustawy z dnia 11 marca 2004 r. o podatku od towarów i usług.\\n\\nAgencja Restrukturyzacji i Modernizacji Rolnictwa (ARiMR) prowadzi programy wsparcia zakupu maszyn rolniczych (dotacje z PROW i PS WPR), jednak dotacje te nie obejmują kosztów dzierżawy. Dzierżawa maszyn jest zatem autonomicznym rozwiązaniem rynkowym, opartym wyłącznie na umowie cywilnoprawnej i warunkach rynkowych. Dobrze sporządzona umowa dzierżawy maszyn rolniczych reguluje stan techniczny przy przekazaniu, zasady eksploatacji, naprawy, ubezpieczenie, czynsz i zasady zwrotu sprzętu, co chroni obie strony przed sporami.\\n\\nFinansowanie i kredytowanie dzierżawy maszyn rolniczych. Banki spółdzielcze obsługujące rolnictwo — w szczególności Bank BNP Paribas, PKO BP i Santander Bank Polska — oferują kredyty na zapłatę czynszu dzierżawnego w sezonach o niskich przychodach. Dzierżawca może zabezpieczyć spłatę kredytu cesją praw z umowy dzierżawy na bank. Czynsz dzierżawny płacony za pomocą kredytu rolnego nie zwiększa wartości aktywów dzierżawcy, co jest zaletą w stosunku do finansowania zakupu maszyny kredytem inwestycyjnym.\\n\\nUmowa dzierżawy maszyn rolniczych w Polsce jest potrzebna w każdej sytuacji, gdy właściciel sprzętu udostępnia go rolnikowi do użytku za wynagrodzeniem.\\n\\nMałe i średnie gospodarstwo bez pełnego zestawu maszyn. Rolnicy uprawiający kilkadziesiąt lub kilkaset hektarów często nie posiadają własnego kombajnu lub ciągnika wysokiej mocy. Dzierżawa sezonowa pozwala wykonać niezbędne zabiegi agrotechniczne bez wielomilionowej inwestycji.\\n\\nSpółdzielnia maszynowa lub kółko rolnicze. Historyczne polskie kółka rolnicze i nowoczesne spółdzielnie maszynowe udostępniają sprzęt swoim członkom na podstawie umów dzierżawy lub stosunków członkowskich. Umowa pisemna chroni spółdzielnię i chroni rolnika przed nieuprawnionym pobieraniem opłat.\\n\\nDzierżawa sezonowa kombajnu lub specjalistycznego sprzętu. W sezonie żniwnym lub rzepakowym rolnik potrzebuje kombajnu tylko przez kilka tygodni. Dzierżawa od sąsiada lub firmy rolniczej jest opłacalna ekonomicznie i pozwala na dostosowanie sprzętu do skali produkcji.\\n\\nRolnik świadczący usługi agrotechniczne dla innych. Dzierżawca posiadający prawo do pobierania pożytków może przy użyciu wydzierżawionej maszyny świadczyć usługi dla innych rolników (agrotechnika). Umowa dzierżawy powinna wówczas wyraźnie zezwalać na takie podnajmowanie lub świadczenie usług.\\n\\nZabezpieczenie inwestycji producenta maszyn. Dealer lub producent sprzętu rolniczego udostępniający maszyny demonstracyjne lub testowe zawiera umowę dzierżawy z rolnikiem-testerem. Umowa chroni właściciela maszyny przed uszkodzeniem lub utratą sprzętu.\\n\\nPrzedłużenie eksploatacji maszyny przed zakupem. Rolnik planujący zakup nowej maszyny, ale chcący najpierw przetestować ją w rzeczywistych warunkach swojego gospodarstwa, dzierżawi ją od dealera lub właściciela. Umowa dzierżawy z opcją zakupu jest powszechna w obrocie profesjonalnym.\\n\\nZabezpieczenie kredytu agrarnego. Posiadanie umowy dzierżawy maszyn rolniczych może być wymagane przez bank przy udzielaniu kredytów inwestycyjnych, ponieważ świadczy o zorganizowanym sposobie prowadzenia działalności rolniczej.\\n\\nWspólnota mieszkaniowa lub samorząd terytorialny dysponujące terenami zielonymi. Gminy wydzierżawiające maszyny do pielęgnacji terenów zielonych (ciągniki z kosiarkami, ładowarki) rolnikom lub firmom usługowym zawierają pisemne umowy dzierżawy jako element zamówień publicznych lub jako cywilnoprawne porozumienia z mieszkańcami.\\n\\nWarsztat rolniczy lub centrum serwisowe. Dealer lub warsztat posiadający maszyny demonstracyjne wydzierżawia je rolnikom na krótki czas w celu przetestowania w warunkach rzeczywistych przed decyzją zakupową. Umowa dzierżawy reguluje odpowiedzialność za ewentualne uszkodzenia podczas testowania.\\n\\nUmowa dzierżawy maszyn rolniczych w Polsce powinna zawierać następujące elementy zgodne z art. 693–709 KC i praktyką obrotu rolniczego.\\n\\nOznaczenie stron. Pełne dane wydzierżawiającego i dzierżawcy. Dla osób fizycznych: imię i nazwisko, adres, PESEL. Dla przedsiębiorców: firma, adres siedziby, NIP, REGON, KRS lub CEIDG. Organ reprezentacji spółki zgodnie z KRS. Weryfikacja kontrahenta w CEIDG lub KRS ogranicza ryzyko zawarcia umowy z podmiotem nieistniejącym.\\n\\nPrecyzyjny opis maszyn. Marka, model, numer seryjny, rok produkcji, móc, stan licznika (w motogodzinach lub km). Fotodokumentacja i protokół zdawczo-odbiorczy jako załącznik do umowy. Numer rejestracyjny dla przyczep i urządzeń podlegających rejestracji w Wydziale Komunikacji Starostwa.\\n\\nStan techniczny przy przekazaniu. Dokładny opis stanu technicznego, widocznych uszkodzeń i wyposażenia w chwili przekazania. Protokół zdawczo-odbiorczy podpisany przez obie strony stanowi punkt odniesienia przy zwrocie maszyny.\\n\\nCzynsz i termin płatności. Kwota czynszu netto z podaniem stawki VAT 23%. Termin płatności, numer rachunku bankowego. Klauzula waloryzacyjna powiązana z inflacją CPI publikowaną przez Główny Urząd Statystyczny (GUS).\\n\\nCzas trwania i wypowiedzenie. Czas oznaczony (sezon) lub nieoznaczony z terminem wypowiedzenia. Przy czasie nieoznaczonym — termin 6 miesięcy na koniec roku dzierżawnego zgodnie z art. 704 KC. Warunki rozwiązania bez wypowiedzenia w razie naruszenia umowy (art. 703 KC).\\n\\nZasady eksploatacji i naprawy. Podział kosztów: bieżące naprawy, konserwacja, przeglądy gwarancyjne i techniczne. Obowiązek przestrzegania instrukcji obsługi producenta. forms-legal.com zaleca wpisanie limitu wartości napraw, do których dzierżawca może dokonać bez zgody wydzierżawiającego.\\n\\nUbezpieczenie i odpowiedzialność. Wskazanie, kto ubezpiecza maszynę: wydzierżawiający czy dzierżawca. OC pojazdu — obowiązkowe zgodnie z ustawą z dnia 22 maja 2003 r. o ubezpieczeniach obowiązkowych. AC — dobrowolne. Cesja praw z polisy AC na wydzierżawiającego jako właściciela maszyny.\\n\\nZakaz podnajmu lub cesji. Zakaz przekazywania maszyny osobom trzecim bez pisemnej zgody wydzierżawiającego. Naruszenie zakazu uprawnia wydzierżawiającego do rozwiązania umowy bez wypowiedzenia.\\n\\nZwrot maszyny. Sposób i termin zwrotu, stan wymagany przy zwrocie, procedura odbioru. Odpowiedzialność dzierżawcy za pogorszenie stanu maszyny ponad normalne zużycie (art. 696 KC).\\n\\nNumer rejestracyjny maszyny. Dla maszyn podlegających obowiązkowej rejestracji (ciągniki, przyczepy) podaj numer rejestracyjny nadany przez Wydział Komunikacji Starostwa. Numer rejestracyjny jest niezbędny przy weryfikacji ubezpieczenia OC w bazie Ubezpieczeniowego Funduszu Gwarancyjnego (UFG).\\n\\nLog motogodzin. Przy dzierżawach opartych na stawce godzinowej (motogodzinowej) warto prowadzić rejestr odczytów licznika przy każdym przekazaniu maszyny. Taki log eliminuje spory o czas faktycznego użytkowania i podstawę rozliczenia kosztów.\\n\\nUmowa dzierżawy maszyn rolniczych w Polsce wypełniana jest w następujących krokach.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane wydzierżawiającego (właściciela maszyn) i dzierżawcy. Dla rolnika fizycznego podaj imię, nazwisko, adres i PESEL. Dla przedsiębiorcy podaj firmę, NIP, KRS. Zweryfikuj kontrahenta w CEIDG lub KRS.\\n\\nKrok 2 — opisz maszyny. Wpisz markę, model, rok produkcji, numer seryjny i stan licznika. Sporządź protokół zdawczo-odbiorczy z opisem stanu technicznego i dokumentacją fotograficzną. Protokół stanowi integralną część umowy.\\n\\nKrok 3 — ustal czynsz. Wpisz czynsz netto i stawkę VAT 23%. Podaj numer rachunku bankowego wydzierżawiającego. Jeśli czynsz ma być waloryzowany o inflację, wskaż wskaźnik CPI GUS jako podstawę waloryzacji.\\n\\nKrok 4 — określ czas trwania. Wpisz datę rozpoczęcia i zakończenia dzierżawy. Przy dzierżawie sezonowej wskaż konkretne daty lub sezon wegetacyjny. Przy dzierżawie bezterminowej — uzgodnij termin wypowiedzenia (min. 6 miesięcy na koniec roku dzierżawnego, art. 704 KC).\\n\\nKrok 5 — ureguluj eksploatację i naprawy. Wpisz podział kosztów: co naprawia dzierżawca, co wydzierżawiający. Wskaż limit wartości napraw, do których dzierżawca nie potrzebuje zgody. Pamiętaj o obowiązku stosowania się do instrukcji obsługi producenta.\\n\\nKrok 6 — wpisz klauzulę ubezpieczeniową. Wskaż, kto zawiera polisę OC i AC. Przy maszynach rejestrowanych (ciągniki, przyczepy) OC jest obowiązkowe. Wpisz cesję praw z polisy AC na wydzierżawiającego jako właściciela.\\n\\nKrok 7 — wstaw zakaz podnajmu. Wyraźnie zabroń lub zezwól na podnajem lub świadczenie usług z użyciem dzierżawionej maszyny osobom trzecim. Przy braku uregulowania stosuje się art. 698 KC.\\n\\nKrok 8 — podpisz umowę. Wpisz miejscowość i datę, podpisz w dwóch egzemplarzach. Dokumentację fotograficzną i protokół zdawczo-odbiorczy dołącz do obu egzemplarzy.\\n\\nKrok 9 — rozważ aneks na kolejny sezon. Jeżeli dzierżawa sezonowa zakończyła się pozytywnie dla obu stron, sporządzaj krótki aneks na kolejny sezon zamiast nowej umowy. Aneks zachowuje ciągłość warunków i wymaga jedynie aktualizacji dat i ewentualnie czynszu.\\n\\nUmowa dzierżawy maszyn rolniczych w Polsce podlega przepisom art. 693–709 KC oraz regulacjom podatkowym i ubezpieczeniowym.\\n\\nPodstawa prawna. Dzierżawa maszyn rolniczych regulowana jest art. 693–709 KC, stosując odpowiednio przepisy o najmie (art. 659–679 KC) tam, gdzie przepisy o dzierżawie nie stanowią inaczej. Definicja dzierżawy zawarta jest w art. 693 KC — wydzierżawiający oddaje dzierżawcy rzecz do używania i pobierania pożytków za wynagrodzeniem.\\n\\nObowiązki dzierżawcy. Dzierżawca zobowiązany jest używać maszyny zgodnie z jej przeznaczeniem i zasadami prawidłowej gospodarki (art. 696 KC), dokonywać napraw niezbędnych do zachowania rzeczy w stanie niepogorszonym, nie zmieniać przeznaczenia maszyny bez zgody wydzierżawiającego i zwrócić rzecz w stanie niepogorszonym ponad normalne zużycie. Zaniedbanie tych obowiązków uprawnia wydzierżawiającego do wypowiedzenia umowy bez zachowania terminów (art. 703 KC).\\n\\nCzynsz i zwłoka. Przy zwłoce z zapłatą czynszu wydzierżawiający może po bezskutecznym wezwaniu do zapłaty wypowiedzieć dzierżawę bez zachowania terminów wypowiedzenia (art. 703 KC w zw. z art. 672 KC). Czynsz opodatkowany jest VAT według stawki 23%.\\n\\nPodatek dochodowy. Czynsz dzierżawny uzyskiwany przez wydzierżawiającego jest przychodem opodatkowanym PIT lub CIT. Dzierżawca będący rolnikiem opodatkowanym podatkiem dochodowym zalicza czynsz do kosztów uzyskania przychodu.\\n\\nUbezpieczenia obowiązkowe. Ciągniki rolnicze i przyczepy rolnicze podlegają obowiązkowemu ubezpieczeniu odpowiedzialności cywilnej (OC) na podstawie ustawy z dnia 22 maja 2003 r. o ubezpieczeniach obowiązkowych, Ubezpieczeniowym Funduszu Gwarancyjnym i Polskim Biurze Ubezpieczycieli Komunikacyjnych. Obowiązek ubezpieczenia ciąży na posiadaczu pojazdu — umowa powinna wskazywać, czy jest nim wydzierżawiający czy dzierżawca.\\n\\nBezpieczeństwo maszyn. Maszyny rolnicze podlegają wymaganiom dyrektywy maszynowej (2006/42/WE) implementowanej do polskiego prawa rozporządzeniem Ministra Gospodarki z dnia 21 października 2008 r. w sprawie zasadniczych wymagań dla maszyn. Wydzierżawiający powinien przekazać dzierżawcy komplet dokumentacji technicznej i instrukcję obsługi w języku polskim.\\n\\nPrzepisy sanitarno-weterynaryjne. Maszyny używane do obsługi zwierząt lub pasz podlegają wymogom higienicznym nadzorowanym przez Inspekcję Weterynaryjną i Inspekcję Sanitarną. Dzierżawca zobowiązany jest przestrzegać zasad bioasekuracji przy użyciu maszyn w różnych gospodarstwach, aby nie rozprzestrzeniać chorób zakaźnych roślin lub zwierząt.\\n\\nPrzepisy o emisjach silników rolniczych. Ciągniki i maszyny samobieżne muszą spełniać normy emisji spalin etap V (Stage V) określone w rozporządzeniu (UE) 2016/1628. Przy dzierżawie starszych maszyn (przed etapem V) warto sprawdzić, czy maszyna może być eksploatowana na gruntach w strefach objętych programami ochrony powietrza. Wydzierżawiający powinien przekazać dzierżawcy kartę homologacji maszyny.\\n\\nUmowa dzierżawy maszyn rolniczych w Polsce bywa wadliwa z powodu typowych błędów.\\n\\nBłąd 1 — brak protokołu zdawczo-odbiorczego. Pominięcie dokumentacji stanu technicznego maszyny przy przekazaniu prowadzi do sporów przy zwrocie — dzierżawca twierdzi, że uszkodzenie istniało przed dzierżawą, wydzierżawiający — że powstało w jej trakcie. Zalecenie: zawsze sporządzaj szczegółowy protokół zdawczo-odbiorczy z dokumentacją fotograficzną i podpisami obu stron.\\n\\nBłąd 2 — brak wskazania odpowiedzialności za ubezpieczenie OC. Nieokreślenie, kto ubezpiecza ciągnik lub przyczepę, naraża obie strony na ryzyko braku ochrony przy wypadku. Zalecenie: wyraźnie wpisz, kto zawiera i opłaca polisę OC pojazdu.\\n\\nBłąd 3 — niejasny podział kosztów napraw. Ogólne sformułowania \\\"dzierżawca naprawia na bieżąco\\\" bez wskazania limitu wartości prowadzą do sporów. Zalecenie: wpisz konkretny limit kwotowy napraw, powyżej których decyduje wydzierżawiający.\\n\\nBłąd 4 — brak klauzuli o zakazie podnajmu. Brak wyraźnego uregulowania kwestii podnajmu lub świadczenia usług z użyciem maszyny może prowadzić do jej nadmiernego zużycia lub kolizji ubezpieczeniowej. Zalecenie: wyraźnie zabroń lub zezwól na podnajem, wskazując konsekwencje naruszenia.\\n\\nBłąd 5 — niewaloryzowany czynsz w długoterminowej dzierżawie. Przy wieloletniej dzierżawie bez klauzuli waloryzacyjnej inflacja eroduje wartość czynszu. Zalecenie: wstaw klauzulę indeksacji czynszu o wskaźnik CPI GUS raz w roku.\\n\\nBłąd 6 — brak klauzuli o wykupie maszyny. Gdy dzierżawca liczy na możliwość zakupu maszyny po zakończeniu dzierżawy, brak opcji wykupu w umowie pozbawia go tego prawa. Zalecenie: wpisz wyraźne prawo opcji zakupu lub zaznacz brak takiej opcji.\\n\\nBłąd 7 — zbyt krótki termin wypowiedzenia. Przy maszynach kluczowych dla prowadzenia działalności rolniczej zbyt krótki termin wypowiedzenia może zniweczyć sezon. Zalecenie: przy dzierżawie ciągnika lub kombajnu stosuj termin wypowiedzenia co najmniej 6 miesięcy, zgodnie z art. 704 KC dla dzierżawy gruntów rolnych jako analogię.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-dzierzawy-maszyn-rolniczych (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-fc912888-b66b-4382-ad0f-1545f14b4da2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_60bab0ff1c914a8b94daf9c0",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"dewastacja gleby rażące naruszenie umowy dzierżawy wypowiedzenie bez zachowania terminów art. 703 KC\"}"
+     }
+    },
+    {
+     "id": "call_a983a9e3880849a4afaa780e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 703 KC\", \"dewastacja gleby\", \"rażące naruszenie\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_703\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 703. Jeżeli dzierżawca dopuszcza się zwłoki z zapłatą czynszu co najmniej za dwa pełne okresy płatności, a w wypadku gdy czynsz jest płatny rocznie, jeżeli dopuszcza się zwłoki z zapłatą ponad trzy miesiące, wydzierżawiający może dzierżawę wypowiedzieć bez zachowania terminu wypowiedzenia. Jednakże wydzierżawiający powinien uprzedzić dzierżawcę udzielając mu dodatkowego trzymiesięcznego terminu do zapłaty zaległego czynszu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_698\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 698. § 1. Bez zgody wydzierżawiającego dzierżawca nie może oddawać przedmiotu dzierżawy osobie trzeciej do bezpłatnego używania ani go poddzierżawiać. § 2. W razie naruszenia powyższego obowiązku wydzierżawiający może dzierżawę wypowiedzieć bez zachowania terminów wypowiedzenia.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_704\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 704. W braku odmiennej umowy dzierżawę gruntu rolnego można wypowiedzieć na jeden rok naprzód na koniec roku dzierżawnego, inną zaś dzierżawę na sześć miesięcy naprzód przed upływem roku dzierżawnego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_764\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 764 2 . § 1. Umowa agencyjna, chociażby była zawarta na czas oznaczony, może być wypowiedziana bez zachowania terminów wypowiedzenia z powodu niewykonania obowiązków przez jedną ze stron w całości lub znacznej części, a także w przypadku zaistnienia nadzwyczajnych okoliczności. § 2. Jeżeli wypowiedzenia dokonano na skutek okoliczności, za które ponosi odpowiedzialność druga strona, jest ona zobowiązana do naprawienia szkody poniesionej przez wyp ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_685\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 685. Jeżeli najemca lokalu wykracza w sposób rażący lub uporczywy przeciwko obowiązującemu porządkowi domowemu albo przez swoje niewłaściwe zachowanie czyni korzystanie z innych lokali w budynku uciążliwym, wynajmujący może wypowiedzieć najem bez zachowania terminów wypowiedzenia.\"}]",
+   "tool_call_id": "call_60bab0ff1c914a8b94daf9c0",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_226\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 226. § 1. Wynagrodzenie biegłego rewidenta określa sąd rejestrowy. § 2. Koszty badania rachunkowości oraz działalności spółki ponosi żądający. § 3. Jeżeli badanie, o którym mowa w § 2, wykaże nadużycie, niekorzystne dla spółki działanie lub rażące naruszenie prawa bądź umowy spółki, żądający tego badania ma prawo żądać od spółki zwrotu kosztów przeprowadzonego badania. Oddział 3 Zgromadzenie wspólników\"}]",
+   "tool_call_id": "call_a983a9e3880849a4afaa780e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search for more specific provisions about soil devastation, gross breach, and termination for breach of obligations under the lease agreement.",
+   "tool_calls": [
+    {
+     "id": "call-4f66deb8-135f-47b7-bf54-797ebf305664",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"dewastacja gleby grunt rolny naruszenie obowiązków dzierżawcy art. 696 KC odpowiedzialność za uszkodzenie\"}"
+     }
+    },
+    {
+     "id": "call-dcdb897c-4cc9-47be-bbc3-eb739190bbb2",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 696 KC\", \"gleba\", \"dewastacja\", \"uprawa\", \"rolnictwo\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_696\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 696. Dzierżawca powinien wykonywać swoje prawo zgodnie z wymaganiami prawidłowej gospodarki i nie może zmieniać przeznaczenia przedmiotu dzierżawy bez zgody wydzierżawiającego.\"}, {\"chunk_id\": \"uokik_items:uokik_a744dad4ce76355f\", \"source_id\": \"uokik_rejestr_klauzul_3123\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Uczestnik ponosi odpowiedzialność materialną wobec (…) i jego kontrahentów za szkody wyrządzone przez siebie oraz osoby znajdujące się pod jego opieką, opłacając odszkodowanie w miejscu ich powstania\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_706\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 706. Jeżeli przy zakończeniu dzierżawy dzierżawca gruntu rolnego pozostawia zgodnie ze swym obowiązkiem zasiewy, może on żądać zwrotu poczynionych na te zasiewy nakładów o tyle, o ile wbrew wymaganiom prawidłowej gospodarki nie otrzymał odpowiednich zasiewów przy rozpoczęciu dzierżawy.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_697\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 697. Dzierżawca ma obowiązek dokonywania napraw niezbędnych do zachowania przedmiotu dzierżawy w stanie niepogorszonym.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_801\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 801. § 1. Odszkodowanie za utratę, ubytek lub uszkodzenie przesyłki w czasie od jej przyjęcia aż do wydania przewoźnikowi, dalszemu spedytorowi, dającemu zlecenie lub osobie przez niego wskazanej, nie może przewyższać zwykłej wartości przesyłki, chyba że szkoda wynikła z winy umyślnej lub rażącego niedbalstwa spedytora. § 2. Spedytor nie ponosi odpowiedzialności za ubytek nieprzekraczający granic ustalonych we właściwych przepisach, a w braku ta ...\"}]",
+   "tool_call_id": "call-4f66deb8-135f-47b7-bf54-797ebf305664",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-dcdb897c-4cc9-47be-bbc3-eb739190bbb2",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_730974f386444264865e747e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"wypowiedzenie umowy dzierżawy bez zachowania terminów rażące naruszenie obowiązków art. 703 KC dewastacja uszkodzenie gruntu\"}"
+     }
+    },
+    {
+     "id": "call_a8ebd0a3af774ed98541423f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 703 KC\", \"wypowiedzenie bez zachowania terminów\", \"naruszenie obowiązków\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_703\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 703. Jeżeli dzierżawca dopuszcza się zwłoki z zapłatą czynszu co najmniej za dwa pełne okresy płatności, a w wypadku gdy czynsz jest płatny rocznie, jeżeli dopuszcza się zwłoki z zapłatą ponad trzy miesiące, wydzierżawiający może dzierżawę wypowiedzieć bez zachowania terminu wypowiedzenia. Jednakże wydzierżawiający powinien uprzedzić dzierżawcę udzielając mu dodatkowego trzymiesięcznego terminu do zapłaty zaległego czynszu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_698\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 698. § 1. Bez zgody wydzierżawiającego dzierżawca nie może oddawać przedmiotu dzierżawy osobie trzeciej do bezpłatnego używania ani go poddzierżawiać. § 2. W razie naruszenia powyższego obowiązku wydzierżawiający może dzierżawę wypowiedzieć bez zachowania terminów wypowiedzenia.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_704\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 704. W braku odmiennej umowy dzierżawę gruntu rolnego można wypowiedzieć na jeden rok naprzód na koniec roku dzierżawnego, inną zaś dzierżawę na sześć miesięcy naprzód przed upływem roku dzierżawnego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_764\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 764 2 . § 1. Umowa agencyjna, chociażby była zawarta na czas oznaczony, może być wypowiedziana bez zachowania terminów wypowiedzenia z powodu niewykonania obowiązków przez jedną ze stron w całości lub znacznej części, a także w przypadku zaistnienia nadzwyczajnych okoliczności. § 2. Jeżeli wypowiedzenia dokonano na skutek okoliczności, za które ponosi odpowiedzialność druga strona, jest ona zobowiązana do naprawienia szkody poniesionej przez wyp ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0274_statute_ccb9a29869daf7b4\", \"source_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_type\": \"statute\", \"top_category\": \"unilateral_change\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"jej wypowiedzenia; 15) zastrzegają dla kontrahenta konsumenta uprawnienie wypowiedzenia umowy zawartej na czas nieoznaczony, bez wskazania ważnych przyczyn i stosownego terminu wypowiedzenia; 16) nakładają wyłącznie na konsumenta obowiązek zapłaty ustalonej sumy na wypadek rezygnacji z zawarcia lub wykonania umowy; 17) nakładają na konsumenta, który nie wykonał zobowiązania lub odstąpił od umowy, obowiązek zapłaty rażąco wygórowanej kary umownej lub odstępnego; 18) stanowią, że umowa zawarta na czas oznaczony ulega przedłużeniu, o ile konsument, dla którego zastrzeżono rażąco krótki termin, ni ...\"}]",
+   "tool_call_id": "call_730974f386444264865e747e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_a8ebd0a3af774ed98541423f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Umowa dzierżawy gruntu rolnego z rozwiązaniem za rażące naruszenie (dewastacja gleby)\n\nzawarta w dniu **[data]** r. w **[miejscowość]** między:\n\n**Wydzierżawiającym:**\n[Imię i nazwisko / Nazwa firmy], zamieszkały / z siedzibą w [adres], PESEL / NIP: [numer], zwany dalej **„Wydzierżawiającym”**,\n\na\n\n**Dzierżawcą:**\n[Imię i nazwisko / Nazwa firmy], zamieszkały / z siedzibą w [adres], PESEL / NIP: [numer], zwany dalej **„Dzierżawcą”**,\n\nrazem zwanych **„Stronami”**.\n\n---\n\n## § 1 Przedmiot dzierżawy\n\n1. Wydzierżawiający oddaje Dzierżawcy w dzierżawę grunt rolny położony w **[miejscowość, gmina, powiat, województwo]**, oznaczony w ewidencji gruntów i budynków jako:\n   - numer ewidencyjny działki: **[numer]**,\n   - obręb ewidencyjny: **[nazwa/numer]**,\n   - powierzchnia: **[X,XX ha]**,\n   - klasa bonitacyjna: **[klasa]**,\n   - użytkowanie: **[np. orne, łąki, pastwiska]**,\n   zwany dalej **„Gruntem”**.\n\n2. Grunt oddawany jest w stanie niepogorszone, co potwierdza **Protokół zdawczo-odbiorczy** stanowiący **Załącznik nr 1** do niniejszej Umowy, sporządzony z dokumentacją fotograficzną i opisem stanu gleby (struktura, wilgotność, obecność skał, stan melioracji).\n\n3. Dzierżawca przyjmuje Grunt w stanie zgodnym z Protokolem i zobowiązuje się go użytkować zgodnie z przeznaczeniem rolniczym i zasadami prawidłowej gospodarki rolnej.\n\n---\n\n## § 2 Czas trwania umowy\n\n1. Umowa zawarta jest na czas oznaczony: od **[data rozpoczęcia]** do **[data zakończenia]** (okres dzierżawy: **[X lat / sezonów wegetacyjnych]**).\n\n2. Rocznik dzierżawczy trwa od **[np. 1 stycznia do 31 grudnia]** każdego roku kalendarzowego.\n\n3. Po upływie okresu na jaki zawarta została Umowa, ta ulega rozwiązaniu z mocy prawa, z zastrzeżeniem przepisów o przedłużeniu dzierżawy (art. 706 KC).\n\n---\n\n## § 3 Czynsz dzierżawny i termin płatności\n\n1. Czynsz dzierżawny ustala się w wysokości **[kwota w PLN lub w naturze – np. X dt/ha zboża]** rocznie.\n\n2. Czynsz jest płatny **[rocznie / półrocznie / kwartalnie]** z góry do dnia **[data]** każdego okresu płatności na rachunek bankowy Wydzierżawiającego:\n   **[numer IBAN, nazwa banku]**. Kwota netto: **[kwota]**, VAT 23%: **[kwota]**, brutto: **[kwota]**.\n\n3. W przypadku zwłoki z zapłatą czynszu co najmniej za dwa pełne okresy płatności, a przy płatności rocznej – powyżej trzech miesięcy, Wydzierżawiający może wypowiedzieć Umowę bez zachowania terminu wypowiedzenia, po uprzedzeniu Dzierżawcy pismennym wezwaniem do zapłaty z dodatkowym trzymiesięcznym terminem (art. 703 KC).\n\n4. Czynsz podlega waloryzacji raz w roku o wskaźnik cen towarów i usług konsumpcyjnych (CPI) opublikowany przez GUS, o ile Strony nie ustalą inaczej.\n\n---\n\n## § 4 Obowiązki Dzierżawcy – zasady prawidłowej gospodarki i ochrona gleby\n\n1. Dzierżawca prowadzi gospodarowanie na Gruncie zgodnie z wymaganiami **prawidłowej gospodarki rolnej** (art. 696 KC), w szczególności:\n   a) stosuje system uprawy zapobiegający erozji wiatrowej i wodnej gleby;\n   b) zachowuje strukturę gleby, unika przeciążania maszynami w niedopuszczalnej wilgotności;\n   c) stosuje nawożenie zrównoważone, zgodnie z planem nawożenia i programem działań nitratowych;\n   d) dba o urządzenia melioracyjne i przeciwpowodziowe (rowy, zwałowice, drętwienie);\n   e) nie zmienia przeznaczenia Gruntu bez pisemnej zgody Wydzierżawiającego.\n\n2. **Zakaz dewastacji gleby.** Dzierżawcy zabrania się:\n   a) uprawy bezobsługowej (pługowania bez zasiewu, pozostawiania pola gołego poza okresami uprawy przejściowej);\n   b) niszczenia warstwy humusowej przez nadmierne pługowanie, usuwanie warstwy ornej, wykopywanie gleby;\n   c) zagłębiania erozji przez uprawę wzdłuż stoku na stokach > 10% bez zabiegów przeciwerozyjnych;\n   d) zanieczyszczania gleby substancjami toksycznymi, odpadowi nieuprawnionymi, nadmiernymi dawkami nawozów/środków ochrony roślin wbrew przepisom;\n   e) devastacji melioracji (zasypywanie rowów, niszczenie drenaży, usuwanie zwałowic);\n   f) eksploatacji Gruntu w sposób prowadzący do trwałego pogorszenia jego wartości użytkowej (bonitacyjnej) o więcej niż **jedną klasę bonitacyjną** w skali rocznej lub zgodnie z opinią uprawnionego eksperta rolniczego.\n\n3. Dzierżawca ma obowiązek dokonywać napraw niezbędnych do zachowania Gruntu w stanie niepogorszonym, w tym napraw urządzeń melioracyjnych, dróg polowych, ogrodzeń (art. 697 KC).\n\n4. Dzierżawca nie może bez pisemnej zgody Wydzierżawiającego oddawać Gruntu osobie trzeciej do bezpłatnego użytkowania ani go poddzierżawać. Naruszenie tego zakazu uprawnia Wydzierżawiającego do wypowiedzenia Umowy bez zachowania terminów wypowiedzenia (art. 698 § 2 KC).\n\n---\n\n## § 5 Rozwiązanie Umowy za rażące naruszenie (dewastacja gleby)\n\n1. **Rażące naruszenie Umowy** stanowi w szczególności dewastacja gleby w rozumieniu § 4 ust. 2, potwierdzona:\n   a) protokołem komisji z udziałem obu Stron lub eksperta sądowego/rolniczego;\n   b) lub decyzją administracyjną (np. Inspekcji Ochrony Środowiska, ARiMR, Państwowej Inspekcji Rolnictwa) stwierdzającą naruszenie przepisów ochrony gleby/kod dobrej praktyki rolniczej.\n\n2. W przypadku stwierdzenia rażącego naruszenia, Wydzierżawiający może **rozwiązać Umowę bez zachowania terminu wypowiedzenia** w drodze oświadczenia woli skierowanego do Dzierżawcy piśmem pod rygorem nieważności.\n\n3. Oświadczenie o rozwiązaniu Umowy powinno zawierać:\n   - opis naruszenia z wskazaniem podstawy prawnej i dowodów;\n   - termin zwrotu Gruntu (nie dłuższy niż **14 dni** od doręczenia oświadczenia);\n   - wezwanie do naprawienia szkód (rekuptywacji gleby) na koszt Dzierżawcy.\n\n4. Rozwiązanie Umowy nie zwalnia Dzierżawcy z odpowiedzialności za szkody wyrządzone Gruntowi (art. 471 KC). Wydzierżawiający może żądać odszkodowania pokrywającego koszty rekuptywacji gleby, przywrócenia melioracji, utraconych pożytków oraz ewentualnej obniżenia wartości rynkowej Gruntu.\n\n5. Dzierżawca ma prawo do odwołania od stwierdzenia dewastacji w trybie sądowym w ciągu **30 dni** od doręczenia oświadczenia o rozwiązaniu. Do czasu rozstrzygnięcia sporu Dzierżawca zwraca Grunt, ale Strony mogą uzgodnić tryb zarządzania Gruntem w okresie pośrednim.\n\n---\n\n## § 6 Wypowiedzenie Umowy w trybie zwykłym\n\n1. Każda ze Stron może wypowiedzieć Umowę z zachowaniem terminów:\n   - na **jeden rok naprzód na koniec roku dzierżawnego** (art. 704 KC) – jeśli Umowa nie stanowi inaczej;\n   - przy dzierżawie na czas nieoznaczony – termin wynosi **jeden rok na koniec roku dzierżawnego**.\n\n2. Wypowiedzenie wymaga formy pisemnej pod rygorem nieważności.\n\n---\n\n## § 7 Zwrot Gruntu i rozliczenie końcowe\n\n1. Po zakończeniu dzierżawy Dzierżawca zwraca Grunt w stanie niepogorszonym ponad normalne zużycie wynikające z prawidłowego gospodarowania.\n\n2. Stan Gruntu przy zwrocie ustala **Protokół zwrotny** (Załącznik nr 2) z dokumentacją fotograficzną i ewentualną opinią eksperta rolniczego.\n\n3. Jeżeli Dzierżawca przy zakończeniu dzierżawy pozostawia zasiewy (zasiewy zimowe, rośliny wieloletnie), może żądać zwrotu nakładów na te zasiewy, o ile wbrew wymaganiom prawidłowej gospodarki nie otrzymał odpowiednich zasiewów przy rozpoczęciu dzierżawy (art. 706 KC).\n\n4. Wydzierżawiający może zatrzymać zaległy czynsz lub inne roszczenia z tytułu Umowy z kwot należnych Dzierżawcy zwrotów nakładów.\n\n---\n\n## § 8 Ubezpieczenie i odpowiedzialność\n\n1. Dzierżawca ubezpiecza uprawy na Gruncie w systemie ubezpieczeń rolniczych (polisa z dopłatą z budżetu państwa) oraz zawiera polisę OC rolnika pokrywającą odpowiedzialność za szkody wyrządzone osobom trzecim w związku z użytkowaniem Gruntu.\n\n2. Wydzierżawiający ubezpiecza Grunt (jeśli nieruchomość jest ubezpieczalna) na własny koszt.\n\n3. Dzierżawca ponosi pełną odpowiedzialność za szkody wyrządzone Gruntowi w wyniku naruszenia obowiązków z § 4, w tym dewastacji gleby, niezależnie od przyczyny (wina umyślna lub niedbalstwo).\n\n---\n\n## § 9 Postępowanie w sprawach spornych\n\n1. Spory wynikające z Umowy Strony starają się rozwiązać drodą negocjacji, a w razie niepowodzenia – przez sąd powszechny właściwy dla siedziby/Wydzierżawiającego.\n\n2. Przed wniesieniem pozewu o rozwiązanie Umowy za dewastację gleby, Strony mogą skierować spór do mediacji u mediatora zarejestrowanego w Ministerstwie Sprawiedliwości.\n\n---\n\n## § 10 Przepisy końcowe\n\n1. Zmiany Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. Umowa sporządzona jest w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej Strony.\n\n3. W sprawach nieuregulowanych w Umowie mają zastosowanie przepisy Kodeksu cywilnego (art. 693–709 KC) oraz ustawy z dnia 11 kwietnia 2003 r. o kształtowaniu ustroju ziemskiego (Dz.U. 2023 poz. 280 ze zm.) i ustawy z dnia 20 lutego 2015 r. o ochronie gruntów rolnych i leśnych (Dz.U. 2024 poz. 1234 ze zm.).\n\n4. Załączniki:\n   - Załącznik nr 1 – Protokół zdawczo-odbiorczy Gruntu z dokumentacją fotograficzną;\n   - Załącznik nr 2 – Wzór protokołu zwrotnego Gruntu;\n   - Załącznik nr 3 – Mapa sytuacyjno-wysokościowa Gruntu / wydruk z ewidencji gruntów.\n\n---\n\n**Wydzierżawiający**\n\n[podpis]\n\n**Dzierżawca**\n\n[podpis]\n\n---\n\n*Umowa zawarta w dwóch egzemplarzach, w dniu **[data]** r. w **[miejscowość]**.*",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Umowa dzierżawy gruntu rolnego z rozwiązaniem za rażące naruszenie (dewastacja gleby)\n\nzawarta w dniu **[data]** r. w **[miejscowość]** między:\n\n**Wydzierżawiającym:**\n[Imię i nazwisko / Nazwa firmy], zamieszkały / z siedzibą w [adres], PESEL / NIP: [numer], zwany dalej **„Wydzierżawiającym”**,\n\na\n\n**Dzierżawcą:**\n[Imię i nazwisko / Nazwa firmy], zamieszkały / z siedzibą w [adres], PESEL / NIP: [numer], zwany dalej **„Dzierżawcą”**,\n\nrazem zwanych **„Stronami”**.\n\n---\n\n## § 1 Przedmiot dzierżawy\n\n1. Wydzierżawiający oddaje Dzierżawcy w dzierżawę grunt rolny położony w **[miejscowość, gmina, powiat, województwo]**, oznaczony w ewidencji gruntów i budynków jako:\n   - numer ewidencyjny działki: **[numer]**,\n   - obręb ewidencyjny: **[nazwa/numer]**,\n   - powierzchnia: **[X,XX ha]**,\n   - klasa bonitacyjna: **[klasa]**,\n   - użytkowanie: **[np. orne, łąki, pastwiska]**,\n   zwany dalej **„Gruntem”**.\n\n2. Grunt oddawany jest w stanie niepogorszone, co potwierdza **Protokół zdawczo-odbiorczy** stanowiący **Załącznik nr 1** do niniejszej Umowy, sporządzony z dokumentacją fotograficzną i opisem stanu gleby (struktura, wilgotność, obecność skał, stan melioracji).\n\n3. Dzierżawca przyjmuje Grunt w stanie zgodnym z Protokolem i zobowiązuje się go użytkować zgodnie z przeznaczeniem rolniczym i zasadami prawidłowej gospodarki rolnej.\n\n---\n\n## § 2 Czas trwania umowy\n\n1. Umowa zawarta jest na czas oznaczony: od **[data rozpoczęcia]** do **[data zakończenia]** (okres dzierżawy: **[X lat / sezonów wegetacyjnych]**).\n\n2. Rocznik dzierżawczy trwa od **[np. 1 stycznia do 31 grudnia]** każdego roku kalendarzowego.\n\n3. Po upływie okresu na jaki zawarta została Umowa, ta ulega rozwiązaniu z mocy prawa, z zastrzeżeniem przepisów o przedłużeniu dzierżawy (art. 706 KC).\n\n---\n\n## § 3 Czynsz dzierżawny i termin płatności\n\n1. Czynsz dzierżawny ustala się w wysokości **[kwota w PLN lub w naturze – np. X dt/ha zboża]** rocznie.\n\n2. Czynsz jest płatny **[rocznie / półrocznie / kwartalnie]** z góry do dnia **[data]** każdego okresu płatności na rachunek bankowy Wydzierżawiającego:\n   **[numer IBAN, nazwa banku]**. Kwota netto: **[kwota]**, VAT 23%: **[kwota]**, brutto: **[kwota]**.\n\n3. W przypadku zwłoki z zapłatą czynszu co najmniej za dwa pełne okresy płatności, a przy płatności rocznej – powyżej trzech miesięcy, Wydzierżawiający może wypowiedzieć Umowę bez zachowania terminu wypowiedzenia, po uprzedzeniu Dzierżawcy pismennym wezwaniem do zapłaty z dodatkowym trzymiesięcznym terminem (art. 703 KC).\n\n4. Czynsz podlega waloryzacji raz w roku o wskaźnik cen towarów i usług konsumpcyjnych (CPI) opublikowany przez GUS, o ile Strony nie ustalą inaczej.\n\n---\n\n## § 4 Obowiązki Dzierżawcy – zasady prawidłowej gospodarki i ochrona gleby\n\n1. Dzierżawca prowadzi gospodarowanie na Gruncie zgodnie z wymaganiami **prawidłowej gospodarki rolnej** (art. 696 KC), w szczególności:\n   a) stosuje system uprawy zapobiegający erozji wiatrowej i wodnej gleby;\n   b) zachowuje strukturę gleby, unika przeciążania maszynami w niedopuszczalnej wilgotności;\n   c) stosuje nawożenie zrównoważone, zgodnie z planem nawożenia i programem działań nitratowych;\n   d) dba o urządzenia melioracyjne i przeciwpowodziowe (rowy, zwałowice, drętwienie);\n   e) nie zmienia przeznaczenia Gruntu bez pisemnej zgody Wydzierżawiającego.\n\n2. **Zakaz dewastacji gleby.** Dzierżawcy zabrania się:\n   a) uprawy bezobsługowej (pługowania bez zasiewu, pozostawiania pola gołego poza okresami uprawy przejściowej);\n   b) niszczenia warstwy humusowej przez nadmierne pługowanie, usuwanie warstwy ornej, wykopywanie gleby;\n   c) zagłębiania erozji przez uprawę wzdłuż stoku na stokach > 10% bez zabiegów przeciwerozyjnych;\n   d) zanieczyszczania gleby substancjami toksycznymi, odpadowi nieuprawnionymi, nadmiernymi dawkami nawozów/środków ochrony roślin wbrew przepisom;\n   e) devastacji melioracji (zasypywanie rowów, niszczenie drenaży, usuwanie zwałowic);\n   f) eksploatacji Gruntu w sposób prowadzący do trwałego pogorszenia jego wartości użytkowej (bonitacyjnej) o więcej niż **jedną klasę bonitacyjną** w skali rocznej lub zgodnie z opinią uprawnionego eksperta rolniczego.\n\n3. Dzierżawca ma obowiązek dokonywać napraw niezbędnych do zachowania Gruntu w stanie niepogorszonym, w tym napraw urządzeń melioracyjnych, dróg polowych, ogrodzeń (art. 697 KC).\n\n4. Dzierżawca nie może bez pisemnej zgody Wydzierżawiającego oddawać Gruntu osobie trzeciej do bezpłatnego użytkowania ani go poddzierżawać. Naruszenie tego zakazu uprawnia Wydzierżawiającego do wypowiedzenia Umowy bez zachowania terminów wypowiedzenia (art. 698 § 2 KC).\n\n---\n\n## § 5 Rozwiązanie Umowy za rażące naruszenie (dewastacja gleby)\n\n1. **Rażące naruszenie Umowy** stanowi w szczególności dewastacja gleby w rozumieniu § 4 ust. 2, potwierdzona:\n   a) protokołem komisji z udziałem obu Stron lub eksperta sądowego/rolniczego;\n   b) lub decyzją administracyjną (np. Inspekcji Ochrony Środowiska, ARiMR, Państwowej Inspekcji Rolnictwa) stwierdzającą naruszenie przepisów ochrony gleby/kod dobrej praktyki rolniczej.\n\n2. W przypadku stwierdzenia rażącego naruszenia, Wydzierżawiający może **rozwiązać Umowę bez zachowania terminu wypowiedzenia** w drodze oświadczenia woli skierowanego do Dzierżawcy piśmem pod rygorem nieważności.\n\n3. Oświadczenie o rozwiązaniu Umowy powinno zawierać:\n   - opis naruszenia z wskazaniem podstawy prawnej i dowodów;\n   - termin zwrotu Gruntu (nie dłuższy niż **14 dni** od doręczenia oświadczenia);\n   - wezwanie do naprawienia szkód (rekuptywacji gleby) na koszt Dzierżawcy.\n\n4. Rozwiązanie Umowy nie zwalnia Dzierżawcy z odpowiedzialności za szkody wyrządzone Gruntowi (art. 471 KC). Wydzierżawiający może żądać odszkodowania pokrywającego koszty rekuptywacji gleby, przywrócenia melioracji, utraconych pożytków oraz ewentualnej obniżenia wartości rynkowej Gruntu.\n\n5. Dzierżawca ma prawo do odwołania od stwierdzenia dewastacji w trybie sądowym w ciągu **30 dni** od doręczenia oświadczenia o rozwiązaniu. Do czasu rozstrzygnięcia sporu Dzierżawca zwraca Grunt, ale Strony mogą uzgodnić tryb zarządzania Gruntem w okresie pośrednim.\n\n---\n\n## § 6 Wypowiedzenie Umowy w trybie zwykłym\n\n1. Każda ze Stron może wypowiedzieć Umowę z zachowaniem terminów:\n   - na **jeden rok naprzód na koniec roku dzierżawnego** (art. 704 KC) – jeśli Umowa nie stanowi inaczej;\n   - przy dzierżawie na czas nieoznaczony – termin wynosi **jeden rok na koniec roku dzierżawnego**.\n\n2. Wypowiedzenie wymaga formy pisemnej pod rygorem nieważności.\n\n---\n\n## § 7 Zwrot Gruntu i rozliczenie końcowe\n\n1. Po zakończeniu dzierżawy Dzierżawca zwraca Grunt w stanie niepogorszonym ponad normalne zużycie wynikające z prawidłowego gospodarowania.\n\n2. Stan Gruntu przy zwrocie ustala **Protokół zwrotny** (Załącznik nr 2) z dokumentacją fotograficzną i ewentualną opinią eksperta rolniczego.\n\n3. Jeżeli Dzierżawca przy zakończeniu dzierżawy pozostawia zasiewy (zasiewy zimowe, rośliny wieloletnie), może żądać zwrotu nakładów na te zasiewy, o ile wbrew wymaganiom prawidłowej gospodarki nie otrzymał odpowiednich zasiewów przy rozpoczęciu dzierżawy (art. 706 KC).\n\n4. Wydzierżawiający może zatrzymać zaległy czynsz lub inne roszczenia z tytułu Umowy z kwot należnych Dzierżawcy zwrotów nakładów.\n\n---\n\n## § 8 Ubezpieczenie i odpowiedzialność\n\n1. Dzierżawca ubezpiecza uprawy na Gruncie w systemie ubezpieczeń rolniczych (polisa z dopłatą z budżetu państwa) oraz zawiera polisę OC rolnika pokrywającą odpowiedzialność za szkody wyrządzone osobom trzecim w związku z użytkowaniem Gruntu.\n\n2. Wydzierżawiający ubezpiecza Grunt (jeśli nieruchomość jest ubezpieczalna) na własny koszt.\n\n3. Dzierżawca ponosi pełną odpowiedzialność za szkody wyrządzone Gruntowi w wyniku naruszenia obowiązków z § 4, w tym dewastacji gleby, niezależnie od przyczyny (wina umyślna lub niedbalstwo).\n\n---\n\n## § 9 Postępowanie w sprawach spornych\n\n1. Spory wynikające z Umowy Strony starają się rozwiązać drodą negocjacji, a w razie niepowodzenia – przez sąd powszechny właściwy dla siedziby/Wydzierżawiającego.\n\n2. Przed wniesieniem pozewu o rozwiązanie Umowy za dewastację gleby, Strony mogą skierować spór do mediacji u mediatora zarejestrowanego w Ministerstwie Sprawiedliwości.\n\n---\n\n## § 10 Przepisy końcowe\n\n1. Zmiany Umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. Umowa sporządzona jest w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej Strony.\n\n3. W sprawach nieuregulowanych w Umowie mają zastosowanie przepisy Kodeksu cywilnego (art. 693–709 KC) oraz ustawy z dnia 11 kwietnia 2003 r. o kształtowaniu ustroju ziemskiego (Dz.U. 2023 poz. 280 ze zm.) i ustawy z dnia 20 lutego 2015 r. o ochronie gruntów rolnych i leśnych (Dz.U. 2024 poz. 1234 ze zm.).\n\n4. Załączniki:\n   - Załącznik nr 1 – Protokół zdawczo-odbiorczy Gruntu z dokumentacją fotograficzną;\n   - Załącznik nr 2 – Wzór protokołu zwrotnego Gruntu;\n   - Załącznik nr 3 – Mapa sytuacyjno-wysokościowa Gruntu / wydruk z ewidencji gruntów.\n\n---\n\n**Wydzierżawiający**\n\n[podpis]\n\n**Dzierżawca**\n\n[podpis]\n\n---\n\n*Umowa zawarta w dwóch egzemplarzach, w dniu **[data]** r. w **[miejscowość]**.*",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Mam grunt rolny do wydzierżawienia i chcę się zabezpieczyć na wypadek, gdyby dzierżawca zaczął niszczyć glebę. Potrzebuję umowy, która pozwoli mi szybko zerwać dzierżawę, jeśli dojdzie do dewastacji pola."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Wydzierżawiam ziemię i martwię się, że dzierżawca może ją zaniedbać - zostawić odłog, zasuwa rowy melioracyjne, zalać chemią czy doprowadzić do erozji. Chcę umowy, która pozwoli mi rozwiązać dzierżawę od razu, bez czekania, jeśli stwierdzę rażące zniszczenie gleby. Zależy mi też na protokole zdawczo-odbiorczym ze zdjęciami, żebym miał dowód, w jakim stanie oddałem pole i czy zostało zwrócone bez uszkodzeń."
+  }
+ ]
+}

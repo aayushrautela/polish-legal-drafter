@@ -1,0 +1,285 @@
+{
+ "run": 6,
+ "hint": "Pełnomocnictwo do sprzedaży pojazdu",
+ "scenario": "Pełnomocnictwo do sprzedaży pojazdu",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='pelnomocnictwo'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_9e2eb98009b1433fb7d54338",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"pelnomocnictwo\"}"
+     }
+    },
+    {
+     "id": "call_5cd330e682fe4900abcb19b6",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo sprzedaż pojazdu samochodowy\"}"
+     }
+    },
+    {
+     "id": "call_06ff85fd1e21432b8d813e0e",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"pojazd\", \"sprzedaż\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"pelnomocnictwo\", \"kind\": \"structural_template\", \"text\": \"# Pełnomocnictwo do sprzedaży nieruchomości\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce to jednostronne oświadczenie woli właściciela nieruchomości (mocodawcy), przez które udziela on oznaczonej osobie (pełnomocnikowi) upoważnienia do dokonania w jego imieniu czynności prawnych związanych ze sprzedażą nieruchomości. Instytucję pełnomocnictwa regulują art. 95-109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo do sprzedaży nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonej nieruchomości.\\n\\nArtykuł 99 par. 1 KC statuuje zasadę, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Ponieważ sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), pełnomocnictwo do sprzedaży nieruchomości musi być udzielone w formie aktu notarialnego przez notariusza. Pełnomocnictwo do sprzedaży nieruchomości sporządzone w zwykłej formie pisemnej lub ustnie jest nieważne i nie pozwoli pełnomocnikowi skutecznie zawrzeć umowy sprzedaży.\\n\\nZakres pełnomocnictwa musi być precyzyjnie określony. Pełnomocnictwo szczególne do sprzedaży nieruchomości powinno wskazywać: dane mocodawcy i pełnomocnika (z numerami PESEL i seriami dowodów osobistych), dokładny opis nieruchomości (adres, numer KW, numer działki ewidencyjnej i obręb), zakres umocowania (podpisanie umowy przedwstępnej, umowy przyrzeczonej w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku wieczystoksięgowego), ewentualną minimalną cenę sprzedaży oraz informację, czy pełnomocnik może udzielać dalszych pełnomocnictw (substytucja).\\n\\nPełnomocnictwo do sprzedaży nieruchomości jest typowo udzielane w następujących sytuacjach: właściciel przebywa za granicą lub jest chory i nie może osobiście stawić się u notariusza, właściciel jest osobą prawną reprezentowaną przez osobę trzecią, sprzedaż dotyczy udziałów kilku współwłaścicieli i jeden z nich udziela pełnomocnictwa innemu, transakcja wymaga zaangażowania profesjonalnego agenta lub adwokata.\\n\\nArtykuł 101 KC reguluje odwołanie pełnomocnictwa. Mocodawca może odwołać pełnomocnictwo w każdym czasie przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi. Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, chyba że z treści pełnomocnictwa wynika inaczej lub udzielono go z klauzulą nieodwołalności na podstawie art. 101 par. 1 KC.\\n\\nW praktyce notarialnej kluczowe jest okazanie przez pełnomocnika aktualnego i ważnego pełnomocnictwa (notariusz kupującego weryfikuje jego autentyczność). Pełnomocnik działający na podstawie pełnomocnictwa notarialnego udzielonego za granicą musi zadbać o apostille lub legalizację dokumentu, jeżeli pochodzi z jurysdykcji spoza UE. Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa przedwstępna sprzedaży nieruchomości.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest potrzebne zawsze, gdy właściciel nieruchomości chce upoważnić inną osobę do zawarcia umowy sprzedaży w jego imieniu, bez konieczności osobistego stawiennictwa u notariusza. Poniżej opisano typowe sytuacje.\\n\\nWłaściciel przebywa za granicą. Polacy zamieszkali za granicą, którzy chcą sprzedać nieruchomość w Polsce, mogą udzielić pełnomocnictwa krewnemu lub prawnikowi przebywającemu w Polsce. Pełnomocnictwo może być udzielone u polskiego notariusza podczas wizyty w kraju lub u polskiego konsula albo miejscowego notariusza za granicą (z apostille). Jest to najczęstszy przypadek udzielenia pełnomocnictwa do sprzedaży nieruchomości.\\n\\nWłaściciel jest chory lub ma ograniczoną mobilność. Osoba starsza lub ciężko chora, która nie może osobiście stawić się w kancelarii notarialnej, udziela pełnomocnictwa zaufanej osobie — dziecku, małżonkowi lub prawnemu doradcy. Notariusz może sporządzić akt pełnomocnictwa poza kancelarią (w szpitalu lub w domu mocodawcy) za dodatkową opłatą.\\n\\nSprzedaż nieruchomości przez spółkę lub inną osobę prawną. Spółki z ograniczoną odpowiedzialnością, spółki akcyjne i inne osoby prawne sprzedają nieruchomości przez reprezentantów (zarząd) lub przez udzielone pełnomocnictwo. Zarząd upoważnia pełnomocnika, który podpisuje akt notarialny sprzedaży w imieniu spółki.\\n\\nKilku współwłaścicieli udziela pełnomocnictwa jednemu z nich. Gdy nieruchomość należy do kilku osób (np. rodzeństwo po rodzicach), a wszyscy nie mogą stawić się u notariusza, niektórzy z nich udzielają pełnomocnictwa jednemu ze współwłaścicieli lub wybranemu pełnomocnikowi do zawarcia umowy sprzedaży w ich imieniu.\\n\\nTransakcja wymaga profesjonalnego doradcy lub agenta. Inwestor realizujący wiele transakcji jednocześnie lub strona wymagająca reprezentacji prawnej udziela pełnomocnictwa adwokatowi, radcy prawnemu lub agentowi nieruchomości do przeprowadzenia transakcji sprzedaży.\\n\\nSprzedaż z pominięciem osobistego stawiennictwa przy podpisaniu aktu. Pełnomocnictwo umożliwia sprzedającemu uniknięcie konieczności stawiennictwa u notariusza kupującego, gdy sprzedaż odbywa się w innym mieście lub gdy terminy notarialne są niedogodne.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce musi zawierać elementy wymagane przez art. 95-109 KC i praktykę notarialną. Poniżej opisano kluczowe składniki.\\n\\nDane mocodawcy z numerem PESEL i dowodem osobistym. Notariusz sporządzający akt pełnomocnictwa jest zobowiązany do ustalenia tożsamości mocodawcy przez sprawdzenie dowodu osobistego lub paszportu. W treści pełnomocnictwa obowiązkowo wpisuje się imię, nazwisko, numer PESEL i serię numeru dowodu osobistego mocodawcy.\\n\\nDane pełnomocnika z numerem PESEL. Pełnomocnik musi być dokładnie oznaczony przez podanie imienia, nazwiska, numeru PESEL i adresu zamieszkania, a w praktyce notarialnej — serii i numeru dowodu osobistego. Jednoznaczna identyfikacja pełnomocnika zapobiega nadużyciom.\\n\\nDokładny opis nieruchomości. Pełnomocnictwo szczególne musi precyzyjnie opisywać nieruchomość, której dotyczy, przez podanie jej rodzaju, adresu lub położenia, numeru działki ewidencyjnej i obrębu oraz numeru księgi wieczystej, np. WA1M/00234567/8, prowadzonej przez Sąd Rejonowy (Sąd Wieczystoksięgowy). Opis nieruchomości ogranicza zakres pełnomocnictwa do tej konkretnej nieruchomości.\\n\\nZakres umocowania. Pełnomocnictwo musi precyzyjnie opisywać, jakie czynności pełnomocnik jest uprawniony wykonać: podpisanie umowy przedwstępnej sprzedaży, podpisanie umowy przyrzeczonej sprzedaży w formie aktu notarialnego, odbiór ceny, wydanie nieruchomości, złożenie wniosku o wpis prawa własności nabywcy w księdze wieczystej, składanie oświadczeń o stanie prawnym nieruchomości. Zbyt szerokie lub zbyt wąskie umocowanie może prowadzić do problemów przy zawieraniu umowy sprzedaży.\\n\\nEwentualna minimalna cena sprzedaży. Jeżeli mocodawca chce ograniczyć swobodę pełnomocnika, może wskazać minimalną cenę, za jaką pełnomocnik może sprzedać nieruchomość. Bez wskazania ceny minimalnej pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nPrawo do substytucji. Pełnomocnictwo może zawierać lub wykluczać prawo pełnomocnika do udzielenia dalszego pełnomocnictwa (substytucji). Substytucja pozwala pełnomocnikowi powierzyć część uprawnień innej osobie, co jest przydatne w transakcjach wymagających udziału adwokata lub notariusza.\\n\\nOkres ważności i odwołanie. Choć Kodeks cywilny nie wymaga wskazania terminu ważności, w praktyce pełnomocnictwa do sprzedaży nieruchomości udziela się na czas oznaczony lub ze wskazaniem, że wygasa po dokonaniu oznaczonej czynności. Mocodawca może odwołać pełnomocnictwo w każdym czasie (art. 101 KC). Serwis forms-legal.com udostępnia wzory powiązanych dokumentów, takich jak umowa zamiany nieruchomości.\\n\\nSporządzenie pełnomocnictwa do sprzedaży nieruchomości wymaga wizyty u notariusza i zebrania dokumentów obu stron. Poniżej opisano etapy.\\n\\nKrok 1 — zbierz dokumenty. Mocodawca przygotowuje swój dowód osobisty lub paszport, akt nabycia nieruchomości (akt notarialny zakupu lub darowizny), aktualny odpis z KW i dane pełnomocnika (imię, nazwisko, PESEL, adres, seria i numer dowodu osobistego).\\n\\nKrok 2 — zdecyduj o zakresie umocowania. Przed wizytą u notariusza precyzyjnie ustal, jakie czynności ma wykonać pełnomocnik: czy tylko podpisać akt notarialny sprzedaży, czy też zawrzeć umowę przedwstępną, odebrać cenę, wydać nieruchomość i złożyć wniosek wieczystoksięgowy. Im precyzyjniejszy zakres, tym mniejsze ryzyko nadużyć.\\n\\nKrok 3 — ustal minimalną cenę (jeśli dotyczy). Jeżeli chcesz ograniczyć swobodę pełnomocnika, wpisz minimalną cenę sprzedaży nieruchomości. Bez tej klauzuli pełnomocnik może sprzedać nieruchomość za dowolną cenę.\\n\\nKrok 4 — zdecyduj o substytucji. Ustal, czy pełnomocnik ma prawo udzielić dalszego pełnomocnictwa innej osobie (substytucja). Substytucja jest przydatna, gdy pełnomocnikiem jest adwokat lub radca prawny, który może chcieć przekazać czynności notarialne współpracownikowi.\\n\\nKrok 5 — uzupełnij formularz i przygotuj wzór dla notariusza. Wpisz dane mocodawcy, pełnomocnika, opis nieruchomości i zakres umocowania. Wydrukowany wzór ułatwia rozmowę z notariuszem i zapobiega pominięciu ważnych elementów.\\n\\nKrok 6 — podpisz akt pełnomocnictwa u notariusza. Mocodawca osobiście stawia się u notariusza (lub przed konsulem za granicą). Notariusz weryfikuje tożsamość mocodawcy, sporządza akt pełnomocnictwa i przekazuje mocodawcy wypis aktu.\\n\\nKrok 7 — przekaż wypis pełnomocnikowi. Mocodawca przekazuje pełnomocnikowi wypis aktu notarialnego pełnomocnictwa. Przy transakcji notariusz kupującego weryfikuje autentyczność pełnomocnictwa.\\n\\nKrok 8 — odwołaj pełnomocnictwo niezwłocznie po transakcji lub gdy stosunek zaufania ustaje. Jeżeli pełnomocnik zawarł umowę sprzedaży, pełnomocnictwo wygasa z mocy prawa po dokonaniu czynności. Jeżeli transakcja nie doszła do skutku, mocodawca może odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie złożone pełnomocnikowi.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce podlega ścisłym wymogom Kodeksu cywilnego.\\n\\nWymóg formy aktu notarialnego. Artykuł 99 par. 1 KC stanowi, że jeżeli do ważności czynności prawnej potrzebna jest szczególna forma, pełnomocnictwo do dokonania tej czynności powinno być udzielone w tej samej formie. Sprzedaż nieruchomości wymaga formy aktu notarialnego pod rygorem nieważności (art. 158 KC), dlatego pełnomocnictwo do sprzedaży nieruchomości musi być sporządzone przez notariusza. Pełnomocnictwo w formie pisemnej lub ustnej jest nieważne.\\n\\nRodzaj pełnomocnictwa. Pełnomocnictwo do sprzedaży konkretnej nieruchomości jest pełnomocnictwem szczególnym w rozumieniu art. 98 par. 1 KC, gdyż dotyczy poszczególnej czynności. Pełnomocnictwo rodzajowe obejmowałoby szereg czynności tego samego rodzaju; pełnomocnictwo ogólne obejmuje wyłącznie czynności zwykłego zarządu.\\n\\nSkutki działania pełnomocnika. Czynności prawne dokonane przez pełnomocnika w granicach umocowania wywierają skutki bezpośrednio dla mocodawcy (art. 95 par. 2 KC). Umowa sprzedaży nieruchomości podpisana przez pełnomocnika działającego w granicach pełnomocnictwa notarialnego jest w pełni skuteczna i przenosi własność nieruchomości na nabywcę.\\n\\nOdwołanie i wygaśnięcie. Mocodawca może w każdym czasie odwołać pełnomocnictwo przez oświadczenie złożone pełnomocnikowi (art. 101 KC). Pełnomocnictwo wygasa z chwilą śmierci mocodawcy lub pełnomocnika, z chwilą odwołania lub po dokonaniu czynności, do której zostało udzielone. Klauzula nieodwołalności jest dopuszczalna jedynie wtedy, gdy umocowanie jest udzielone na czas oznaczony i z uzasadnionych przyczyn (art. 101 par. 1 KC).\\n\\nZakaz działania w imieniu własnym przy konflikcie interesów. Pełnomocnik nie może być drugą stroną czynności prawnej, której dokonuje w imieniu mocodawcy (zakaz samoumowy — art. 108 KC), chyba że mocodawca wyraźnie na to zezwolił lub czynność jest wyłącznie na korzyść mocodawcy.\\n\\nPełnomocnictwo udzielone za granicą. Pełnomocnictwo sporządzone przez notariusza zagranicznego wymaga apostille zgodnie z Konwencją haską z 1961 r. lub legalizacji przez konsula, jeżeli pochodzi z kraju niebędącego stroną tej konwencji. Pełnomocnictwo udzielone przez polskiego konsula za granicą nie wymaga apostille.\\n\\nPełnomocnictwo do sprzedaży nieruchomości w Polsce jest dokumentem wymagającym precyzji. Poniżej opisano najczęstsze błędy.\\n\\nBłąd 1 — pełnomocnictwo w formie pisemnej zamiast notarialnej. Mocodawcy niekiedy udzielają pełnomocnictwa do sprzedaży nieruchomości w zwykłej formie pisemnej, sądząc, że wystarczy podpis na kartce papieru. Takie pełnomocnictwo jest nieważne — art. 99 par. 1 KC w związku z art. 158 KC wymaga bezwzględnie formy aktu notarialnego. Notariusz kupującego odmówi przeprowadzenia transakcji na podstawie nieważnego pełnomocnictwa.\\n\\nBłąd 2 — zbyt ogólny lub zbyt wąski zakres umocowania. Pełnomocnictwo opisujące wyłącznie \\\"prawo do sprzedaży nieruchomości\\\" bez wskazania uprawnień do odbioru ceny, wydania nieruchomości i złożenia wniosku wieczystoksięgowego może nie obejmować wszystkich czynności niezbędnych do przeprowadzenia transakcji. Z drugiej strony pełnomocnictwo ogólne bez wskazania konkretnej nieruchomości jest zbyt szerokie i może być kwestionowane przez notariusza kupującego.\\n\\nBłąd 3 — brak danych pełnomocnika lub nieprawidłowy PESEL. Pełnomocnictwo bez numeru PESEL pełnomocnika lub z błędnymi danymi może uniemożliwić przeprowadzenie transakcji, gdyż notariusz kupującego nie będzie mógł zidentyfikować pełnomocnika.\\n\\nBłąd 4 — nieodwołanie pełnomocnictwa po rezygnacji z transakcji. Jeżeli właściciel zdecyduje się nie sprzedawać nieruchomości lub zaufanie do pełnomocnika ustaje, powinien niezwłocznie odwołać pełnomocnictwo przez pisemne lub notarialne oświadczenie. Brak odwołania naraża mocodawcę na ryzyko zawarcia transakcji przez nieuprawnionego pełnomocnika.\\n\\nBłąd 5 — pełnomocnictwo udzielone za granicą bez apostille. Pełnomocnictwo sporządzone przez zagranicznego notariusza wymaga apostille lub legalizacji, aby mogło być uznane przez polskiego notariusza. Brak apostille skutkuje odmową przyjęcia pełnomocnictwa i koniecznością ponownego sporządzenia dokumentu.\\n\\nŹródło: https://forms-legal.com/pl/real-estate/purchase-sale/pelnomocnictwo-do-sprzedazy-nieruchomosci (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_9e2eb98009b1433fb7d54338",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_42b369dcd9af576d\", \"source_id\": \"uokik_rejestr_klauzul_4553\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 6 ust. 3 - Jednocześnie Kupujący oświadczają, iż w zakresie, o którym mowa w ust. 1 i ust. 2 powyżej stosownie do treści art. 101 Kodeksu Cywilnego, pod warunkiem zaistnienia następujących przyczyn: zapłaty całej Ceny, przejścia prawa do współposiadania i korzystania z Garażu oraz wydania Miejsc Postojowych do wyłącznego korzystania Kupującym, to jest w sytuacji, gdy będzie to uzasadnione treścią stosunku prawnego będącego podstawą pełnomocnictwa, zrzekają się prawa do odwołania tego pełnomocnictwa oraz postanawiają, iż nie wygaśnie ono w przypadku ich śmierci lub rozwiązania Spółki, przy cz ...\"}, {\"chunk_id\": \"uokik_items:uokik_4a166697979fecef\", \"source_id\": \"uokik_rejestr_klauzul_4551\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 6 ust. 1 - Kupujący udzielają Spółce pełnomocnictwa, do zawarcia w Ich imieniu umowy Sprzedaży, za cenę i na warunkach określonych w niniejszym akcie\"}, {\"chunk_id\": \"uokik_items:uokik_04038ae1d2c2b4a8\", \"source_id\": \"uokik_rejestr_klauzul_4559\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 8 ust. 2 - Kupujący na wypadek zawarcia Umowy Sprzedaży przez Spółkę działającą w charakterze pełnomocnika Kupujących lub przez dalszego pelnomocnika na podstawie pełnomocnictwa udzielonego w tym zakresie przez Spółkę (i pod warunkiem zawarcia Umowy Sprzedaży) udzielają Spółce pełnomocnictwa do reprezentowania ich w toku wszelkich postępowań (w tym w szczególności postępowań administracyjnych) dotyczących realizacji Inwestycji oraz uzyskania pozwoleń na użytkowanie. Kupujący nie będą wnosić jakichkolwiek roszczeń z tytułu toczących się prac budowlanych i postępowań, jak również zobowiązują s ...\"}, {\"chunk_id\": \"uokik_items:uokik_c29d9e35dad3d995\", \"source_id\": \"uokik_rejestr_klauzul_4552\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 6 ust. 2 - Kupujący udzielają Spółce pełnomocnictwa, pod warunkiem zawarcia Umowy Sprzedaży, do zawarcia w ich imieniu umowy o podział do korzystania z Garażu, przy czym w ramach powyższego umocowania Spółka będzie uprawniona do wskazania Kupującym, w drodze umowy o podział do korzystania z miejsca postojowego numer 289 oraz miejsca postojowego numer 290, na poziomie -1 Garażu oraz do złożenia w ich imieniu w Umowie Sprzedaży oświadczenia, iż wyrażają oni zgodę na podział do korzystania z Garażu oraz na wskazywanie przez Spółkę kolejnym nabywcom lokali, w drodze umów z nabywcami udziałów w G ...\"}, {\"chunk_id\": \"uokik_items:uokik_27e81e8b7af3ae34\", \"source_id\": \"uokik_rejestr_klauzul_4560\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 8 ust. 4 - Kupujący na wypadek zawarcia Umowy Sprzedaży przez Spółkę działającą w charakterze pełnomocnika Kupujących lub przez dalszego pełnomocnika na podstawie pełnomocnictwa udzielonego w tym zakresie przez Spółkę (i pod warunkiem zawarcia Umowy Sprzedaży) udzielają Spółce pełnomocnictw, do ustanowienia lub zmiany wcześniej ustanowionych służebności lub praw użytkowania, na prawach objętych księgą wieczystą Kw nr WA2M/00373536/2. na warunkach według uznania pełnomocnika. Kupujący nie będą wnosić jakichkolwiek roszczeń z tytułu ustanowienia lub zmiany takich służebności gruntowych lub pra ...\"}]",
+   "tool_call_id": "call_5cd330e682fe4900abcb19b6",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_17_art_44b\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 44b 25) Dodany przez art. 1 pkt 14 ustawy, o której mowa w odnośniku 2; wejdzie w życie z dniem 14 marca 2024 r. . § 1. W wypadkach wskazanych w ustawie sąd orzeka przepadek pojazdu mechanicznego prowadzonego przez sprawcę w ruchu lądowym. § 2. Jeżeli w czasie popełnienia przestępstwa pojazd nie stanowił wyłącznej własności sprawcy albo po popełnieniu przestępstwa sprawca zbył, darował lub ukrył podlegający przepadkowi pojazd, orzeka się przepadek  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_911\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 911 7 . § 1. Jeżeli przepis szczególny nie stanowi inaczej, komornik może sprzedać zajęte prawo z wolnej ręki po cenie nie niższej niż 75 % ceny oszacowania. Sprzedaż ta nie może nastąpić wcześniej niż czternastego dnia od oszacowania. § 2. Na wniosek dłużnika, za zgodą wierzyciela, sprzedaż może nastąpić bez oszacowania prawa. Sprzedaż za wskazaną przez dłużnika cenę może nastąpić, gdy nie naruszyło to interesów wierzycieli. ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_904\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 904 1 . § 1. Na wniosek wierzyciela jego zaspokojenie nastąpi przez sprzedaż wierzytelności w drodze licytacji lub z wolnej ręki, o ile nie sprzeciwia się temu charakter zajętej wierzytelności. § 2. Sprzedaży zajętej wierzytelności dokonuje się w drodze licytacji prowadzonej według przepisów o egzekucji z ruchomości. Cena wywołania wynosi trzy czwarte sumy, na którą składa się należność główna oraz odsetki naliczone do dnia l ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_19\", \"source_id\": \"sejm_eli_du_2025_24_art_19\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 19. 1. Twórcy i jego spadkobiercom, w przypadku dokonanych zawodowo odsprzedaży oryginalnych egzem plarzy utworu plastycznego lub fotograficznego, przysługuje prawo do wynagrodzenia stanowiącego sumę poniższych stawek: 1) 5 % części ceny sprzedaży, jeżeli ta część jest zawarta w przedziale do równowartości 50 000 euro, oraz 2) 3 % części ceny sprzedaży, jeżeli ta część jest zawarta w przedziale od równowartości 50 000,01 euro do równowartości 200 000 euro, oraz 3) 1 % części ceny sprzedaży, jeżeli ta część jest zawarta ...\"}, {\"chunk_id\": \"sejm_eli_du_2022_1233_art_15\", \"source_id\": \"sejm_eli_du_2022_1233_art_15\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\", \"display_address\": \"Dz.U. 2022 poz. 1233\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (tekst jednolity: Dz.U. 2022 poz. 1233)\\nArt. 15. 1. Czynem nieuczciwej konkurencji jest utrudnianie innym przedsiębiorcom dostępu do rynku, w szczególności przez: 1) sprzedaż towarów lub usług poniżej kosztów ich wytworzenia lub świadczenia albo ich odprzedaż poniżej kosztów zakupu w celu eliminacji innych przedsiębiorców; 2) nakłanianie osób trzecich do odmowy sprzedaży innym przedsiębiorcom albo niedokonywania zakupu towarów lub usług od innych przedsiębiorców; 3) rzeczowo nieuzasadnione, zróżnicowane traktowanie niektóry ...\"}]",
+   "tool_call_id": "call_06ff85fd1e21432b8d813e0e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results show the base template for \"pelnomocnictwo\" but it's focused on real estate (nieruchomości), not vehicles. The semantic search and keyword search returned some UOKiK abusive clause registry entries and some criminal/civil code articles, but nothing specifically about power of attorney for vehicle sale.\n\nLet me search more specifically for vehicle sale power of attorney provisions. I need to find:\n1. Legal requirements for power of attorney for vehicle sale (form requirements)\n2. Specific provisions about vehicle registration, transfer of ownership\n3. Any specific statutory references\n\nLet me search for more relevant materials.",
+   "tool_calls": [
+    {
+     "id": "call-78659334-ca74-4927-8e55-6ea50b08742f",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"pełnomocnictwo sprzedaż samochód pojazd mechaniczny rejestracja\"}"
+     }
+    },
+    {
+     "id": "call-3028a5d6-4037-45ea-9d72-dbcebf8ca00d",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"pojazd mechaniczny\", \"rejestracja\", \"przekazanie własności\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_4a166697979fecef\", \"source_id\": \"uokik_rejestr_klauzul_4551\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 6 ust. 1 - Kupujący udzielają Spółce pełnomocnictwa, do zawarcia w Ich imieniu umowy Sprzedaży, za cenę i na warunkach określonych w niniejszym akcie\"}, {\"chunk_id\": \"uokik_items:uokik_c29d9e35dad3d995\", \"source_id\": \"uokik_rejestr_klauzul_4552\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 6 ust. 2 - Kupujący udzielają Spółce pełnomocnictwa, pod warunkiem zawarcia Umowy Sprzedaży, do zawarcia w ich imieniu umowy o podział do korzystania z Garażu, przy czym w ramach powyższego umocowania Spółka będzie uprawniona do wskazania Kupującym, w drodze umowy o podział do korzystania z miejsca postojowego numer 289 oraz miejsca postojowego numer 290, na poziomie -1 Garażu oraz do złożenia w ich imieniu w Umowie Sprzedaży oświadczenia, iż wyrażają oni zgodę na podział do korzystania z Garażu oraz na wskazywanie przez Spółkę kolejnym nabywcom lokali, w drodze umów z nabywcami udziałów w G ...\"}, {\"chunk_id\": \"uokik_abusive_clause_100\", \"source_id\": \"uokik_abusive_clauses_registry\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia Spółce zrealizowania celu i przedmiotu niniejszej Umowy klient, którego dane osobowe wymienione są na pierwszej stronie Umowy, przez jej zawarcie przekazuje na rzecz Spółki nieodwołalne pełnomocnictwo na okres formalnego działania Programu, aż do ostatecznego rozliczenia. Pełnomocnictwo to obejmuje upoważnienie Spółki do równoprawnego rozwiązywania spraw dotyczących Klientów, w tym spowodowanych okolicznościami siły wyższej, a które mogłyby przynieść szkody Programowi i jego Klientom. Działając w granicach zakreślonych przez artykuł 101 Kodeksu Cywilnego Klient, mając na uwadz ...\"}, {\"chunk_id\": \"uokik_items:uokik_27e81e8b7af3ae34\", \"source_id\": \"uokik_rejestr_klauzul_4560\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"§ 8 ust. 4 - Kupujący na wypadek zawarcia Umowy Sprzedaży przez Spółkę działającą w charakterze pełnomocnika Kupujących lub przez dalszego pełnomocnika na podstawie pełnomocnictwa udzielonego w tym zakresie przez Spółkę (i pod warunkiem zawarcia Umowy Sprzedaży) udzielają Spółce pełnomocnictw, do ustanowienia lub zmiany wcześniej ustanowionych służebności lub praw użytkowania, na prawach objętych księgą wieczystą Kw nr WA2M/00373536/2. na warunkach według uznania pełnomocnika. Kupujący nie będą wnosić jakichkolwiek roszczeń z tytułu ustanowienia lub zmiany takich służebności gruntowych lub pra ...\"}, {\"chunk_id\": \"uokik_items:uokik_ea72360ef0032c13\", \"source_id\": \"uokik_rejestr_klauzul_327\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Dla umożliwienia (...) zrealizowania celu i przedmiotu Umowy, (...) poprzez zawarcie Umowy udziela (...) pełnomocnictwa do wykonywania zarządu środkami (...), zgodnie z postanowieniami Umowy oraz OWU, w tym w szczególności do dysponowania, w drodze przyznania (...), środkami finansowymi znajdującymi się na rachunku Funduszu, określonym w ust. 1. Pełnomocnictwo obejmuje także umocowanie(...)do podejmowania wszelkich decyzji oraz dokonywania czynności zmierzających do sprawnego wykonywania postanowień Umowy i OWU oraz zabezpieczenia interesu (...) oraz ochrony praw ogółu (...)\"}]",
+   "tool_call_id": "call-78659334-ca74-4927-8e55-6ea50b08742f",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_805\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 805 1 . § 1. Jeżeli w toku egzekucji zostanie ujawnione, że na zajętym przedmiocie, wierzytelności lub prawie ustanowiony został zastaw rejestrowy, komornik zawiadomi niezwłocznie o zajęciu zastawnika zastawu rejestrowego. § 2. Prowadząc egzekucję o świadczenie przekraczające dwadzieścia tysięcy złotych, komornik obowiązany jest uzyskać z centralnej informacji o zastawach rejestrowych dane o tym, czy dłużnik jest zastawcą zas ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_44b\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 44b 25) Dodany przez art. 1 pkt 14 ustawy, o której mowa w odnośniku 2; wejdzie w życie z dniem 14 marca 2024 r. . § 1. W wypadkach wskazanych w ustawie sąd orzeka przepadek pojazdu mechanicznego prowadzonego przez sprawcę w ruchu lądowym. § 2. Jeżeli w czasie popełnienia przestępstwa pojazd nie stanowił wyłącznej własności sprawcy albo po popełnieniu przestępstwa sprawca zbył, darował lub ukrył podlegający przepadkowi pojazd, orzeka się przepadek  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_178a\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 178a. § 1 127) Ze zmianą wprowadzoną przez art. 1 pkt 68 lit. a ustawy, o której mowa w odnośniku 2. . Kto, znajdując się w stanie nietrzeźwości lub pod wpływem środka odurzającego, prowadzi pojazd mechaniczny w ruchu lądowym, wodnym lub powietrznym, podlega karze pozbawienia wolności do lat 3. § 2. (uchylony) § 3. (uchylony) § 4 128) W brzmieniu ustalonym przez art. 1 pkt 68 lit. b ustawy, o której mowa w odnośniku 2. . Jeżeli sprawca czynu określ ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_179\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 179. Kto wbrew szczególnemu obowiązkowi dopuszcza do ruchu pojazd mechaniczny albo inny pojazd w stanie bezpośrednio zagrażającym bezpieczeństwu w ruchu lądowym, wodnym lub powietrznym lub dopuszcza do prowadzenia pojazdu mechanicznego albo innego pojazdu na drodze publicznej, w strefie zamieszkania lub w strefie ruchu przez osobę znajdującą się w stanie nietrzeźwości, będącą pod wpływem środka odurzającego lub osobę nieposiadającą wymaganych upraw ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_180a\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 180a. Kto na drodze publicznej, w strefie zamieszkania lub w strefie ruchu, prowadzi pojazd mechaniczny, nie stosując się do decyzji właściwego organu o cofnięciu uprawnienia do kierowania pojazdami, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. Rozdział XXII Przestępstwa przeciwko środowisku\"}]",
+   "tool_call_id": "call-3028a5d6-4037-45ea-9d72-dbcebf8ca00d",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# Pełnomocnictwo do sprzedaży pojazdu mechanicznego\n\n**Mocodawca:**\nImię i nazwisko: ..........................................................................\nNumer PESEL: ..........................................................................\nSeria i numer dowodu osobistego: ..........................................................................\nAdres zamieszkania: ..........................................................................\n\n**Pełnomocnik:**\nImię i nazwisko: ..........................................................................\nNumer PESEL: ..........................................................................\nSeria i numer dowodu osobistego: ..........................................................................\nAdres zamieszkania: ..........................................................................\n\n§ 1\nMocodawca udziela niniejszym Pełnomocnictwo do sprzedaży pojazdu mechanicznego, działając na podstawie art. 95–109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo to jest pełnomocnictwem szczególnym w rozumieniu art. 98 § 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonego poniżej pojazdu.\n\n§ 2\n**Przedmiot pełnomocnictwa** — pojazd mechaniczny:\n1. Marka i model: ..........................................................................\n2. Rok produkcji: ..........................................................................\n3. Numer VIN: ..........................................................................\n4. Numer rejestracyjny: ..........................................................................\n5. Numer dowodu rejestracyjnego: ..........................................................................\n6. Numer karty pojazdu (jeśli wydana): ..........................................................................\n\n§ 3\n**Zakres umocowania** — Pełnomocnik jest uprawniony do dokonania w imieniu Mocodawcy następujących czynności:\n1. Zawarcia umowy kupna-sprzedaży pojazdu wskazanego w § 2, w formie pisemnej, za cenę nie niższą niż ........................................ PLN (słownie: ..........................................................................).\n2. Odbioru ceny od nabywcy w gotówce lub przelewem na konto Mocodawcy: ..........................................................................\n3. Podpisania oświadczenia o przekazaniu pojazdu nabywcy wraz z dokumentami (dowód rejestracyjny, karta pojazdu, klucze, inne dokumenty).\n4. Złożenia oświadczenia o stanie prawnym pojazdu (brak obciążeń, zastawów, spornych praw).\n5. Złożenia wniosku o wyrejestrowanie pojazdu lub zgłoszenia sprzedaży do właściwego wydziału komunikacji.\n6. Przedstawiania Mocodawcy przed organami administracji publicznej, urzędami skarbowymi i instytucjami bankowymi w sprawach związanych ze sprzedażą pojazdu.\n\n§ 4\nPełnomocnik **nie jest uprawniony** do:\n1. Udzielania dalszych pełnomocnictw (substytucji) — z wyjątkiem przypadku, gdy Mocodawca wyrazi na to pisemną zgodę.\n2. Zawarcia umowy sprzedaży z osobą, z którą Pełnomocnik pozostaje w związku małżeńskim, we współpracy lub relacji zależności, chyba że Mocodawca wyraźnie na to zezwoli (art. 108 KC — zakaz samoumowy).\n3. Sprzedawania pojazdu za cenę niższą od minimalnej określonej w § 3 pkt 1.\n\n§ 5\n**Okres ważności i wygaśnięcie:**\n1. Pełnomocnictwo jest ważne do dnia ........................................ lub do momentu dokonania czynności sprzedaży pojazdu — w zależności od tego, co nastąpi wcześniej.\n2. Mocodawca może w każdym czasie odwołać Pełnomocnictwo przez pisemne oświadczenie złożone Pełnomocnikowi (art. 101 KC). Odwołanie staje się skuteczne z chwilą doręczenia Pełnomocnikowi.\n3. Pełnomocnictwo wygasa z chwilą śmierci Mocodawcy lub Pełnomocnika, chyba że z treści Pełnomocnictwa wynika inaczej (art. 101 KC).\n4. Po dokonaniu sprzedaży pojazdu Pełnomocnictwo wygasa z mocy prawa.\n\n§ 6\n**Oświadczenia Mocodawcy:**\n1. Mocodawca oświadcza, że jest wyłącznym właścicielem pojazdu wskazanego w § 2, że pojazd nie jest obciążony zastwem rejestrowym, nie jest przedmiotem sporu sądowego ani postępowania egzekucyjnego.\n2. Mocodawca zobowiązuje się przekazać Pełnomocnikowi wszystkie dokumenty niezbędne do sprzedaży: dowód rejestracyjny, kartę pojazdu (jeśli wydana), klucze, kartę serwisową, a także pisemne zgody współwłaścicieli (jeśli pojazd należy do kilku osób).\n\n§ 7\n**Oświadczenia Pełnomocnika:**\n1. Pełnomocnik oświadcza, że przyjmie Pełnomocnictwo i zobowiązuje się działać w najlepszym interesie Mocodawcy, z należytą starannością.\n2. Pełnomocnik zobowiązuje się niezwłocznie po sprzedaży przekazać Mocodawcy uzyskaną cenę oraz dokumenty potwierdzające dokonanie transakcji (umowę kupna-sprzedaży, potwierdzenie wpłaty, protokół przekazania).\n\n§ 8\n**Kosztorys:**\nKoszty związane ze sporządzeniem niniejszego Pełnomocnictwa (opłaty urzędowe, ewentualne koszty weryfikacji tożsamości) pokrywa Mocodawca. Koszty przeprowadzenia transakcji sprzedaży (opłaty rejestracyjne, koszty transportu pojazdu do miejsca odbioru) pokrywa nabywca, chyba że strony umowy kupna-sprzedaży ustalą inaczej.\n\n§ 9\n**Postanowienia końcowe:**\n1. Wszelkie zmiany i uzupełnienia niniejszego Pełnomocnictwa wymagają formy pisemnej pod rygorem nieważności.\n2. W sprawach nieuregulowanych niniejszym Pełnomocnictwem mają zastosowanie przepisy Kodeksu cywilnego o pełnomocnictwie (art. 95–109 KC).\n3. Niniejsze Pełnomocnictwo sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n.........................................., dnia ........................................\n\n..............................................................\n(Podpis Mocodawcy)\n\n..............................................................\n(Podpis Pełnomocnika — jako potwierdzenie przyjęcia pełnomocnictwa)\n\n---\n**UWAGI PRAKTYCZNE (nie stanowią części umowy):**\n1. Pełnomocnictwo do sprzedaży pojazdu mechanicznego **nie wymaga formy aktu notarialnego** (w przeciwieństwie do sprzedaży nieruchomości, art. 158 KC). Wystarcza forma pisemna.\n2. Przy sprzedaży pojazdu Pełnomocnik powinien mieć przy sobie: niniejsze Pełnomocnictwo (oryginał lub kopia), dowód osobisty, dowód rejestracyjny pojazdu, kartę pojazdu (jeśli wydana) oraz klucze.\n3. Po sprzedaży nabywca ma 30 dni na zarejestrowanie pojazdu na swoje imię. Mocodawca powinien zachować kopię umowy kupna-sprzedaży i potwierdzenie zgłoszenia sprzedaży do wydziału komunikacji (dla celów ubezpieczeniowych i podatkowych).\n4. Jeśli pojazd jest współwłasnością — każdy współwłaściciel powinien udzielić osobnego pełnomocnictwa lub wspólnie wystąpić przy sprzedaży.\n5. Warto dołączyć do Pełnomocnictwa zdjęcia lub kopie dokumentów pojazdu (dowód rejestracyjny, karta pojazdu) dla ułatwienia weryfikacji przez nabywcę.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# Pełnomocnictwo do sprzedaży pojazdu mechanicznego\n\n**Mocodawca:**\nImię i nazwisko: ..........................................................................\nNumer PESEL: ..........................................................................\nSeria i numer dowodu osobistego: ..........................................................................\nAdres zamieszkania: ..........................................................................\n\n**Pełnomocnik:**\nImię i nazwisko: ..........................................................................\nNumer PESEL: ..........................................................................\nSeria i numer dowodu osobistego: ..........................................................................\nAdres zamieszkania: ..........................................................................\n\n§ 1\nMocodawca udziela niniejszym Pełnomocnictwo do sprzedaży pojazdu mechanicznego, działając na podstawie art. 95–109 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.). Pełnomocnictwo to jest pełnomocnictwem szczególnym w rozumieniu art. 98 § 1 KC, gdyż dotyczy konkretnej czynności prawnej — sprzedaży oznaczonego poniżej pojazdu.\n\n§ 2\n**Przedmiot pełnomocnictwa** — pojazd mechaniczny:\n1. Marka i model: ..........................................................................\n2. Rok produkcji: ..........................................................................\n3. Numer VIN: ..........................................................................\n4. Numer rejestracyjny: ..........................................................................\n5. Numer dowodu rejestracyjnego: ..........................................................................\n6. Numer karty pojazdu (jeśli wydana): ..........................................................................\n\n§ 3\n**Zakres umocowania** — Pełnomocnik jest uprawniony do dokonania w imieniu Mocodawcy następujących czynności:\n1. Zawarcia umowy kupna-sprzedaży pojazdu wskazanego w § 2, w formie pisemnej, za cenę nie niższą niż ........................................ PLN (słownie: ..........................................................................).\n2. Odbioru ceny od nabywcy w gotówce lub przelewem na konto Mocodawcy: ..........................................................................\n3. Podpisania oświadczenia o przekazaniu pojazdu nabywcy wraz z dokumentami (dowód rejestracyjny, karta pojazdu, klucze, inne dokumenty).\n4. Złożenia oświadczenia o stanie prawnym pojazdu (brak obciążeń, zastawów, spornych praw).\n5. Złożenia wniosku o wyrejestrowanie pojazdu lub zgłoszenia sprzedaży do właściwego wydziału komunikacji.\n6. Przedstawiania Mocodawcy przed organami administracji publicznej, urzędami skarbowymi i instytucjami bankowymi w sprawach związanych ze sprzedażą pojazdu.\n\n§ 4\nPełnomocnik **nie jest uprawniony** do:\n1. Udzielania dalszych pełnomocnictw (substytucji) — z wyjątkiem przypadku, gdy Mocodawca wyrazi na to pisemną zgodę.\n2. Zawarcia umowy sprzedaży z osobą, z którą Pełnomocnik pozostaje w związku małżeńskim, we współpracy lub relacji zależności, chyba że Mocodawca wyraźnie na to zezwoli (art. 108 KC — zakaz samoumowy).\n3. Sprzedawania pojazdu za cenę niższą od minimalnej określonej w § 3 pkt 1.\n\n§ 5\n**Okres ważności i wygaśnięcie:**\n1. Pełnomocnictwo jest ważne do dnia ........................................ lub do momentu dokonania czynności sprzedaży pojazdu — w zależności od tego, co nastąpi wcześniej.\n2. Mocodawca może w każdym czasie odwołać Pełnomocnictwo przez pisemne oświadczenie złożone Pełnomocnikowi (art. 101 KC). Odwołanie staje się skuteczne z chwilą doręczenia Pełnomocnikowi.\n3. Pełnomocnictwo wygasa z chwilą śmierci Mocodawcy lub Pełnomocnika, chyba że z treści Pełnomocnictwa wynika inaczej (art. 101 KC).\n4. Po dokonaniu sprzedaży pojazdu Pełnomocnictwo wygasa z mocy prawa.\n\n§ 6\n**Oświadczenia Mocodawcy:**\n1. Mocodawca oświadcza, że jest wyłącznym właścicielem pojazdu wskazanego w § 2, że pojazd nie jest obciążony zastwem rejestrowym, nie jest przedmiotem sporu sądowego ani postępowania egzekucyjnego.\n2. Mocodawca zobowiązuje się przekazać Pełnomocnikowi wszystkie dokumenty niezbędne do sprzedaży: dowód rejestracyjny, kartę pojazdu (jeśli wydana), klucze, kartę serwisową, a także pisemne zgody współwłaścicieli (jeśli pojazd należy do kilku osób).\n\n§ 7\n**Oświadczenia Pełnomocnika:**\n1. Pełnomocnik oświadcza, że przyjmie Pełnomocnictwo i zobowiązuje się działać w najlepszym interesie Mocodawcy, z należytą starannością.\n2. Pełnomocnik zobowiązuje się niezwłocznie po sprzedaży przekazać Mocodawcy uzyskaną cenę oraz dokumenty potwierdzające dokonanie transakcji (umowę kupna-sprzedaży, potwierdzenie wpłaty, protokół przekazania).\n\n§ 8\n**Kosztorys:**\nKoszty związane ze sporządzeniem niniejszego Pełnomocnictwa (opłaty urzędowe, ewentualne koszty weryfikacji tożsamości) pokrywa Mocodawca. Koszty przeprowadzenia transakcji sprzedaży (opłaty rejestracyjne, koszty transportu pojazdu do miejsca odbioru) pokrywa nabywca, chyba że strony umowy kupna-sprzedaży ustalą inaczej.\n\n§ 9\n**Postanowienia końcowe:**\n1. Wszelkie zmiany i uzupełnienia niniejszego Pełnomocnictwa wymagają formy pisemnej pod rygorem nieważności.\n2. W sprawach nieuregulowanych niniejszym Pełnomocnictwem mają zastosowanie przepisy Kodeksu cywilnego o pełnomocnictwie (art. 95–109 KC).\n3. Niniejsze Pełnomocnictwo sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze Stron.\n\n.........................................., dnia ........................................\n\n..............................................................\n(Podpis Mocodawcy)\n\n..............................................................\n(Podpis Pełnomocnika — jako potwierdzenie przyjęcia pełnomocnictwa)\n\n---\n**UWAGI PRAKTYCZNE (nie stanowią części umowy):**\n1. Pełnomocnictwo do sprzedaży pojazdu mechanicznego **nie wymaga formy aktu notarialnego** (w przeciwieństwie do sprzedaży nieruchomości, art. 158 KC). Wystarcza forma pisemna.\n2. Przy sprzedaży pojazdu Pełnomocnik powinien mieć przy sobie: niniejsze Pełnomocnictwo (oryginał lub kopia), dowód osobisty, dowód rejestracyjny pojazdu, kartę pojazdu (jeśli wydana) oraz klucze.\n3. Po sprzedaży nabywca ma 30 dni na zarejestrowanie pojazdu na swoje imię. Mocodawca powinien zachować kopię umowy kupna-sprzedaży i potwierdzenie zgłoszenia sprzedaży do wydziału komunikacji (dla celów ubezpieczeniowych i podatkowych).\n4. Jeśli pojazd jest współwłasnością — każdy współwłaściciel powinien udzielić osobnego pełnomocnictwa lub wspólnie wystąpić przy sprzedaży.\n5. Warto dołączyć do Pełnomocnictwa zdjęcia lub kopie dokumentów pojazdu (dowód rejestracyjny, karta pojazdu) dla ułatwienia weryfikacji przez nabywcę.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dać komuś pełnomocnictwo, żeby sprzedał mój samochód za mnie, bo nie mogę osobiście się tym zająć. Jak to zrobić?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam samochód marki Toyota, model Corolla, rocznik 2018, chcę upoważnić mojego brata, żeby podpisał umowę kupna-sprzedaży, odebrał pieniądze (minimum 45 000 zł), przekazał klucze i dokumenty, a także zgłosił sprzedaż w urzędzie. Musi też mieć zakaz sprzedania kimś z rodziny i nie może dać komuś innemu pełnomocnictwa. Jak to ustawić, żeby było pewnie i legalnie?"
+  }
+ ]
+}

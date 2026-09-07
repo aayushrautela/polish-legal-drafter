@@ -1,0 +1,17 @@
+{
+ "run": 5,
+ "hint": "Przygotowanie grafiki menu dla restauracji",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zlecić grafikę menu do mojej restauracji. Jakie są warunki i koszty?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Prowadzę restaurację i potrzebuję nowego menu w wersji drukowanej i cyfrowej. Zależy mi na trzech propozycjach graficznych, możliwości dwóch rund korekt i otrzymaniu plików gotowych do druku. Chciałbym ustalić termin realizacji, koszt całkowity oraz kto będzie miał prawa autorskie do projektu."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_o_dzielo\", \"query\": \"grafika menu restauracja\"})\\nRESULT: [{\"doc_type\": \"umowa_o_dzielo\", \"kind\": \"structural_template\", \"text\": \"# Umowa o wykonanie prac graficznych\\nUmowa o wykonanie prac graficznych w Polsce to umowa o dzieło w rozumieniu art. 627 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której grafik lub studio graficzne (przyjmujący zamówienie) zobowiązuje się wykonać oznaczone dzieło — projekt graficzny — a zamawiający zobowiązuje się zapłacić wynagrodzenie. W przeciwieństwie do umowy o świadczenie usług (art. 750 KC) jest to umowa rezultatu: grafik odpowiada za osiągnięcie uzgodnionego efektu, a nie tylko za staranne działanie.\\n\\nW praktyce umowa o prace graficzne obejmuje szeroki zakres zleceń: projekt logo i ksiąg znaku (brand identity), banery reklamowe, projekty opakowań, materiały reklamowe (ulotki, katalogi, plakaty), grafiki do mediów społecznościowych, infografiki, szablony prezentacji oraz wszelkie inne materiały wizualne. Każde z tych dzieł jest jednocześnie utworem w rozumieniu art. 1 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 1994 nr 24 poz. 83 ze zm.) — przejawem indywidualnej twórczości grafika. Dlatego kluczowym elementem każdej umowy graficznej jest uregulowanie praw autorskich.\\n\\nAutorskie prawa majątkowe do projektu nie przechodzą automatycznie na zamawiającego z chwilą zapłaty wynagrodzenia. Aby zamawiający mógł swobodnie korzystać z grafik — drukować materiały, umieszczać je w internecie, modyfikować — umowa musi zawierać klauzulę przeniesienia autorskich praw majątkowych z wymienieniem pól eksploatacji (art. 41 ust. 2 i art. 50 pr. aut.). Przeniesienie praw wymaga formy pisemnej pod rygorem nieważności (art. 53 pr. aut.). Au"
+}

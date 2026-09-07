@@ -1,0 +1,17 @@
+{
+ "run": 42,
+ "hint": "Ubezpieczenie dobrowolne uzupełniające do NFZ",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę dokupić ubezpieczenie zdrowotne, które pokryje to, czego nie daje NFZ – szybsze wizyty u specjalistów, badania i leczenie bez kolejek."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Mam 42 lata, pracuję na etacie i chcę polisy, która pozwoli mi bez skierowania i długiego czekania iść do ortopedy, kardiologa i na rezonans magnetyczny. Zależy mi też na pokryciu stomatologii zachowawczej i protetycznej, a także na możliwości hospitalizacji w pokoju jednoosobowym przy ewentualnej operacji. Czy macie taki pakiet i ile by kosztował rocznie?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"query\": \"dobrowolne uzupełniające do NFZ ubezpieczenie zdrowotne prywatne\", \"doc_type\": \"umowa_ubezpieczenia\"})\\nRESULT: [{\"doc_type\": \"umowa_ubezpieczenia\", \"kind\": \"structural_template\", \"text\": \"# Umowa o udzielanie świadczeń zdrowotnych\\nUmowa o udzielanie świadczeń zdrowotnych w Polsce to umowa cywilnoprawna, o której mowa w art. 26-27 ustawy z dnia 15 kwietnia 2011 r. o działalności leczniczej (Dz.U. 2011 nr 112 poz. 654 ze zm.), zawierana między podmiotem leczniczym jako zamawiającym a przyjmującym zamówienie — innym podmiotem leczniczym, lekarzem prowadzącym praktykę zawodową lub innym świadczeniodawcą — który zobowiązuje się do udzielania określonych świadczeń zdrowotnych na rzecz pacjentów zamawiającego.\\n\\nInstytucja ta odgrywa kluczową rolę w polskim systemie ochrony zdrowia, umożliwiając podmiotom leczniczym elastyczne korzystanie ze specjalistycznych usług medycznych i uzupełnianie braków kadrowych. Szpitale wielospecjalistyczne, Samodzielne Publiczne Zakłady Opieki Zdrowotnej (SPZOZ), Niepubliczne Zakłady Opieki Zdrowotnej (NZOZ) oraz prywatne kliniki regularnie stosują takie umowy do zamawiania świadczeń kardiologicznych, ortopedycznych, anestezjologicznych, diagnostycznych i laboratoryjnych od wyspecjalizowanych podmiotów zewnętrznych.\\n\\nArt. 26 ustawy o działalności leczniczej stanowi, że podmiot leczniczy będący przedsiębiorcą lub podmiot leczniczy niebędący przedsiębiorcą może udzielać zamówień na świadczenia zdrowotne. Zamówienie może być udzielane w trybie bezprzetargowym (swobodny wybór przyjmującego zamówienie) lub — w przypadku podmiotów publicznych (SPZOZ) udzielających zamówień ze środków publicznych — z uwzględnieniem zasad równego traktowania podmiotów ubiegających się o zamówienie. Przyjmującym zamówienie może być wyłącznie podmiot pos"
+}

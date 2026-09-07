@@ -1,0 +1,285 @@
+{
+ "run": 19,
+ "hint": "Umowa NDA z klauzulą o braku przeniesienia praw (no license implied)",
+ "scenario": "Umowa NDA z klauzulą o braku przeniesienia praw (no license implied)",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_o_zachowanie_poufnosci'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_03a79694a5094517aa42aac9",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_o_zachowanie_poufnosci\"}"
+     }
+    },
+    {
+     "id": "call_08cd626244ed47f0b252ed4e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"klauzula o braku przeniesienia praw własności intelektualnej NDA no license implied\"}"
+     }
+    },
+    {
+     "id": "call_b8e21c8da55b4e8eab4cd6bb",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"no license\", \"brak przeniesienia praw\", \"prawa własności intelektualnej\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_o_zachowanie_poufnosci\", \"kind\": \"structural_template\", \"text\": \"# Umowa o zachowaniu poufności jednostronna (NDA)\\nJednostronna umowa o zachowaniu poufności (NDA — Non-Disclosure Agreement) w Polsce to umowa nienazwana zawierana na podstawie art. 353[1] Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.) i art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (Dz.U. 1993 nr 47 poz. 211 ze zm.), w której wyłącznie jedna strona — odbiorca — zobowiązuje się do zachowania poufności przekazanych jej informacji przez drugą stronę — ujawniającego. Ujawniający nie przyjmuje żadnych zobowiązań co do poufności — przekazuje informacje jednostronnie, a odbiorca zobowiązuje się do ich ochrony. To klasyczna forma NDA stosowana przy asymetrycznej relacji: inwestor due diligence, rozmowa z potencjalnym kontrahentem, doradcą, dostawcą lub pracownikiem przed podpisaniem umowy o pracę.\\n\\nJednostronny charakter NDA odróżnia ją od wzajemnej umowy o zachowaniu poufności (mutual NDA), w której obowiązek poufności ciąży na obu stronach. Wzajemne NDA stosuje się, gdy obie strony wymieniają wzajemnie wrażliwe informacje — np. podczas negocjacji joint venture lub fuzji. Jednostronne NDA jest wystarczające, gdy tylko jedna strona ujawnia informacje poufne, a druga je jedynie przyjmuje.\\n\\nPodstawą prawną ochrony tajemnicy przedsiębiorstwa w Polsce jest art. 11 ustawy z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji. Stanowi on, że czynem nieuczciwej konkurencji jest: ujawnienie, wykorzystanie lub pozyskanie informacji stanowiących tajemnicę przedsiębiorstwa — informacji technicznych, technologicznych, organizacyjnych lub handlowych posiadających wartość ekonomiczną, które nie są powszechnie znane i w stosunku do których uprawniony podjął działania w celu zachowania ich poufności. NDA jest właśnie dokumentem potwierdzającym, że podjęto działania w celu zachowania poufności, co jest jednym z warunków skuteczności ochrony na podstawie art. 11 u.z.n.k. Naruszenie tajemnicy przedsiębiorstwa uprawnia poszkodowanego do żądania zaniechania, usunięcia skutków, odszkodowania i wydania bezpodstawnie uzyskanych korzyści.\\n\\nNDA jest obowiązkowym dokumentem w procesach due diligence (przedinwestycyjnych badań spółek), w negocjacjach umów technologicznych, przy udostępnianiu know-how lub bazy danych klientów potencjalnym partnerom, a także przed przekazaniem innowacyjnego projektu lub rozwiązania technologicznego do oceny. Bez NDA ujawnienie informacji osobie trzeciej może utrudnić późniejszą ochronę patentową wynalazku (wymóg nowości) lub dochodzenie roszczeń za bezprawne wykorzystanie know-how.\\n\\nDobrze skonstruowana jednostronna NDA powinna precyzyjnie definiować zakres informacji poufnych, cele ujawnienia, wyłączenia spod obowiązku poufności, czas trwania obowiązku, kary umowne za naruszenie, obowiązki RODO w przypadku danych osobowych oraz sąd właściwy. Właściwy Sąd Okręgowy (sąd gospodarczy) jest właściwy dla sporów o naruszenie tajemnicy przedsiębiorstwa, a strona może wnioskować o tymczasowe zabezpieczenie przez zakaz dalszego ujawniania.\\n\\nJednostronna umowa NDA w Polsce jest potrzebna w każdej sytuacji, gdy jedna strona ujawnia drugiej poufne informacje handlowe, technologiczne lub finansowe, a chce zachować pełną kontrolę nad ich dalszym wykorzystaniem.\\n\\nDue diligence i negocjacje inwestycyjne. Startupy i spółki poszukujące finansowania podpisują jednostronną NDA z potencjalnymi inwestorami (fundusze VC, aniołowie biznesu) przed udostępnieniem dokumentów finansowych, prognoz, bazy klientów lub danych technologicznych. NDA chroni założycieli przed nieuprawnionym wykorzystaniem informacji w przypadku niepowodzenia negocjacji inwestycyjnych.\\n\\nNegocjacje partnerskie i B2B. Firma chcąca omówić potencjalną współpracę z kontrahentem lub dostawcą, któremu musi przedstawić szczegóły technologii lub modelu biznesowego, podpisuje jednostronną NDA przed przekazaniem wrażliwych informacji. Drugiej stronie — potencjalnemu kontrahentowi — nie grozi ujawnienie informacji, więc nie ma powodu do wzajemności.\\n\\nPrezentacja wynalazku lub projektu technologicznego. Twórca lub wynalazca chcący poddać swój projekt ocenie przez eksperta, inwestora lub producenta musi chronić poufność pomysłu przed złożeniem wniosku patentowego w Urzędzie Patentowym Rzeczypospolitej Polskiej (UPRP) lub Europejskim Urzędzie Patentowym (EPO). Publiczne ujawnienie wynalazku przed złożeniem zgłoszenia patentowego niszczy wymóg nowości (art. 24 ustawy z dnia 30 czerwca 2000 r. Prawo własności przemysłowej).\\n\\nRozmowy z potencjalnymi pracownikami lub doradcami. Przed zatrudnieniem specjalisty z dostępem do wrażliwych informacji (np. head of sales — baza klientów; CTO — kod źródłowy) pracodawca podpisuje jednostronną NDA jako uzupełnienie umowy o pracę lub przed jej zawarciem.\\n\\nAgencje reklamowe i kreatywne. Klient zlecający agencji kampanię reklamową przed przekazaniem briefu z poufnymi informacjami o produkcie, strategii i budżecie podpisuje jednostronną NDA, aby agencja nie mogła udostępnić tych informacji konkurentom.\\n\\nProcesy M&A i sprzedaż spółki. Spółka rozważająca sprzedaż lub fuzję udostępnia szczegóły finansowe i operacyjne potencjalnym nabywcom na podstawie jednostronnej NDA, zanim obie strony podpiszą wzajemną NDA lub umowę przedwstępną.\\n\\nJednostronna umowa NDA w Polsce powinna zawierać następujące elementy, aby skutecznie chronić tajemnicę przedsiębiorstwa i zapewniać możliwość dochodzenia roszczeń w razie naruszenia.\\n\\nOznaczenie stron. Pełne dane ujawniającego i odbiorcy: firma lub imię i nazwisko, adres siedziby lub zamieszkania, NIP, REGON, numer Krajowego Rejestru Sądowego (KRS) lub wpis do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), dane osoby podpisującej. Wyraźne wskazanie, która strona jest ujawniającym, a która odbiorcą.\\n\\nCel ujawnienia informacji. Konkretny cel, w jakim odbiorca otrzymuje informacje poufne — bez ograniczenia celu odbiorca mógłby twierdzić, że nie wiedział, do czego wolno mu używać informacji. Poza wskazanym celem odbiorca nie może korzystać z informacji.\\n\\nDefinicja informacji poufnych. Jak najszersza, lecz jednoznaczna definicja informacji chronionych NDA — musi obejmować: technologię, know-how, kod źródłowy, dane finansowe i prognozowe, bazę klientów i dostawców, strategię, plany produktowe i marketingowe, dane osobowe pracowników, partnerów i klientów. forms-legal.com zaleca klauzulę, że informacje poufne obejmują wszelkie informacje przekazane w trakcie rozmów, prezentacji i dokumentacji, niezależnie od ich formy (pisemna, elektroniczna, ustna, wizualna).\\n\\nWyłączenia spod obowiązku poufności. Standardowe wyłączenia chroniące odbiorcę: informacje powszechnie dostępne w momencie ujawnienia lub które stały się powszechnie dostępne bez winy odbiorcy; informacje znane odbiorcy przed podpisaniem NDA; informacje ujawnione przez osobę trzecią uprawnioną do ich ujawnienia; informacje ujawnione na żądanie sądu, prokuratury lub organu regulacyjnego. Wyłączenia muszą być wąskie, aby nie umożliwiały obejścia NDA.\\n\\nZobowiązania odbiorcy. Konkretne obowiązki: zachowanie poufności; udostępnianie wyłącznie osobom z konieczności wiedzenia (need-to-know), objętym pisemnym obowiązkiem poufności; zakaz kopiowania ponad potrzebę; zakaz wykorzystywania poza wskazanym celem; natychmiastowe powiadomienie o naruszeniu; zwrot lub niszczenie materiałów na żądanie.\\n\\nKara umowna. Kara umowna za każde naruszenie (art. 483 KC) — musi być na tyle wysoka, aby skutecznie odstraszać (standardowo 20 000 – 100 000 zł za naruszenie). Niezbędne postanowienie: zapłata kary nie wyłącza prawa do odszkodowania przekraczającego kwotę kary (art. 484 § 1 KC).\\n\\nCzas trwania. Precyzyjny czas obowiązywania obowiązku poufności (standardowo 2–5 lat od podpisania NDA). Klauzula o możliwości przedłużenia na pisemny wniosek.\\n\\nObowiązki RODO. Jeżeli informacje poufne obejmują dane osobowe, wskazanie podstawy prawnej ich przetwarzania (art. 6 RODO), upoważnienia i obowiązku stosowania środków bezpieczeństwa (art. 32 RODO).\\n\\nRozwiązywanie sporów. Sąd właściwy dla siedziby ujawniającego (Sąd Rejonowy lub Sąd Okręgowy — sąd gospodarczy), klauzula mediacyjna (art. 183[1] KPC), możliwość wnioskowania o zabezpieczenie w postępowaniu sądowym.\\n\\nJednostronna umowa NDA w Polsce jest wypełniana według kolejnych kroków zapewniających maksymalną ochronę informacji poufnych.\\n\\nKrok 1 — wpisz dane stron. Podaj pełne firmy (nazwy) lub imiona i nazwiska, adresy, NIP, REGON i KRS lub wpisy do CEIDG. Wyraźnie oznacz, która strona jest ujawniającym (Discloser), a która odbiorcą (Recipient). Wskaż osoby uprawnione do podpisania umowy.\\n\\nKrok 2 — określ cel ujawnienia. Wpisz konkretny, ograniczony cel, w jakim odbiorca otrzymuje informacje poufne — np. ocena potencjalnej inwestycji, due diligence spółki, negocjacje umowy partnerskiej. Im węższy cel, tym skuteczniej NDA ogranicza odbiorcę.\\n\\nKrok 3 — zdefiniuj informacje poufne. Wpisz jak najszerszą definicję obejmującą wszystkie kategorie informacji, które zamierzasz ujawnić. Jeżeli planujesz ujawnić kod źródłowy — wskaż to wprost. Jeżeli baza klientów — wskaż. Ogólna definicja jest lepsza niż enumeratywna lista, ponieważ chroni przed argumentem, że dana informacja nie była wymieniona w NDA.\\n\\nKrok 4 — doprecyzuj wyłączenia. Wpisz standardowe wyłączenia: informacje publiczne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu. Zadbaj, by wyłączenia były wąskie — zbyt szerokie umożliwiają obejście NDA.\\n\\nKrok 5 — ustal karę umowną. Wpisz wysokość kary umownej za każde naruszenie — standardowo 50 000 zł za naruszenie w relacjach B2B. Pamiętaj, że kara umowna dotyczy zobowiązania niepieniężnego (obowiązek poufności — art. 483 KC) i że nie wyłącza prawa do odszkodowania wyższego (art. 484 § 1 KC).\\n\\nKrok 6 — ustal czas trwania. Wpisz czas obowiązywania obowiązku poufności — standardowo 2–5 lat. Przy projektach wysokiego ryzyka (technologia, patenty) rozważ 5 lat lub bezterminowy obowiązek poufności w odniesieniu do kluczowych informacji.\\n\\nKrok 7 — uwzględnij RODO. Jeżeli ujawniasz dane osobowe (np. dane klientów, pracowników), wskaż podstawę prawną ich przetwarzania przez odbiorcę (art. 6 RODO) i obowiązek stosowania środków bezpieczeństwa.\\n\\nKrok 8 — podpisz NDA przed ujawnieniem. Kluczowa zasada: podpisz NDA zawsze przed ujawnieniem jakichkolwiek informacji poufnych. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Kwalifikowany podpis elektroniczny (art. 78[1] KC) jest równoważny z podpisem odręcznym — umożliwia szybkie podpisanie na odległość.\\n\\nJednostronna umowa NDA w Polsce podlega przepisom Kodeksu cywilnego, ustawy o zwalczaniu nieuczciwej konkurencji i RODO — w zależności od rodzaju chronionych informacji.\\n\\nTajemnica przedsiębiorstwa — art. 11 u.z.n.k. Ustawa z dnia 16 kwietnia 1993 r. o zwalczaniu nieuczciwej konkurencji (implementująca dyrektywę UE 2016/943 o tajemnicach handlowych) definiuje tajemnicę przedsiębiorstwa jako informacje techniczne, technologiczne, organizacyjne lub handlowe, posiadające wartość ekonomiczną, niepowszechnie znane, wobec których uprawniony podjął działania zachowania poufności. NDA jest właśnie takim działaniem — jego zawarcie stanowi warunek kwalifikacji informacji jako tajemnicy przedsiębiorstwa. Naruszenie tajemnicy przez ujawnienie, pozyskanie lub wykorzystanie przez odbiorcę stanowi czyn nieuczciwej konkurencji, uzasadniający żądanie: zaniechania niedozwolonych działań; usunięcia skutków naruszenia; zapłaty odszkodowania; wydania bezpodstawnie uzyskanych korzyści; złożenia oświadczenia odpowiedniej treści i formy. Sąd Okręgowy (sąd gospodarczy) jest właściwy rzeczowo dla tych spraw.\\n\\nKara umowna — art. 483-484 KC. Kara umowna zastrzeżona za naruszenie obowiązku poufności (zobowiązanie niepieniężne) jest skuteczna i należy się bez wykazywania szkody. Sąd może miarkować rażąco wygórowaną karę (art. 484 § 2 KC). Strony mogą wyłączyć miarkowanie przez wyraźne postanowienie \\\"kara nie podlega zmniejszeniu\\\". Strony mogą zastrzec, że w razie szkody przekraczającej karę poszkodowany może dochodzić odszkodowania wyższego (art. 484 § 1 zdanie 2 KC).\\n\\nRODO i u.o.d.o. Jeżeli informacje poufne obejmują dane osobowe (np. baza klientów, dane pracowników), przetwarzanie tych danych przez odbiorcę wymaga podstawy prawnej (art. 6 RODO) — zazwyczaj prawnie uzasadniony interes administratora (ujawniającego) lub umowa. Odbiorca musi stosować środki bezpieczeństwa (art. 32 RODO). W razie naruszenia danych — powiadomić Prezesa Urzędu Ochrony Danych Osobowych (PUODO) w ciągu 72 godzin (art. 33 RODO).\\n\\nForma umowy NDA. Ustawa o zwalczaniu nieuczciwej konkurencji nie wymaga formy pisemnej dla NDA. Jednak forma pisemna lub elektroniczna z kwalifikowanym podpisem jest zalecana dla celów dowodowych — w sporze sądowym ujawniający musi wykazać istnienie i zakres zobowiązania do zachowania poufności. Kara umowna w każdym przypadku wymaga formy pisemnej (art. 483 § 1 KC w zw. z art. 78 KC).\\n\\nJednostronne umowy NDA w Polsce często zawierają błędy osłabiające ochronę tajemnicy przedsiębiorstwa. Poniżej najważniejsze z nich.\\n\\nBłąd 1 — podpisanie NDA po ujawnieniu informacji. Najczęstszy błąd: inwestor lub kontrahent już otrzymał wrażliwe informacje, a dopiero potem prosi o NDA. NDA podpisane po ujawnieniu nie chroni informacji już przekazanych. Zalecenie: podpisuj NDA zawsze przed przekazaniem jakichkolwiek dokumentów lub prezentacji.\\n\\nBłąd 2 — zbyt wąska definicja informacji poufnych. Enumeratywna lista kategorii (np. \\\"plany finansowe i technologia\\\") może pomijać inne wrażliwe informacje (np. bazę klientów, know-how organizacyjny). Zalecenie: stosuj szeroką definicję obejmującą wszelkie informacje przekazane w trakcie negocjacji, prezentacji i dokumentacji, w dowolnej formie.\\n\\nBłąd 3 — zbyt szerokie wyłączenia. Wyłączenia sformułowane zbyt ogólnie (np. \\\"informacje dostępne z innych źródeł\\\") mogą obejmować informacje, które odbiorca zdobył niezgodnie z prawem i próbuje uzasadnić ich pominięciem przez wyłączenie. Zalecenie: ograniczaj wyłączenia do standardowych, precyzyjnych kategorii — informacje publicznie dostępne, wcześniej znane odbiorcy, ujawnione przez uprawnioną osobę trzecią, ujawnione na żądanie sądu.\\n\\nBłąd 4 — brak kary umownej lub zbyt niska kara. Brak kary umownej lub kara 1 000 zł nie odstraszy poważnego kontrahenta. Zalecenie: ustal karę umowną na poziomie realnej szkody — standardowo 20 000 – 100 000 zł za naruszenie w relacjach B2B.\\n\\nBłąd 5 — brak obowiązku zwrotu lub zniszczenia materiałów. Odbiorca może zachować kopie dokumentów po zakończeniu negocjacji. Zalecenie: wskaż wyraźnie obowiązek zwrotu lub trwałego zniszczenia wszystkich materiałów (w tym kopii elektronicznych) na żądanie ujawniającego lub po zakończeniu negocjacji.\\n\\nBłąd 6 — pominięcie RODO. Jeżeli ujawniasz dane osobowe bez regulacji RODO w NDA, narażasz się na sankcję PUODO. Zalecenie: wskaż wprost, że dane osobowe zawarte w materiałach poufnych są przetwarzane przez odbiorcę wyłącznie dla wskazanego celu, na podstawie art. 6 ust. 1 lit. f RODO i z zachowaniem środków bezpieczeństwa art. 32 RODO.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-o-zachowaniu-poufnosci-jednostronna (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_03a79694a5094517aa42aac9",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_65\", \"source_id\": \"sejm_eli_du_2025_24_art_65\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 65. W braku wyraźnego postanowienia o przeniesieniu prawa, uważa się, że twórca udzielił licencji.\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_231\", \"source_id\": \"sejm_eli_du_2025_24_art_231\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 231. Nie wymaga zezwolenia twórcy tymczasowe zwielokrotnienie, o charakterze przejściowym lub incydentalnym, niemające samodzielnego znaczenia gospodarczego, a stanowiące integralną i niezbędną część procesu technologicznego, którego celem jest wyłącznie umożliwienie: 1) przekazu utworu w systemie teleinformatycznym pomiędzy osobami trzecimi przez pośrednika lub 2) zgodnego z prawem korzystania z utworu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_37_art_120\", \"source_id\": \"sejm_eli_du_2024_37\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\", \"display_address\": \"Dz.U. 2024 poz. 37\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania karnego\\nArt. 120. § 1 36) W tym brzmieniu obowiązuje do wejścia w życie zmiany, o której mowa w odnośniku 37. . Jeżeli pismo nie odpowiada wymaganiom formalnym, przewidzianym w art. 119 lub w przepisach szczególnych, a brak jest tego rodzaju, że pismo nie może otrzymać biegu, albo brak polega na niezłożeniu należytych opłat lub upoważnienia do podjęcia czynności procesowej, wzywa się osobę, która wniosła pismo, do usunięcia braku w terminie 7 dni ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_783\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 783. § 1. Postanowienie o nadaniu klauzuli wykonalności wymienia także tytuł egzekucyjny, a w razie potrzeby oznacza świadczenie podlegające egzekucji i zakres egzekucji oraz wskazuje czy orzeczenie podlega wykonaniu jako prawomocne, czy jako natychmiast wykonalne. Jeżeli przepis szczególny nie stanowi inaczej, tytułowi egzekucyjnemu opiewającemu na świadczenie pieniężne w walucie obcej sąd nada klauzulę wykonalności ze zobow ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1151\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1151 1 . § 1. O nadaniu klauzuli wykonalności orzeka sąd okręgowy miejsca zamieszkania albo siedziby dłużnika, a w braku takiego sądu - sąd okręgowy, w którego okręgu ma być prowadzona egzekucja. § 2. W terminie dwóch tygodni od dnia doręczenia odpisu wniosku dłużnik może przedstawić stanowisko w sprawie. Sąd rozpoznaje wniosek na posiedzeniu niejawnym. § 3. Na postanowienie sądu okręgowego w przedmiocie nadania klauzuli wyko ...\"}]",
+   "tool_call_id": "call_08cd626244ed47f0b252ed4e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 114 . Przepis art. 479 113 stosuje się odpowiednio do innego niż naruszający obowiązanego, który: 1) posiada w ilości świadczącej o faktycznym prowadzeniu działalności gospodarczej towary, przy których zaprojektowaniu, wytworzeniu lub wprowadzeniu do obrotu nastąpiło naruszenie prawa własności intelektualnej lub których cechy estetyczne lub funkcjonalne naruszają te prawa lub 2) dostarcza, w rozmiarze świadczącym o faktyc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_226_art_30ca\", \"source_id\": \"sejm_eli_du_2024_226\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\", \"display_address\": \"Dz.U. 2024 poz. 226\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 9 lutego 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy o podatku dochodowym od osób fizycznych\\nArt. 30ca. 1. Podatek od osiągniętego przez podatnika w ramach pozarolniczej działalności gospodarczej kwalifikowanego dochodu z kwalifikowanych praw własności intelektualnej wynosi 5% podstawy opodatkowania. 2. Kwalifikowanymi prawami własności intelektualnej są: 1) patent, 2) prawo ochronne na wzór użytkowy, 3) prawo z rejestracji wzoru przemysłowego, 4) prawo z rejestracji topografii układu scalonego, 5) dodatkowe prawo ochron ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 106 . W sprawie o naruszenie prawa własności intelektualnej powód, który uprawdopodobnił roszczenie, może żądać, aby pozwany wyjawił lub wydał środek dowodowy, którym dysponuje, w szczególności dokumenty bankowe, finansowe lub handlowe, służące ujawnieniu i udowodnieniu faktów.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 115 . § 1. Wezwanie do udzielenia informacji, o których mowa w art. 479 113 , dotyczy wyłącznie: 1) informacji o firmie, miejscu zamieszkania lub siedzibie i adresie producentów, wytwórców, dystrybutorów, dostawców oraz innych poprzednich posiadaczy, od których lub na rzecz których nastąpiło nabycie lub zbycie towarów, korzystanie z usług lub ich świadczenie, jak również przewidywanych hurtowników i detalistów tych towaró ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_479\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 479 116 . Wniosek o udzielenie informacji powinien odpowiadać wymaganiom przepisanym dla pisma procesowego, a ponadto zawierać: 1) wykazanie w sposób wiarygodny okoliczności wskazujących na naruszenie prawa własności intelektualnej; 2) określenie informacji, które są przedmiotem wezwania; 3) określenie obowiązanego oraz wskazanie okoliczności, z których może wynikać, że dysponuje on informacjami objętymi wnioskiem; 4) wykazan ...\"}]",
+   "tool_call_id": "call_b8e21c8da55b4e8eab4cd6bb",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The search results show some relevant material. The key finding is Art. 65 of the Copyright Act (Ustawa o prawie autorskim i prawach pokrewnych) which states: \"W braku wyraźnego postanowienia o przeniesieniu prawa, uważa się, że twórca udzielił licencji\" (In the absence of an express provision on the transfer of rights, it is deemed that the author granted a license). This is exactly the statutory basis for a \"no license implied\" clause - to explicitly override this presumption.\n\nLet me search for more specific NDA clauses related to \"no license implied\" or \"brak licencji\" in the context of confidentiality agreements.",
+   "tool_calls": [
+    {
+     "id": "call-6823023a-e9fb-4412-8985-eeb18fca486b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"klauzula no license implied brak licencji NDA poufność własność intelektualna\"}"
+     }
+    },
+    {
+     "id": "call-c542a7c8-38ac-4579-a553-20fb7d91135f",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"brak licencji\", \"no license\", \"przeniesienie praw\", \"własność intelektualna\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2025_24_art_6\", \"source_id\": \"sejm_eli_du_2025_24_art_6\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 6. 1. W rozumieniu ustawy: 1) utworem opublikowanym jest utwór, który za zezwoleniem twórcy został zwielokrotniony i którego egzemplarze zostały udostępnione publicznie; 2) opublikowaniem równoczesnym utworu jest opublikowanie utworu na terytorium Rzeczypospolitej Polskiej i za granicą w okresie trzydziestu dni od jego pierwszej publikacji; 3) utworem rozpowszechnionym jest utwór, który za zezwoleniem twórcy został w jakikolwiek sposób udostępniony publicznie; 4)2) nadawaniem utworu jest jego rozpowszechnianie drogą em ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_57\", \"source_id\": \"sejm_eli_du_2025_24_art_57\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 57. 28) 1. Jeżeli nabywca autorskich praw majątkowych lub licencjobiorca, któremu udzielono licencji wyłącznej, o której mowa w art. 67 ust. 2, zobowiązany do rozpowszechnienia utworu nie przystąpi do jego rozpowszechnienia w uzgodnionym terminie, twórca może wyznaczyć mu dodatkowy termin na rozpowszechnienie utworu, nie krótszy niż sześć miesięcy, z zastrzeżeniem że w razie bezskutecznego upł ywu tego terminu będzie uprawniony do odstąpienia od umowy lub jej wypowiedzenia. 2. Niezależnie od terminu uzgodnionego w umow ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_17_art_266\", \"source_id\": \"sejm_eli_du_2024_17\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\", \"display_address\": \"Dz.U. 2024 poz. 17\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks karny\\nArt. 266. § 1. Kto, wbrew przepisom ustawy lub przyjętemu na siebie zobowiązaniu, ujawnia lub wykorzystuje informację, z którą zapoznał się w związku z pełnioną funkcją, wykonywaną pracą, działalnością publiczną, społeczną, gospodarczą lub naukową, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do lat 2. § 2. Funkcjonariusz publiczny, który ujawnia osobie nieuprawnionej informację niejawną o klauzuli „zastrzeżone” lub „poufne” l ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_23\", \"source_id\": \"sejm_eli_du_2025_24_art_23\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 23. 1. Bez zezwolenia twórcy wolno nieodpłatnie korzystać z już rozpowszechnionego utworu w zakresie własnego użytku osobistego. Przepis ten nie upoważnia do budowania według cudzego utworu architektonicznego i architektoniczno-urbanistycznego oraz do korzystania z elektronicznych baz danych spełniających cechy utworu, chyba że dotyczy to własnego użytku naukowego niezwiązanego z celem zarobkowym. 2. Zakres własnego użytku osobistego obejmuje korzystanie z pojedynczych egzemplarzy utworów przez krąg osób pozostających  ...\"}, {\"chunk_id\": \"sejm_eli_du_2025_24_art_68\", \"source_id\": \"sejm_eli_du_2025_24_art_68\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\", \"display_address\": \"Dz.U. 2025 poz. 24\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych\\nArt. 68. 1. Jeżeli umowa nie stanowi inaczej, a licencji udzielono na czas nieoznaczony, twórca może ją wypowiedzieć z zachowaniem terminów umownych, a w ich braku na rok naprzód, na koniec roku kalendarzowego. 2. Licencję udzieloną na okres dłuższy niż pięć lat uważa się, po upływie tego terminu, za udzieloną na czas nieoznaczony. Rozdział 6 Przepisy szczególne dotyczące utworów audiowizualnych\"}]",
+   "tool_call_id": "call-6823023a-e9fb-4412-8985-eeb18fca486b",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_329\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 329. § 1. Do ustanowienia zastawu na prawie stosuje się odpowiednio przepisy o przeniesieniu tego prawa. Jednakże umowa o ustanowienie zastawu powinna być zawarta na piśmie z datą pewną, chociażby umowa o przeniesienie prawa nie wymagała takiej formy. § 2. Jeżeli ustanowienie zastawu na wierzytelności nie następuje przez wydanie dokumentu ani przez indos, do ustanowienia zastawu potrzebne jest pisemne zawiadomienie dłużnika wierzytelności przez  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_385\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 385 3 . W razie wątpliwości uważa się, że niedozwolonymi postanowieniami umownymi są te, które w szczególności: 1) wyłączają lub ograniczają odpowiedzialność względem konsumenta za szkody na osobie; 2) wyłączają lub istotnie ograniczają odpowiedzialność względem konsumenta za niewykonanie lub nienależyte wykonanie zobowiązania; 3) wyłączają lub istotnie ograniczają potrącenie wierzytelności konsumenta z wierzytelnością drugiej strony; 4) przewid ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_921\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 921 8 . Papiery wartościowe imienne legitymują osobę imiennie wskazaną w treści dokumentu. Przeniesienie praw następuje przez przelew połączony z wydaniem dokumentu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_921\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 921 9 . § 1. Papiery wartościowe na zlecenie legitymują osobę wymienioną w dokumencie oraz każdego, na kogo prawa zostały przeniesione przez indos. § 2. Indos jest pisemnym oświadczeniem umieszczonym na papierze wartościowym na zlecenie i zawierającym co najmniej podpis zbywcy, oznaczającym przeniesienie praw na inną osobę. § 3. Do przeniesienia praw z dokumentu potrzebne jest jego wydanie oraz istnienie nieprzerwanego szeregu indosów.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_921\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 921 12 . Przeniesienie praw z dokumentu na okaziciela wymaga wydania tego dokumentu.\"}]",
+   "tool_call_id": "call-c542a7c8-38ac-4579-a553-20fb7d91135f",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę podzielić się poufnymi informacjami z potencjalnym partnerem, ale muszę mieć pewność, że nie otrzyma on żadnych praw do ich użytkowania poza ustalonym celem."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję przekazać firmie, z którą negocjuję współpracę, szczegółowe dane techniczne i plany biznesowe. Potrzebuję umowy, która jasno mówi, że oni mogą te informacje tylko przeglądać w celu oceny współpracy, a nie mogą ich kopiować, modyfikować ani używać do budowania własnych produktów."
+  }
+ ]
+}

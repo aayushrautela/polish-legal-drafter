@@ -1,0 +1,327 @@
+{
+ "run": 48,
+ "hint": "Dzierżawa z prawem pierwszeństwa przedłużenia",
+ "scenario": "Dzierżawa z prawem pierwszeństwa przedłużenia",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_dzierzawy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "The user wants me to research material for a variation of a lease agreement (umowa_dzierzawy) with a specific scenario direction: \"Dzierżawa z prawem pierwszeństwa przedłużenia\" (Lease with right of first refusal for extension/renewal).\n\nLet me start by reading the base template for umowa_dzierzawy, then search for relevant provisions about right of first refusal for extension/renewal.",
+   "tool_calls": [
+    {
+     "id": "call-9f2b2334-b43c-43eb-b504-82260c5c066a",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"query\": \"dzierżawa z prawem pierwszeństwa przedłużenia\", \"doc_type\": \"umowa_dzierzawy\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_dzierzawy\", \"kind\": \"structural_template\", \"text\": \"# Umowa dzierżawy gruntu pod fotowoltaikę\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce to umowa regulowana art. 693–709 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której właściciel gruntu — wydzierżawiający — oddaje inwestorowi energetycznemu — dzierżawcy — określone działki gruntu do używania i pobierania pożytków przez uzgodniony czas, najczęściej 25–30 lat, w zamian za roczny czynsz dzierżawny. Celem dzierżawy jest budowa, eksploatacja i po zakończeniu umowy likwidacja farmy fotowoltaicznej (instalacji OZE) produkującej energię elektryczną ze słońca.\\n\\nPolska fotowoltaika przeżywa dynamiczny rozwój. Zgodnie z danymi Urzędu Regulacji Energetyki (URE) móc zainstalowana fotowoltaiki w Polsce na koniec 2025 roku przekroczyła 20 GW. Zapotrzebowanie na grunty pod farmy słoneczne jest ogromne — farma o mocy 1 MW wymaga ok. 1–2 ha gruntu płaskiego lub lekko nachylonego na południe. Właściciele gruntów rolnych klasy IV–VI, nienadających się do intensywnej produkcji rolniczej, coraz chętniej dzierżawią ziemię inwestorom fotowoltaicznym, otrzymując stabilny, wieloletni czynsz niezależny od pogody, cen zbóż czy dopłat ARiMR.\\n\\nPrzepisy regulujące dzierżawę gruntu pod PV są wielowarstwowe. Podstawę cywilnoprawną stanowi art. 693–709 KC. Aspekty energetyczne reguluje ustawa z dnia 20 maja 2021 r. o odnawialnych źródłach energii (Dz.U. 2021 poz. 610 ze zm.). Lokalizacja farmy PV powyżej 150 kW na gruntach rolnych klas I–III wymaga odrolnienia — wyłączenia gruntu z produkcji rolniczej na podstawie ustawy z dnia 3 lutego 1995 r. o ochronie gruntów rolnych i leśnych. Budowa farmy na gruntach klasy IV–VI nie wymaga odrolnienia, ale może wymagać uzyskania decyzji o warunkach zabudowy (WZ) lub miejscowego planu zagospodarowania przestrzennego (MPZP) dopuszczającego zabudowę terenu przez instalacje OZE. Nadzór urbanistyczny sprawuje właściwy organ gminy — wójt, burmistrz lub prezydent miasta — a nadzór budowlany Powiatowy Inspektorat Nadzoru Budowlanego.\\n\\nUstawa z dnia 11 kwietnia 2003 r. o kształtowaniu ustroju rolnego (t.j. Dz.U. 2022 poz. 461) ma istotne znaczenie przy dzierżawie gruntów rolnych. Krajowy Ośrodek Wsparcia Rolnictwa (KOWR) posiada prawo pierwokupu i prawo nabycia nieruchomości rolnych powyżej 0,3 ha. Jednak prawo pierwokupu KOWR dotyczy sprzedaży, a nie dzierżawy — dzierżawa gruntu rolnego pod PV nie wymaga zgody KOWR. Niemniej inwestorzy planujący późniejszy wykup gruntu od rolnika muszą uwzględnić przepisy ustawy o kształtowaniu ustroju rolnego przy transakcji nabycia.\\n\\nZ perspektywy podatkowej czynsz dzierżawny gruntu pod farmę PV stanowi przychód wydzierżawiającego z działalności rolniczej lub z najmu/dzierżawy, podlegający opodatkowaniu PIT. Czynsz podlega VAT według stawki 23% — dzierżawa gruntu pod instalacje przemysłowe lub energetyczne nie korzysta ze zwolnienia z VAT (zwolnienie z art. 43 ust. 1 pkt 36 ustawy o VAT dotyczy wyłącznie dzierżawy na cele mieszkaniowe). Wydzierżawiający będący czynnym podatnikiem VAT wystawia faktury. Wydzierżawiający fizyczny nieprowadzący działalności może zarejestrować się dobrowolnie do VAT i odliczać VAT z faktur za usługi doradcze, prawne lub budowlane związane z dzierżawą.\\n\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce jest potrzebna w każdej sytuacji, gdy właściciel gruntu podpisuje wieloletnią umowę z inwestorem energetycznym.\\n\\nGrunt rolny klasy IV–VI nisko produkcyjny. Właściciel ziemi o niskiej klasie bonitacyjnej, na której uprawa jest mało opłacalna, chce uzyskać stabilny dochód z dzierżawy pod PV przez 25–30 lat, zachowując własność nieruchomości.\\n\\nRolnik planujący dywersyfikację dochodów. Rolnik chce uzyskać dodatkowe stałe źródło dochodu niezależne od zmiennych warunków pogodowych i cen skupu, dzierżawiąc część swoich gruntów inwestorowi.\\n\\nDziedzice gruntów rolnych. Osoby dziedziczące grunty rolne, które nie chcą lub nie mogą prowadzić działalności rolniczej, a chcą utrzymać własność ziemi, dzierżawią ją pod PV jako alternatywę dla sprzedaży.\\n\\nGmina lub skarb państwa. Jednostki samorządu terytorialnego i Skarb Państwa dzierżawią grunty komunalne lub Zasobu Własności Rolnej Skarbu Państwa (zarządzanego przez KOWR) pod farmy PV w przetargach.\\n\\nSpółdzielnia rolnicza lub zarząd zasobem. Spółdzielnia lub zarządca gruntów rolnych wydzierżawia część gruntów pod PV, jednocześnie kontynuując działalność rolniczą na pozostałych działkach.\\n\\nAgroenergetyka — farmy PV połączone z rolnictwem. Trend agrivoltaiki (agrivoltaics) — instalacji PV łączonych z produkcją rolniczą — wymaga umowy precyzyjnie opisującej dostęp rolnika do gruntu pod panelami (np. wypas owiec, uprawa ziół niskorosłych).\\n\\nInwestor przed złożeniem wniosku o dofinansowanie UE. Inwestor planujący skorzystać z dofinansowania OZE z Funduszu Modernizacyjnego lub z aukcji URE potrzebuje podpisanej umowy dzierżawy jako załącznika do wniosku.\\n\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce powinna zawierać następujące kluczowe elementy chroniące obie strony.\\n\\nOznaczenie stron. Pełne dane wydzierżawiającego z numerem KW nieruchomości i danymi z ewidencji gruntów (numer działki, obręb, gmina, powiat). Pełne dane dzierżawcy — firmy inwestorskiej z numerem KRS, NIP, osobą uprawnioną do reprezentacji. Weryfikacja w KRS chroni wydzierżawiającego przed podpisaniem umowy z podmiotem bez zdolności do czynności prawnych.\\n\\nPrecyzyjny opis gruntu. Numery działek ewidencyjnych, obręb, gmina, powiat, łączna powierzchnia w ha, numer KW, klasa bonitacyjna. Opis powinien umożliwiać jednoznaczne wyodrębnienie dzierżawionego gruntu na mapie i w ewidencji gruntów.\\n\\nPrzeznaczenie w MPZP lub WZ. Wskazanie, czy grunt objęty jest MPZP dopuszczającym zabudowę instalacjami OZE. Jeśli nie — zobowiązanie inwestora do uzyskania decyzji o warunkach zabudowy (WZ), decyzji o środowiskowych uwarunkowaniach (DŚU) i pozwolenia na budowę na własny koszt i ryzyko.\\n\\nFaza przygotowawcza. Odrębny etap umowy poprzedzający budowę, podczas którego inwestor prowadzi badania gruntowe, pomiary geodezyjne i projektowe, uzyskuje decyzje administracyjne. Wskazanie, co się dzieje z umową, gdy inwestor nie uzyska pozwolenia na budowę w ustalonym terminie.\\n\\nCzynsz i waloryzacja. Czynsz roczny netto za hektar z podaniem stawki VAT 23%. Klauzula waloryzacyjna powiązana z inflacją CPI GUS. Termin płatności i sposób zapłaty (przelew bankowy). forms-legal.com zaleca czynsz z góry za rok dzierżawny, co chroni wydzierżawiającego.\\n\\nWpis do Księgi Wieczystej. Zgoda wydzierżawiającego na wpisanie roszczenia dzierżawcy o zawarcie umowy dzierżawy do działu III KW. Wpis zapewnia skuteczność praw dzierżawcy wobec nabywcy nieruchomości (rękojmia wiary publicznej ksiąg wieczystych — art. 5 u.k.w.h.).\\n\\nOpcja zakupu. Jeśli inwestor chce mieć prawo nabycia gruntu w przyszłości, opcja zakupu powinna być wpisana do KW jako roszczenie osobiste. Przy gruntach rolnych zakup podlega przepisom ustawy o kształtowaniu ustroju rolnego — KOWR ma prawo nabycia.\\n\\nObowiązek rekultywacji. Zobowiązanie dzierżawcy do rozebrania instalacji i przywrócenia gruntu do stanu pierwotnego (klasy bonitacyjnej) po zakończeniu dzierżawy, z terminem i zabezpieczeniem finansowym (kaucja, gwarancja bankowa).\\n\\nUbezpieczenie. Polisa OC z minimalną sumą gwarancyjną, polisa all-risk instalacji PV, cesja praw z polisy na wydzierżawiającego. Ubezpieczenie chroni właściciela gruntu przed skutkami pożaru, kradzieży paneli lub szkód środowiskowych.\\n\\nSłużebność przesyłu. Zgoda wydzierżawiającego na ustanowienie służebności przesyłu na nieruchomości na rzecz operatorów sieci energetycznych (energetycznych spółek dystrybucyjnych — Enea, Tauron, PGE Dystrybucja, Energa, innogy) — niezbędna do przyłączenia farmy do sieci.\\n\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce wypełniana jest w następujących krokach.\\n\\nKrok 1 — oznacz strony. Wpisz pełne dane wydzierżawiającego z numerem KW nieruchomości. Dla inwestora wpisz firmę, adres, NIP i KRS. Zweryfikuj inwestora w rejestrze KRS pod adresem prs.ms.gov.pl przed podpisaniem — sprawdź kapitał zakładowy i reprezentację.\\n\\nKrok 2 — opisz grunt. Wpisz numery działek ewidencyjnych, obręb, gminę, powiat, łączną powierzchnię i numer KW. Dołącz jako załącznik wyrys z mapy ewidencyjnej wydzierżawianych działek — ułatwia to ustalenie granic.\\n\\nKrok 3 — zbadaj przeznaczenie w MPZP. Sprawdź w urzędzie gminy, czy istnieje MPZP i czy dopuszcza zabudowę instalacjami OZE. Jeśli nie — wpisz zobowiązanie inwestora do uzyskania decyzji WZ i DŚU na własny koszt.\\n\\nKrok 4 — ustal czynsz. Negocjuj czynsz rynkowy: 3 000–8 000 zł netto/ha/rok. Wpisz stawkę VAT 23% i klauzulę waloryzacyjną CPI GUS. Ustal termin płatności — preferowany z góry za rok dzierżawny.\\n\\nKrok 5 — ureguluj fazę przygotowawczą. Wpisz czas trwania fazy (zazwyczaj 2–4 lata), prawa inwestora w tej fazie (dostęp do gruntu, badania) i skutki nieuzyskania pozwolenia na budowę (prawo do odstąpienia, rozliczenie czynszu za fazę).\\n\\nKrok 6 — wpisz opcję zakupu (jeśli jest). Jeżeli strony uzgadniają opcję zakupu, wpisz zasady wyceny, termin realizacji opcji i obowiązek złożenia wniosku o wpis do KW. Pamiętaj o przepisach ustawy o kształtowaniu ustroju rolnego.\\n\\nKrok 7 — wstaw klauzulę rekultywacji. Wpisz obowiązek demontażu instalacji i przywrócenia gruntu po zakończeniu dzierżawy z konkretnym terminem i zabezpieczeniem — np. kaucja w wysokości 10% wartości instalacji lub gwarancja bankowa.\\n\\nKrok 8 — podpisz umowę i złóż wniosek o wpis do KW. Podpisz umowę w formie pisemnej. Następnie inwestor składa wniosek o wpis roszczenia do działu III KW w sądzie wieczystoksięgowym (Sąd Rejonowy — Wydział Ksiąg Wieczystych), płacąc opłatę sądową. Notarialnie poświadczone podpisy wzmacniają móc dowodową i umożliwiają wpis do KW bez dodatkowych formalności.\\n\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce podlega przepisom prawa cywilnego, energetycznego, rolnego i środowiskowego.\\n\\nPodstawa prawna — dzierżawa. Dzierżawa gruntu pod PV oparta jest na art. 693–709 KC. Wydzierżawiający oddaje grunt do używania i pobierania pożytków, a dzierżawca płaci czynsz. Czas trwania i warunki określane są umownie — brak ustawowego limitu czasu.\\n\\nUstawa o odnawialnych źródłach energii. Budowa i eksploatacja farmy fotowoltaicznej regulowana jest ustawą z dnia 20 maja 2021 r. o odnawialnych źródłach energii (OZE). Instalacje powyżej 150 kW wymagają udziału w aukcji URE lub umowy długoterminowej (PPA) z nabywcą energii. Nadzór nad systemem wsparcia sprawuje Urząd Regulacji Energetyki (URE).\\n\\nOchrona gruntów rolnych. Budowa farmy PV na gruntach rolnych klas I–III wymaga uzyskania zgody na wyłączenie gruntu z produkcji rolniczej na podstawie ustawy z dnia 3 lutego 1995 r. o ochronie gruntów rolnych i leśnych. Dla klas IV–VI wyłączenie nie jest wymagane. Nadzór sprawuje marszałek województwa (tereny powyżej 0,5 ha klasy I–III) lub starosta (klasy IV–VI do 0,5 ha).\\n\\nUstawa o kształtowaniu ustroju rolnego. Nieruchomości rolne o powierzchni powyżej 0,3 ha objęte są przepisami ustawy z dnia 11 kwietnia 2003 r. o kształtowaniu ustroju rolnego (t.j. Dz.U. 2022 poz. 461). Dzierżawa nie podlega prawu pierwokupu KOWR — prawo pierwokupu dotyczy sprzedaży. Jednak sprzedaż gruntu po zakończeniu dzierżawy może wymagać zgody KOWR lub KOWR skorzysta z prawa nabycia.\\n\\nDecyzja środowiskowa (DŚU). Farmy PV powyżej określonego progu mocy lub powierzchni wymagają uzyskania decyzji o środowiskowych uwarunkowaniach na podstawie ustawy z dnia 3 października 2008 r. o udostępnianiu informacji o środowisku — zgodnie z § 2 i § 3 rozporządzenia Rady Ministrów z dnia 10 września 2019 r. w sprawie przedsięwzięć mogących znacząco oddziaływać na środowisko. Decyzję wydaje wójt, burmistrz lub prezydent miasta.\\n\\nPrzyłączenie do sieci — służebność przesyłu. Przyłączenie farmy PV do sieci energetycznej wymaga ustanowienia służebności przesyłu na nieruchomości wydzierżawiającego (art. 305[1]–305[4] KC) na rzecz właściwej spółki dystrybucyjnej energii elektrycznej (Enea, Tauron, PGE Dystrybucja, Energa, innogy Stoen Operator). Wydzierżawiający musi wyrazić zgodę na ustanowienie służebności jako właściciel nieruchomości.\\n\\nVAT i podatki. Czynsz dzierżawny gruntu pod PV podlega VAT 23% — dzierżawa gruntu nie jest zwolniona z VAT jak dzierżawa lokali mieszkalnych. Wydzierżawiający osiągający przychody z dzierżawy może być zobowiązany do rejestracji jako podatnik VAT po przekroczeniu progu 200 000 zł (art. 113 ustawy o VAT) lub zarejestrować się dobrowolnie.\\n\\nKsięga Wieczysta — wpis roszczenia. Dzierżawca powinien wpisać swoje roszczenie z umowy dzierżawy do działu III KW nieruchomości — zapewnia to skuteczność praw dzierżawcy wobec nabywcy nieruchomości, nawet jeżeli wydzierżawiający sprzeda grunt w czasie trwania dzierżawy (art. 678 KC stosowany odpowiednio do dzierżawy).\\n\\nUmowa dzierżawy gruntu pod fotowoltaikę w Polsce bywa wadliwa z powodu typowych błędów.\\n\\nBłąd 1 — brak fazy przygotowawczej. Umowy bez wyraźnie wyodrębnionej fazy przygotowawczej i bez określenia skutków nieotrzymania pozwolenia na budowę prowadzą do wieloletnich sporów, gdy inwestycja nie dochodzi do skutku. Zalecenie: wyraźnie określ fazę przygotowawczą, jej czas trwania i prawo odstąpienia dla obu stron.\\n\\nBłąd 2 — brak wpisu do Księgi Wieczystej. Bez wpisu roszczenia dzierżawcy do KW nabywca nieruchomości może nie być związany umową dzierżawy. Zalecenie: wymagaj wpisu roszczenia do działu III KW w terminie 30 dni od zawarcia umowy.\\n\\nBłąd 3 — brak klauzuli rekultywacji. Rolnicy po 25–30 latach mogą nie zdążyć wyegzekwować rekultywacji od inwestora, który może już nie istnieć. Zalecenie: wstaw kaucję lub gwarancję bankową zabezpieczającą rekultywację.\\n\\nBłąd 4 — zbyt niski czynsz bez waloryzacji. Czynsz bez klauzuli waloryzacyjnej eroduje realnie przez inflację przez 25–30 lat. Zalecenie: wstaw waloryzację roczną o CPI GUS lub inny wskaźnik makroekonomiczny.\\n\\nBłąd 5 — brak regulacji służebności przesyłu. Pominięcie ustanowienia służebności na rzecz operatora sieci energetycznej może blokować przyłączenie farmy do sieci. Zalecenie: wyraźnie zezwól lub ureguluj warunki służebności w umowie, w tym ewentualne dodatkowe wynagrodzenie dla wydzierżawiającego.\\n\\nBłąd 6 — niejasna opcja zakupu gruntu. Opcja zakupu bez wpisu do KW i bez uwzględnienia przepisów KOWR i ustawy o kształtowaniu ustroju rolnego jest nieskuteczna lub rodzi ryzyko prawne. Zalecenie: skonsultuj warunki opcji zakupu z prawnikiem specjalizującym się w obrocie gruntami rolnymi przed podpisaniem umowy.\\n\\nBłąd 7 — brak weryfikacji MPZP. Podpisanie umowy bez sprawdzenia, czy grunt objęty jest MPZP dopuszczającym zabudowę OZE, może skutkować wieloletnim procesem uzyskania WZ lub odmową. Zalecenie: przed podpisaniem umowy uzyskaj zaświadczenie o przeznaczeniu gruntu z urzędu gminy lub sprawdź MPZP on-line w Geoportalu.\\n\\nŹródło: https://forms-legal.com/pl/business/contracts/umowa-dzierzawy-gruntu-pod-fotowoltaike (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call-9f2b2334-b43c-43eb-b504-82260c5c066a",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_64f243cdd76a4ad2988a2f35",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"prawo pierwszeństwa przedłużenia dzierżawy\", \"art. 704 KC\", \"pierwszeństwo przedłużenia\"], \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_94bbfa226a114522b660509e",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"dzierżawa z prawem pierwszeństwa przedłużenia umowy klauzula odnowienia\", \"top_k\": 5}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_64f243cdd76a4ad2988a2f35",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"extractor_v9:broad_0052_judgment_9e43764ff58fd0ed\", \"source_id\": \"saos_judgment_295\", \"source_type\": \"judgment\", \"top_category\": \"penalty_or_interest\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"civil_procedure\", \"contracts\", \"risk_checking\"], \"text\": \"1 przypadającego do zapłaty w terminach, o których mowa w § 15 ust. 5 wraz z karą umowną w wysokości 25 % tej opłaty. Strony postanowiły także, że używania przez dotychczasowego dzierżawcę przedmiotu dzierżawy, po wygaśnięciu albo rozwiązaniu umowy dzierżawy nie uważa się przedłużenie umowy dzierżawy na czas nieokreślony, mimo wymienionego wynagrodzenia. W § 18 ust. 6 umowy strony za datę doręczenia przyjęły - a) datę potwierdzenia odbioru listu poleconego wypowiadającego umowę lub wzywającego do wydania nieruchomości albo b) datę adnotacji poczty o odmowie przyjęcia listu, o którym mowa pkt a ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_704\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 704. W braku odmiennej umowy dzierżawę gruntu rolnego można wypowiedzieć na jeden rok naprzód na koniec roku dzierżawnego, inną zaś dzierżawę na sześć miesięcy naprzód przed upływem roku dzierżawnego.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_506\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 506. § 1. Jeżeli w celu umorzenia zobowiązania dłużnik zobowiązuje się za zgodą wierzyciela spełnić inne świadczenie albo nawet to samo świadczenie, lecz z innej podstawy prawnej, zobowiązanie dotychczasowe wygasa (odnowienie). § 2. W razie wątpliwości poczytuje się, że zmiana treści dotychczasowego zobowiązania nie stanowi odnowienia. Dotyczy to w szczególności wypadku, gdy wierzyciel otrzymuje od dłużnika weksel lub czek.\"}, {\"chunk_id\": \"uokik_items:uokik_6872c3b47d197089\", \"source_id\": \"uokik_rejestr_klauzul_634\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Automatyczne przedłużenie na kolejne 12 miesięcy następuje z dniem zakończenia ważności poprzedniej umowy, pod warunkiem nie złożenia w tym dniu rezygnacji.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1002\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1002. Z chwilą uprawomocnienia się postanowienia o przysądzeniu własności nabywca wstępuje w prawa i obowiązki dłużnika wynikające ze stosunku najmu i dzierżawy stosownie do przepisów prawa normujących te stosunki w wypadku zbycia rzeczy wynajętej lub wydzierżawionej. W przypadku gdy umowa najmu lub dzierżawy nieruchomości zawarta była na czas oznaczony dłuższy niż dwa lata, nabywca może wypowiedzieć tę umowę, w ciągu miesiąc ...\"}]",
+   "tool_call_id": "call_94bbfa226a114522b660509e",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search more specifically for \"prawo pierwszeństwa\" (right of first refusal) in the context of lease extension/renewal.",
+   "tool_calls": [
+    {
+     "id": "call-341ed930-f11b-4a2c-b57f-8e77a74ed3b4",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"prawo pierwszeństwa\", \"pierwszeństwo przedłużenia\", \"opcja przedłużenia\", \"odnowienie dzierżawy\"], \"top_k\": 10}"
+     }
+    },
+    {
+     "id": "call-fee735ed-d230-452f-92c6-284169bbf030",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"top_k\": 10, \"query\": \"klauzula prawo pierwszeństwa przedłużenia dzierżawy na kolejny okres opcja odnowienia\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_18_art_300\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 300 42 . § 1. Umowa spółki może przewidywać, że pozostali akcjonariusze mają prawo pierwszeństwa nabycia akcji przeznaczonych do zbycia przez innego akcjonariusza (prawo pierwszeństwa). Jeżeli umowa spółki nie stanowi inaczej, stosuje się przepisy § 2-7. § 2. Prawo pierwszeństwa przysługuje akcjonariuszom proporcjonalnie do liczby posiadanych akcji. § 3. Akcjonariusz zamierzający zbyć akcje na rzecz osoby trzeciej (akcjonariusz zbywając ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_258\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 258. § 1. Jeżeli umowa spółki lub uchwała o podwyższeniu kapitału nie stanowi inaczej, dotychczasowi wspólnicy mają prawo pierwszeństwa do objęcia nowych udziałów w podwyższonym kapitale zakładowym w stosunku do swoich dotychczasowych udziałów. Prawo pierwszeństwa należy wykonać w terminie miesiąca od dnia wezwania do jego wykonania. Wezwania te zarząd przesyła wspólnikom jednocześnie. § 2. Oświadczenie dotychczasowego wspólnika o objęc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_300\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 300 106 . § 1. Jeżeli umowa spółki lub uchwała akcjonariuszy nie stanowią inaczej, wszyscy dotychczasowi akcjonariusze mają prawo pierwszeństwa objęcia nowych akcji proporcjonalnie do liczby swoich dotychczasowych akcji (prawo poboru). Listę akcjonariuszy, którym przysługuje prawo poboru, ustala się na dzień podjęcia uchwały o emisji akcji. § 2. W interesie spółki akcjonariusze mogą zostać pozbawieni prawa poboru w całości lub w części  ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_338\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 338. § 1. Umowa ograniczająca na określony czas rozporządzanie akcją lub częścią ułamkową akcji jest dopuszczalna. Ograniczenie rozporządzania nie może być ustanowione na okres dłuższy niż pięć lat od dnia zawarcia umowy. § 2. Dopuszczalne są umowy ustanawiające prawo pierwokupu lub inne prawo pierwszeństwa nabycia akcji lub ułamkowej części akcji. Ograniczenia rozporządzania, wynikające z takich umów, nie mogą trwać dłużej niż dziesięć ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_433\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 433. § 1. Akcjonariusze mają prawo pierwszeństwa objęcia nowych akcji w stosunku do liczby posiadanych akcji (prawo poboru). § 2. W interesie spółki walne zgromadzenie może pozbawić akcjonariuszy prawa poboru akcji w całości lub w części. Uchwała walnego zgromadzenia wymaga większości co najmniej czterech piątych głosów. Pozbawienie akcjonariuszy prawa poboru akcji może nastąpić w przypadku, gdy zostało to zapowiedziane w porządku obrad ...\"}]",
+   "tool_call_id": "call-341ed930-f11b-4a2c-b57f-8e77a74ed3b4",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_250\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 250. § 1. Pierwszeństwo ograniczonych praw rzeczowych może być zmienione. Zmiana nie narusza praw mających pierwszeństwo niższe aniżeli prawo ustępujące pierwszeństwa, a wyższe aniżeli prawo, które uzyskuje pierwszeństwo ustępującego prawa. § 2. Do zmiany pierwszeństwa praw rzeczowych ograniczonych potrzebna jest umowa między tym, czyje prawo ma ustąpić pierwszeństwa, a tym, czyje prawo ma uzyskać pierwszeństwo ustępującego prawa. Jeżeli chociaż ...\"}, {\"chunk_id\": \"uokik_items:uokik_9e199e40e460c778\", \"source_id\": \"uokik_rejestr_klauzul_3803\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) przysługuje wydłużenie terminu w następujących przypadkach […] zaistnienia czynników leżących po stronie osób trzecich takich jak (decyzje administracyjne, siła wyższa itd.)\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_506\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 506. § 1. Jeżeli w celu umorzenia zobowiązania dłużnik zobowiązuje się za zgodą wierzyciela spełnić inne świadczenie albo nawet to samo świadczenie, lecz z innej podstawy prawnej, zobowiązanie dotychczasowe wygasa (odnowienie). § 2. W razie wątpliwości poczytuje się, że zmiana treści dotychczasowego zobowiązania nie stanowi odnowienia. Dotyczy to w szczególności wypadku, gdy wierzyciel otrzymuje od dłużnika weksel lub czek.\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_300\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 300 42 . § 1. Umowa spółki może przewidywać, że pozostali akcjonariusze mają prawo pierwszeństwa nabycia akcji przeznaczonych do zbycia przez innego akcjonariusza (prawo pierwszeństwa). Jeżeli umowa spółki nie stanowi inaczej, stosuje się przepisy § 2-7. § 2. Prawo pierwszeństwa przysługuje akcjonariuszom proporcjonalnie do liczby posiadanych akcji. § 3. Akcjonariusz zamierzający zbyć akcje na rzecz osoby trzeciej (akcjonariusz zbywając ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_602\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 602. § 1. Prawo pierwokupu jest niezbywalne. Jest ono niepodzielne, chyba że przepisy szczególne zezwalają na częściowe wykonanie tego prawa. § 2. Jeżeli jest kilku uprawnionych, a niektórzy z nich nie wykonywają prawa pierwokupu, pozostali mogą wykonać je w całości. Tytuł XII Zamiana\"}, {\"chunk_id\": \"sejm_eli_du_2024_18_art_258\", \"source_id\": \"sejm_eli_du_2024_18\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\", \"display_address\": \"Dz.U. 2024 poz. 18\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 7 grudnia 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks spółek handlowych\\nArt. 258. § 1. Jeżeli umowa spółki lub uchwała o podwyższeniu kapitału nie stanowi inaczej, dotychczasowi wspólnicy mają prawo pierwszeństwa do objęcia nowych udziałów w podwyższonym kapitale zakładowym w stosunku do swoich dotychczasowych udziałów. Prawo pierwszeństwa należy wykonać w terminie miesiąca od dnia wezwania do jego wykonania. Wezwania te zarząd przesyła wspólnikom jednocześnie. § 2. Oświadczenie dotychczasowego wspólnika o objęc ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1151\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1151 2 . § 1. Egzekucja na podstawie orzeczenia sądu państwa obcego może być wszczęta po uprawomocnieniu się postanowienia o nadaniu klauzuli wykonalności. Do czasu upływu terminu do wniesienia zażalenia na postanowienie sądu okręgowego o nadaniu klauzuli wykonalności, a w razie wniesienia zażalenia - do czasu jego rozpoznania przez sąd apelacyjny, postanowienie to stanowi tytuł zabezpieczenia. Sposób zabezpieczenia określa w ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0151_statute_c5b33de6992ddcab\", \"source_id\": \"sejm_eli_du_2024_1061_art_236\", \"source_type\": \"statute\", \"top_category\": \"contract_formation\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Art. 236. § 1. Oddanie gruntu Skarbu Państwa lub gruntu należącego do jednostek samorządu terytorialnego bądź ich związków w użytkowanie wieczyste następuje na okres dziewięćdziesięciu dziewięciu lat. W wypadkach wyjątkowych, gdy cel gospodarczy użytkowania wieczystego nie wymaga oddania gruntu na dziewięćdziesiąt dziewięć lat, dopuszczalne jest oddanie gruntu na okres krótszy, co najmniej jednak na lat czterdzieści. § 2. W ciągu ostatnich pięciu lat przed upływem zastrzeżonego w umowie terminu wieczysty użytkownik może żądać jego przedłużenia na dalszy okres od czterdziestu do dziewięćdziesię ...\"}, {\"chunk_id\": \"uokik_items:uokik_356642625e442bdd\", \"source_id\": \"uokik_rejestr_klauzul_1035\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Spółdzielnia ma prawo przesunąć termin oddania do użytku lokalu (…) w przypadku innych okoliczności mających obiektywny i realny wpływ na przebieg realizacji inwestycji\"}, {\"chunk_id\": \"extractor_v9:filtered_0032_statute_bf1d0aa8e6142283\", \"source_id\": \"sejm_eli_du_2024_1568_art_1151\", \"source_type\": \"statute\", \"top_category\": \"deposit_or_advance\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Wykonanie zabezpieczenia, o którym mowa w § 1, sąd okręgowy może uzależnić od złożenia przez wierzyciela kaucji. Dłużnikowi przysługuje pierwszeństwo zaspokojenia z kaucji złożonej przez wierzyciela przed wszystkimi innymi wierzycielami wierzyciela. § 3. W razie oddalenia zażalenia na postanowienie o nadaniu klauzuli wykonalności albo wydania postanowienia o nadaniu klauzuli wykonalności sąd apelacyjny może uzależnić wykonanie orzeczenia sądu państwa obcego od złożenia stosownego zabezpieczenia przez wierzyciela. Sąd może, jeżeli na skutek wykonania orzeczenia mogłaby wyniknąć dla dłużnika nie ...\"}]",
+   "tool_call_id": "call-fee735ed-d230-452f-92c6-284169bbf030",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n",
+   "reasoning": "Let me search more specifically for lease extension/renewal clauses in Polish civil law context, particularly looking at how \"prawo pierwszeństwa przedłużenia\" (right of first refusal for extension) is typically structured in lease agreements.",
+   "tool_calls": [
+    {
+     "id": "call-d5c345c5-035b-420c-8de6-ea50fad1b5aa",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"opcja przedłużenia dzierżawy\", \"odnowienie umowy dzierżawy\", \"przedłużenie dzierżawy\", \"art. 693 KC\", \"art. 694 KC\"], \"top_k\": 10}"
+     }
+    },
+    {
+     "id": "call-ac79f9c1-64ab-42c4-a4df-e1fec23b3721",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa dzierżawy klauzula opcja przedłużenia na kolejny okres pierwszeństwo dzierżawcy przed nowym najemcą\", \"top_k\": 10}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call-d5c345c5-035b-420c-8de6-ea50fad1b5aa",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_693\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 693. § 1. Przez umowę dzierżawy wydzierżawiający zobowiązuje się oddać dzierżawcy rzecz do używania i pobierania pożytków przez czas oznaczony lub nieoznaczony, a dzierżawca zobowiązuje się płacić wydzierżawiającemu umówiony czynsz. § 2. Czynsz może być zastrzeżony w pieniądzach lub świadczeniach innego rodzaju. Może być również oznaczony w ułamkowej części pożytków.\"}, {\"chunk_id\": \"extractor_v9:broad_0052_judgment_9e43764ff58fd0ed\", \"source_id\": \"saos_judgment_295\", \"source_type\": \"judgment\", \"top_category\": \"penalty_or_interest\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"civil_procedure\", \"contracts\", \"risk_checking\"], \"text\": \"1 przypadającego do zapłaty w terminach, o których mowa w § 15 ust. 5 wraz z karą umowną w wysokości 25 % tej opłaty. Strony postanowiły także, że używania przez dotychczasowego dzierżawcę przedmiotu dzierżawy, po wygaśnięciu albo rozwiązaniu umowy dzierżawy nie uważa się przedłużenie umowy dzierżawy na czas nieokreślony, mimo wymienionego wynagrodzenia. W § 18 ust. 6 umowy strony za datę doręczenia przyjęły - a) datę potwierdzenia odbioru listu poleconego wypowiadającego umowę lub wzywającego do wydania nieruchomości albo b) datę adnotacji poczty o odmowie przyjęcia listu, o którym mowa pkt a ...\"}, {\"chunk_id\": \"extractor_v9:broad_0019_statute_12d85083b2003f37\", \"source_id\": \"sejm_eli_du_2023_725_art_21\", \"source_type\": \"statute\", \"top_category\": \"property_or_use_restriction\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Jeżeli najemcy przysługuje pierwszeństwo w nabyciu zajmowanego lokalu wchodzącego w skład mieszkaniowego zasobu gminy, przepis ust. 4 stosuje się pod warunkiem, że najemcy temu zaoferowano wcześniej nabycie tego lokalu, a najemca nie skorzystał z przysługującego mu pierwszeństwa w jego nabyciu.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1002\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1002. Z chwilą uprawomocnienia się postanowienia o przysądzeniu własności nabywca wstępuje w prawa i obowiązki dłużnika wynikające ze stosunku najmu i dzierżawy stosownie do przepisów prawa normujących te stosunki w wypadku zbycia rzeczy wynajętej lub wydzierżawionej. W przypadku gdy umowa najmu lub dzierżawy nieruchomości zawarta była na czas oznaczony dłuższy niż dwa lata, nabywca może wypowiedzieć tę umowę, w ciągu miesiąc ...\"}, {\"chunk_id\": \"uokik_items:uokik_bc0619056eb92d4c\", \"source_id\": \"uokik_rejestr_klauzul_5272\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Rozwiązanie umowy zawartej z klauzulą wyłączności jest możliwe w przypadku zaistnienia nowych okoliczności uniemożliwiających sprzedaż nieruchomości za zgodą obu Stron\"}, {\"chunk_id\": \"uokik_items:uokik_638f5367b6aa294a\", \"source_id\": \"uokik_rejestr_klauzul_5583\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"W szczególnych przypadkach firma (...)zastrzega sobie możliwość podstawienia auta z tej samej klasy w przypadku (…) przyczyn niezależnych takich jak przedłużenie wynajmu przez klienta poprzednio korzystającego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_674\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 674. Jeżeli po upływie terminu oznaczonego w umowie albo w wypowiedzeniu najemca używa nadal rzeczy za zgodą wynajmującego, poczytuje się w razie wątpliwości, że najem został przedłużony na czas nieoznaczony.\"}, {\"chunk_id\": \"extractor_v9:broad_0075_statute_a9a201d2f24c178c\", \"source_id\": \"sejm_eli_du_2023_725_art_19d\", \"source_type\": \"statute\", \"top_category\": \"termination\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"3 pkt 3, właściciel składa do sądu wniosek o nadanie klauzuli wykonalności aktowi notarialnemu, o którym mowa w art. 19a ust. 2 pkt 1. Do wniosku załącza się: 1) żądanie opróżnienia lokalu wraz z dowodem jego doręczenia najemcy albo dowodem wysłania go przesyłką poleconą; 2) dokument potwierdzający przysługujący właścicielowi tytuł prawny do lokalu, którego opróżnienia dotyczy żądanie właściciela; 3) potwierdzenie zgłoszenia, o którym mowa w art. 19b ust. 1. 5. W przypadku niedopełnienia obowiązku, o którym mowa w art. 19a ust. 3, właściciel lokalu może wypowiedzieć na piśmie umowę najmu okazj ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_1151\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 1151 2 . § 1. Egzekucja na podstawie orzeczenia sądu państwa obcego może być wszczęta po uprawomocnieniu się postanowienia o nadaniu klauzuli wykonalności. Do czasu upływu terminu do wniesienia zażalenia na postanowienie sądu okręgowego o nadaniu klauzuli wykonalności, a w razie wniesienia zażalenia - do czasu jego rozpoznania przez sąd apelacyjny, postanowienie to stanowi tytuł zabezpieczenia. Sposób zabezpieczenia określa w ...\"}, {\"chunk_id\": \"extractor_v9:filtered_0032_statute_bf1d0aa8e6142283\", \"source_id\": \"sejm_eli_du_2024_1568_art_1151\", \"source_type\": \"statute\", \"top_category\": \"deposit_or_advance\", \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"contracts\", \"housing\", \"risk_checking\"], \"text\": \"Wykonanie zabezpieczenia, o którym mowa w § 1, sąd okręgowy może uzależnić od złożenia przez wierzyciela kaucji. Dłużnikowi przysługuje pierwszeństwo zaspokojenia z kaucji złożonej przez wierzyciela przed wszystkimi innymi wierzycielami wierzyciela. § 3. W razie oddalenia zażalenia na postanowienie o nadaniu klauzuli wykonalności albo wydania postanowienia o nadaniu klauzuli wykonalności sąd apelacyjny może uzależnić wykonanie orzeczenia sądu państwa obcego od złożenia stosownego zabezpieczenia przez wierzyciela. Sąd może, jeżeli na skutek wykonania orzeczenia mogłaby wyniknąć dla dłużnika nie ...\"}]",
+   "tool_call_id": "call-ac79f9c1-64ab-42c4-a4df-e1fec23b3721",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę wynająć lokal do firmy i chciałbym mieć gwarancję, że będę mógł przedłużyć umowę przed innymi osobami. Czy możecie przygotować taką umowę dzierżawy?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję otworzyć sklep z odzieżą w lokalu ok. 100 metrów kwadratowych na osiedlu. Chcę umowę na 5 lat, ale kluczowe dla mnie jest prawo do przedłużenia na kolejne 3 lata na podobnych warunkach, zanim właściciel zaproponuje to komuś innemu. Czy da się to tak zapisać, żebyśmy ustalili teraz zasady przedłużenia?"
+  }
+ ]
+}

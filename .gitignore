@@ -1,5 +1,5 @@
 # Generated runtime artifacts
-outputs/
+outputs/*
 outputs_backup/
 output/
 inputs/
@@ -18,11 +18,50 @@ archive/
 *.gguf
 *.onnx
 
-# Datasets and test corpora
-dataset/
+# Datasets and test corpora (whitelisted finals re-included below)
+dataset/*
 datasets/
 data_test/
 eval/
+
+# Final thesis artifacts (whitelisted despite outputs/ + dataset/* + *.log rules)
+!outputs/eval100/
+outputs/eval100/*
+!outputs/eval100/eval100_questions.jsonl
+!outputs/eval100/eval100_base.jsonl
+!outputs/eval100/eval100_lora250.jsonl
+!outputs/eval100/eval100_final.jsonl
+!outputs/eval100/holdout_ids_true42.json
+!outputs/eval100/external_58.jsonl
+!outputs/eval100/README.md
+!outputs/eval100/sampling_notes.md
+!outputs/qa_pairs_all_final/
+outputs/qa_pairs_all_final/*
+!outputs/qa_pairs_all_final/sft_train_view.jsonl.gz
+!outputs/qa_pairs_all_final/sft_final.jsonl.gz
+!outputs/qa_pairs_all_final/manifest.json
+!outputs/qa_pairs_all_final/sft_train_view.jsonl.sha256
+!outputs/qa_pairs_all_final/sft_final.jsonl.sha256
+!outputs/qa_pairs_all_final/manifest.json.sha256
+!outputs/qa_pairs_all_final/bank_gz.sha256
+!outputs/anchors/
+outputs/anchors/*
+!outputs/anchors/*/
+outputs/anchors/*/**
+!outputs/anchors/*/scenarios.txt
+!outputs/anchors/*/hints.txt
+!outputs/anchors/*/trajectory_*.json
+!outputs/anchors/*/variation_*.json
+!outputs/anchors/*/FROZEN*.json
+!outputs/anchors/*/build_manifest.json
+!outputs/anchors/*/anchors.final*.jsonl
+!outputs/anchors/anchor_pool.jsonl
+!outputs/anchors/anchor_pool.phase*.jsonl
+!dataset/
+!dataset/03_drafting_tasks_sources/
+dataset/03_drafting_tasks_sources/*
+!dataset/03_drafting_tasks_sources/sources/
+!dataset/04_eval_sets/
 
 # Python
 __pycache__/

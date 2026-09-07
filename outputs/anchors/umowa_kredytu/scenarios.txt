@@ -1,0 +1,61 @@
+Kredyt hipoteczny na zakup mieszkania z wkładem własnym 20%
+Kredyt gotówkowy konsumencki z prowizją 0%
+Kredyt odnawialny na koncie z limitem 50 tys. zł
+Kredyt inwestycyjny dla firmy na maszyny
+Kredyt z oprocentowaniem stałym na 5 lat
+Kredyt z oprocentowaniem zmiennym (WIRON plus marża)
+Kredyt z zabezpieczeniem hipoteką na nieruchomości
+Kredyt z zabezpieczeniem wekslem własnym
+Kredyt z wcześniejszą spłatą i prowizją za przedterminową spłatę
+Kredyt nieodnawialny z jednorazową wypłatą
+Kredyt obrotowy z transzami
+Kredyt samochodowy z zabezpieczeniem na pojeździe
+Kredyt konsolidacyjny kilku zobowiązań
+Kredyt z ubezpieczeniem na wypadek utraty pracy
+Kredyt z okresem karencji w spłacie kapitału
+Kredyt w walucie obcej (EUR) z ryzykiem kursowym
+Kredyt z poręczeniem BGK
+Kredyt z zabezpieczeniem cesją wierzytelności
+Kredyt z oprocentowaniem promocyjnym przez pierwsze 6 miesięcy
+Kredyt studencki z karencją do ukończenia studiów
+Kredyt z prowizją za udzielenie i obsługę
+Kredyt z możliwością zawieszenia rat (wakacje kredytowe)
+Kredyt hipoteczny z dobrowolną spłatą nadmiarową
+Kredyt z zabezpieczeniem gwarancją bankową
+Kredyt z marżą uzależnioną od LTV
+Kredyt z opcją zmiany waluty (walutowanie)
+Kredyt z odsetkami naliczanymi w stawce zmiennej WIBOR
+Kredyt z zabezpieczeniem zastawem rejestrowym
+Kredyt z ubezpieczeniem na życie kredytobiorcy
+Kredyt z harmonogramem rat annuitetowych
+Kredyt z harmonogramem rat balonowych
+Kredyt z zerową prowizją za wcześniejszą spłatę (zgodnie z rekomendacją KNF)
+Kredyt hipoteczny z dopłatą z programu Bezpieczny Kredyt
+Kredyt z oprocentowaniem opartym na stawce WIRON od 2025 r.
+Kredyt z zabezpieczeniem poręczeniem osób trzecich
+Kredyt z warunkiem ubezpieczenia przedmiotu zabezpieczenia
+Kredyt z możliwością podniesienia limitu (odnawialny)
+Kredyt z opłatą za niewykorzystany limit
+Kredyt z zabezpieczeniem blokadą rachunku
+Kredyt z karencją w spłacie odsetek
+Kredyt z ratami sezonowymi dla rolnika
+Kredyt z zabezpieczeniem przewłaszczeniem na zabezpieczenie
+Kredyt z wymogiem wykupu ubezpieczenia pakietowego
+Kredyt z opcją wakacji kredytowych po urodzeniu dziecka
+Kredyt z zabezpieczeniem hipoteką na mieszkaniu rodziców
+Kredyt konsumencki z prawem odstąpienia w 14 dni
+Kredyt z prowizją pobieraną dopiero przy wypłacie transzy
+Kredyt z limitem debetowym na rachunku firmowym
+Kredyt z zabezpieczeniem gwarancją ubezpieczeniową
+Kredyt z oprocentowaniem stałym przez 2 lata potem zmiennym
+Kredyt z możliwością częściowej spłaty bez prowizji
+Kredyt z zabezpieczeniem zastawem na rachunku bankowym
+Kredyt z dopłatą odsetkową z funduszy UE
+Kredyt z opłatą za rozpatrzenie wniosku
+Kredyt z zabezpieczeniem poręczeniem małżonka
+Kredyt z harmonogramem degresywnym
+Kredyt z możliwością refinansowania innego kredytu
+Kredyt z zabezpieczeniem hipoteką kaucyjną
+Kredyt z oprocentowaniem opartym na stopie referencyjnej NBP
+Kredyt z zabezpieczeniem wekslem własnym z deklaracją wekslową
+Kredyt z opcją aneksowania umowy przy zmianie marży

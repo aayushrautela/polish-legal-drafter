@@ -1,0 +1,17 @@
+{
+ "run": 50,
+ "hint": "Darowizna z zastrzeżeniem kosztów sporządzenia aktu notarialnego",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę zrobić darowiznę bliskiej osobie, ale chciałbym, żeby koszty notariusza pokrył odbiorca, a nie ja. Jak to ustalić w umowie?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję przekazać w darze mieszkanie mojej córce i chcę, aby ona poniosła wszystkie opłaty notarialne i sądowe związane z tym aktem. Mieszkamy w różnych miastach, więc chciałbym wiedzieć, czy umowę można podpisać u notariusza u mnie, a koszty zapłaci ona. Czy taka rezerwacja kosztów w treści aktu jest wystarczająca, żeby notariusz nie naliczył ich mnie?"
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER CALLED get_template({\"doc_type\": \"umowa_darowizny\", \"query\": \"koszty aktu notarialnego darowizna\"})\\nDRAFTER CALLED keyword_search({\"keywords\": [\"koszty aktu notarialnego\", \"darowizna\", \"opłata notarialna\"], \"top_k\": 5})\\nRESULT: [{\"doc_type\": \"umowa_darowizny\", \"kind\": \"structural_template\", \"text\": \"# Umowa darowizny nieruchomości\\nUmowa darowizny nieruchomości w Polsce to umowa, przez którą darczyńca zobowiązuje się do bezpłatnego świadczenia na rzecz obdarowanego kosztem swego majątku, a jej przedmiotem jest przeniesienie własności nieruchomości — mieszkania, domu jednorodzinnego, działki gruntowej lub lokalu użytkowego. Instytucję darowizny regulują art. 888-902 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), zaś formę prawną przeniesienia własności nieruchomości określa art. 158 KC, wymagający formy aktu notarialnego pod rygorem nieważności.\\n\\nDarowizna nieruchomości różni się od sprzedaży tym, że jest bezpłatna — obdarowany nie jest zobowiązany do zapłaty ceny ani żadnego innego świadczenia wzajemnego. Celem darowizny jest wzbogacenie obdarowanego kosztem majątku darczyńcy, co wynika wprost z art. 888 par. 1 KC. Darowizna może być dokonana zarówno między osobami fizycznymi, w tym w ramach najbliższej rodziny, jak i między przedsiębiorcami lub innymi podmiotami prawnymi.\\n\\nKluczowym elementem odróżniającym darowiznę nieruchomości od innych umów przenoszących własność jest jej nieodpłatność. Darczyńca nie otrzymuje żadnego ekwiwalentu, co ma bezpośrednie konsekwencje podatkowe. Ustawa z dnia 28 lipca 1983 r. o podatku od spadków i darowizn przewiduje jednak szczególne zwolnienia dla nabywców z grupy zerowej, czyli małżonka, zstępnych, wstępnych, pasierba, rodzeństwa, ojczyma i macochy. Wymogiem zwolnienia jest zgłoszenie darowizny naczelniko"
+}

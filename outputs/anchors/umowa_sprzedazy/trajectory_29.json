@@ -1,0 +1,304 @@
+{
+ "run": 33,
+ "hint": "Sprzedaż narzędzi warsztatowych",
+ "scenario": "Sprzedaż narzędzi warsztatowych",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_sprzedazy'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_7269a4a7f3d646c689f9294e",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_sprzedazy\"}"
+     }
+    },
+    {
+     "id": "call_5f3447652a854683b2c1e149",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"narzędzia warsztatowe\", \"rękojmia\", \"sprzedaż narzędzi\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_sprzedazy\", \"kind\": \"structural_template\", \"text\": \"# Umowa sprzedaży rzeczy ruchomej\\nUmowa sprzedaży rzeczy ruchomej w Polsce to umowa nazwana, uregulowana w art. 535-555 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą sprzedający zobowiązuje się przenieść na kupującego własność rzeczy i wydać mu rzecz, a kupujący zobowiązuje się rzecz odebrać i zapłacić sprzedającemu cenę. Przez rzecz ruchomą rozumie się każdy materialny przedmiot niebędący nieruchomością ani częścią składową nieruchomości — takie jak sprzęt elektroniczny, meble, narzędzia, maszyny, sprzęt sportowy, ubrania, dzieła sztuki, instrumenty muzyczne czy antyki.\\n\\nWłasność rzeczy ruchomej przechodzi na kupującego z chwilą zawarcia umowy (art. 155 § 1 Kodeksu cywilnego), jeżeli sprzedający jest właścicielem rzeczy, a czynność jest bezwarunkowa i nie dotyczy rzeczy oznaczonych co do gatunku lub rzeczy przyszłych. Przy tych ostatnich przeniesienie własności następuje dopiero z chwilą wydania rzeczy (art. 155 § 2 Kodeksu cywilnego). Obowiązek wydania rzeczy i przeniesienia własności jest po stronie sprzedającego, a obowiązek zapłaty ceny i odbioru — po stronie kupującego.\\n\\nUmowa sprzedaży rzeczy ruchomej jest najczęstszym typem umowy zawieranej w obrocie cywilnym — obejmuje sprzedaż prywatną (osoba-osoba), sprzedaż konsumencką (przedsiębiorca-konsument) i obrót B2B (przedsiębiorca-przedsiębiorca). W każdym z tych przypadków obowiązują nieco inne reguły: przy sprzedaży konsumenckiej zastosowanie ma ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.) przyznająca kupującemu m.in. prawo odstąpienia w terminie 14 dni przy umowach zawieranych na odległość (art. 27 tej ustawy) oraz pełną rękojmię za wady, której ograniczenie jest niedopuszczalne. Nadzór nad przestrzeganiem praw konsumentów sprawuje Urząd Ochrony Konkurencji i Konsumentów (UOKiK) oraz miejscy i powiatowi rzecznicy konsumentów.\\n\\nZgodnie z art. 548 § 1 Kodeksu cywilnego niebezpieczeństwo przypadkowej utraty lub uszkodzenia rzeczy przechodzi na kupującego z chwilą wydania rzeczy. Oznacza to, że jeżeli przedmiot ulegnie zniszczeniu po wydaniu go kupującemu (np. wskutek pożaru lub kradzieży), sprzedający nie ponosi za to odpowiedzialności — ryzyko spoczywa na kupującym. Klauzule modyfikujące ten moment przejścia ryzyka są dopuszczalne w obrocie między przedsiębiorcami, lecz w umowach z konsumentami mogą zostać zakwestionowane jako niedozwolone klauzule umowne (art. 385¹-385³ Kodeksu cywilnego) przez Prezesa UOKiK.\\n\\nRękojmia za wady fizyczne i prawne (art. 556-576 Kodeksu cywilnego) jest instytucją ustawową, chroniącą kupującego przed rzeczami niezgodnymi z umową. Wada fizyczna w rozumieniu art. 556¹ Kodeksu cywilnego to niezgodność rzeczy z umową — w szczególności, gdy rzecz nie ma właściwości, o których istnieniu sprzedający zapewnił kupującego, nie nadaje się do celu wskazanego przez kupującego lub ma właściwości niezgodne z treścią reklamy. Wada prawna (art. 556³ Kodeksu cywilnego) zachodzi, gdy rzecz stanowi własność osoby trzeciej lub jest obciążona prawem osoby trzeciej.\\n\\nPodatek od czynności cywilnoprawnych (PCC) przy sprzedaży rzeczy ruchomych wynosi zasadniczo 2 procent, jednak w praktyce przy transakcjach między osobami fizycznymi, gdy wartość rzeczy nie przekracza 1000 zł, obowiązek podatkowy nie powstaje. Podatek rozlicza kupujący w urzędzie skarbowym (Krajowa Administracja Skarbowa, KAS). Zakup od przedsiębiorcy-podatnika VAT jest zwolniony z PCC, ponieważ transakcja podlega opodatkowaniu podatkiem od towarów i usług.\\n\\nUmowa sprzedaży rzeczy ruchomej w Polsce jest potrzebna zawsze, gdy strony chcą udokumentować przeniesienie własności przedmiotu i wzajemne prawa wynikające z transakcji. Choć przepisy Kodeksu cywilnego nie wymagają pisemnej formy dla ważności umowy sprzedaży rzeczy ruchomej, jej sporządzenie ma kluczowe znaczenie praktyczne w kilku sytuacjach.\\n\\nDokument jest niezbędny przy sprzedaży przedmiotów o wyższej wartości — sprzętu elektronicznego, mebli, maszyn, narzędzi, instrumentów muzycznych, dzieł sztuki, antyków, biżuterii czy kolekcji numizmatycznych. Pisemna umowa pozwala precyzyjnie opisać stan przedmiotu, znane wady i szczegóły techniczne (numer seryjny, model, rok produkcji), co ogranicza ryzyko sporów dotyczących rękojmi za wady przed Sądem Rejonowym.\\n\\nUmowa jest potrzebna przy transakcjach zawieranych na odległość — przez portale ogłoszeniowe (OLX, Allegro, Vinted), media społecznościowe lub drogą mailową. Dowód zawarcia umowy i uzgodnionych warunków jest kluczowy dla rozliczenia ewentualnych roszczeń, zwłaszcza gdy przedmiot jest wysyłany kurierem lub pocztą — ryzyko uszkodzenia lub utraty podczas transportu obciąża odpowiednią stronę zależnie od uzgodnienia.\\n\\nDokument jest konieczny przy sprzedaży urządzeń objętych gwarancją producenta lub serwisową. Nowy nabywca potrzebuje dowodu nabycia, aby skutecznie dochodzić roszczeń gwarancyjnych wobec producenta lub autoryzowanego serwisu — umowa sprzedaży jest takim dowodem.\\n\\nUmowa jest potrzebna, gdy kupujący chce odliczyć wydatek od kosztów działalności gospodarczej. Organy Krajowej Administracji Skarbowej (KAS) wymagają dokumentu potwierdzającego zakup jako podstawy dla wpisu w koszty. Podobnie przy zakupie od osoby prywatnej dla celów firmowych kupujący powinien zachować podpisaną umowę jako dowód księgowy.\\n\\nDokument jest niezbędny przy sprzedaży przedmiotów podlegających rejestracji lub szczególnej kontroli — broni palnej (wymagana zgoda właściwego komendanta policji), substancji kontrolowanych czy wyrobów z metali szlachetnych. Organem właściwym dla rejestracji broni jest Komendant Powiatowy / Miejski Policji, a podmiotem nadzorującym obrót metalami szlachetnymi jest Urząd Probierczy (UPRP).\\n\\nPrawidłowa umowa sprzedaży rzeczy ruchomej w Polsce, oparta na art. 535 i następnych Kodeksu cywilnego, powinna zawierać elementy identyfikujące strony, przedmiot i warunki transakcji, a jej treść musi być wystarczająco szczegółowa, aby zminimalizować ryzyko sporów.\\n\\nOznaczenie stron: pełne imię i nazwisko (lub firma) sprzedającego i kupującego, numery PESEL lub NIP, adresy zamieszkania lub siedzib. Przy przedsiębiorcy niezbędne są numer KRS lub CEIDG, adres siedziby i imię osoby uprawnionej do reprezentacji. Prawidłowe oznaczenie stron jest konieczne, gdyż sąd rejonowy lub sąd okręgowy może odmówić nadania klauzuli wykonalności na tytuł egzekucyjny bez dokładnych danych stron.\\n\\nOpis przedmiotu sprzedaży: marka, model, rok produkcji, numer seryjny lub inne oznaczenie indywidualizujące rzecz, stan techniczny, kolor i kluczowe parametry techniczne. Im dokładniejszy opis, tym mniejsze ryzyko sporu co do tego, co było przedmiotem transakcji. Przy przedmiotach używanych warto opisać znane wady — ich wskazanie skutecznie ogranicza późniejsze roszczenia z tytułu rękojmi za te konkretne wady (art. 558 § 1 Kodeksu cywilnego).\\n\\nCena i sposób płatności: kwota cyfrowo i słownie, waluta PLN, forma płatności (przelew bankowy — zalecany, gotówka, płatność elektroniczna BLIK), termin i sposób potwierdzenia zapłaty (potwierdzenie przelewu, pokwitowanie gotówkowe). Przy transakcjach powyżej 15 000 zł między przedsiębiorcami obowiązuje bezgotówkowy obrót wynikający z ustawy o swobodzie działalności gospodarczej.\\n\\nWydanie przedmiotu: data i miejsce wydania, lista dodatkowych elementów przekazywanych z przedmiotem (akcesoria, instrukcja, opakowanie, certyfikaty, faktura producenta). Data wydania jest kluczowa, gdyż od niej biegnie dwuletni termin rękojmi za wady fizyczne (art. 568 § 1 Kodeksu cywilnego), a na kupującego przechodzi ryzyko przypadkowej utraty (art. 548 § 1 Kodeksu cywilnego).\\n\\nRękojmia za wady: zapis o pełnej rękojmi ustawowej lub — w obrocie prywatnym — o jej ograniczeniu bądź wyłączeniu ze wskazaniem zakresu. Wyłączenie rękojmi nie może dotyczyć wad umyślnie zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego). W obrocie konsumenckim wyłączenie jest w ogóle niedopuszczalne.\\n\\nPostanowienia końcowe i podpisy: zastrzeżenie formy pisemnej dla zmian, właściwość sądu (Sąd Rejonowy lub Sąd Okręgowy, w zależności od wartości przedmiotu sporu — próg 100 000 zł z art. 17 Kodeksu postępowania cywilnego), liczba egzemplarzy, daty i podpisy. Serwis forms-legal.com udostępnia wzór umowy sprzedaży rzeczy ruchomej jako praktyczny punkt wyjścia dla każdej transakcji prywatnej lub B2B.\\n\\nWypełnianie umowy sprzedaży rzeczy ruchomej w Polsce należy zacząć od wpisania pełnych danych obu stron. W polu sprzedającego wpisz imię i nazwisko (lub firmę) dokładnie tak, jak w dokumencie tożsamości lub rejestrze (KRS / CEIDG). Podaj numer PESEL lub NIP, adres zamieszkania lub siedziby. Analogicznie wypełnij dane kupującego — jego PESEL będzie potrzebny, jeżeli kupujący ma złożyć deklarację PCC do urzędu skarbowego (KAS).\\n\\nW sekcji opisu przedmiotu opisz rzecz jak najbardziej szczegółowo. Podaj markę, model, numer seryjny, rok produkcji, kolor i stan techniczny. Jeżeli przedmiot ma znane usterki lub wady, wymień je wyraźnie — unikniesz w ten sposób późniejszych roszczeń z rękojmi za te konkretne wady. Stan techniczny opisz rzetelnie: \\\"nowy\\\", \\\"używany w dobrym stanie\\\", \\\"używany z drobnymi śladami eksploatacji\\\" itp.\\n\\nW sekcji warunków transakcji wpisz cenę cyfrowo i słownie. Wybierz sposób zapłaty — przelew bankowy daje obu stronom dowód transakcji w postaci potwierdzenia bankowego. Podaj datę zawarcia umowy — od niej liczyć się będą terminy prawne (rękojmia, podatek PCC). Wskaż miejscowość zawarcia.\\n\\nPrzy podpisywaniu umowy zadbaj, by obie strony były obecne lub by wymieniły podpisane egzemplarze (np. skan lub oryginał kurierem). Każda ze stron powinna zachować jeden egzemplarz. Jeżeli zakup wiąże się z obowiązkiem podatkowym (wartość transakcji powyżej progu zwolnienia z PCC), kupujący powinien złożyć deklarację PCC-3 w urzędzie skarbowym w ciągu 14 dni od daty zawarcia umowy.\\n\\nPo podpisaniu umowy dokonaj wydania przedmiotu i zaznacz ten fakt — może to być adnotacja na umowie lub odrębne pokwitowanie odbioru. Jeżeli przedmiot jest wysyłany, zachowaj dowód nadania przesyłki i umów, na której stronie spoczywa ryzyko uszkodzenia podczas transportu.\\n\\nWymogi prawne umowy sprzedaży rzeczy ruchomej w Polsce wynikają przede wszystkim z Kodeksu cywilnego. Zgodnie z art. 535 do zawarcia umowy wystarczy zgodne oświadczenie woli stron — nie jest wymagana forma pisemna pod rygorem nieważności. Jednak forma pisemna jest zalecana ze względów dowodowych.\\n\\nRękojmia za wady fizyczne i prawne (art. 556-576 Kodeksu cywilnego) chroni kupującego niezależnie od rodzaju umowy. Wada fizyczna to niezgodność rzeczy z umową (art. 556¹). Termin rękojmi za wady fizyczne wynosi dwa lata od daty wydania rzeczy (art. 568 § 1 Kodeksu cywilnego). Kupujący, który stwierdził wadę, powinien zawiadomić sprzedającego w rozsądnym czasie — choć w stosunkach konsumenckich brak zawiadomienia nie pozbawia kupującego uprawnień. Uprawnienia kupującego obejmują żądanie obniżenia ceny, odstąpienie od umowy (przy wadzie istotnej), wymianę rzeczy na wolną od wad lub usunięcie wady (art. 560-561 Kodeksu cywilnego).\\n\\nW obrocie konsumenckim (sprzedający-przedsiębiorca, kupujący-konsument) zastosowanie ma ustawa z dnia 30 maja 2014 r. o prawach konsumenta (Dz.U. 2014 poz. 827 ze zm.). Przedsiębiorca ma obowiązki informacyjne przed zawarciem umowy (art. 8 i 12 tej ustawy), a przy umowach zawieranych na odległość lub poza lokalem konsument ma prawo odstąpienia w terminie 14 dni bez podania przyczyny (art. 27). Brak informacji o prawie odstąpienia wydłuża termin do 12 miesięcy (art. 29). Niedozwolone klauzule umowne (art. 385¹ Kodeksu cywilnego) są nieskuteczne z mocy prawa — Prezes UOKiK wydaje decyzje stwierdzające ich abuzywność.\\n\\nPodatek od czynności cywilnoprawnych (PCC) — ustawa z dnia 9 września 2000 r. — wynosi 2 procent wartości rynkowej rzeczy; kupujący ma obowiązek złożyć deklarację PCC-3 do urzędu skarbowego (KAS) w terminie 14 dni od daty zawarcia umowy i opłacić podatek. Zakup od przedsiębiorcy-podatnika VAT jest zwolniony z PCC.\\n\\nNajczęstsze błędy przy umowie sprzedaży rzeczy ruchomej w Polsce zaczynają się od niewystarczającego opisu przedmiotu. Brak numeru seryjnego, modelu lub stanu technicznego uniemożliwia jednoznaczną identyfikację przedmiotu w razie sporu. Kupujący twierdzący, że otrzymał inny przedmiot niż umówiony, znacznie łatwiej wygra spór przed Sądem Rejonowym, gdy opis w umowie był ogólny.\\n\\nKolejnym błędem jest zatajanie znanych wad przez sprzedającego. Nawet gdy umowa wyłącza rękojmię, wyłączenie nie obejmuje wad umyślnie zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego). Zatajenie istotnej wady naraża sprzedającego na odpowiedzialność odszkodowawczą, a w skrajnych przypadkach — na zarzut oszustwa z art. 286 Kodeksu karnego.\\n\\nBrak pisemnego potwierdzenia wydania przedmiotu to kolejne uchybienie — bez dowodu wydania sprzedający może mieć trudność z wykazaniem, że dostarczył przedmiot w umówionym terminie i stanie. Pokwitowanie odbioru lub adnotacja na umowie z datą i podpisem kupującego rozwiązuje ten problem.\\n\\nNieprawidłowe ustalenie ceny może skutkować problemami podatkowymi. Zaniżona cena w umowie, mająca ograniczyć podatek PCC, może zostać zakwestionowana przez urząd skarbowy KAS, który wyceni przedmiot według wartości rynkowej i naliczy zaległość z odsetkami.\\n\\nOstatnią typową pomyłką jest sprzedaż rzeczy obciążonej prawem osoby trzeciej — zastawem rejestrowym, prawem własności zastrzeżonej lub zajęciem komorniczym. Sprzedaż takiej rzeczy bez zgody uprawnionego podmiotu może okazać się bezskuteczna lub skutkować odebraniem przedmiotu kupującemu przez komornika sądowego i odpowiedzialnością sprzedającego z tytułu rękojmi za wady prawne.\\n\\nŹródło: https://forms-legal.com/pl/personal/bills-of-sale/umowa-sprzedazy-rzeczy-ruchomej (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_7269a4a7f3d646c689f9294e",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_1046\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 1046. Po dokonaniu działu spadku spadkobiercy są wzajemnie obowiązani do rękojmi za wady fizyczne i prawne według przepisów o rękojmi przy sprzedaży. Rękojmia co do wierzytelności spadkowych rozciąga się także na wypłacalność dłużnika. Tytuł IX Umowy dotyczące spadku\"}, {\"chunk_id\": \"sejm_eli_du_2024_1568_art_953\", \"source_id\": \"sejm_eli_du_2024_1568\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\", \"display_address\": \"Dz.U. 2024 poz. 1568\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 10 października 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks postępowania cywilnego\\nArt. 953. § 1. Komornik ogłosi o licytacji przez publiczne obwieszczenie, w którym wymienia: 1) nieruchomość, która ma być sprzedana, ze wskazaniem miejsca jej położenia i przeznaczenia gospodarczego, wraz z podaniem numeru księgi wieczystej lub z oznaczeniem zbioru dokumentów i sądu, w którym zbiór jest prowadzony, a także imienia i nazwiska dłużnika, z wyłączeniem innych danych osobowych pozwalających go zidentyfikować; 2) czas  ...\"}, {\"chunk_id\": \"uokik_items:uokik_8ccb14f4d6410375\", \"source_id\": \"uokik_rejestr_klauzul_5800\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Gwarancja, rękojmia oraz prawo odstąpienia od umowy nie obowiązują gdy produkt dotknięty jest uszkodzeniami mechanicznymi pochodzenia zewnętrznego\"}]",
+   "tool_call_id": "call_5f3447652a854683b2c1e149",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_67bd92a0138d4274b6653d90",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż narzędzi warsztatowych używanych nowych gwarancja rękojmia wady mechaniczne\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_ef061a1f606646bd970bd8ee",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"gwarancja producenta\", \"narzędzia elektryczne\", \"sprzęt warsztatowy\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_7e320878cd51265c\", \"source_id\": \"uokik_rejestr_klauzul_3354\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca ponosi odpowiedzialność z tytułu rękojmi za wady ukryte lokalu (budynku) i z tytułu gwarancji na urządzenia przez okres 1 roku chyba, że udzielona przez dostawcę materiałów lub urządzeń gwarancja przewiduje dłuższy okres. Terminy rękojmi w zakresie lokalu rozpoczynają bieg od daty podpisania protokołu wydania lokalu, w zakresie części wspólnych budynku od dnia przekazania części wspólnych zarządcy budynku. W pozostałym zakresie, co do rękojmi zastosowania znajdują przepisy Kodeksu cywilnego\"}, {\"chunk_id\": \"uokik_items:uokik_9ca4218d9e0677f0\", \"source_id\": \"uokik_rejestr_klauzul_911\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca udziela gwarancji na sprzedany wyrób na okres 12 miesięcy od daty wydania. W zakresie odpowiedzialności z tytułu reklamacji i rękojmi obowiązują przepisy art. 556-568, 577-581 Kodeksu Cywilnego\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_556\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 556. Sprzedawca jest odpowiedzialny względem kupującego, jeżeli rzecz sprzedana ma wadę (rękojmia).\"}, {\"chunk_id\": \"uokik_items:uokik_ae3e749e0599ef43\", \"source_id\": \"uokik_rejestr_klauzul_6025\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Jeżeli Podmiot Przyłączany nie usunie wad lub nie dokona napraw gwarancyjnych w odsprzedanych urządzeniach w okresie trwania gwarancji i rękojmi, w terminie wyznaczonym przez(...) dokona napraw lub usunie wady a kosztem ich obciąży Podmiot Przyłączany\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_568\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 568. § 1. Sprzedawca odpowiada z tytułu rękojmi, jeżeli wada fizyczna zostanie stwierdzona przed upływem dwóch lat, a gdy chodzi o wady nieruchomości - przed upływem pięciu lat od dnia wydania rzeczy kupującemu. § 2. Roszczenie o usunięcie wady lub wymianę rzeczy sprzedanej na wolną od wad przedawnia się z upływem roku, licząc od dnia stwierdzenia wady. Jeżeli kupującym jest konsument, bieg terminu przedawnienia nie może zakończyć się przed upły ...\"}]",
+   "tool_call_id": "call_67bd92a0138d4274b6653d90",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_ef061a1f606646bd970bd8ee",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_e08355c37a7f489992aae208",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"sprzedaż narzędzi warsztatowych używanych nowych gwarancja rękojmia wady mechaniczne protokół odbioru\", \"top_k\": 5}"
+     }
+    },
+    {
+     "id": "call_afdc6d788a6d4627b7c9e187",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"sprzedaż używanych narzędzi\", \"warsztat samochodowy\", \"rękojmia za wady\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_80ec35b7323e9a5c\", \"source_id\": \"uokik_rejestr_klauzul_3189\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacje ilościowe oraz stwierdzenie wad jawnych, takich, jak na przykład uszkodzenia mechaniczne, pęknięcia i stłuczenie szkła, czy głębokie zarysowania powinny być zaznaczone w Protokole odbioru robót pod rygorem późniejszego nie uznania ich przez Sprzedawcę\"}, {\"chunk_id\": \"uokik_items:uokik_47141d5c8f435148\", \"source_id\": \"uokik_rejestr_klauzul_6669\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Reklamacje ilościowe oraz stwierdzenie wad jawnych, takich jak np. uszkodzenia mechaniczne, pęknięcia i stłuczenie szkła, czy głębokie zarysowania powinny być zaznaczone w Protokole odbioru robót pod rygorem utraty wszelkich roszczeń z tego tytułu\"}, {\"chunk_id\": \"uokik_items:uokik_7e320878cd51265c\", \"source_id\": \"uokik_rejestr_klauzul_3354\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Sprzedawca ponosi odpowiedzialność z tytułu rękojmi za wady ukryte lokalu (budynku) i z tytułu gwarancji na urządzenia przez okres 1 roku chyba, że udzielona przez dostawcę materiałów lub urządzeń gwarancja przewiduje dłuższy okres. Terminy rękojmi w zakresie lokalu rozpoczynają bieg od daty podpisania protokołu wydania lokalu, w zakresie części wspólnych budynku od dnia przekazania części wspólnych zarządcy budynku. W pozostałym zakresie, co do rękojmi zastosowania znajdują przepisy Kodeksu cywilnego\"}, {\"chunk_id\": \"uokik_items:uokik_7f8815e23426f783\", \"source_id\": \"uokik_rejestr_klauzul_7169\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Uszkodzenia mechaniczne zakupionego towaru będą uwzględniane tylko i wyłącznie, gdy przy odbiorze przesyłki zostanie sporządzony protokół szkody w obecności kuriera\"}, {\"chunk_id\": \"uokik_items:uokik_6ec86fa84e68251e\", \"source_id\": \"uokik_rejestr_klauzul_4760\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Warunkiem rozpatrzenia ewentualnej reklamacji dotyczącej uszkodzeń mechanicznych / transportowych jest spisanie przy udziale pracowników Sklepu Internetowego (...) (w przypadku odbioru towaru przez klienta z magazynu sprzedawcy) lub pracownika firmy kurierskiej &quot;Protokołu Szkodowego&quot; szczegółowo opisującego uszkodzenia i przesłanie go wraz ze zgłoszeniem reklamacji\"}]",
+   "tool_call_id": "call_e08355c37a7f489992aae208",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_afdc6d788a6d4627b7c9e187",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA SPRZEDAŻY RZECZY RUCHOMEJ (NARZĘDZI WARSZTATOWYCH)\n\nzawarta w dniu _______________ r. w _______________, pomiędzy:\n\n**Sprzedającym:**\nImię i nazwisko / Firma: ______________________________________________\nAdres zamieszkania / siedziby: ______________________________________\nPESEL / NIP: ______________________________________________________\nNumer rachunku bankowego: __________________________________________\n\na\n\n**Kupującym:**\nImię i nazwisko / Firma: ______________________________________________\nAdres zamieszkania / siedziby: ______________________________________\nPESEL / NIP: ______________________________________________________\n\n## § 1. Przedmiot umowy\n\n1. Sprzedający zobowiązuje się przenieść na Kupującego własność następujących narzędzi warsztatowych (dalej: \"Przedmiot umowy\"), a Kupujący zobowiązuje się Przedmiot umowy odebrać i zapłacić Sprzedającemu cenę:\n\n| Lp. | Nazwa narzędzia | Marka / Model | Numer seryjny | Rok produkcji | Stan techniczny* | Ilość |\n|-----|-----------------|---------------|---------------|---------------|------------------|-------|\n| 1.  |                 |               |               |               |                  |       |\n| 2.  |                 |               |               |               |                  |       |\n| 3.  |                 |               |               |               |                  |       |\n\n*Określenie stanu technicznego: nowy / używany w dobrym stanie / używany ze śladami eksploatacji / wymagający serwisu.\n\n2. Sprzedający oświadcza, że Przedmiot umowy jest jego własnością, nie jest obciążony prawem osoby trzeciej, nie stanowi przedmiotu zastawu rejestrowego ani zajęcia komorniczego.\n\n3. Wraz z Przedmiotem umowy Sprzedający przekazuje Kupującemu następujące akcesoria i dokumenty: _________________________________________________________________ (m.in. instrukcje obsługi, certyfikaty, karty gwaracyjne, osprzęt).\n\n## § 2. Cena i płatność\n\n1. Cena całkowita za Przedmiot umowy wynosi: _______________ zł (słownie: _____________________________________________ złotych).\n\n2. Kupujący dokonuje zapłaty w następujący sposób:\n   a) przelewem na rachunek bankowy Sprzedającego w terminie _____ dni od daty zawarcia umowy, lub\n   b) gotówką w momencie podpisania umowy.\n\n3. Sprzedający potwierdza otrzymanie całej kwoty ceny na podstawie pokwitowania lub potwierdzenia przelewu bankowego.\n\n## § 3. Wydanie Przedmiotu umowy i protokół odbioru\n\n1. Sprzedający wydaje Przedmiot umowy Kupującemu w dniu _______________ r., w miejscu: _________________________________.\n\n2. W momencie wydania strony sporządzają **Protokół odbioru**, w którym:\n   a) potwierdzają zgodność Przedmiotu umowy z opisem zawartym w § 1,\n   b) wykazują wszelkie **wady jawne** (w tym uszkodzenia mechaniczne, pęknięcia, wgniecenia, głębokie zarysowania, brak elementów),\n   c) określają stan techniczny i wizualny Przedmiotu umowy.\n\n3. Wady jawne nieujone w Protokole odbioru uznaje się za zaakceptowane przez Kupującego, z zastrzeżeniem odpowiedzialności Sprzedającego za wady ukryte na zasadach określonych w § 4.\n\n4. Jeżeli Przedmiot umowy jest przekazywany za pośrednictwem przewoźnika (kuriera), Kupujący ma prawo – a Sprzedający go do tego zobowiązuje – do sprawdzenia stanu Przedmiotu umowy w obecności przewoźnika. W przypadku stwierdzenia uszkodzeń mechanicznych lub ilościowych w momencie dostawy, Kupujący sporządza **Protokół szkody** w obecności przewoźnika, który stanowi podstawę do późniejszych roszczeń.\n\n5. Podpisanie Protokołu odbioru bez zastrzeżeń co do wad jawnych nie pozbawia Kupującego praw wynikających z rękojmi za wady ukryte.\n\n## § 4. Rękojmia za wady\n\n1. Sprzedawca odpowiada wobec Kupującego z tytułu rękojmi za wady fizyczne i prawne Przedmiotu umowy na zasadach określonych w art. 556–576 Kodeksu cywilnego.\n\n2. **Wadą fizyczną** w rozumieniu art. 556¹ Kodeksu cywilnego jest w szczególnie:\n   a) niezgodność Przedmiotu umowy z umową (w tym brak właściwości, o których Sprzedający zapewnił Kupującego),\n   b) niezgodność z treścią reklamy lub próbki,\n   c) niewłaściwy montaż (jeżle służył do niego Sprzedający lub osoba, za którą ponosi odpowiedzialność),\n   d) uszkodzenia mechaniczne, wady materiałowe, wady fabryczne – **w tym wady ujawniające się po odbiorze, jeżeli istniały w momencie wydania**.\n\n3. **Wadą prawną** w rozumieniu art. 556³ Kodeksu cywilnego jest w szczególności sytuacja, w której Przedmiot umowy stanowi własność osoby trzeciej lub jest obciążony prawem osoby trzeciej.\n\n4. Sprzedawca odpowiada z tytułu rękojmi za wady fizyczne, jeżeli zostaną stwierdzone przed upływem **dwóch lat** od dnia wydania Przedmiotu umowy Kupującemu (art. 568 § 1 Kodeksu cywilnego).\n\n5. Roszczenie o usunięcie wady lub wymianę Przedmiotu umowy na wolny od wad przedawnia się z upływem **roku**, licząc od dnia stwierdzenia wady (art. 568 § 2 Kodeksu cywilnego).\n\n6. **Oświadczenie Sprzedającego o wyłączeniu lub ograniczeniu rękojmi nie obejmuje:**\n   a) wad umyślnie zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego),\n   b) wad fizycznych, w tym uszkodzeń mechanicznych, które istniały w momencie wydania, ale nie były widoczne przy zwykłym odbiorze,\n   c) wad prawnych.\n\n7. Kupujący, stwierdzawszy wadę, zobowiązany jest do zawiadomienia Sprzedającego w rozsądnym czasie. Zawiadomienie powinno zawierać opis wady oraz żądanie (obniżenie ceny, wymiana, naprawa lub odstąpienie od umowy).\n\n8. Sprzedający, w terminie 14 dni od otrzymania zawiadomienia, składa oświadczenie w sprawie żądania Kupującego. Brak oświadczenia w tym terminie uznaje się za przyjęcie żądania.\n\n## § 5. Ryzyko przypadkowej utraty lub uszkodzenia\n\n1. Zgodnie z art. 548 § 1 Kodeksu cywilnego niebezpieczeństwo przypadkowej utraty lub uszkodzenia Przedmiotu umowy przechodzi na Kupującego z chwilą wydania mu rzeczy.\n\n2. Jeżeli Przedmiot umowy jest przekazywany przez przewońnika, strony mogą uzgodnić inny moment przejścia ryzyka. W braku uzgodnienia ryzyko przechodzi na Kupującego z chwilą wydania Przedmiotu umowy przewoźnikowi.\n\n## § 6. Gwarancja producenta (jeżeli dotyczy)\n\n1. Jeżeli Przedmiot umowy jest objęty gwarancją producenta, Sprzedający przekazuje Kupującemu kartę gwarancyjną oraz dokumentację niezbędną do składania reklamacji gwarancyjnych.\n\n2. Okres gwarancji producenta wynosi: _______________ miesięcy od daty wydania.\n\n3. Odpowiedzialność z tytułu gwarancji producenta nie wyłącza ani nie ogranicza odpowiedzialności Sprzedającego z tytułu rękojmi.\n\n## § 7. Reklamacje\n\n1. Reklamacje dotyczące wad Przedmiotu umowy Kupujący składa na adres Sprzedającego wskazany w § 1, w formie pisemnej lub elektronicznej.\n\n2. Reklamacja powinna zawierać:\n   a) dane Kupującego i Sprzedającego,\n   b) datę zawarcia umowy i odbioru Przedmiotu umowy,\n   c) opis wady,\n   d) żądanie (naprawa, wymiana, obniżenie ceny, odstąpienie od umowy),\n   e) dowody (zdjęcia, Protokół odbioru, Protokół szkody).\n\n3. Sprzedający rozpatruje reklamację w terminie 30 dni od jej otrzymania. Brak odpowiedzi w tym terminie uznaje się za uznanie reklamacji.\n\n## § 8. Postanowienia końcowe\n\n1. Wszelkie zmiany umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregowanych zastosowanie mają przepisy Kodeksu cywilnego, a w przypadku umów konsumenckich – ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd właściwy miejscowo dla siedziby/zamieszkania Sprzedającego, chyba że Kupującym jest konsument – wówczas właściwy jest sąd właściwy miejscowo dla konsumenta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n## § 5. Oświadczenia stron\n\n**Sprzedający oświadcza, że:**\n- Przedmiot umowy jest jego własnością i nie jest obciążony prawami osób trzecich,\n- stan techniczny Przedmiotu umowy został opisany rzetelnie w § 1,\n- znane wady (w tym uszkodzenia mechaniczne, wady elektryczne,usterki) zostały wymienione w załączniku nr 1 do umowy / nie występują znane wady*.\n\n**Kupujący oświadcza, że:**\n- zapoznał się z opisem Przedmiotu umowy, w tym ze stanem technicznym i ewentualnymi wadami,\n- zapoznał się z treścią umowy i akceptuje jej postanowienia,\n- *[w przypadku umów zawieranych na odległość]* został poinformowany o prawie odstąpienia od umowy w terminie 14 dni.\n\n_________________________                    _________________________\n   (podpis Sprzedającego)                        (podpis Kupującego)\n\n## ZAŁĄCZNIKI:\n1. Protokół odbioru Przedmiotu umowy (wraz z wykazem wad jawnych)\n2. Kopia dokumentu tożsamości / dokumentu rejestrowego Sprzedającego\n3. Karta gwarancyja producenta (jeżeli dotyczy)\n4. Opis znanych wad (jeżeli dotyczy)\n\n---\n\n**Informacja dla Kupującego (umowa konsumencka):**\nJeżeli jesteś konsumentem w rozumieniu ustawy o prawach konsumenta, przysługuje Ci prawo odstąpienia od umowy zawartej na odległość lub poza lokalem przedsiębiorstwa w terminie 14 dni bez podania przyczyny. Wzór oświadczenia o odstąpieniu od umowy stanowi załącznik regulaminowy do ustawy. Brak informacji o prawie odstąpienia wydłuża termin do 12 miesięcy (art. 29 ustawy o prawach konsumenta).\n\n**Informacja podatkowa:**\nJeżeli Kupujący jest osobą fizyczną, a wartość Przedmiotu umowy przekracza 1000 zł, Kupujący ma obowiązek złożyć deklarację PCC-3 w urzędzie skarbowym w terminie 14 dni od daty zawarcia umowy i opłacić podatek od czynności cywilnoprawnych w wysokości 2% wartości rynkowej Przedmiotu umowy. Zakup od przedsiębiorcy-podatnika VAT jest zwolniony z PCC.",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA SPRZEDAŻY RZECZY RUCHOMEJ (NARZĘDZI WARSZTATOWYCH)\n\nzawarta w dniu _______________ r. w _______________, pomiędzy:\n\n**Sprzedającym:**\nImię i nazwisko / Firma: ______________________________________________\nAdres zamieszkania / siedziby: ______________________________________\nPESEL / NIP: ______________________________________________________\nNumer rachunku bankowego: __________________________________________\n\na\n\n**Kupującym:**\nImię i nazwisko / Firma: ______________________________________________\nAdres zamieszkania / siedziby: ______________________________________\nPESEL / NIP: ______________________________________________________\n\n## § 1. Przedmiot umowy\n\n1. Sprzedający zobowiązuje się przenieść na Kupującego własność następujących narzędzi warsztatowych (dalej: \"Przedmiot umowy\"), a Kupujący zobowiązuje się Przedmiot umowy odebrać i zapłacić Sprzedającemu cenę:\n\n| Lp. | Nazwa narzędzia | Marka / Model | Numer seryjny | Rok produkcji | Stan techniczny* | Ilość |\n|-----|-----------------|---------------|---------------|---------------|------------------|-------|\n| 1.  |                 |               |               |               |                  |       |\n| 2.  |                 |               |               |               |                  |       |\n| 3.  |                 |               |               |               |                  |       |\n\n*Określenie stanu technicznego: nowy / używany w dobrym stanie / używany ze śladami eksploatacji / wymagający serwisu.\n\n2. Sprzedający oświadcza, że Przedmiot umowy jest jego własnością, nie jest obciążony prawem osoby trzeciej, nie stanowi przedmiotu zastawu rejestrowego ani zajęcia komorniczego.\n\n3. Wraz z Przedmiotem umowy Sprzedający przekazuje Kupującemu następujące akcesoria i dokumenty: _________________________________________________________________ (m.in. instrukcje obsługi, certyfikaty, karty gwaracyjne, osprzęt).\n\n## § 2. Cena i płatność\n\n1. Cena całkowita za Przedmiot umowy wynosi: _______________ zł (słownie: _____________________________________________ złotych).\n\n2. Kupujący dokonuje zapłaty w następujący sposób:\n   a) przelewem na rachunek bankowy Sprzedającego w terminie _____ dni od daty zawarcia umowy, lub\n   b) gotówką w momencie podpisania umowy.\n\n3. Sprzedający potwierdza otrzymanie całej kwoty ceny na podstawie pokwitowania lub potwierdzenia przelewu bankowego.\n\n## § 3. Wydanie Przedmiotu umowy i protokół odbioru\n\n1. Sprzedający wydaje Przedmiot umowy Kupującemu w dniu _______________ r., w miejscu: _________________________________.\n\n2. W momencie wydania strony sporządzają **Protokół odbioru**, w którym:\n   a) potwierdzają zgodność Przedmiotu umowy z opisem zawartym w § 1,\n   b) wykazują wszelkie **wady jawne** (w tym uszkodzenia mechaniczne, pęknięcia, wgniecenia, głębokie zarysowania, brak elementów),\n   c) określają stan techniczny i wizualny Przedmiotu umowy.\n\n3. Wady jawne nieujone w Protokole odbioru uznaje się za zaakceptowane przez Kupującego, z zastrzeżeniem odpowiedzialności Sprzedającego za wady ukryte na zasadach określonych w § 4.\n\n4. Jeżeli Przedmiot umowy jest przekazywany za pośrednictwem przewoźnika (kuriera), Kupujący ma prawo – a Sprzedający go do tego zobowiązuje – do sprawdzenia stanu Przedmiotu umowy w obecności przewoźnika. W przypadku stwierdzenia uszkodzeń mechanicznych lub ilościowych w momencie dostawy, Kupujący sporządza **Protokół szkody** w obecności przewoźnika, który stanowi podstawę do późniejszych roszczeń.\n\n5. Podpisanie Protokołu odbioru bez zastrzeżeń co do wad jawnych nie pozbawia Kupującego praw wynikających z rękojmi za wady ukryte.\n\n## § 4. Rękojmia za wady\n\n1. Sprzedawca odpowiada wobec Kupującego z tytułu rękojmi za wady fizyczne i prawne Przedmiotu umowy na zasadach określonych w art. 556–576 Kodeksu cywilnego.\n\n2. **Wadą fizyczną** w rozumieniu art. 556¹ Kodeksu cywilnego jest w szczególnie:\n   a) niezgodność Przedmiotu umowy z umową (w tym brak właściwości, o których Sprzedający zapewnił Kupującego),\n   b) niezgodność z treścią reklamy lub próbki,\n   c) niewłaściwy montaż (jeżle służył do niego Sprzedający lub osoba, za którą ponosi odpowiedzialność),\n   d) uszkodzenia mechaniczne, wady materiałowe, wady fabryczne – **w tym wady ujawniające się po odbiorze, jeżeli istniały w momencie wydania**.\n\n3. **Wadą prawną** w rozumieniu art. 556³ Kodeksu cywilnego jest w szczególności sytuacja, w której Przedmiot umowy stanowi własność osoby trzeciej lub jest obciążony prawem osoby trzeciej.\n\n4. Sprzedawca odpowiada z tytułu rękojmi za wady fizyczne, jeżeli zostaną stwierdzone przed upływem **dwóch lat** od dnia wydania Przedmiotu umowy Kupującemu (art. 568 § 1 Kodeksu cywilnego).\n\n5. Roszczenie o usunięcie wady lub wymianę Przedmiotu umowy na wolny od wad przedawnia się z upływem **roku**, licząc od dnia stwierdzenia wady (art. 568 § 2 Kodeksu cywilnego).\n\n6. **Oświadczenie Sprzedającego o wyłączeniu lub ograniczeniu rękojmi nie obejmuje:**\n   a) wad umyślnie zatajonych (art. 558 § 1 zd. 2 Kodeksu cywilnego),\n   b) wad fizycznych, w tym uszkodzeń mechanicznych, które istniały w momencie wydania, ale nie były widoczne przy zwykłym odbiorze,\n   c) wad prawnych.\n\n7. Kupujący, stwierdzawszy wadę, zobowiązany jest do zawiadomienia Sprzedającego w rozsądnym czasie. Zawiadomienie powinno zawierać opis wady oraz żądanie (obniżenie ceny, wymiana, naprawa lub odstąpienie od umowy).\n\n8. Sprzedający, w terminie 14 dni od otrzymania zawiadomienia, składa oświadczenie w sprawie żądania Kupującego. Brak oświadczenia w tym terminie uznaje się za przyjęcie żądania.\n\n## § 5. Ryzyko przypadkowej utraty lub uszkodzenia\n\n1. Zgodnie z art. 548 § 1 Kodeksu cywilnego niebezpieczeństwo przypadkowej utraty lub uszkodzenia Przedmiotu umowy przechodzi na Kupującego z chwilą wydania mu rzeczy.\n\n2. Jeżeli Przedmiot umowy jest przekazywany przez przewońnika, strony mogą uzgodnić inny moment przejścia ryzyka. W braku uzgodnienia ryzyko przechodzi na Kupującego z chwilą wydania Przedmiotu umowy przewoźnikowi.\n\n## § 6. Gwarancja producenta (jeżeli dotyczy)\n\n1. Jeżeli Przedmiot umowy jest objęty gwarancją producenta, Sprzedający przekazuje Kupującemu kartę gwarancyjną oraz dokumentację niezbędną do składania reklamacji gwarancyjnych.\n\n2. Okres gwarancji producenta wynosi: _______________ miesięcy od daty wydania.\n\n3. Odpowiedzialność z tytułu gwarancji producenta nie wyłącza ani nie ogranicza odpowiedzialności Sprzedającego z tytułu rękojmi.\n\n## § 7. Reklamacje\n\n1. Reklamacje dotyczące wad Przedmiotu umowy Kupujący składa na adres Sprzedającego wskazany w § 1, w formie pisemnej lub elektronicznej.\n\n2. Reklamacja powinna zawierać:\n   a) dane Kupującego i Sprzedającego,\n   b) datę zawarcia umowy i odbioru Przedmiotu umowy,\n   c) opis wady,\n   d) żądanie (naprawa, wymiana, obniżenie ceny, odstąpienie od umowy),\n   e) dowody (zdjęcia, Protokół odbioru, Protokół szkody).\n\n3. Sprzedający rozpatruje reklamację w terminie 30 dni od jej otrzymania. Brak odpowiedzi w tym terminie uznaje się za uznanie reklamacji.\n\n## § 8. Postanowienia końcowe\n\n1. Wszelkie zmiany umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregowanych zastosowanie mają przepisy Kodeksu cywilnego, a w przypadku umów konsumenckich – ustawy z dnia 30 maja 2014 r. o prawach konsumenta.\n\n3. Sądem właściwym do rozstrzygania ewentualnych sporów jest sąd właściwy miejscowo dla siedziby/zamieszkania Sprzedającego, chyba że Kupującym jest konsument – wówczas właściwy jest sąd właściwy miejscowo dla konsumenta.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n## § 5. Oświadczenia stron\n\n**Sprzedający oświadcza, że:**\n- Przedmiot umowy jest jego własnością i nie jest obciążony prawami osób trzecich,\n- stan techniczny Przedmiotu umowy został opisany rzetelnie w § 1,\n- znane wady (w tym uszkodzenia mechaniczne, wady elektryczne,usterki) zostały wymienione w załączniku nr 1 do umowy / nie występują znane wady*.\n\n**Kupujący oświadcza, że:**\n- zapoznał się z opisem Przedmiotu umowy, w tym ze stanem technicznym i ewentualnymi wadami,\n- zapoznał się z treścią umowy i akceptuje jej postanowienia,\n- *[w przypadku umów zawieranych na odległość]* został poinformowany o prawie odstąpienia od umowy w terminie 14 dni.\n\n_________________________                    _________________________\n   (podpis Sprzedającego)                        (podpis Kupującego)\n\n## ZAŁĄCZNIKI:\n1. Protokół odbioru Przedmiotu umowy (wraz z wykazem wad jawnych)\n2. Kopia dokumentu tożsamości / dokumentu rejestrowego Sprzedającego\n3. Karta gwarancyja producenta (jeżeli dotyczy)\n4. Opis znanych wad (jeżeli dotyczy)\n\n---\n\n**Informacja dla Kupującego (umowa konsumencka):**\nJeżeli jesteś konsumentem w rozumieniu ustawy o prawach konsumenta, przysługuje Ci prawo odstąpienia od umowy zawartej na odległość lub poza lokalem przedsiębiorstwa w terminie 14 dni bez podania przyczyny. Wzór oświadczenia o odstąpieniu od umowy stanowi załącznik regulaminowy do ustawy. Brak informacji o prawie odstąpienia wydłuża termin do 12 miesięcy (art. 29 ustawy o prawach konsumenta).\n\n**Informacja podatkowa:**\nJeżeli Kupujący jest osobą fizyczną, a wartość Przedmiotu umowy przekracza 1000 zł, Kupujący ma obowiązek złożyć deklarację PCC-3 w urzędzie skarbowym w terminie 14 dni od daty zawarcia umowy i opłacić podatek od czynności cywilnoprawnych w wysokości 2% wartości rynkowej Przedmiotu umowy. Zakup od przedsiębiorcy-podatnika VAT jest zwolniony z PCC.",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę sprzedać swoje narzędzia warsztatowe i potrzebuję umowy, żeby to ugruntować. Zależy mi na tym, żeby było tam opisane, co sprzedaję, za ile i w jakim stanie."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Sprzedaję używane narzędzia warsztatowe – wiertarkę udarową, szlifierkę kątową i zestaw kluczy nasadowych. Potrzebuję umowy, która dokładnie opisuje każdy przedmiot, jego stan techniczny i ewentualne ślady użytkowania. Ważne jest dla mnie, żeby były zapisy o rękojmi za wady ukryte oraz protokół odbioru, w którym kupujący potwierdzi, że zapoznał się z narzędziami i nie ma do nich zastrzeżeń co do wad widocznych."
+  }
+ ]
+}

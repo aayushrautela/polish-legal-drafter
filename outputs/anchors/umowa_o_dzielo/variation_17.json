@@ -1,0 +1,17 @@
+{
+ "run": 23,
+ "hint": "Ghostwriting artykułów eksperckich na LinkedIn",
+ "summary": "",
+ "contract": "",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę kogoś, kto będzie pisał za mnie artykuły eksperckie na LinkedIn, żebym budować wizerunek specjalisty w mojej branży."
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Potrzebuję ghostwritera do regularnych artykułów na LinkedIn – celuję w 2-3 teksty miesięcznie na tematy związane z moją branżą (fintech/blockchain). Mam gotowe pomysły i notatki, ale nie mam czasu na pisanie. Zależy mi na zachowaniu mojego stylu komunikacji, procesie akceptacji przed publikacją i przejściu praw autorskich. Budżet do ustalenia za sztukę lub w pakiecie."
+  }
+ ],
+ "research_summary": "USER TASK: Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns.\\nDRAFTER: \n\\nDRAFTER CALLED get_template({\"query\": \"ghostwriting artykułów eksperckich LinkedIn\", \"doc_type\": \"umowa_o_dzielo\"})\\nRESULT: [{\"doc_type\": \"umowa_o_dzielo\", \"kind\": \"structural_template\", \"text\": \"# Umowa copywriterska\\nUmowa copywriterska w Polsce to umowa o dzieło w rozumieniu art. 627 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), na podstawie której copywriter lub agencja contentowa (przyjmujący zamówienie) zobowiązuje się tworzyć i dostarczać oryginalne teksty — artykuły, opisy produktów, posty, hasła reklamowe — a zamawiający zobowiązuje się zapłacić wynagrodzenie. Jest to umowa rezultatu, co oznacza, że copywriter odpowiada za dostarczenie gotowego, zgodnego z wytycznymi tekstu, a nie jedynie za staranne działanie.\\n\\nTworzenie treści obejmuje szerokie spektrum prac: artykuły blogowe i eksperckie, teksty SEO zoptymalizowane pod określone frazy kluczowe, opisy produktów i kategorii w sklepach internetowych, posty i scenariusze do mediów społecznościowych, newsletter, teksty reklamowe (copywriting sprzedażowy), treści na stronę internetową, whitepapers i raporty, hasła reklamowe oraz skrypty filmów i podcastów. Każdy z tych tekstów, jeżeli posiada indywidualny charakter twórczy, jest jednocześnie utworem w rozumieniu art. 1 ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. 1994 nr 24 poz. 83 ze zm.), chronionym z mocy prawa od chwili ustalenia.\\n\\nKluczowym zagadnieniem w umowie copywriterskiej jest uregulowanie praw autorskich. Autorskie prawa majątkowe do tekstu przysługują copywriterowi jako twórcy i nie przechodzą na zamawiającego automatycznie z chwilą zapłaty wynagrodzenia. Aby zamawiający mógł publikować, modyfikować i dystrybuować teksty, umowa musi zawierać klauzulę przeniesienia autorskich praw majątk"
+}

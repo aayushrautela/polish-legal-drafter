@@ -1,0 +1,305 @@
+{
+ "run": 33,
+ "hint": "Przechowanie z możliwością przedłużenia terminu",
+ "scenario": "Przechowanie z możliwością przedłużenia terminu",
+ "tools": [
+  {
+   "type": "function",
+   "function": {
+    "name": "keyword_search",
+    "description": "Exact lexical (case-insensitive) match over the legal corpus for known terms: article numbers (e.g. 'art. 27'), legal terms ('wypowiedzenie'), statute references ('KC:483'), names. Use short 1-3 word keywords. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "keywords": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "1-3 word case-insensitive keywords (no phrases)"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "keywords"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "semantic_search",
+    "description": "Dense/lexical hybrid retrieval for conceptual or paraphrased queries where exact wording is unknown. Returns chunk snippets with chunk_id; you must chunk_read for full text.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "natural-language query"
+      },
+      "top_k": {
+       "type": "integer",
+       "default": 5,
+       "description": "max results"
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "hybrid",
+        "dense",
+        "colbert"
+       ],
+       "default": "hybrid"
+      },
+      "filters": {
+       "type": "object",
+       "properties": {
+        "legal_area": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "top_category": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "source_type": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "required": [
+      "query"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "chunk_read",
+    "description": "Fetch the FULL text of specific chunks by their chunk_id (from search results). Always read the full text of a chunk before citing it. Pass exclude_ids of already-read chunks to avoid redundant reads.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "chunk_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_id values to read in full"
+      },
+      "with_adjacent": {
+       "type": "boolean",
+       "default": true,
+       "description": "also include a little same-source context"
+      },
+      "exclude_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "chunk_ids already read (returned as already_read)"
+      }
+     },
+     "required": [
+      "chunk_ids"
+     ]
+    }
+   }
+  },
+  {
+   "type": "function",
+   "function": {
+    "name": "get_template",
+    "description": "Fetch the REAL, sourced (CC-BY-4.0) Polish template/guide for the given doc_type. It provides the authoritative section structure, standard clause language, and real statutory references for that document type. Use it as the STRUCTURAL and SUBSTANTIVE SKELETON: follow its section order, reuse its correct clause wording and statutory citations (they are real, sourced rules), and adapt every clause to the specific facts and to the REAL sources you retrieved. Fill or drop any {{placeholders}} as the facts require. Do not paste the template's generic explanatory guidance verbatim into the final document; PRESERVE its CC-BY-4.0 attribution. Pass optional 'query' with extra detail (e.g. 'for IT services with hourly rate') to get a more specific variant when multiple exist.",
+    "parameters": {
+     "type": "object",
+     "properties": {
+      "doc_type": {
+       "type": "string",
+       "description": "the doc_type being drafted (e.g. umowa_zlecenia)"
+      },
+      "query": {
+       "type": "string",
+       "description": "optional free-text detail to disambiguate variants (e.g. 'for student hiring')"
+      }
+     },
+     "required": [
+      "doc_type"
+     ]
+    }
+   }
+  }
+ ],
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are an experienced Polish legal drafter researching material to create a realistic VARIATION of a contract template (doc_type='umowa_przechowania'). Each variation represents what a DIFFERENT client would need.\n\nRETRIEVAL TOOLS:\n- get_template(doc_type, query) — read the base template (query is optional detail)\n- semantic_search(query) — semantic search over the corpus\n- keyword_search(keywords) — keyword search\n- chunk_read(chunk_ids) — full text of specific chunks\n\nRead the base template, then search for provisions relevant to the scenario direction provided. Ground everything in real material."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "user",
+   "content": "Research material for a variation of this contract. Read the base template, then search for provisions relevant to the scenario direction. You have 4 tool turns."
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_1b3ecc5b985f4937badb5bb9",
+     "type": "function",
+     "function": {
+      "name": "get_template",
+      "arguments": "{\"doc_type\": \"umowa_przechowania\"}"
+     }
+    },
+    {
+     "id": "call_4407658f3fef4875bf311dc5",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"przedłużenie terminu przechowania umowa przechowania wydłużenie okresu\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"doc_type\": \"umowa_przechowania\", \"kind\": \"structural_template\", \"text\": \"# Umowa przechowania\\nUmowa przechowania w Polsce to umowa nazwana, uregulowana w art. 835-845 Kodeksu cywilnego (ustawa z dnia 23 kwietnia 1964 r., Dz.U. 1964 nr 16 poz. 93 ze zm.), przez którą przechowawca zobowiązuje się zachować w stanie niepogorszonym ruchomość oddaną mu na przechowanie przez składającego. Celem umowy jest ochrona rzeczy właściciela — przechowawca przyjmuje pieczę nad mieniem składającego i odpowiada za jej należyte wykonanie.\\n\\nUmowa przechowania różni się od umowy użyczenia (art. 710-719 Kodeksu cywilnego) tym, że korzystanie z rzeczy przez przechowawcę jest co do zasady zabronione — przechowawca nie może używać rzeczy bez zgody składającego (art. 839 Kodeksu cywilnego). Różni się też od umowy składu regulowanej w art. 853-8592 Kodeksu cywilnego, która dotyczy profesjonalnych przedsiębiorców prowadzących składnice. Umowa przechowania może być zawarta zarówno między osobami fizycznymi, jak i przez przedsiębiorców.\\n\\nZgodnie z art. 836 Kodeksu cywilnego przechowawcy prowadzącemu działalność zarobkową polegającą na przechowywaniu rzeczy należy się wynagrodzenie, jeżeli z umowy lub okoliczności nie wynika, że zobowiązał się przechować bez wynagrodzenia. W obrocie nieprofesjonalnym (między osobami fizycznymi) przechowanie jest bardzo często nieodpłatne — sąsiad przechowuje meble sąsiada podczas remontu, znajomy trzyma rower przez zimę. Niezależnie od odpłatności staranność wymagana od przechowawcy jest jednakowa.\\n\\nKodeks cywilny nie wymaga żadnej formy szczególnej dla ważności umowy przechowania — wystarczy forma ustna. Jednakże forma pisemna jest zdecydowanie zalecana przy rzeczach o wyższej wartości. Pisemna umowa z precyzyjnym opisem stanu rzeczy i ich wartości stanowi dowód w postępowaniu przed Sądem Rejonowym w razie sporu o odszkodowanie za utratę lub uszkodzenie rzeczy. Przy braku pisemnego dowodu sąd ocenia wiarygodność zeznań świadków, co jest mniej przewidywalne.\\n\\nUmowa przechowania obejmuje różnorodne sytuacje życiowe. Najczęstsze z nich to: przechowanie mebli i rzeczy domowych podczas przeprowadzki lub remontu, przechowanie sprzętu sportowego (nart, rowerów, sprzętu windsurfingowego) poza sezonem, przechowanie pojazdu (samochodu, motocykla, przyczepy) w garażu osoby trzeciej, przechowanie towarów lub surowców w magazynie, przechowanie wartościowych przedmiotów (dzieł sztuki, biżuterii, zbiorów) w wynajętym sejfie lub u zaufanej osoby.\\n\\nSądy polskie — zarówno Sąd Rejonowy w pierwszej instancji, jak i Sąd Okręgowy w drugiej — rozpatrują spory z umów przechowania przede wszystkim w zakresie odszkodowania za utratę lub uszkodzenie rzeczy. Zgodnie z art. 837 Kodeksu cywilnego przechowawca powinien przechowywać rzecz w sposób, do jakiego się zobowiązał, a w braku umowy w tym zakresie — w sposób wynikający z właściwości przechowywanej rzeczy i okoliczności. Ocena należytej staranności przechowawcy stanowi kluczowe zagadnienie tych sporów.\\n\\nUmowa przechowania w Polsce jest potrzebna w każdej sytuacji, gdy właściciel oddaje rzecz pod opiekę innej osoby lub podmiotu i chce formalnymi zapisami zabezpieczyć swoje interesy.\\n\\nDokument jest szczególnie ważny podczas przeprowadzki lub remontu, gdy meble, sprzęt elektroniczny, dokumenty lub inne wartościowe przedmioty przechowywane są tymczasowo w garażu, piwnicy lub magazynie należącym do osoby trzeciej. Pisemna umowa z opisem stanu i wartości rzeczy chroni składającego przed ryzykiem, że przechowawca zaneguje swoją odpowiedzialność za uszkodzenia.\\n\\nDokument jest niezbędny przy sezonowym przechowaniu sprzętu sportowego — nart, deski snowboardowej, łódki, przyczepy kempingowej, motoroweru. Precyzyjny opis stanu technicznego sprzętu w chwili oddania i odebrania eliminuje spory o uszkodzenia, które mogły powstać u przechowawcy lub podczas transportu.\\n\\nDokument jest konieczny przy odpłatnym przechowaniu w prywatnym garażu lub magazynie. Pisemna umowa określa wynagrodzenie, termin jego płatności oraz konsekwencje zalegania z opłatą — w tym prawo retencji przechowawcy wynikające z art. 461 § 1 Kodeksu cywilnego. Urząd Ochrony Konkurencji i Konsumentów (UOKiK) zwraca uwagę na przejrzystość warunków odpłatnego przechowania.\\n\\nDokument jest potrzebny, gdy rzeczy o wyższej wartości (dzieła sztuki, instrumenty muzyczne, zabytkowe pojazdy) zostaną powierzone osobie trzeciej. W takich przypadkach umowa powinna dokładnie określać warunki przechowania (temperatura, wilgotność, zabezpieczenie przeciwkradzieżowe), obowiązek ubezpieczenia oraz zakres odpowiedzialności za uszkodzenia.\\n\\nDokument jest wymagany, gdy przechowanie odbywa się przez dłuższy czas, np. kilka miesięcy lub lat. Długotrwałe przechowanie bez pisemnego potwierdzenia rodzi ryzyko zapomnenia warunków przez obie strony, szczególnie w zakresie terminu zwrotu i wartości przechowywanej rzeczy.\\n\\nPrawidłowa umowa przechowania w Polsce, oparta na art. 835-845 Kodeksu cywilnego, powinna zawierać kluczowe elementy gwarantujące jasność warunków i ochronę obu stron.\\n\\nOznaczenie stron: pełne dane przechowawcy i składającego — imię i nazwisko lub firma, PESEL lub NIP, adres zamieszkania lub siedziby. Dokładne dane umożliwią dochodzenie roszczeń przed Sądem Rejonowym właściwym dla miejsca przechowania rzeczy lub miejsca zamieszkania pozwanego (art. 27 Kodeksu postępowania cywilnego).\\n\\nSzczegółowy opis rzeczy: każda rzecz powinna być opisana z podaniem marki, modelu, numeru seryjnego lub cech indywidualizujących (np. kolor, wymiary, rok produkcji), stanu technicznego w chwili przyjęcia oraz listy akcesoriów. Szacunkowa wartość rynkowa wpisana w złotych polskich (cyfrowo i słownie) stanowi punkt wyjścia do ewentualnych roszczeń odszkodowawczych.\\n\\nMiejsce i warunki przechowania: wskazanie konkretnego miejsca (adres, pomieszczenie), w którym rzeczy będą przechowywane, oraz — dla rzeczy wrażliwych — wymaganych warunków (temperatura, wilgotność, zabezpieczenie). Przechowawca bez zgody składającego nie może zmienić miejsca przechowania (art. 841 Kodeksu cywilnego), chyba że jest to konieczne dla ochrony rzeczy.\\n\\nCzas trwania i termin zwrotu: określenie okresu przechowania lub konkretnej daty zwrotu. Zgodnie z art. 844 § 1 Kodeksu cywilnego składający może odebrać rzecz w każdym czasie, nawet przed umówionym terminem. Przechowawca może żądać odebrania rzeczy po upływie terminu lub gdy dalsze przechowanie stało się niemożliwe (art. 844 § 2 Kodeksu cywilnego).\\n\\nWynagrodzenie i warunki płatności: wyraźne wskazanie, czy przechowanie jest odpłatne czy nieodpłatne. Przy przechowaniu odpłatnym — kwota wynagrodzenia, termin i sposób płatności, konsekwencje opóźnienia (w tym prawo retencji z art. 461 § 1 Kodeksu cywilnego). Strony mogą skorzystać z szablonu umowy przechowania na serwisie forms-legal.com, który automatycznie uwzględnia warianty odpłatny i nieodpłatny.\\n\\nOdpowiedzialność i ubezpieczenie: zakres odpowiedzialności przechowawcy za utratę lub uszkodzenie rzeczy; wskazanie strony zobowiązanej do ubezpieczenia rzeczy podczas przechowania — szczególnie istotne przy rzeczach o wyższej wartości.\\n\\nWypełnianie umowy przechowania w Polsce zacznij od danych przechowawcy. Wpisz imię i nazwisko lub firmę, PESEL lub NIP oraz pełny adres — jest to jednocześnie adres miejsca przechowania. Dokładne dane przechowawcy są kluczowe w razie dochodzenia odpowiedzialności przed Sądem Rejonowym.\\n\\nNastępnie wpisz dane składającego — właściciela rzeczy. Podaj imię i nazwisko lub firmę, PESEL lub NIP oraz adres zamieszkania lub siedziby. Adresy obydwu stron są potrzebne do prawidłowego doręczania korespondencji oraz wyznaczenia sądu właściwości miejscowej.\\n\\nW sekcji opisu rzeczy opisz każdą rzecz oddawaną na przechowanie jak najdokładniej. Wpisz markę, model i numer seryjny. Wymień wszystkie elementy wchodzące w skład zestawu (np. przy rowerze: koła, pompka, sakwy, bagażnik). Opisz stan techniczny — \\\"stan dobry, bez uszkodzeń\\\" lub konkretne defekty widoczne przy odbiorze. Wpisz szacunkową wartość rynkową — kwotą cyfrowo i słownie, w złotych polskich.\\n\\nWybierz rodzaj wynagrodzenia: nieodpłatne lub odpłatne. Przy przechowaniu odpłatnym wpisz kwotę i termin płatności — np. \\\"200 zł miesięcznie, płatne z góry do 5. dnia miesiąca\\\". Wpisz datę przyjęcia rzeczy na przechowanie oraz termin ich odbioru przez składającego.\\n\\nPodpisz umowę w dwóch egzemplarzach — po jednym dla przechowawcy i składającego. Warto wykonać dokumentację fotograficzną rzeczy przed przekazaniem — zdjęcia z datą są pomocnym dowodem w razie sporu. Przy drogich przedmiotach zalecane jest sporządzenie osobnego pokwitowania odbioru z listą rzeczy.\\n\\nWymogi prawne umowy przechowania w Polsce wynikają z art. 835-845 Kodeksu cywilnego. Przepisy te mają charakter dyspozytywny — strony mogą odmiennie unormować wzajemne prawa i obowiązki, z wyjątkiem przepisów bezwzględnie obowiązujących.\\n\\nPodstawowe obowiązki przechowawcy według Kodeksu cywilnego: obowiązek przechowania rzeczy w sposób umówiony, a w braku umowy — w sposób odpowiadający właściwościom rzeczy i okolicznościom (art. 837); zakaz korzystania z przechowywanej rzeczy bez zgody składającego (art. 839); zakaz oddawania rzeczy innej osobie na przechowanie bez zgody składającego, chyba że przechowawca jest do tego zmuszony przez okoliczności (art. 840); obowiązek niezwłocznego zawiadomienia składającego o potrzebie zmiany miejsca lub sposobu przechowania (art. 841).\\n\\nPrawa składającego: prawo odebrania rzeczy w każdym czasie, nawet przed upływem umówionego terminu (art. 844 § 1 Kodeksu cywilnego) — jest to prawo bezwzględne, którego nie można wyłączyć umową. Składający traci to prawo jedynie wyjątkowo, gdy odbiór wcześniejszy byłby ze względu na termin lub inne okoliczności sprzeczny z treścią umowy.\\n\\nOdpowiedzialność przechowawcy: przechowawca odpowiada za szkodę wynikłą z utraty lub uszkodzenia rzeczy, chyba że szkoda nastąpiła wskutek okoliczności, którym przy zachowaniu należytej staranności nie mógł zapobiec. Ocena staranności przechowawcy dokonywana jest przez Sąd Rejonowy z uwzględnieniem okoliczności — profesjonalny przechowawca odpowiada surowiej niż osoba przechowująca bezpłatnie.\\n\\nPrzedawnienie roszczeń: roszczenia z umowy przechowania przedawniają się na zasadach ogólnych z art. 118 Kodeksu cywilnego — trzy lata dla roszczeń związanych z działalnością gospodarczą, sześć lat dla pozostałych.\\n\\nNajczęstsze błędy przy umowie przechowania w Polsce wynikają z braku precyzyjnego opisu rzeczy. Gdy w umowie nie wskazano stanu technicznego, uszkodzeń i wartości rzeczy w chwili przyjęcia, trudno po zwrocie udowodnić, że konkretna szkoda powstała w trakcie przechowania. Zalecane jest sporządzenie dokumentacji fotograficznej z datą jako załącznika do umowy.\\n\\nKolejnym błędem jest brak określenia wartości rzeczy. W razie utraty lub uszkodzenia składający będzie musiał wykazać wartość przed Sądem Rejonowym — wycena poza umową bywa trudna i kosztowna, szczególnie dla przedmiotów sprzed kilku lat lub kolekcjonerskich.\\n\\nPomijanie klauzuli dotyczącej ubezpieczenia to poważne ryzyko przy rzeczach wartościowych. Polisy domowe przechowawcy często nie obejmują cudzego mienia przechowywanego odpłatnie lub nie w celach prywatnych. Należy wyraźnie wskazać, kto ubezpiecza rzecz i na jaką kwotę.\\n\\nBłędem jest nieokreślenie skutków zalegania z wynagrodzeniem przy przechowaniu odpłatnym. Bez takiego zapisu przechowawca ma tylko prawo retencji z art. 461 § 1 Kodeksu cywilnego, ale nie może żądać natychmiastowego rozwiązania umowy bez stosownego postanowienia. Warto wskazać konsekwencje opóźnienia w płatności wynagrodzenia.\\n\\nNiedopełnienie wymogu pisemnego pokwitowania przy zwrocie rzeczy prowadzi do sporów o to, czy rzecz faktycznie oddano i w jakim stanie. Protokół zdawczo-odbiorczy przy zwrocie — choćby krótki — chroni przechowawcę przed późniejszymi roszczeniami o uszkodzenia.\\n\\nŹródło: https://forms-legal.com/pl/financial/agreements/umowa-przechowania (licencja CC-BY-4.0)\"}]",
+   "tool_call_id": "call_1b3ecc5b985f4937badb5bb9",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_838\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 838. Przechowawca jest uprawniony, a nawet obowiązany zmienić określone w umowie miejsce i sposób przechowania rzeczy, jeżeli okaże się to konieczne dla jej ochrony przed utratą lub uszkodzeniem. Jeżeli uprzednie uzyskanie zgody składającego jest możliwe, przechowawca powinien ją uzyskać przed dokonaniem zmiany.\"}, {\"chunk_id\": \"uokik_items:uokik_04c6b424d156b49f\", \"source_id\": \"uokik_rejestr_klauzul_1256\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Umowa zostaje zawarta na okres …Roku tj. do dnia…2006 r. Po upływie tego terminu umowa ulega automatycznemu przedłużeniu na czas nieoznaczony (…), chyba, że strony postanowią inaczej\"}, {\"chunk_id\": \"uokik_items:uokik_9e199e40e460c778\", \"source_id\": \"uokik_rejestr_klauzul_3803\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"(...) przysługuje wydłużenie terminu w następujących przypadkach […] zaistnienia czynników leżących po stronie osób trzecich takich jak (decyzje administracyjne, siła wyższa itd.)\"}, {\"chunk_id\": \"uokik_items:uokik_333aa920906ca794\", \"source_id\": \"uokik_rejestr_klauzul_3970\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Strony oświadczają, że niniejsza Umowa zostaje automatycznie przedłużona na okres kolejnych 3 miesięcy w przypadku przesunięcia przez Realizatora terminu Rozpoczęcia Inwestycji, przy czym warunkiem przedłużenia okresu obowiązywania niniejszej Umowy jest zawiadomienie Klienta w formie pisemnej przed upływem terminu, o którym mowa w ust. 1 o przesunięciu terminu Rozpoczęcia Inwestycji oraz wskazanie nowego planowanego terminu Rozpoczęcia Inwestycji.\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_94\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 94 4 . Jeżeli przechowywana dokumentacja pracownicza może stanowić lub stanowi dowód w postępowaniu, a pracodawca: 1) jest stroną tego postępowania - przechowuje dokumentację pracowniczą do czasu jego prawomocnego zakończenia, nie krócej jednak niż do upływu okresu, o którym mowa w art. 94 pkt 9b; art. 94 7 stosuje się odpowiednio; 2) powziął wiadomość o wytoczeniu powództwa lub wszczęciu postępowania - okres przechowywania dokumentacji pracownicz ...\"}]",
+   "tool_call_id": "call_4407658f3fef4875bf311dc5",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "\n\n",
+   "reasoning": "Let me search for more specific provisions about extension of storage period in the Civil Code and also look for relevant UOKiK guidelines on automatic extension clauses.",
+   "tool_calls": [
+    {
+     "id": "call-f92c02d9-e4ba-46bd-b65d-0ea75a108042",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 844\", \"przedłużenie\", \"automatyczne przedłużenie\", \"termin przechowania\"]}"
+     }
+    },
+    {
+     "id": "call-089d2bf6-62d0-4932-b726-6e7950b02f6b",
+     "type": "function",
+     "function": {
+      "name": "semantic_search",
+      "arguments": "{\"query\": \"umowa przechowania przedłużenie terminu opcja przedłużenia zleceniodawcy składowego\"}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"uokik_items:uokik_6872c3b47d197089\", \"source_id\": \"uokik_rejestr_klauzul_634\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Automatyczne przedłużenie na kolejne 12 miesięcy następuje z dniem zakończenia ważności poprzedniej umowy, pod warunkiem nie złożenia w tym dniu rezygnacji.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_210\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 210. § 1. Każdy ze współwłaścicieli może żądać zniesienia współwłasności. Uprawnienie to może być wyłączone przez czynność prawną na czas nie dłuższy niż lat pięć. Jednakże w ostatnim roku przed upływem zastrzeżonego terminu dopuszczalne jest jego przedłużenie na dalsze lat pięć; przedłużenie można ponowić. § 2. Zniesienie współwłasności nieruchomości rolnej oraz gospodarstwa rolnego w rozumieniu przepisów ustawy, o której mowa w art. 166 § 3, n ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_764\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 764 1 . § 1. Umowa zawarta na czas nieoznaczony może być wypowiedziana na miesiąc naprzód w pierwszym roku, na dwa miesiące naprzód w drugim roku oraz na trzy miesiące naprzód w trzecim i następnych latach trwania umowy. Ustawowe terminy wypowiedzenia nie mogą być skracane. § 2. Ustawowe terminy wypowiedzenia mogą zostać umownie przedłużone, z tym że termin ustalony dla dającego zlecenie nie może być krótszy niż termin ustalony dla agenta. Przed ...\"}, {\"chunk_id\": \"sejm_eli_du_2023_1465_art_138\", \"source_id\": \"sejm_eli_du_2023_1465\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\", \"display_address\": \"Dz.U. 2023 poz. 1465\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 16 czerwca 2023 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks pracy\\nArt. 138. § 1. Przy pracach, które ze względu na technologię produkcji nie mogą być wstrzymane (praca w ruchu ciągłym), może być stosowany system czasu pracy, w którym jest dopuszczalne przedłużenie czasu pracy do 43 godzin przeciętnie na tydzień w okresie rozliczeniowym nieprzekraczającym 4 tygodni, a jednego dnia w niektórych tygodniach w tym okresie dobowy wymiar czasu pracy może być przedłużony do 12 godzin. Za każdą godzinę pracy powyżej 8 godzin  ...\"}, {\"chunk_id\": \"uokik_items:uokik_d5d58a126f34350a\", \"source_id\": \"uokik_rejestr_klauzul_3931\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Student, który nie złożył pracy dyplomowej do końca ostatniego semestru studiów może ubiegać się u Dziekana o przedłużenie tego terminu do końca następnego semestru. Po uzyskaniu takiej zgody student opłaca czesne za okres, za który uzyskał przedłużenie\"}]",
+   "tool_call_id": "call-f92c02d9-e4ba-46bd-b65d-0ea75a108042",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 6 . Jeżeli składający nie odbiera rzeczy pomimo upływu umówionego terminu lub terminu wypowiedzenia umowy, przedsiębiorca składowy może oddać rzecz na przechowanie na koszt i ryzyko składającego. Może on jednak wykonać to prawo tylko wtedy, jeżeli uprzedził składającego o zamiarze skorzystania z przysługującego mu prawa listem poleconym albo na adres do doręczeń elektronicznych, o którym mowa w art. 2 pkt 1 ustawy z dnia 18 listopada 2020 r. ...\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 4 . Umowę składu zawartą na czas oznaczony uważa się za przedłużoną na czas nieoznaczony, jeżeli na 14 dni przed upływem terminu przedsiębiorca składowy nie zażądał listem poleconym albo na adres do doręczeń elektronicznych, o którym mowa w art. 2 pkt 1 ustawy z dnia 18 listopada 2020 r. o doręczeniach elektronicznych ( Dz. U. z 2023 r. poz. 285 , 1860 i 2699 ) , odebrania rzeczy w umówionym terminie.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_853\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 853. § 1. Przez umowę składu przedsiębiorca składowy zobowiązuje się do przechowania, za wynagrodzeniem, oznaczonych w umowie rzeczy ruchomych. § 2. Przedsiębiorca składowy jest obowiązany wydać składającemu pokwitowanie, które powinno wymieniać rodzaj, ilość, oznaczenie oraz sposób opakowania rzeczy, jak też inne istotne postanowienia umowy.\"}, {\"chunk_id\": \"sejm_eli_du_2025_350_art_50\", \"source_id\": \"sejm_eli_du_2025_350_art_50\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\", \"display_address\": \"Dz.U. 2025 poz. 350\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Ustawa z dnia 13 października 1998 r. o systemie ubezpieczeń społecznych\\nArt. 50. 1. W terminie do dnia 31 sierpnia każdego roku Zakład jest zobowiązany udostępnić ubezpieczonemu urodzonemu po dniu 31 grudnia 1948 r. informację o zewidencjonowanych na koncie ubezpieczonego składkach ogółem, o których mowa w art. 40 ust. 1, według stanu na dzień 31 grudnia poprzedniego roku, zwaną dalej „informacją o stanie konta”. 1a. W informacji o stanie konta Zakład podaje dodatkowo wysokość: 1) zwaloryzowanego kapitału początkowego według stanu na dzień 31 grudnia poprzedniego roku, w przypadku gdy kapitał ...\"}, {\"chunk_id\": \"uokik_items:uokik_a460f03b9c3848de\", \"source_id\": \"uokik_rejestr_klauzul_2173\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"a. Wstępny termin wykonania usługi (…).Termin powyższy ulega przedłużeniu z przyczyn niezależnych od Zleceniobiorcy, za które uważa się w szczególności: zakłócenia w dostawach materiałów niezbędnych do realizacji zamówienia wywołane zdarzeniami losowymi, klęskami żywiołowymi, strajkami itp., trudności obiektywne w zaopatrzeniu w materiały nietypowe, niezbędne do wykonania zamówienia.\"}]",
+   "tool_call_id": "call-089d2bf6-62d0-4932-b726-6e7950b02f6b",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": null,
+   "tool_calls": [
+    {
+     "id": "call_67a3eec530154aa8a8536f59",
+     "type": "function",
+     "function": {
+      "name": "chunk_read",
+      "arguments": "{\"chunk_ids\": [\"sejm_eli_du_2024_1061_art_859\", \"uokik_items:uokik_6872c3b47d197089\"], \"with_adjacent\": true}"
+     }
+    },
+    {
+     "id": "call_cc203c67127d49c48bf87105",
+     "type": "function",
+     "function": {
+      "name": "keyword_search",
+      "arguments": "{\"keywords\": [\"art. 844 KC\", \"przechowanie wypowiedzenie\", \"składający odbiór rzeczy\"]}"
+     }
+    }
+   ]
+  },
+  {
+   "role": "tool",
+   "content": "[{\"chunk_id\": \"sejm_eli_du_2024_1061_art_859\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 859 9 . Roszczenia z tytułu umowy składu przedawniają się z upływem roku. Tytuł XXXI Spółka\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_16\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 16. Do umów o roboty budowlane zawartych przed dniem wejścia w życie niniejszej ustawy, w odniesieniu do których wykonawca nie wystąpił z żądaniem przedstawienia gwarancji zapłaty za roboty budowlane przed tym dniem, stosuje się przepis art. 649 1 § 1 1 ustawy zmienianej w art. 2.\"}, {\"chunk_id\": \"sejm_eli_du_2024_1061_art_26\", \"source_id\": \"sejm_eli_du_2024_1061\", \"source_type\": \"statute\", \"top_category\": null, \"title\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\", \"display_address\": \"Dz.U. 2024 poz. 1061\", \"legal_area\": [\"civil\", \"contracts\", \"risk_checking\"], \"text\": \"Obwieszczenie Marszałka Sejmu Rzeczypospolitej Polskiej z dnia 21 czerwca 2024 r. w sprawie ogłoszenia jednolitego tekstu ustawy - Kodeks cywilny\\nArt. 26. Ustawa wchodzi w życie po upływie 30 dni od dnia ogłoszenia, z wyjątkiem: 1) art. 1 pkt 24 oraz art. 7 pkt 6, które wchodzą w życie po upływie 14 dni od dnia ogłoszenia; 2) art. 1 pkt 21, art. 14 oraz art. 23, które wchodzą w życie z dniem następującym po dniu ogłoszenia. ” ; 2) art. 10 i art. 15 ustawy z dnia 13 lipca 2023 r. o zmianie ustawy o gospodarowaniu nieruchomościami rolnymi Skarbu Państwa oraz niektórych innych ustaw ( Dz. U. poz. 1933 ) , które stanowią:\"}, {\"chunk_id\": \"uokik_items:uokik_6872c3b47d197089\", \"source_id\": \"uokik_rejestr_klauzul_634\", \"source_type\": \"abusive_clause\", \"top_category\": null, \"title\": null, \"display_address\": null, \"legal_area\": [\"civil\", \"consumer\", \"contracts\", \"risk_checking\"], \"text\": \"Automatyczne przedłużenie na kolejne 12 miesięcy następuje z dniem zakończenia ważności poprzedniej umowy, pod warunkiem nie złożenia w tym dniu rezygnacji.\"}]",
+   "tool_call_id": "call_67a3eec530154aa8a8536f59",
+   "name": null
+  },
+  {
+   "role": "tool",
+   "content": "[]",
+   "tool_call_id": "call_cc203c67127d49c48bf87105",
+   "name": null
+  },
+  {
+   "role": "assistant",
+   "content": "# UMOWA PRZECHOWANIA\n\nzawarta w dniu __________ w __________, pomiędzy:\n\n**Przechowawcą:**\n______________________________________________________________\n(imę i nazwisko / nazwa firmy)\n______________________________________________________________\n(adres zamieszkania / siedziby)\n______________________________________________________________\n(PESEL / NIP)\nzwanym dalej „Przechowawcą”,\n\na\n\n**Składającym:**\n______________________________________________________________\n(imię i nazwisko / nazwa firmy)\n______________________________________________________________\n(adres zamieszkania / siedziby)\n______________________________________________________________\n(PESEL / NIP)\nzwanym dalej „Składającym”.\n\n## § 1. Przedmiot umowy\n\n1. Składający oddaje, a Przechowawca przyjmuje na przechowanie następujące rzeczy ruchome (dalej „Rzecz”):\n\n| Lp. | Opis rzeczy (marka, model, numer seryjny, cechy indywidualizujące) | Stan techniczny w chwili przyjęcia | Szacunkowa wartość rynkowa (PLN) |\n|-----|---------------------------------------------------------------------|-----------------------------------|----------------------------------|\n| 1.  | _____________________________________________________________ | _________________________________ | _________ (słownie: _________________________) |\n| 2.  | _____________________________________________________________ | _________________________________ | _________ (słownie: _________________________) |\n| 3.  | _____________________________________________________________ | _________________________________ | _________ (słownie: _________________________) |\n\n2. Składający oświadcza, że jest właścicielem Rzeczy lub jest do tego uprawniony, a Rzecz jest wolna od wad prawnych i fizycznych, z wyjątkiem tych wskazanych w ust. 1.\n\n3. Przechowawca oświadcza, że zapoznał się ze stanem Rzeczy i nie wnosi zastrzeżeń do opisu zawartego w ust. 1.\n\n## § 2. Miejsce i warunki przechowania\n\n1. Rzeczy będą przechowywane w: ______________________________________________________________ (dokładny adres miejsca przechowania).\n\n2. Przechowawca zobowiązuje się do przechowywania Rzeczy w warunkach zapewniających jej ochronę przed utratą, uszkodzeniem lub kradzieżą, zgodnie z właściwościami Rzeczy i okolicznościami (art. 837 Kodeksu cywilnego).\n\n3. W przypadku rzeczy wrażliwych na warunki środowiskowe, strony określają wymagane parametry:\n   - Temperatura: __________ °C\n   - Wilgotność: __________ %\n   - Inne warunki: ______________________________________________________________\n\n4. Przechowawca nie może zmienić miejsca przechowania bez uprzedniej zgody Składającego, chyba że jest to konieczne dla ochrony Rzeczy przed utratą lub uszkodzeniem, a uprzednie uzyskanie zgody jest niemożliwe (art. 838 i art. 841 Kodeksu cywilnego). W takim przypadku Przechowawca niezwłocznie zawiadamia Składającego o zmianie.\n\n## § 3. Czas trwania umowy\n\n1. Umowa zostaje zawarta na czas oznaczony i obowiązuje od dnia __________ do dnia __________.\n\n2. Po upływie terminu, o którym mowa w ust. 1, umowa ulega rozwiązaniu, chyba że strony postanowią inaczej zgodnie z § 4.\n\n## § 4. Możliwość przedłużenia terminu przechowania\n\n1. Składający może wystąpić z wnioskiem o przedłużenie terminu przechowania przed upływem terminu określonego w § 3 ust. 1.\n\n2. Wniosek o przedłużenie terminu powinien być złożony w formie pisemnej nie później niż __________ dni przed upływem terminu przechowania.\n\n3. Przechowawca rozpatruje wniosek i niezwłocznie, nie później niż w terminie __________ dni od jego otrzymania, zawiadamia Składającego o:\n   a) przyjęciu wniosku i przedłużeniu terminu przechowania na okres __________, lub\n   b) odmowie przyjęcia wniosku, wskazując przyczyny odmowy.\n\n4. Brak odpowiedzi Przechowawcy w terminie, o którym mowa w ust. 3, uznaje się za odmowę przedłużenia terminu.\n\n5. Przedłużenie terminu przechowania wymaga aneksu do niniejszej umowy w formie pisemnej, pod rygorem nieważności, podpisanego przez obie strony.\n\n6. Strony mogą przedłużyć termin przechowania wielokrotnie, przy czym każde kolejne przedłużenie wymaga odrębnego aneksu.\n\n7. W przypadku zawarcia umowy na czas nieoznaczony w wyniku przedłużenia, każda ze stron może wypowiedzieć umowę z zachowaniem __________ dniowego okresu wypowiedzenia, z zastrzeżeniem postanowień art. 844 Kodeksu cywilnego.\n\n## § 5. Wynagrodzenie\n\n1. Przechowanie jest odpłatne / nieodpłatne *(niepotrzebne skreślić)*.\n\n2. W przypadku przechowania odpłatnego, wynagrodzenie Przechowawcy wynosi: __________ PLN (słownie: _________________________) miesięcznie.\n\n3. Wynagrodzenie płatne jest z góry do __________ dnia każdego miesiąca kalendarzowego na rachunek bankowy Przechowawcy nr: ______________________________________________________________.\n\n4. W przypadku przedłużenia terminu przechowania, wynagrodzenie za okres przedłużenia pozostaje na dotychczasowym poziomie, chyba że strony postanowią inaczej w aneksie.\n\n5. W przypadku zalegania z wynagrodzeniem przez więcej niż __________ dni, Przechowawcy przysługuje prawo retencji do czasu zapłaty (art. 461 § 1 Kodeksu cywilnego).\n\n## § 6. Prawa i obowiązki stron\n\n1. Przechowawca zobowiązuje się do:\n   a) przechowywania Rzeczy w sposób umówiony, a w braku umowy — w sposób odpowiadający właściwościom Rzeczy i okolicznościom (art. 837 KC),\n   b) niezwłocznego zawiadomienia Składającego o wszelkich okolicznościach zagrażających bezpieczeństwu Rzeczy,\n   c) niekorzystania z Rzeczy bez zgody Składającego (art. 839 KC),\n   d) nieoddawania Rzeczy innej osobie na przechowanie bez zgody Składającego, chyba że jest do tego zmuszony przez okoliczności (art. 840 KC),\n   e) wydania Rzeczy Składającemu na jego żądanie w każdym czasie (art. 844 § 1 KC).\n\n2. Składający ma prawo:\n   a) odebrać Rzecz w każdym czasie, nawet przed upływem umówionego terminu (art. 844 § 1 KC),\n   b) żądać zwrotu Rzeczy w przypadku naruszenia przez Przechowawcę obowiązków wynikających z umowy,\n   c) dokonać wizji Rzeczy w miejscu przechowania w uzgodnionym z Przechowawcą terminie.\n\n## § 7. Odpowiedzialność\n\n1. Przechowawca odpowiada za utratę lub uszkodzenie Rzeczy, chyba że szkoda nastąpiła wskutek okoliczności, którym przy zachowaniu należytej staranności nie mógł zapobiec (art. 837 KC).\n\n2. Przechowawca ponosi odpowiedzialność w granicach szacunkowej wartości Rzeczy określonej w § 1 ust. 1, chyba że udowodni, że szkoda przekracza tę wartość wskutek okoliczności, którym nie mógł zapobiec.\n\n3. Składający zobowiązany jest do ubezpieczenia Rzeczy na okres przechowania na sumę __________ PLN / Przechowawca zobowiązuje się do ubezpieczenia Rzeczy na okres przechowania na sumę __________ PLN *(niepotrzebne skreślić)*.\n\n## § 8. Zwrot rzeczy\n\n1. Zwrot Rzeczy następuje w miejscu przechowania po uprzednim uzgodnieniu terminu.\n\n2. Przy zwrocie Rzeczy sporządza się pisemny protokół zdawczo-odbiorczy, podpisywany przez obie strony, zawierający:\n   a) datę zwrotu,\n   b) stan Rzeczy w chwili zwrotu,\n   c) ewentualne uwagi stron.\n\n3. W przypadku odbioru Rzeczy przez osobę trzecią, Składający zobowiązany jest do uprzedniego pisemnego upoważnienia.\n\n## § 9. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 835-845.\n\n3. W przypadku powstania sporu, strony poddają go rozstrzygnięciu sądu powszechnego właściwego dla miejsca przechowania Rzeczy.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n## § 10. Załączniki\n\n1. Dokumentacja fotograficzna Rzeczy w chwili przyjęcia na przechowanie.\n\n2. Protokół zdawczo-odbiorczy z chwili przyjęcia Rzeczy.\n\n3. Inne: ______________________________________________________________\n\n______________________________________________________________\n(podpis Przechowawcy)\n\n______________________________________________________________\n(podpis Składającego)",
+   "note": "Phase-2 drafted contract (final answer)"
+  }
+ ],
+ "contract": "# UMOWA PRZECHOWANIA\n\nzawarta w dniu __________ w __________, pomiędzy:\n\n**Przechowawcą:**\n______________________________________________________________\n(imę i nazwisko / nazwa firmy)\n______________________________________________________________\n(adres zamieszkania / siedziby)\n______________________________________________________________\n(PESEL / NIP)\nzwanym dalej „Przechowawcą”,\n\na\n\n**Składającym:**\n______________________________________________________________\n(imię i nazwisko / nazwa firmy)\n______________________________________________________________\n(adres zamieszkania / siedziby)\n______________________________________________________________\n(PESEL / NIP)\nzwanym dalej „Składającym”.\n\n## § 1. Przedmiot umowy\n\n1. Składający oddaje, a Przechowawca przyjmuje na przechowanie następujące rzeczy ruchome (dalej „Rzecz”):\n\n| Lp. | Opis rzeczy (marka, model, numer seryjny, cechy indywidualizujące) | Stan techniczny w chwili przyjęcia | Szacunkowa wartość rynkowa (PLN) |\n|-----|---------------------------------------------------------------------|-----------------------------------|----------------------------------|\n| 1.  | _____________________________________________________________ | _________________________________ | _________ (słownie: _________________________) |\n| 2.  | _____________________________________________________________ | _________________________________ | _________ (słownie: _________________________) |\n| 3.  | _____________________________________________________________ | _________________________________ | _________ (słownie: _________________________) |\n\n2. Składający oświadcza, że jest właścicielem Rzeczy lub jest do tego uprawniony, a Rzecz jest wolna od wad prawnych i fizycznych, z wyjątkiem tych wskazanych w ust. 1.\n\n3. Przechowawca oświadcza, że zapoznał się ze stanem Rzeczy i nie wnosi zastrzeżeń do opisu zawartego w ust. 1.\n\n## § 2. Miejsce i warunki przechowania\n\n1. Rzeczy będą przechowywane w: ______________________________________________________________ (dokładny adres miejsca przechowania).\n\n2. Przechowawca zobowiązuje się do przechowywania Rzeczy w warunkach zapewniających jej ochronę przed utratą, uszkodzeniem lub kradzieżą, zgodnie z właściwościami Rzeczy i okolicznościami (art. 837 Kodeksu cywilnego).\n\n3. W przypadku rzeczy wrażliwych na warunki środowiskowe, strony określają wymagane parametry:\n   - Temperatura: __________ °C\n   - Wilgotność: __________ %\n   - Inne warunki: ______________________________________________________________\n\n4. Przechowawca nie może zmienić miejsca przechowania bez uprzedniej zgody Składającego, chyba że jest to konieczne dla ochrony Rzeczy przed utratą lub uszkodzeniem, a uprzednie uzyskanie zgody jest niemożliwe (art. 838 i art. 841 Kodeksu cywilnego). W takim przypadku Przechowawca niezwłocznie zawiadamia Składającego o zmianie.\n\n## § 3. Czas trwania umowy\n\n1. Umowa zostaje zawarta na czas oznaczony i obowiązuje od dnia __________ do dnia __________.\n\n2. Po upływie terminu, o którym mowa w ust. 1, umowa ulega rozwiązaniu, chyba że strony postanowią inaczej zgodnie z § 4.\n\n## § 4. Możliwość przedłużenia terminu przechowania\n\n1. Składający może wystąpić z wnioskiem o przedłużenie terminu przechowania przed upływem terminu określonego w § 3 ust. 1.\n\n2. Wniosek o przedłużenie terminu powinien być złożony w formie pisemnej nie później niż __________ dni przed upływem terminu przechowania.\n\n3. Przechowawca rozpatruje wniosek i niezwłocznie, nie później niż w terminie __________ dni od jego otrzymania, zawiadamia Składającego o:\n   a) przyjęciu wniosku i przedłużeniu terminu przechowania na okres __________, lub\n   b) odmowie przyjęcia wniosku, wskazując przyczyny odmowy.\n\n4. Brak odpowiedzi Przechowawcy w terminie, o którym mowa w ust. 3, uznaje się za odmowę przedłużenia terminu.\n\n5. Przedłużenie terminu przechowania wymaga aneksu do niniejszej umowy w formie pisemnej, pod rygorem nieważności, podpisanego przez obie strony.\n\n6. Strony mogą przedłużyć termin przechowania wielokrotnie, przy czym każde kolejne przedłużenie wymaga odrębnego aneksu.\n\n7. W przypadku zawarcia umowy na czas nieoznaczony w wyniku przedłużenia, każda ze stron może wypowiedzieć umowę z zachowaniem __________ dniowego okresu wypowiedzenia, z zastrzeżeniem postanowień art. 844 Kodeksu cywilnego.\n\n## § 5. Wynagrodzenie\n\n1. Przechowanie jest odpłatne / nieodpłatne *(niepotrzebne skreślić)*.\n\n2. W przypadku przechowania odpłatnego, wynagrodzenie Przechowawcy wynosi: __________ PLN (słownie: _________________________) miesięcznie.\n\n3. Wynagrodzenie płatne jest z góry do __________ dnia każdego miesiąca kalendarzowego na rachunek bankowy Przechowawcy nr: ______________________________________________________________.\n\n4. W przypadku przedłużenia terminu przechowania, wynagrodzenie za okres przedłużenia pozostaje na dotychczasowym poziomie, chyba że strony postanowią inaczej w aneksie.\n\n5. W przypadku zalegania z wynagrodzeniem przez więcej niż __________ dni, Przechowawcy przysługuje prawo retencji do czasu zapłaty (art. 461 § 1 Kodeksu cywilnego).\n\n## § 6. Prawa i obowiązki stron\n\n1. Przechowawca zobowiązuje się do:\n   a) przechowywania Rzeczy w sposób umówiony, a w braku umowy — w sposób odpowiadający właściwościom Rzeczy i okolicznościom (art. 837 KC),\n   b) niezwłocznego zawiadomienia Składającego o wszelkich okolicznościach zagrażających bezpieczeństwu Rzeczy,\n   c) niekorzystania z Rzeczy bez zgody Składającego (art. 839 KC),\n   d) nieoddawania Rzeczy innej osobie na przechowanie bez zgody Składającego, chyba że jest do tego zmuszony przez okoliczności (art. 840 KC),\n   e) wydania Rzeczy Składającemu na jego żądanie w każdym czasie (art. 844 § 1 KC).\n\n2. Składający ma prawo:\n   a) odebrać Rzecz w każdym czasie, nawet przed upływem umówionego terminu (art. 844 § 1 KC),\n   b) żądać zwrotu Rzeczy w przypadku naruszenia przez Przechowawcę obowiązków wynikających z umowy,\n   c) dokonać wizji Rzeczy w miejscu przechowania w uzgodnionym z Przechowawcą terminie.\n\n## § 7. Odpowiedzialność\n\n1. Przechowawca odpowiada za utratę lub uszkodzenie Rzeczy, chyba że szkoda nastąpiła wskutek okoliczności, którym przy zachowaniu należytej staranności nie mógł zapobiec (art. 837 KC).\n\n2. Przechowawca ponosi odpowiedzialność w granicach szacunkowej wartości Rzeczy określonej w § 1 ust. 1, chyba że udowodni, że szkoda przekracza tę wartość wskutek okoliczności, którym nie mógł zapobiec.\n\n3. Składający zobowiązany jest do ubezpieczenia Rzeczy na okres przechowania na sumę __________ PLN / Przechowawca zobowiązuje się do ubezpieczenia Rzeczy na okres przechowania na sumę __________ PLN *(niepotrzebne skreślić)*.\n\n## § 8. Zwrot rzeczy\n\n1. Zwrot Rzeczy następuje w miejscu przechowania po uprzednim uzgodnieniu terminu.\n\n2. Przy zwrocie Rzeczy sporządza się pisemny protokół zdawczo-odbiorczy, podpisywany przez obie strony, zawierający:\n   a) datę zwrotu,\n   b) stan Rzeczy w chwili zwrotu,\n   c) ewentualne uwagi stron.\n\n3. W przypadku odbioru Rzeczy przez osobę trzecią, Składający zobowiązany jest do uprzedniego pisemnego upoważnienia.\n\n## § 9. Postanowienia końcowe\n\n1. Wszelkie zmiany i uzupełnienia niniejszej umowy wymagają formy pisemnej pod rygorem nieważności.\n\n2. W sprawach nieuregulowanych niniejszą umową mają zastosowanie przepisy Kodeksu cywilnego, w szczególności art. 835-845.\n\n3. W przypadku powstania sporu, strony poddają go rozstrzygnięciu sądu powszechnego właściwego dla miejsca przechowania Rzeczy.\n\n4. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.\n\n## § 10. Załączniki\n\n1. Dokumentacja fotograficzna Rzeczy w chwili przyjęcia na przechowanie.\n\n2. Protokół zdawczo-odbiorczy z chwili przyjęcia Rzeczy.\n\n3. Inne: ______________________________________________________________\n\n______________________________________________________________\n(podpis Przechowawcy)\n\n______________________________________________________________\n(podpis Składającego)",
+ "questions": [
+  {
+   "variant": "prosta",
+   "text": "Chcę oddać swoje rzeczy do przechowania na określony czas, ale mogę potrzebować przedłużenia tego terminu. Jak to zrobić i ile to kosztuje?"
+  },
+  {
+   "variant": "szczegolowa",
+   "text": "Planuję przechować w magazynie meble i elektronikę wartością około 30 tysięcy złotych przez pół roku, ale nie jestem pewien, czy odbiorę je na czas. Czy mogę przedłużyć umowę, jeśli zajdzie taka potrzeba, jak długo przed końcem terminu muszę o tym powiedzieć, czy cena za przedłużenie pozostaje taka sama i jakie warunki (temperatura, wilgotność) zapewniacie dla sprzętu elektronicznego?"
+  }
+ ]
+}

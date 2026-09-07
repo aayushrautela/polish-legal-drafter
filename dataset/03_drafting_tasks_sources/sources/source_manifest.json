@@ -1,0 +1,27 @@
+{
+  "created_at": "2026-05-27T09:57:22Z",
+  "sources_total": 14003,
+  "source_type_counts": {
+    "statute_summary": 4,
+    "uokik_summary": 1,
+    "statute": 6907,
+    "abusive_clause": 6618,
+    "judgment": 31,
+    "official_form": 12,
+    "curated_eval_label": 16
+  },
+  "origin_counts": {
+    "curated": 5,
+    "sejm_eli": 6713,
+    "risk_chunks": 203,
+    "uokik_items": 6419,
+    "extractor_v9": 267,
+    "sejm_eli_pdf": 396
+  },
+  "sources_added_2026_08_23": {
+    "min_wage_act_du_2024_1773.jsonl": 18,
+    "min_wage_rates_reg_du_2025_1242.jsonl": 1,
+    "social_insurance_act_du_2025_350.jsonl": 186,
+    "copyright_act_du_2025_24.jsonl": 209
+  }
+}
