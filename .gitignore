@@ -88,3 +88,9 @@ thesis/
 vast_ai_key*
 tectonic
 *.log
+
+# Internal planning docs (kept locally, not part of public tree)
+docs/plan_*
+docs/recipe*
+docs/vast_h100*
+EVAL_RECIPE.md
