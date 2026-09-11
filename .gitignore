@@ -18,6 +18,9 @@ archive/
 *.gguf
 *.onnx
 
+# Model checkpoints are tracked (user decision 2026-09-11): re-include under models/
+!models/**/*.safetensors
+
 # Datasets and test corpora (whitelisted finals re-included below)
 dataset/*
 datasets/
