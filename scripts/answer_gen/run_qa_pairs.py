@@ -37,7 +37,6 @@ sys.path.insert(0, str(HERE / ".." / "question_gen"))
 sys.path.insert(0, str(HERE / ".." / ".." / "src"))
 
 import run_beta_doc as R
-from openai import OpenAI
 
 SYSTEM_QA = (
     "You are a Polish legal drafter. Use the retrieval tools to find "
@@ -184,7 +183,8 @@ def run_qa(q, client, model, endpoint, tool_cap, temperature=0.2, extra_body=Non
     MAX_ITER = tool_cap + 6
     for it in range(MAX_ITER):
         resp = R._stream_turn(client, model, messages, tools=R.TOOL_SCHEMAS,
-                              temperature=temperature, extra_body=extra_body)
+                              temperature=temperature, extra_body=extra_body,
+                              role="teacher")
         if getattr(resp, "usage", None):
             prompt_tokens += resp.usage.prompt_tokens
             completion_tokens += resp.usage.completion_tokens
@@ -282,7 +282,8 @@ def run_qa(q, client, model, endpoint, tool_cap, temperature=0.2, extra_body=Non
         )},
     ]
     dresp = R._stream_turn(client, model, draft_messages,
-                          temperature=temperature, extra_body=extra_body)
+                          temperature=temperature, extra_body=extra_body,
+                          role="teacher")
     if getattr(dresp, "usage", None):
         prompt_tokens += dresp.usage.prompt_tokens
         completion_tokens += dresp.usage.completion_tokens
@@ -397,7 +398,8 @@ def _slug(name):
 
 def main() -> int:
     env = R.load_env(HERE / ".." / ".." / ".env")
-    client = OpenAI(base_url=env["TEACHER_BASE_URL"], api_key=env["TEACHER_API_KEY"])
+    client = R.compat.make_chat_client(
+        "teacher", env["TEACHER_BASE_URL"], env["TEACHER_API_KEY"], env=env)
     base_model = env["TEACHER_MODEL"]
     temperature = float(env.get("TEACHER_TEMPERATURE", "0.2"))
     extra_body = None
@@ -431,12 +433,19 @@ def main() -> int:
         print("[qa] no questions loaded", flush=True)
         return 1
 
-    # warm up retrieval once
+    # Verify the served index is non-empty before running: an empty (0-point)
+    # index would silently produce ungrounded answers — get_template still
+    # returns and `empty` stays false, masking the problem.
     try:
-        R.RemoteRetrieval(endpoint).get_template(questions[0]["doc_type"])
+        rr = R.RemoteRetrieval(endpoint)
+        npts = rr.check_index_ready()
+        print(f"[qa] RAG index ready ({npts} points).", flush=True)
+        # warm up retrieval once
+        rr.get_template(questions[0]["doc_type"])
         print("[qa] endpoint warm.", flush=True)
     except Exception as e:
-        print(f"[qa] warmup warning: {e}", flush=True)
+        print(f"[qa] FATAL: {e}", flush=True)
+        return 2
 
     for model, out_dir in sweeps:
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -479,7 +488,11 @@ def main() -> int:
         empties = sum(1 for p in pairs if p.get("empty"))
         manifest = {"model": model, "endpoint": endpoint, "tool_cap": tool_cap,
                     "workers": qa_workers, "processed": len(pairs), "empty": empties,
-                    "out_dir": str(out_dir)}
+                    "compat": R.compat.compat_mode("teacher", env),
+                    "out_dir": str(out_dir),
+                    "sampling": R.llm_params.sampling_report("teacher", model) or {
+                        "mode": R.llm_params.sampling_mode("teacher"),
+                        "requested": {}, "sent": {}}}
         (out_dir / "manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"[qa] DONE model={model} processed={len(pairs)} empty={empties} "

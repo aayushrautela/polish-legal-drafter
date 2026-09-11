@@ -24,7 +24,8 @@ from pathlib import Path
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE / ".." / ".." / "src"))
 
-from openai import OpenAI                                    # noqa: E402
+from legal_drafter import llm_params                         # noqa: E402
+from legal_drafter import compat                              # noqa: E402
 from legal_drafter.retrieval.agentic_tools import (          # noqa: E402
     TOOL_SCHEMAS, execute_tool, set_remote,
 )
@@ -256,8 +257,13 @@ class NotApplicable:
         return hint in self.seen
 
 
-def _stream_turn(client, model, messages, tools=None, temperature=0.2, extra_body=None):
-    """One streaming turn. Returns SimpleNamespace with .content, .reasoning, .tool_calls."""
+def _stream_turn(client, model, messages, tools=None, temperature=0.2, extra_body=None,
+                 role="checker"):
+    """One streaming turn. Returns SimpleNamespace with .content, .reasoning, .tool_calls.
+
+    ``role`` selects the sampling-mode knob (``CHECKER_SAMPLING`` / ``LLM_SAMPLING``
+    etc.); run_beta_doc calls the model configured under ``CHECKER_*``.
+    """
     # Cap completion length; vLLM's --max-model-len is 80000 so we allow the
     # full ~65k contract budget requested for eval.
     _mt = min(int(os.environ.get("QA_MAX_TOKENS", "65536")), 70000)
@@ -273,7 +279,7 @@ def _stream_turn(client, model, messages, tools=None, temperature=0.2, extra_bod
     import time as _tt
     _t0 = _tt.time()
     usage = None
-    for chunk in client.chat.completions.create(**kwargs):
+    for chunk in llm_params.chat_create(client, role=role, **kwargs):
         if getattr(chunk, "usage", None) is not None:
             usage = chunk.usage
         if not chunk.choices:
@@ -566,23 +572,29 @@ def main() -> int:
         print("[beta] WARNING: no scenarios provided (SCENARIOS or hints.txt); "
               "runs will have no scenario direction", flush=True)
 
-    from openai import OpenAI
-    client = OpenAI(base_url=env["TEACHER_BASE_URL"],
-                    api_key=env["CHECKER_API_KEY"] or env["TEACHER_API_KEY"])
+    client = compat.make_chat_client(
+        "checker", env["TEACHER_BASE_URL"],
+        env["CHECKER_API_KEY"] or env["TEACHER_API_KEY"], env=env)
     model = env["CHECKER_MODEL"]
     endpoint = os.environ.get(
         "RETRIEVAL_ENDPOINT",
         "http://127.0.0.1:10100")
     print(f"[beta] doc_type={doc_type} model={model} out_dir={out_dir}", flush=True)
 
-    # Warm up the retrieval endpoint so the first tool call isn't a cold start
+    # Verify the served index is non-empty before doing any work: a missing or
+    # empty (0-point) index would silently degrade the whole run to zero
+    # retrieval grounding (get_template still returns, masking the problem).
     try:
         warm = RemoteRetrieval(endpoint)
+        npts = warm.check_index_ready()
+        print(f"[beta] RAG index ready ({npts} points).", flush=True)
+        # Warm up the retrieval endpoint so the first tool call isn't a cold start
         print("[beta] warming up retrieval endpoint...", flush=True)
         warm.get_template(doc_type)
         print("[beta] endpoint warm.", flush=True)
     except Exception as e:
-        print(f"[beta] warmup warning: {e}", flush=True)
+        print(f"[beta] FATAL: {e}", flush=True)
+        return 2
 
     n_runs = int(os.environ.get("BETA_RUNS", "3"))
     n_workers = int(os.environ.get("BETA_WORKERS", "1"))

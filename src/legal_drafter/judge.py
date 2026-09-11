@@ -49,6 +49,8 @@ import threading
 import time
 from dataclasses import dataclass, field
 
+from legal_drafter import llm_params
+
 # Best-effort .env loading, mirroring config.py.
 try:  # pragma: no cover - optional dependency
     from dotenv import load_dotenv
@@ -268,13 +270,14 @@ class JudgeClientSpec:
         }
 
     def make_clients(self) -> dict[str, object]:
-        """One shared OpenAI-compatible client (the SDK client is
-        thread-safe, so workers share it)."""
-        from openai import OpenAI
+        """One shared chat client (the SDK client is thread-safe, so workers
+        share it). Routes through the compat factory so JUDGE_COMPAT=anthropic
+        reaches the native API through src/legal_drafter/compat.py."""
+        from legal_drafter.compat import make_chat_client
 
-        client = OpenAI(api_key=self.api_key or "EMPTY",
-                        base_url=self.base_url, timeout=self.timeout,
-                        max_retries=0)
+        client = make_chat_client(
+            "judge", self.base_url, self.api_key or "EMPTY",
+            timeout=self.timeout, max_retries=0)
         # NOTE: SDK-level retries are disabled (max_retries=0) on purpose:
         # this pipeline owns the retry policy (2 retries, exponential
         # backoff) so every attempt is counted, logged, and resumable.
@@ -305,7 +308,7 @@ def stream_complete(client, model: str, messages: list[dict],
                           timeout=spec.timeout, stream=True)
             if spec.seed is not None:
                 kwargs["seed"] = spec.seed
-            resp = client.chat.completions.create(**kwargs)
+            resp = llm_params.chat_create(client, role="judge", **kwargs)
             for chunk in resp:
                 if not chunk.choices:
                     continue
